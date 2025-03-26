@@ -1,98 +1,46 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
-import Constants from 'expo-constants';
+// src/config/firebase.js - Simplified for debugging purposes
+import { Platform } from 'react-native';
 
-// Firebase configuration using secrets directly
-const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY,
-  authDomain: `${process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID,
-  storageBucket: `${process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID}.appspot.com`,
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || process.env.FIREBASE_APP_ID
+// Export dummy Firebase services for troubleshooting
+console.log('Firebase config loaded in debug mode');
+console.log('Environment platform:', Platform.OS);
+
+// Check what environment variables are available
+const envVars = {
+  EXPO_PUBLIC_FIREBASE_API_KEY: process.env.EXPO_PUBLIC_FIREBASE_API_KEY ? 'present' : 'missing',
+  EXPO_PUBLIC_FIREBASE_PROJECT_ID: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID ? 'present' : 'missing',
+  EXPO_PUBLIC_FIREBASE_APP_ID: process.env.EXPO_PUBLIC_FIREBASE_APP_ID ? 'present' : 'missing',
+  FIREBASE_API_KEY: process.env.FIREBASE_API_KEY ? 'present' : 'missing',
+  FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? 'present' : 'missing',
+  FIREBASE_APP_ID: process.env.FIREBASE_APP_ID ? 'present' : 'missing'
 };
 
-// Log configuration for debugging (without showing actual values)
-console.log('Firebase config keys available:', {
-  apiKey: !!firebaseConfig.apiKey,
-  authDomain: !!firebaseConfig.authDomain,
-  projectId: !!firebaseConfig.projectId,
-  appId: !!firebaseConfig.appId
-});
+console.log('Environment variables availability:', envVars);
 
-// More detailed validation, logging empty strings but not revealing actual values
-if (!firebaseConfig.apiKey) console.error('Firebase API key is missing!');
-if (!firebaseConfig.projectId) console.error('Firebase Project ID is missing!');
-if (!firebaseConfig.appId) console.error('Firebase App ID is missing!');
+// Mock Firebase exports to avoid breaking imports elsewhere
+export const app = { name: 'firebase-app-mock' };
+export const auth = { 
+  currentUser: null,
+  onAuthStateChanged: (callback) => callback(null)
+};
+export const db = { collection: () => ({ doc: () => ({}) }) };
 
-console.log('Initializing Firebase app...');
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// Enable offline persistence
-enableIndexedDbPersistence(db)
-  .catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.log('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-    } else if (err.code === 'unimplemented') {
-      console.log('The current browser does not support all of the features required to enable persistence');
-    }
-  });
-
-// Authentication functions
-const googleProvider = new GoogleAuthProvider();
-
-const signInWithGoogle = async () => {
-  try {
-    await signInWithRedirect(auth, googleProvider);
-    const result = await getRedirectResult(auth);
-    if (result) {
-      return result.user;
-    }
-  } catch (error) {
-    console.error("Error signing in with Google: ", error);
-    throw error;
-  }
+// Mock Firebase authentication functions
+export const signInWithGoogle = async () => {
+  console.log('Mock signInWithGoogle called');
+  return null;
 };
 
-const registerWithEmail = async (email, password) => {
-  try {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-    return result.user;
-  } catch (error) {
-    console.error("Error registering with email: ", error);
-    throw error;
-  }
+export const registerWithEmail = async (email, password) => {
+  console.log('Mock registerWithEmail called with:', email);
+  return null;
 };
 
-const loginWithEmail = async (email, password) => {
-  try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    return result.user;
-  } catch (error) {
-    console.error("Error logging in with email: ", error);
-    throw error;
-  }
+export const loginWithEmail = async (email, password) => {
+  console.log('Mock loginWithEmail called with:', email);
+  return null;
 };
 
-const logoutUser = async () => {
-  try {
-    await signOut(auth);
-  } catch (error) {
-    console.error("Error signing out: ", error);
-    throw error;
-  }
-};
-
-export {
-  app,
-  auth,
-  db,
-  signInWithGoogle,
-  registerWithEmail,
-  loginWithEmail,
-  logoutUser
+export const logoutUser = async () => {
+  console.log('Mock logoutUser called');
 };
