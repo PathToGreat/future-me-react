@@ -22,6 +22,7 @@ import {
   Snackbar
 } from 'react-native-paper';
 import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
 import { 
   registerWithEmail, 
   loginWithEmail, 

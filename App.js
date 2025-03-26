@@ -9,6 +9,7 @@ import { AuthProvider } from './src/context/AuthContext';
 import { enableScreens } from 'react-native-screens';
 import * as SplashScreen from 'expo-splash-screen';
 import Constants from 'expo-constants';
+import { View, Text, ActivityIndicator } from 'react-native';
 
 // Enable screens for better navigation performance
 enableScreens();
@@ -40,7 +41,12 @@ export default function App() {
   }, []);
 
   if (!appIsReady) {
-    return null;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#6200EE' }}>
+        <Text style={{ color: 'white', fontSize: 32, fontWeight: 'bold', marginBottom: 20 }}>Future Me</Text>
+        <ActivityIndicator size="large" color="white" />
+      </View>
+    );
   }
 
   return (

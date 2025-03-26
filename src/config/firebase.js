@@ -1,17 +1,24 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import Constants from 'expo-constants';
-import { FIREBASE_API_KEY, FIREBASE_PROJECT_ID, FIREBASE_APP_ID } from '@env';
 
-// Firebase configuration using environment variables
+// Firebase configuration using secrets directly
 const firebaseConfig = {
-  apiKey: FIREBASE_API_KEY,
-  authDomain: `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: FIREBASE_PROJECT_ID,
-  storageBucket: `${FIREBASE_PROJECT_ID}.appspot.com`,
-  appId: FIREBASE_APP_ID
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY,
+  authDomain: `${process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID,
+  storageBucket: `${process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID}.appspot.com`,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || process.env.FIREBASE_APP_ID
 };
+
+// Log configuration for debugging (without showing actual values)
+console.log('Firebase config keys available:', {
+  apiKey: !!firebaseConfig.apiKey,
+  authDomain: !!firebaseConfig.authDomain,
+  projectId: !!firebaseConfig.projectId,
+  appId: !!firebaseConfig.appId
+});
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -33,8 +40,11 @@ const googleProvider = new GoogleAuthProvider();
 
 const signInWithGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result.user;
+    await signInWithRedirect(auth, googleProvider);
+    const result = await getRedirectResult(auth);
+    if (result) {
+      return result.user;
+    }
   } catch (error) {
     console.error("Error signing in with Google: ", error);
     throw error;
