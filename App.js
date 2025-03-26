@@ -6,8 +6,6 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { theme } from './src/config/theme';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/context/AuthContext';
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { enableScreens } from 'react-native-screens';
 import * as SplashScreen from 'expo-splash-screen';
 import Constants from 'expo-constants';
@@ -24,17 +22,9 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-        // Initialize Firebase with environment variables
-        const firebaseConfig = {
-          apiKey: process.env.FIREBASE_API_KEY,
-          authDomain: `${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com`,
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          storageBucket: `${process.env.FIREBASE_PROJECT_ID}.appspot.com`,
-          appId: process.env.FIREBASE_APP_ID
-        };
-
-        initializeApp(firebaseConfig);
-
+        // Firebase is now initialized in src/config/firebase.js
+        console.log('App initializing...');
+        
         // Add artificial delay for enhanced loading experience
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (e) {
