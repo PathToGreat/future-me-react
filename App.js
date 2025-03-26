@@ -11,6 +11,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import Constants from 'expo-constants';
 import { View, Text, ActivityIndicator } from 'react-native';
 
+// Import Firebase configuration to ensure it's initialized
+import './src/config/firebase';
+
 // Enable screens for better navigation performance
 enableScreens();
 
@@ -25,15 +28,23 @@ export default function App() {
       try {
         // Firebase is now initialized in src/config/firebase.js
         console.log('App initializing...');
+        console.log('Theme loaded:', !!theme);
+        console.log('Ready to hide splash screen');
         
         // Add artificial delay for enhanced loading experience
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (e) {
-        console.warn(e);
+        console.error('Error during initialization:', e);
       } finally {
+        console.log('Setting app as ready');
         // Tell the application to render
         setAppIsReady(true);
-        await SplashScreen.hideAsync();
+        try {
+          await SplashScreen.hideAsync();
+          console.log('Splash screen hidden');
+        } catch (e) {
+          console.error('Error hiding splash screen:', e);
+        }
       }
     }
 

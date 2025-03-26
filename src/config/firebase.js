@@ -20,6 +20,13 @@ console.log('Firebase config keys available:', {
   appId: !!firebaseConfig.appId
 });
 
+// More detailed validation, logging empty strings but not revealing actual values
+if (!firebaseConfig.apiKey) console.error('Firebase API key is missing!');
+if (!firebaseConfig.projectId) console.error('Firebase Project ID is missing!');
+if (!firebaseConfig.appId) console.error('Firebase App ID is missing!');
+
+console.log('Initializing Firebase app...');
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

@@ -117,12 +117,15 @@ const AuthScreen = () => {
 
   const handleGoogleSignIn = async () => {
     try {
+      console.log('Starting Google Sign In process...');
       setLoading(true);
       setError('');
       await signInWithGoogle();
+      console.log('Google Sign In redirect initialized');
+      // The rest is handled by the redirect and AuthContext
     } catch (err) {
-      setError('Google sign in failed. Please try again.');
       console.error('Google sign in error:', err);
+      setError(`Google sign in failed: ${err.message}`);
     } finally {
       setLoading(false);
     }

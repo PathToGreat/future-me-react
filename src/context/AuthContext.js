@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut
 } from 'firebase/auth';
@@ -21,8 +22,28 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check for redirect result when component mounts
   useEffect(() => {
+    const checkRedirectResult = async () => {
+      try {
+        console.log('Checking for redirect result...');
+        const result = await getRedirectResult(auth);
+        if (result) {
+          console.log('Redirect result found:', !!result);
+          // We don't need to do anything here as onAuthStateChanged will handle the user
+        }
+      } catch (error) {
+        console.error('Error getting redirect result:', error);
+      }
+    };
+    
+    checkRedirectResult();
+  }, []);
+
+  useEffect(() => {
+    console.log('Setting up auth state listener...');
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      console.log('Auth state changed, user:', !!currentUser);
       setUser(currentUser);
       
       if (currentUser) {
