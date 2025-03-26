@@ -1,15 +1,14 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { auth, db } from '../config/firebase';
+import { getDoc, doc } from 'firebase/firestore';
 import { 
-  onAuthStateChanged, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword,
-  signInWithRedirect,
-  getRedirectResult,
-  GoogleAuthProvider,
-  signOut
-} from 'firebase/auth';
-import { getDoc, doc, setDoc } from 'firebase/firestore';
+  auth, 
+  db, 
+  onAuthStateChanged,
+  signInWithGoogle as firebaseSignInWithGoogle,
+  loginWithEmail as firebaseLoginWithEmail,
+  registerWithEmail as firebaseRegisterWithEmail,
+  logoutUser as firebaseLogout
+} from '../config/firebase';
 
 const AuthContext = createContext();
 
@@ -22,22 +21,9 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check for redirect result when component mounts
+  // We don't need to check for redirect results in our current implementation
   useEffect(() => {
-    const checkRedirectResult = async () => {
-      try {
-        console.log('Checking for redirect result...');
-        const result = await getRedirectResult(auth);
-        if (result) {
-          console.log('Redirect result found:', !!result);
-          // We don't need to do anything here as onAuthStateChanged will handle the user
-        }
-      } catch (error) {
-        console.error('Error getting redirect result:', error);
-      }
-    };
-    
-    checkRedirectResult();
+    console.log('Auth provider mounted');
   }, []);
 
   useEffect(() => {
@@ -47,34 +33,24 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       
       if (currentUser) {
-        // Get or create user profile in Firestore
-        try {
-          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-          
-          if (userDoc.exists()) {
-            setUserProfile(userDoc.data());
-          } else {
-            // Create new user profile if it doesn't exist
-            const newUserProfile = {
-              uid: currentUser.uid,
-              email: currentUser.email,
-              displayName: currentUser.displayName || '',
-              photoURL: currentUser.photoURL || '',
-              createdAt: new Date().toISOString(),
-              settings: {
-                theme: 'light',
-                notifications: true,
-              }
-            };
-            
-            await setDoc(doc(db, 'users', currentUser.uid), newUserProfile);
-            setUserProfile(newUserProfile);
+        // For now, just use the user object as the profile
+        // Will implement Firestore user profiles when database is working
+        const simpleProfile = {
+          uid: currentUser.uid,
+          email: currentUser.email,
+          displayName: currentUser.displayName || '',
+          photoURL: currentUser.photoURL || '',
+          createdAt: new Date().toISOString(),
+          settings: {
+            theme: 'light',
+            notifications: true,
           }
-        } catch (error) {
-          console.error('Error fetching or creating user profile:', error);
-        }
+        };
+        setUserProfile(simpleProfile);
+        console.log('User profile set:', simpleProfile);
       } else {
         setUserProfile(null);
+        console.log('User profile cleared');
       }
       
       setLoading(false);
@@ -84,14 +60,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const updateUserProfile = async (data) => {
-    if (!user) return;
+    if (!user) return null;
     
     try {
-      const userRef = doc(db, 'users', user.uid);
+      // For now, just update the local state
+      // Will implement Firestore updates when database is working
       const updatedProfile = { ...userProfile, ...data, updatedAt: new Date().toISOString() };
-      
-      await setDoc(userRef, updatedProfile, { merge: true });
       setUserProfile(updatedProfile);
+      console.log('Profile updated locally:', updatedProfile);
       
       return updatedProfile;
     } catch (error) {
@@ -103,8 +79,10 @@ export const AuthProvider = ({ children }) => {
   // Authentication methods
   const loginWithEmail = async (email, password) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      return userCredential.user;
+      console.log('Attempting to log in with email:', email);
+      const result = await firebaseLoginWithEmail(email, password);
+      console.log('Email login successful');
+      return result.user;
     } catch (error) {
       console.error('Error logging in with email:', error);
       throw error;
@@ -113,8 +91,10 @@ export const AuthProvider = ({ children }) => {
 
   const registerWithEmail = async (email, password) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      return userCredential.user;
+      console.log('Attempting to register with email:', email);
+      const result = await firebaseRegisterWithEmail(email, password);
+      console.log('Email registration successful');
+      return result.user;
     } catch (error) {
       console.error('Error registering with email:', error);
       throw error;
@@ -123,9 +103,9 @@ export const AuthProvider = ({ children }) => {
 
   const signInWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
-      // The result will be handled by the onAuthStateChanged listener
+      console.log('Attempting Google sign-in');
+      await firebaseSignInWithGoogle();
+      console.log('Google sign-in initiated');
     } catch (error) {
       console.error('Error signing in with Google:', error);
       throw error;
@@ -134,7 +114,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await signOut(auth);
+      console.log('Attempting to log out');
+      await firebaseLogout();
+      console.log('Logout successful');
     } catch (error) {
       console.error('Error signing out:', error);
       throw error;

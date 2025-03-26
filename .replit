@@ -21,7 +21,11 @@ args = "React Test Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Expo Web Debug"
+args = "Simple Test Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Expo Web"
 
 [[workflows.workflow]]
 name = "Basic Test Server"
@@ -54,7 +58,7 @@ args = "cd react-test && python -m http.server 5001"
 waitForPort = 5001
 
 [[workflows.workflow]]
-name = "Expo Web Debug"
+name = "Simple Test Server"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -65,8 +69,23 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "EXPO_DEBUG=true npx expo start --web --port 5002"
+args = "cd simple-test && python -m http.server 5002"
 waitForPort = 5002
+
+[[workflows.workflow]]
+name = "Expo Web"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx expo start --web --port=5003"
+waitForPort = 5003
 
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port 5000"]
