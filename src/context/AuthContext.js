@@ -1,8 +1,14 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { auth } from '../config/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../config/firebase';
+import { 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signInWithRedirect,
+  GoogleAuthProvider,
+  signOut
+} from 'firebase/auth';
 import { getDoc, doc, setDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
 
 const AuthContext = createContext();
 
@@ -73,11 +79,56 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Authentication methods
+  const loginWithEmail = async (email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return userCredential.user;
+    } catch (error) {
+      console.error('Error logging in with email:', error);
+      throw error;
+    }
+  };
+
+  const registerWithEmail = async (email, password) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      return userCredential.user;
+    } catch (error) {
+      console.error('Error registering with email:', error);
+      throw error;
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithRedirect(auth, provider);
+      // The result will be handled by the onAuthStateChanged listener
+    } catch (error) {
+      console.error('Error signing in with Google:', error);
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     userProfile,
     loading,
-    updateUserProfile
+    updateUserProfile,
+    loginWithEmail,
+    registerWithEmail,
+    signInWithGoogle,
+    logout
   };
 
   return (

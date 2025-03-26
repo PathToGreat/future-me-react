@@ -23,11 +23,6 @@ import {
 } from 'react-native-paper';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
-import { 
-  registerWithEmail, 
-  loginWithEmail, 
-  signInWithGoogle 
-} from '../config/firebase';
 
 const { width } = Dimensions.get('window');
 
@@ -76,6 +71,9 @@ const AuthScreen = () => {
     setError('');
   };
 
+  // Get auth methods from context
+  const { loginWithEmail, registerWithEmail, signInWithGoogle } = useAuth();
+
   const handleAuthAction = async () => {
     try {
       setLoading(true);
@@ -111,6 +109,7 @@ const AuthScreen = () => {
       }
       
       setError(errorMessage);
+      console.error('Auth error:', err);
     } finally {
       setLoading(false);
     }

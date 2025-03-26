@@ -42,7 +42,7 @@ export default function App() {
 
   if (!appIsReady) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#6200EE' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.primary }}>
         <Text style={{ color: 'white', fontSize: 32, fontWeight: 'bold', marginBottom: 20 }}>Future Me</Text>
         <ActivityIndicator size="large" color="white" />
       </View>

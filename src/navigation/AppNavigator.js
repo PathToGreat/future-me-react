@@ -2,7 +2,8 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useTheme } from 'react-native-paper';
+import { useTheme, ActivityIndicator, Text } from 'react-native-paper';
+import { View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 // Screen imports
@@ -91,9 +92,16 @@ const HabitsNavigator = () => {
 // Main navigation container
 const AppNavigator = () => {
   const { user, loading } = useAuth();
+  const theme = useTheme();
   
   if (loading) {
-    return null; // or a loading indicator
+    // Return a loading indicator
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={{ marginTop: 10, color: theme.colors.text }}>Loading...</Text>
+      </View>
+    );
   }
 
   return (
