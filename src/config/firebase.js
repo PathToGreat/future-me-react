@@ -2,14 +2,15 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import Constants from 'expo-constants';
+import { FIREBASE_API_KEY, FIREBASE_PROJECT_ID, FIREBASE_APP_ID } from '@env';
 
-// Firebase configuration using environment variables via secrets
+// Firebase configuration using environment variables
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY || Constants.expoConfig.extra?.FIREBASE_API_KEY,
-  authDomain: `${process.env.FIREBASE_PROJECT_ID || Constants.expoConfig.extra?.FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: process.env.FIREBASE_PROJECT_ID || Constants.expoConfig.extra?.FIREBASE_PROJECT_ID,
-  storageBucket: `${process.env.FIREBASE_PROJECT_ID || Constants.expoConfig.extra?.FIREBASE_PROJECT_ID}.appspot.com`,
-  appId: process.env.FIREBASE_APP_ID || Constants.expoConfig.extra?.FIREBASE_APP_ID
+  apiKey: FIREBASE_API_KEY,
+  authDomain: `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: `${FIREBASE_PROJECT_ID}.appspot.com`,
+  appId: FIREBASE_APP_ID
 };
 
 // Initialize Firebase
