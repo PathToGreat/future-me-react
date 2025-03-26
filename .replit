@@ -15,6 +15,10 @@ author = "agent"
 task = "workflow.run"
 args = "Basic Test Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "React Test Server"
+
 [[workflows.workflow]]
 name = "Basic Test Server"
 author = "agent"
@@ -30,9 +34,28 @@ task = "shell.exec"
 args = "cd test-app && python -m http.server 5000"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "React Test Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd react-test && python -m http.server 5001"
+waitForPort = 5001
+
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port 5000"]
 
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 5001
+externalPort = 3000
