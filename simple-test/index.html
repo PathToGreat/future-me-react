@@ -16,6 +16,14 @@
       --secondary: #00d4ad;
       --secondary-dark: #00a187;
       
+      /* Spacing variables for consistent layout */
+      --spacing-xs: 0.5rem;
+      --spacing-sm: 0.75rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --spacing-xl: 2rem;
+      --spacing-xxl: 3rem;
+      
       /* Status colors */
       --error: #e53e3e;
       --error-light: #fee2e2;
@@ -445,12 +453,12 @@
       background-image: linear-gradient(135deg, var(--primary), rgba(74, 0, 224, 0.85));
       color: white;
       border: none;
-      padding: 0.85rem 1.75rem;
+      padding: var(--spacing-sm) var(--spacing-lg);
       border-radius: var(--border-radius);
       cursor: pointer;
       font-size: 0.95rem;
       font-weight: 600;
-      transition: var(--transition);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 4px 14px rgba(74, 0, 224, 0.3);
       display: inline-flex;
       align-items: center;
@@ -459,6 +467,20 @@
       position: relative;
       overflow: hidden;
       text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 70%);
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
     
     .button::after {
@@ -468,7 +490,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+      background-image: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
       opacity: 0;
       transition: opacity 0.3s ease;
     }
@@ -476,7 +498,12 @@
     .button:hover {
       background-image: linear-gradient(135deg, var(--primary), rgba(74, 0, 224, 0.9));
       box-shadow: 0 6px 20px rgba(74, 0, 224, 0.4);
-      transform: translateY(-2px);
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    .button:hover::before {
+      opacity: 1;
+      transform: scale(1.5);
     }
     
     .button:hover::after {
@@ -484,7 +511,7 @@
     }
     
     .button:active {
-      transform: translateY(0);
+      transform: translateY(0) scale(0.98);
       box-shadow: 0 3px 10px rgba(74, 0, 224, 0.3);
     }
     
@@ -583,48 +610,62 @@
     
     .form-input {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.9rem 1.1rem;
       border: 1px solid var(--border);
       border-radius: var(--border-radius-sm);
-      font-size: 1rem;
-      transition: var(--transition);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
       box-shadow: var(--shadow-sm);
       color: var(--text-primary);
       background-color: var(--surface);
-      font-family: inherit;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.01em;
     }
     
     .form-input:focus {
       border-color: var(--primary);
       outline: none;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.15);
+      transform: translateY(-1px);
+    }
+    
+    .form-input:hover {
+      border-color: rgba(74, 0, 224, 0.3);
     }
     
     .form-input::placeholder {
       color: var(--text-hint);
+      font-weight: 400;
+      opacity: 0.7;
     }
     
     .form-select {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.9rem 1.1rem;
       border: 1px solid var(--border);
       border-radius: var(--border-radius-sm);
-      font-size: 1rem;
+      font-size: 0.95rem;
       appearance: none;
-      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%234b5563' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%234a5568' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 0.7rem top 50%;
+      background-position: right 1rem top 50%;
       box-shadow: var(--shadow-sm);
-      transition: var(--transition);
+      transition: all 0.2s ease;
       color: var(--text-primary);
       background-color: var(--surface);
-      font-family: inherit;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.01em;
     }
     
     .form-select:focus {
       border-color: var(--primary);
       outline: none;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.15);
+      transform: translateY(-1px);
+    }
+    
+    .form-select:hover {
+      border-color: rgba(74, 0, 224, 0.3);
     }
     
     .form-actions {
