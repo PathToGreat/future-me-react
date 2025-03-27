@@ -2961,37 +2961,61 @@
       // Scale values based on timeframe
       const scaleFactor = timeframe / 90;
       
-      // Health impact
-      const caloriesBurned = Math.round(9000 * scaleFactor);
-      const weightLoss = (2 + (scaleFactor - 1)) + "-" + (3 + (scaleFactor - 1));
+      // Health & Wellness impact
+      const waterConsumed = Math.round(480 * scaleFactor); // 64oz * days with adjustment
+      const qualitySleepHours = Math.round(630 * scaleFactor); // 7hrs * days with adjustment
       
-      // Productivity impact
-      const pagesRead = Math.round(1800 * scaleFactor);
-      const booksRead = Math.round(9 * scaleFactor);
+      // Physical Fitness impact
+      const stepsWalked = Math.round(750000 * scaleFactor); // ~8,333 steps/day average
+      const workoutMinutes = Math.round(1350 * scaleFactor); // 45min * 3days/week * weeks
       
-      // Mindfulness impact
-      const stressReduction = Math.round(25 * scaleFactor);
-      const sleepImprovement = Math.round(18 * scaleFactor);
+      // Mental & Emotional Wellness impact
+      const gratitudeEntries = Math.round(270 * scaleFactor); // 3 entries * days
+      const stressReduction = Math.round(28 * scaleFactor); // percentage
+      
+      // Social Connection impact
+      const meaningfulInteractions = Math.round(45 * scaleFactor); // ~3-4 per week with adjustment
+      
+      // Spiritual Growth impact
+      const reflectionHours = Math.round(45 * scaleFactor); // 30min * days
       
       // Financial impact
-      const potentialSavings = Math.round((300 + (200 * (scaleFactor - 1))) * 10) / 10;
+      const potentialSavings = Math.round((350 + (250 * (scaleFactor - 1))) * 10) / 10;
       
       const metrics = [
         {
-          title: 'Calories Burned',
-          value: `${caloriesBurned.toLocaleString()}`,
-          numericValue: caloriesBurned,
+          title: 'Water Consumed',
+          value: `${waterConsumed.toLocaleString()} oz`,
+          numericValue: waterConsumed,
           category: 'health',
-          icon: '🔥',
+          icon: '💧',
           prefix: '',
-          suffix: ''
+          suffix: ' oz'
         },
         {
-          title: 'Pages Read',
-          value: `${pagesRead.toLocaleString()}`,
-          numericValue: pagesRead,
-          category: 'productivity',
-          icon: '📚',
+          title: 'Steps Walked',
+          value: `${(stepsWalked/1000).toFixed(1)}K`,
+          numericValue: stepsWalked,
+          category: 'health',
+          icon: '👟',
+          prefix: '',
+          suffix: 'K'
+        },
+        {
+          title: 'Quality Sleep',
+          value: `${qualitySleepHours.toLocaleString()} hrs`,
+          numericValue: qualitySleepHours,
+          category: 'health',
+          icon: '😴',
+          prefix: '',
+          suffix: ' hrs'
+        },
+        {
+          title: 'Gratitude Entries',
+          value: `${gratitudeEntries}`,
+          numericValue: gratitudeEntries,
+          category: 'mindfulness',
+          icon: '🙏',
           prefix: '',
           suffix: ''
         },
@@ -3091,37 +3115,58 @@
       
       const progressMetrics = [
         {
-          label: 'Cardiovascular Health',
+          label: 'Nutrition Quality',
           start: 0,
-          end: Math.min(Math.round(15 * scaleFactor), 50), // Cap at 50%
+          end: Math.min(Math.round(18 * scaleFactor), 55), // Cap at 55%
           color: 'var(--health)',
           category: 'health'
         },
         {
-          label: 'Knowledge Retention',
-          start: 0,
-          end: Math.min(Math.round(12 * scaleFactor), 40), // Cap at 40%
-          color: 'var(--productivity)',
-          category: 'productivity'
-        },
-        {
           label: 'Sleep Quality',
           start: 0,
-          end: Math.min(Math.round(18 * scaleFactor), 45), // Cap at 45%
+          end: Math.min(Math.round(22 * scaleFactor), 65), // Cap at 65%
+          color: 'var(--health)',
+          category: 'health'
+        },
+        {
+          label: 'Physical Fitness',
+          start: 0,
+          end: Math.min(Math.round(16 * scaleFactor), 50), // Cap at 50%
+          color: 'var(--health)',
+          category: 'health'
+        },
+        {
+          label: 'Mental Clarity',
+          start: 0,
+          end: Math.min(Math.round(20 * scaleFactor), 60), // Cap at 60%
           color: 'var(--mindfulness)',
           category: 'mindfulness'
         },
         {
-          label: 'Family Connection',
+          label: 'Emotional Balance',
+          start: 0,
+          end: Math.min(Math.round(15 * scaleFactor), 45), // Cap at 45%
+          color: 'var(--mindfulness)',
+          category: 'mindfulness'
+        },
+        {
+          label: 'Meaningful Connections',
           start: 0,
           end: Math.min(Math.round(22 * scaleFactor), 60), // Cap at 60%
           color: 'var(--relationships)',
           category: 'relationships'
         },
         {
-          label: 'Financial Awareness',
+          label: 'Spiritual Growth',
           start: 0,
-          end: Math.min(Math.round(20 * scaleFactor), 55), // Cap at 55%
+          end: Math.min(Math.round(17 * scaleFactor), 50), // Cap at 50%
+          color: 'var(--mindfulness)',
+          category: 'mindfulness'
+        },
+        {
+          label: 'Financial Wellness',
+          start: 0,
+          end: Math.min(Math.round(19 * scaleFactor), 55), // Cap at 55%
           color: 'var(--finance)',
           category: 'finance'
         }
