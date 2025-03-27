@@ -708,6 +708,31 @@
       color: var(--success);
     }
     
+    .notification-encouraging {
+      background-color: var(--health);
+      color: white;
+      padding: 16px 20px;
+      margin: 10px;
+      border-radius: 12px;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      max-width: 380px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    
+    .encouraging-icon {
+      font-size: 24px;
+      margin-right: 12px;
+      display: inline-block;
+    }
+    
     .hidden {
       display: none;
     }
@@ -1890,6 +1915,65 @@
   <script src="firebase-config.js"></script>
 
   <script>
+    // Function to show encouraging message when a habit is completed
+    function showEncouragingMessage(habitName) {
+      const messages = {
+        'Morning Sunlight': 'By getting morning sunlight, you regulate your circadian rhythm, hormones, and increase your vitamin D levels!',
+        'Daily Hydration': 'Drinking enough water improves energy levels, brain function, and helps maintain healthy skin!',
+        'Quality Sleep': 'Good sleep enhances memory consolidation, immune function, and reduces stress hormone levels!',
+        'Daily Movement': 'Regular physical activity strengthens your heart, builds muscle, and releases mood-boosting endorphins!',
+        'Strength Training': 'Resistance training increases bone density, boosts metabolism, and improves your body composition!',
+        'Morning Gratitude': 'Practicing gratitude reduces stress hormones, increases happiness, and improves overall mental health!',
+        'Deep Breathing': 'Deep breathing exercises activate your parasympathetic nervous system, reducing anxiety and blood pressure!',
+        'Connect With Loved Ones': 'Social connections boost oxytocin levels, reduce inflammation, and are linked to longer lifespan!',
+        'Family Dinner': 'Regular family meals improve communication, strengthen relationships, and promote healthier eating habits!',
+        'Scripture Reading': 'Spiritual practices provide a sense of meaning, reduce anxiety, and are associated with greater well-being!',
+        'Budgeting': 'Regular financial management reduces stress, improves decision making, and builds long-term security!',
+        'Deep Work': 'Focused work sessions increase productivity, improve skill development, and lead to greater work satisfaction!'
+      };
+      
+      // Default message if habit-specific one not found
+      const defaultMessage = 'Consistency in good habits creates compounding benefits for your health and well-being over time!';
+      
+      // Get message for this habit or use default
+      const message = messages[habitName] || defaultMessage;
+      
+      // Create special notification with encouraging style
+      const notification = document.createElement('div');
+      notification.className = 'notification-encouraging';
+      
+      // Create badge/icon
+      const icon = document.createElement('span');
+      icon.className = 'encouraging-icon';
+      icon.innerHTML = '💪';
+      
+      // Create message element
+      const messageEl = document.createElement('span');
+      messageEl.textContent = message;
+      
+      // Add elements to notification
+      notification.appendChild(icon);
+      notification.appendChild(messageEl);
+      
+      document.body.appendChild(notification);
+      
+      // Animate in
+      setTimeout(() => {
+        notification.style.transform = 'translateY(0)';
+        notification.style.opacity = '1';
+      }, 10);
+      
+      // Auto dismiss after longer time (these are educational)
+      setTimeout(() => {
+        notification.style.transform = 'translateY(-20px)';
+        notification.style.opacity = '0';
+        
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 500);
+      }, 6000);
+    }
+    
     // Sample data for demonstration
     const sampleHabits = [
       // Health & Wellness
@@ -2391,6 +2475,9 @@
       // In real app, this would update Firebase
       console.log(`Habit ${habitId} completed for today!`);
       
+      // Find the habit data
+      const habit = sampleHabits.find(h => h.id === habitId);
+      
       // Update UI
       const card = document.querySelector(`.habit-card[data-id="${habitId}"]`);
       card.style.opacity = '0.6';
@@ -2402,6 +2489,11 @@
       
       // Show success message
       showNotification('Habit completed! Great job!', 'success');
+      
+      // Show encouraging message with habit-specific information
+      if (habit) {
+        showEncouragingMessage(habit.title);
+      }
     }
     
     // Edit habit
@@ -3715,6 +3807,15 @@
           // User is logged in and Firebase is configured
           await completeHabitForToday(currentUser.uid, habitId);
           
+          // Get habit data for the encouraging message
+          const habits = await getAllHabits(currentUser.uid);
+          const habit = habits.find(h => h.id === habitId);
+          
+          // Show encouraging message if habit found
+          if (habit) {
+            showEncouragingMessage(habit.title);
+          }
+          
           // Reload habits to update UI
           await loadUserHabits(currentUser.uid);
         } else {
@@ -3728,6 +3829,9 @@
             
             // Update completion rate (simulate)
             sampleHabits[habitIndex].completionRate = Math.min(100, sampleHabits[habitIndex].completionRate + 5);
+            
+            // Show encouraging message
+            showEncouragingMessage(sampleHabits[habitIndex].title);
             
             // Update UI
             const card = document.querySelector(`.habit-card[data-id="${habitId}"]`);
