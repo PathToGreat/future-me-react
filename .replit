@@ -21,15 +21,15 @@ args = "React Test Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Simple Test Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Expo Web"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Simple HTML Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Future Me Server"
 
 [[workflows.workflow]]
 name = "Basic Test Server"
@@ -62,21 +62,6 @@ args = "cd react-test && python -m http.server 5001"
 waitForPort = 5001
 
 [[workflows.workflow]]
-name = "Simple Test Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd simple-test && python -m http.server 5002"
-waitForPort = 5002
-
-[[workflows.workflow]]
 name = "Expo Web"
 author = "agent"
 
@@ -105,6 +90,21 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "python -m http.server 8080"
 waitForPort = 8080
+
+[[workflows.workflow]]
+name = "Future Me Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd simple-test && python -m http.server 5000"
+waitForPort = 5000
 
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port 5000"]
