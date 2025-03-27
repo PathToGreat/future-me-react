@@ -1892,60 +1892,165 @@
   <script>
     // Sample data for demonstration
     const sampleHabits = [
+      // Health & Wellness
       {
         id: 1,
-        title: "Daily Meditation",
-        description: "15 minutes of meditation every morning",
-        category: "mindfulness",
-        frequency: [1, 2, 3, 4, 5], // Mon-Fri
+        title: "Daily Hydration",
+        description: "Drink at least 64 oz of water",
+        category: "health",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
         streak: 5,
         completionRate: 80,
-        reminder: "07:00",
+        reminder: "08:00",
         createdAt: new Date(2025, 2, 10) // March 10, 2025
       },
       {
         id: 2,
-        title: "Exercise",
-        description: "30 minutes of physical activity",
+        title: "Whole Food Nutrition",
+        description: "Eat a nutrient-dense meal",
         category: "health",
-        frequency: [0, 2, 4, 6], // Sun, Tue, Thu, Sat
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
         streak: 3,
         completionRate: 65,
-        reminder: "18:00",
+        reminder: "12:00",
         createdAt: new Date(2025, 2, 15) // March 15, 2025
       },
       {
         id: 3,
-        title: "Reading",
-        description: "Read 20 pages of a book",
-        category: "productivity",
+        title: "Quality Sleep",
+        description: "Sleep for at least 7-9 hours",
+        category: "health",
         frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
-        streak: 7,
-        completionRate: 90,
-        reminder: "21:00",
+        streak: 4,
+        completionRate: 75,
+        reminder: "22:00",
         createdAt: new Date(2025, 2, 5) // March 5, 2025
       },
       {
         id: 4,
-        title: "Family Call",
-        description: "Call parents or siblings",
-        category: "relationships",
-        frequency: [0, 6], // Sunday and Saturday
-        streak: 4,
-        completionRate: 85,
+        title: "Morning Sunlight",
+        description: "Get direct sunlight within 30 min of waking",
+        category: "health",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 2,
+        completionRate: 60,
+        reminder: "07:30",
+        createdAt: new Date(2025, 2, 8) // March 8, 2025
+      },
+      // Physical Fitness & Mobility
+      {
+        id: 5,
+        title: "Daily Movement",
+        description: "Walk 10,000 steps or move for 30+ minutes",
+        category: "health",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 3,
+        completionRate: 70,
         reminder: "16:00",
+        createdAt: new Date(2025, 2, 12) // March 12, 2025
+      },
+      {
+        id: 6,
+        title: "Strength Training",
+        description: "Perform bodyweight or resistance training",
+        category: "health",
+        frequency: [1, 3, 5], // Monday, Wednesday, Friday
+        streak: 2,
+        completionRate: 65,
+        reminder: "17:30",
+        createdAt: new Date(2025, 2, 20) // March 20, 2025
+      },
+      // Mental & Emotional Wellness
+      {
+        id: 7,
+        title: "Morning Gratitude",
+        description: "Write down three things you're grateful for",
+        category: "mindfulness",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 7,
+        completionRate: 90,
+        reminder: "07:00",
+        createdAt: new Date(2025, 2, 3) // March 3, 2025
+      },
+      {
+        id: 8,
+        title: "Journaling & Reflection",
+        description: "Reflect on your day, emotions, or progress",
+        category: "mindfulness",
+        frequency: [1, 3, 5], // Monday, Wednesday, Friday
+        streak: 4,
+        completionRate: 75,
+        reminder: "21:00",
+        createdAt: new Date(2025, 2, 7) // March 7, 2025
+      },
+      // Social & Human Connection
+      {
+        id: 9,
+        title: "Check-in with Loved Ones",
+        description: "Call or message a friend/family member",
+        category: "relationships",
+        frequency: [0, 3, 6], // Sunday, Wednesday, Saturday
+        streak: 3,
+        completionRate: 80,
+        reminder: "18:00",
         createdAt: new Date(2025, 2, 8) // March 8, 2025
       },
       {
-        id: 5,
-        title: "Budget Review",
-        description: "Review expenses and budget",
+        id: 10,
+        title: "Acts of Kindness",
+        description: "Do one intentional act of kindness today",
+        category: "relationships",
+        frequency: [1, 2, 3, 4, 5], // Weekdays
+        streak: 5,
+        completionRate: 85,
+        reminder: "10:00",
+        createdAt: new Date(2025, 2, 5) // March 5, 2025
+      },
+      // Faith & Spiritual Growth
+      {
+        id: 11,
+        title: "Daily Scripture Reading",
+        description: "Read and reflect on a passage",
+        category: "mindfulness",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 6,
+        completionRate: 85,
+        reminder: "06:30",
+        createdAt: new Date(2025, 2, 1) // March 1, 2025
+      },
+      // Financial & Productivity Habits
+      {
+        id: 12,
+        title: "Daily Budget Check-in",
+        description: "Review spending and savings goals",
         category: "finance",
-        frequency: [1], // Monday only
+        frequency: [1, 4], // Monday and Thursday
         streak: 2,
         completionRate: 70,
         reminder: "19:30",
         createdAt: new Date(2025, 2, 20) // March 20, 2025
+      },
+      {
+        id: 13,
+        title: "Work on a Skill",
+        description: "Learn something new for career/business",
+        category: "productivity",
+        frequency: [1, 2, 3, 4, 5], // Weekdays
+        streak: 4,
+        completionRate: 80,
+        reminder: "20:00",
+        createdAt: new Date(2025, 2, 9) // March 9, 2025
+      },
+      {
+        id: 14,
+        title: "Review & Plan",
+        description: "Set priorities for the next day",
+        category: "productivity",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 8,
+        completionRate: 95,
+        reminder: "21:30",
+        createdAt: new Date(2025, 2, 2) // March 2, 2025
       }
     ];
     
