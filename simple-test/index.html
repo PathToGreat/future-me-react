@@ -7,33 +7,37 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Base UI Colors - Tropical Island Theme */
-      --primary: #005f73;
-      --primary-dark: #003844;
-      --secondary: #0a9396;
-      --secondary-dark: #056f73;
-      --error: #ae2012;
-      --error-light: #f8e7e4;
-      --success: #94d2bd;
-      --success-light: #e7f5ef;
-      --text-primary: #001219;
-      --text-secondary: #333333;
-      --text-hint: #727272;
-      --background: #f5f5f1;
+      /* Base UI Colors - Vibrant Tropical Island Theme */
+      --primary: #00758f;
+      --primary-dark: #004a5c;
+      --secondary: #0ab7bb;
+      --secondary-dark: #078f92;
+      --error: #e53e3e;
+      --error-light: #fed7d7;
+      --success: #38a169;
+      --success-light: #c6f6d5;
+      --text-primary: #00141a;
+      --text-secondary: #2d3748;
+      --text-hint: #4a5568;
+      --background: #f0f9ff;
       --surface: #ffffff;
-      --border: #e5e5e0;
-      --bg-secondary: #eeeee9;
-      /* Habit Category Colors - Tropical Theme */
-      --health: #ae2012;
-      --health-rgb: 174, 32, 18;
-      --mindfulness: #0a9396;
-      --mindfulness-rgb: 10, 147, 150;
-      --productivity: #94d2bd;
-      --productivity-rgb: 148, 210, 189;
-      --relationships: #ca6702;
-      --relationships-rgb: 202, 103, 2;
-      --finance: #ee9b00;
-      --finance-rgb: 238, 155, 0;
+      --border: #bee3f8;
+      --bg-secondary: #ebf8ff;
+      /* Habit Category Colors - Vibrant Tropical Theme */
+      --health: #f56565;
+      --health-rgb: 245, 101, 101;
+      --mindfulness: #4fd1c5;
+      --mindfulness-rgb: 79, 209, 197;
+      --productivity: #48bb78;
+      --productivity-rgb: 72, 187, 120;
+      --relationships: #ed8936;
+      --relationships-rgb: 237, 137, 54;
+      --finance: #ecc94b;
+      --finance-rgb: 236, 201, 75;
+      
+      /* Gradients */
+      --ocean-gradient: linear-gradient(135deg, #00758f 0%, #0ab7bb 50%, #4fd1c5 100%);
+      --sunset-gradient: linear-gradient(135deg, #f6ad55 0%, #ed8936 50%, #dd6b20 100%);
     }
     
     * {
@@ -44,7 +48,7 @@
     
     body {
       font-family: 'Roboto', Arial, sans-serif;
-      background: linear-gradient(135deg, #001219 0%, #005f73 40%, #0a9396 100%);
+      background: linear-gradient(135deg, #00232a 0%, #00758f 40%, #0ab7bb 70%, #4fd1c5 100%);
       background-attachment: fixed;
       color: var(--text-primary);
       line-height: 1.6;
@@ -90,13 +94,13 @@
     }
     
     header {
-      background-color: var(--primary);
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary), var(--secondary));
       color: white;
       padding: 1rem;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
     
     .header-content {
@@ -214,28 +218,74 @@
       border: none;
       border-radius: 16px;
       padding: 1.5rem;
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(10px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(255, 255, 255, 0.1);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(255, 255, 255, 0.1);
       transition: all 0.3s;
       position: relative;
       overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.5);
     }
     
     .habit-card:hover {
       transform: translateY(-5px) scale(1.02);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 1px 5px rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.8);
     }
     
-    .habit-card::before {
+    .habit-card.health::before {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 5px;
-      background: linear-gradient(to right, var(--primary), var(--secondary));
-      opacity: 0.7;
+      background: var(--health);
+      opacity: 0.8;
+    }
+    
+    .habit-card.mindfulness::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--mindfulness);
+      opacity: 0.8;
+    }
+    
+    .habit-card.productivity::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--productivity);
+      opacity: 0.8;
+    }
+    
+    .habit-card.relationships::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--relationships);
+      opacity: 0.8;
+    }
+    
+    .habit-card.finance::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--finance);
+      opacity: 0.8;
     }
     
     .habit-title {
@@ -285,7 +335,7 @@
     .finance { background-color: var(--finance); }
     
     .button {
-      background-color: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: white;
       border: none;
       padding: 0.8rem 1.5rem;
@@ -294,13 +344,32 @@
       font-size: 0.9rem;
       font-weight: 500;
       transition: all 0.3s;
-      box-shadow: 0 4px 10px rgba(0, 95, 115, 0.3);
+      box-shadow: 0 5px 15px rgba(0, 117, 143, 0.3);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
     }
     
     .button:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-2px) scale(1.03);
-      box-shadow: 0 6px 15px rgba(0, 95, 115, 0.4);
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 20px rgba(0, 117, 143, 0.4);
+    }
+    
+    .button:hover::before {
+      opacity: 1;
     }
     
     .button-small {
@@ -309,11 +378,11 @@
     }
     
     .button-secondary {
-      background-color: var(--secondary);
+      background: linear-gradient(135deg, var(--mindfulness), var(--productivity));
     }
     
-    .button-secondary:hover {
-      background-color: var(--secondary-dark);
+    .button-secondary::before {
+      background: linear-gradient(135deg, #0a9396, #38a169);
     }
     
     .button-text {
@@ -434,10 +503,12 @@
       border-radius: 16px;
       margin-bottom: 1.5rem;
       font-size: 0.95rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(8px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
       animation: fadeIn 0.5s ease-out;
+      position: relative;
+      overflow: hidden;
     }
     
     @keyframes fadeIn {
@@ -458,15 +529,26 @@
     }
     
     .notification-error {
-      background-color: rgba(229, 62, 62, 0.1);
-      color: var(--error);
-      border-left: 4px solid var(--error);
+      background-color: rgba(245, 101, 101, 0.12);
+      color: #d63031;
+      border-left: 4px solid #d63031;
     }
     
     .notification-success {
-      background-color: rgba(72, 187, 120, 0.1);
-      color: var(--success);
-      border-left: 4px solid var(--success);
+      background-color: rgba(72, 187, 120, 0.12);
+      color: #27ae60;
+      border-left: 4px solid #27ae60;
+    }
+    
+    .notification::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+      pointer-events: none;
     }
     
     .hidden {
@@ -543,28 +625,58 @@
       padding: 0.5rem 1rem;
       border-radius: 20px;
       font-size: 0.85rem;
-      background-color: rgba(255, 255, 255, 0.7);
+      background-color: rgba(255, 255, 255, 0.8);
       display: flex;
       align-items: center;
       cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.4);
       backdrop-filter: blur(4px);
+      color: var(--text-secondary);
+      font-weight: 500;
     }
     
     .category-badge:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+      background-color: rgba(255, 255, 255, 0.95);
+      color: var(--text-primary);
     }
     
-    .category-badge.active {
-      background-color: rgba(0, 95, 115, 0.15);
-      color: var(--primary);
-      border: 1px solid rgba(0, 95, 115, 0.2);
-      font-weight: 500;
-      box-shadow: 0 3px 8px rgba(0, 95, 115, 0.15);
+    .category-badge.health.active {
+      background-color: rgba(245, 101, 101, 0.15);
+      color: var(--health);
+      border: 1px solid rgba(245, 101, 101, 0.3);
+      box-shadow: 0 3px 8px rgba(245, 101, 101, 0.15);
+    }
+    
+    .category-badge.mindfulness.active {
+      background-color: rgba(79, 209, 197, 0.15);
+      color: var(--mindfulness);
+      border: 1px solid rgba(79, 209, 197, 0.3);
+      box-shadow: 0 3px 8px rgba(79, 209, 197, 0.15);
+    }
+    
+    .category-badge.productivity.active {
+      background-color: rgba(72, 187, 120, 0.15);
+      color: var(--productivity);
+      border: 1px solid rgba(72, 187, 120, 0.3);
+      box-shadow: 0 3px 8px rgba(72, 187, 120, 0.15);
+    }
+    
+    .category-badge.relationships.active {
+      background-color: rgba(237, 137, 54, 0.15);
+      color: var(--relationships);
+      border: 1px solid rgba(237, 137, 54, 0.3);
+      box-shadow: 0 3px 8px rgba(237, 137, 54, 0.15);
+    }
+    
+    .category-badge.finance.active {
+      background-color: rgba(236, 201, 75, 0.15);
+      color: var(--finance);
+      border: 1px solid rgba(236, 201, 75, 0.3);
+      box-shadow: 0 3px 8px rgba(236, 201, 75, 0.15);
     }
     
     footer {
@@ -661,24 +773,49 @@
       border-radius: 50%;
       font-size: 0.85rem;
       font-weight: 500;
-      background-color: rgba(255, 255, 255, 0.6);
+      background-color: rgba(255, 255, 255, 0.7);
       cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(0, 95, 115, 0.1);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .day-cell::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      background: radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.8), transparent 50%);
+      opacity: 0.7;
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    .day-cell span {
+      position: relative;
+      z-index: 2;
     }
     
     .day-cell:hover {
-      transform: scale(1.1);
-      background-color: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transform: scale(1.15);
+      background-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 5px 15px rgba(10, 147, 150, 0.2);
+      border-color: rgba(10, 147, 150, 0.3);
     }
     
     .day-cell.active {
-      background-color: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: white;
-      box-shadow: 0 3px 10px rgba(0, 95, 115, 0.3);
+      box-shadow: 0 5px 15px rgba(0, 117, 143, 0.4);
       border: none;
+    }
+    
+    .day-cell.active::before {
+      background: radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.4), transparent 50%);
     }
     
     .day-label {
