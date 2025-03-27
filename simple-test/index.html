@@ -1193,7 +1193,23 @@
     .projection-bar {
       height: 100%;
       border-radius: 5px;
-      transition: width 1.5s ease-in-out;
+      transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .projection-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        rgba(255, 255, 255, 0) 100%);
+      animation: shine 2s infinite;
     }
     
     .projection-bar.health { background-color: var(--health); }
@@ -1349,6 +1365,109 @@
       color: var(--primary);
     }
     
+    /* Animation keyframes */
+    @keyframes shine {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+    
+    @keyframes pulse {
+      0% {
+        opacity: 0.6;
+        transform: scale(0.98);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0.6;
+        transform: scale(0.98);
+      }
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+    
+    @keyframes gradientText {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    
+    /* Avatar container */
+    .future-avatar-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 2rem auto;
+      position: relative;
+      max-width: 180px;
+    }
+    
+    .future-avatar {
+      width: 160px;
+      height: 220px;
+      position: relative;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .avatar-silhouette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,20 C100,20 115,40 115,65 C115,85 105,95 100,105 L110,145 L80,180 L50,145 L60,105 C55,95 45,85 45,65 C45,40 60,20 80,20 Z'/%3E%3C/svg%3E") no-repeat center center;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,20 C100,20 115,40 115,65 C115,85 105,95 100,105 L110,145 L80,180 L50,145 L60,105 C55,95 45,85 45,65 C45,40 60,20 80,20 Z'/%3E%3C/svg%3E") no-repeat center center;
+      border-radius: 8px;
+      opacity: 0.9;
+    }
+    
+    .avatar-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 180px;
+      height: 180px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(74, 0, 224, 0.25) 0%, rgba(74, 0, 224, 0) 70%);
+      filter: blur(15px);
+      border-radius: 50%;
+      z-index: -1;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    
+    .avatar-label {
+      margin-top: 1.5rem;
+      color: var(--primary);
+      font-weight: 600;
+      text-align: center;
+      font-size: 1.1rem;
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary), var(--secondary));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientText 4s linear infinite;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    
+    /* Responsive adjustments */
     @media (max-width: 768px) {
       .timeline {
         flex-direction: column;
@@ -1385,6 +1504,11 @@
       
       .impact-value {
         font-size: 1.5rem;
+      }
+      
+      .future-avatar {
+        width: 140px;
+        height: 200px;
       }
     }
   </style>
@@ -2664,11 +2788,39 @@
         const days = parseInt(m.title);
         return !isNaN(days) && days <= timeframe;
       });
+
+      // Add futuristic avatar to projections container
+      const projectionsContainer = document.getElementById('projections-container');
+      projectionsContainer.innerHTML = '';
       
-      // Create milestone elements
-      filteredMilestones.forEach(milestone => {
+      const avatarContainer = document.createElement('div');
+      avatarContainer.className = 'future-avatar-container';
+      avatarContainer.style.opacity = '0';
+      avatarContainer.style.transform = 'scale(0.9)';
+      
+      avatarContainer.innerHTML = `
+        <div class="future-avatar">
+          <div class="avatar-silhouette"></div>
+          <div class="avatar-glow"></div>
+        </div>
+        <div class="avatar-label">Future You</div>
+      `;
+      
+      projectionsContainer.appendChild(avatarContainer);
+      
+      // Animate avatar appearance
+      setTimeout(() => {
+        avatarContainer.style.transition = 'all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        avatarContainer.style.opacity = '1';
+        avatarContainer.style.transform = 'scale(1)';
+      }, 300);
+      
+      // Create milestone elements with staggered animations
+      filteredMilestones.forEach((milestone, index) => {
         const milestoneElement = document.createElement('div');
         milestoneElement.className = 'timeline-milestone';
+        milestoneElement.style.opacity = '0';
+        milestoneElement.style.transform = 'translateY(20px)';
         
         // Calculate date for this milestone
         const milestoneDate = new Date(today);
@@ -2687,6 +2839,13 @@
         `;
         
         timelineContainer.appendChild(milestoneElement);
+        
+        // Animate each milestone with a staggered delay
+        setTimeout(() => {
+          milestoneElement.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+          milestoneElement.style.opacity = '1';
+          milestoneElement.style.transform = 'translateY(0)';
+        }, 500 + (index * 200));
       });
     }
     
@@ -2716,43 +2875,102 @@
         {
           title: 'Calories Burned',
           value: `${caloriesBurned.toLocaleString()}`,
+          numericValue: caloriesBurned,
           category: 'health',
-          icon: '🔥'
+          icon: '🔥',
+          prefix: '',
+          suffix: ''
         },
         {
           title: 'Pages Read',
           value: `${pagesRead.toLocaleString()}`,
+          numericValue: pagesRead,
           category: 'productivity',
-          icon: '📚'
+          icon: '📚',
+          prefix: '',
+          suffix: ''
         },
         {
           title: 'Stress Reduction',
           value: `${stressReduction}%`,
+          numericValue: stressReduction,
           category: 'mindfulness',
-          icon: '🧘'
+          icon: '🧘',
+          prefix: '',
+          suffix: '%'
         },
         {
           title: 'Potential Savings',
           value: `$${potentialSavings.toLocaleString()}`,
+          numericValue: potentialSavings,
           category: 'finance',
-          icon: '💰'
+          icon: '💰',
+          prefix: '$',
+          suffix: ''
         }
       ];
       
-      metrics.forEach(metric => {
+      metrics.forEach((metric, index) => {
         const card = document.createElement('div');
         card.className = 'impact-card';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        const valueDisplay = document.createElement('div');
+        valueDisplay.className = 'impact-value';
+        valueDisplay.textContent = metric.prefix + '0' + metric.suffix;
         
         card.innerHTML = `
           <div class="impact-header">
             <div class="impact-icon ${metric.category}">${metric.icon}</div>
             <div class="impact-title">${metric.title}</div>
           </div>
-          <div class="impact-value">${metric.value}</div>
-          <div class="impact-description">In ${timeframe} days</div>
         `;
         
+        card.appendChild(valueDisplay);
+        
+        const description = document.createElement('div');
+        description.className = 'impact-description';
+        description.textContent = `In ${timeframe} days`;
+        description.style.color = 'var(--text-secondary)';
+        description.style.fontSize = '0.9rem';
+        
+        card.appendChild(description);
         impactMetricsContainer.appendChild(card);
+        
+        // Animate card appearance with staggered delay
+        setTimeout(() => {
+          card.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+          
+          // Animate value counter
+          setTimeout(() => {
+            let startValue = 0;
+            const duration = 2000; // ms
+            const frameDuration = 1000 / 60; // 60fps
+            const totalFrames = Math.round(duration / frameDuration);
+            const increment = metric.numericValue / totalFrames;
+            
+            let currentFrame = 0;
+            
+            const counter = setInterval(() => {
+              currentFrame++;
+              startValue += increment;
+              
+              if (currentFrame === totalFrames) {
+                clearInterval(counter);
+                valueDisplay.textContent = metric.value;
+              } else {
+                if (metric.prefix === '$') {
+                  valueDisplay.textContent = metric.prefix + Math.floor(startValue).toLocaleString() + metric.suffix;
+                } else {
+                  valueDisplay.textContent = metric.prefix + Math.floor(startValue) + metric.suffix;
+                }
+              }
+            }, frameDuration);
+          }, 400);
+        }, 700 + (index * 150));
       });
     }
     
@@ -2771,49 +2989,102 @@
           label: 'Cardiovascular Health',
           start: 0,
           end: Math.min(Math.round(15 * scaleFactor), 50), // Cap at 50%
-          color: 'var(--health)'
+          color: 'var(--health)',
+          category: 'health'
         },
         {
           label: 'Knowledge Retention',
           start: 0,
           end: Math.min(Math.round(12 * scaleFactor), 40), // Cap at 40%
-          color: 'var(--productivity)'
+          color: 'var(--productivity)',
+          category: 'productivity'
         },
         {
           label: 'Sleep Quality',
           start: 0,
           end: Math.min(Math.round(18 * scaleFactor), 45), // Cap at 45%
-          color: 'var(--mindfulness)'
+          color: 'var(--mindfulness)',
+          category: 'mindfulness'
         },
         {
           label: 'Family Connection',
           start: 0,
           end: Math.min(Math.round(22 * scaleFactor), 60), // Cap at 60%
-          color: 'var(--relationships)'
+          color: 'var(--relationships)',
+          category: 'relationships'
         },
         {
           label: 'Financial Awareness',
           start: 0,
           end: Math.min(Math.round(20 * scaleFactor), 55), // Cap at 55%
-          color: 'var(--finance)'
+          color: 'var(--finance)',
+          category: 'finance'
         }
       ];
       
-      progressMetrics.forEach(metric => {
+      progressMetrics.forEach((metric, index) => {
         const progressBar = document.createElement('div');
         progressBar.className = 'projection-progress';
+        progressBar.style.opacity = '0';
+        progressBar.style.transform = 'translateX(-10px)';
         
-        progressBar.innerHTML = `
-          <div class="projection-label">
-            <span>${metric.label}</span>
-            <span>+${metric.end}%</span>
-          </div>
-          <div class="projection-bar-container">
-            <div class="projection-bar" style="background-color: ${metric.color}; width: 0%;" data-target-width="${metric.end}%"></div>
-          </div>
-        `;
+        const labelDisplay = document.createElement('div');
+        labelDisplay.className = 'projection-label';
+        
+        const labelText = document.createElement('span');
+        labelText.textContent = metric.label;
+        
+        const labelValue = document.createElement('span');
+        labelValue.textContent = '0%';
+        
+        labelDisplay.appendChild(labelText);
+        labelDisplay.appendChild(labelValue);
+        
+        const barContainer = document.createElement('div');
+        barContainer.className = 'projection-bar-container';
+        
+        const bar = document.createElement('div');
+        bar.className = `projection-bar ${metric.category}`;
+        bar.style.width = '0%';
+        
+        barContainer.appendChild(bar);
+        progressBar.appendChild(labelDisplay);
+        progressBar.appendChild(barContainer);
         
         progressChartsContainer.appendChild(progressBar);
+        
+        // Animate the progress element appearance with staggered delay
+        setTimeout(() => {
+          progressBar.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+          progressBar.style.opacity = '1';
+          progressBar.style.transform = 'translateX(0)';
+          
+          // Animate the bar after the card appears
+          setTimeout(() => {
+            bar.style.transition = 'width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            bar.style.width = `${metric.end}%`;
+            
+            // Animate the percentage counter
+            let currentValue = 0;
+            const duration = 1500;
+            const frameDuration = 1000 / 60; // 60fps
+            const totalFrames = Math.round(duration / frameDuration);
+            const increment = metric.end / totalFrames;
+            
+            let frame = 0;
+            const counter = setInterval(() => {
+              frame++;
+              currentValue += increment;
+              
+              if (frame === totalFrames) {
+                clearInterval(counter);
+                labelValue.textContent = `+${metric.end}%`;
+              } else {
+                labelValue.textContent = `+${Math.round(currentValue)}%`;
+              }
+            }, frameDuration);
+          }, 300);
+        }, 1000 + (index * 150));
       });
     }
     
