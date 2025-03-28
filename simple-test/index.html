@@ -1544,7 +1544,7 @@
       <div class="header-content">
         <div class="logo">Future Me</div>
         <div class="header-actions">
-          <button class="button button-small button-secondary header-config-btn" onclick="openFirebaseConfigModal()">Configure Firebase</button>
+          <!-- Firebase configuration button removed as requested -->
           <div class="auth-buttons">
             <button class="button button-small button-outline" onclick="openAuthModal('login')">Login</button>
             <button class="button button-small" onclick="openAuthModal('signup')">Sign Up</button>
@@ -1557,9 +1557,7 @@
       <section class="welcome-section">
         <h1>Build Your Future Self, One Habit at a Time</h1>
         <p>Future Me helps you track habits, visualize your progress, and see how today's small actions shape your tomorrow.</p>
-        <div class="notification notification-success">
-          <strong>Firebase Integration Ready!</strong> Click the "Configure Firebase" button in the top right corner to add your Firebase credentials.
-        </div>
+        <!-- Firebase notification removed as requested -->
         
         <div class="stats-container">
           <div class="stat-card">
@@ -2203,16 +2201,7 @@
           console.warn("Firebase configuration incomplete. Using sample data.");
           loadSampleHabits();
           
-          // Show Firebase config modal if this is the first load
-          if (!localStorage.getItem('firebase_config_shown')) {
-            localStorage.setItem('firebase_config_shown', 'true');
-            
-            // Wait a bit for the page to load
-            setTimeout(() => {
-              openFirebaseConfigModal();
-              showNotification('Please configure Firebase to enable data persistence.', 'success');
-            }, 2000);
-          }
+          // Firebase auto-popup has been removed as requested
         }
       } catch (error) {
         console.error("Error initializing Firebase:", error);

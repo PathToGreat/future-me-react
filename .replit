@@ -103,8 +103,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd simple-test && python -m http.server 5000"
-waitForPort = 5000
+args = "cd simple-test && python -m http.server 5002"
+waitForPort = 5002
 
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port 5000"]
