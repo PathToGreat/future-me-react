@@ -1,98 +1,105 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Future Me App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f5f5f5;
-        }
-        .container {
-            text-align: center;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: white;
-            max-width: 80%;
-        }
-        h1 {
-            color: #6200EE;
-            margin-bottom: 1rem;
-        }
-        p {
-            margin-bottom: 1.5rem;
-            font-size: 1.1rem;
-        }
-        button {
-            background-color: #6200EE;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin: 5px;
-        }
-        button:hover {
-            background-color: #5000c8;
-        }
-        #error {
-            color: red;
-            background-color: #ffeeee;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 1rem;
-            display: none;
-        }
-        #info {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 1rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Future Me</h1>
-        <p>A habit tracking app to help you build your best future self</p>
-        
-        <div>
-            <button onclick="testUI()">Test UI</button>
-            <button style="background-color: #03DAC6;" onclick="checkFirebase()">Check Firebase</button>
-        </div>
-        
-        <div id="error"></div>
-        
-        <div id="info">
-            <p>Simple HTML test page to verify rendering works</p>
-        </div>
-    </div>
-
-    <script>
-        function testUI() {
-            alert("UI test successful!");
-        }
-        
-        function checkFirebase() {
-            try {
-                alert("This would check Firebase in the full app");
-            } catch (error) {
-                showError('Firebase Error: ' + error.message);
+    <head>
+        <link rel="stylesheet" href="style.css" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Future Me App</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f5f5f5;
             }
-        }
-        
-        function showError(message) {
-            const errorDiv = document.getElementById('error');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-    </script>
-</body>
+            .container {
+                text-align: center;
+                padding: 2rem;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                background-color: white;
+                max-width: 80%;
+            }
+            h1 {
+                color: #6200ee;
+                margin-bottom: 1rem;
+            }
+            p {
+                margin-bottom: 1.5rem;
+                font-size: 1.1rem;
+            }
+            button {
+                background-color: #6200ee;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-size: 1rem;
+                cursor: pointer;
+                margin: 5px;
+            }
+            button:hover {
+                background-color: #5000c8;
+            }
+            #error {
+                color: red;
+                background-color: #ffeeee;
+                padding: 10px;
+                border-radius: 5px;
+                margin-top: 1rem;
+                display: none;
+            }
+            #info {
+                font-size: 0.9rem;
+                color: #666;
+                margin-top: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Future Me</h1>
+            <p>A habit tracking app to help you build your best future self</p>
+
+            <div>
+                <button onclick="testUI()">Test UI</button>
+                <button
+                    style="background-color: #03dac6"
+                    onclick="checkFirebase()"
+                >
+                    Check Firebase
+                </button>
+            </div>
+
+            <div id="error"></div>
+
+            <div id="info">
+                <p>Simple HTML test page to verify rendering works</p>
+            </div>
+        </div>
+
+        <script>
+            function testUI() {
+                alert("UI test successful!");
+            }
+
+            function checkFirebase() {
+                try {
+                    alert("This would check Firebase in the full app");
+                } catch (error) {
+                    showError("Firebase Error: " + error.message);
+                }
+            }
+
+            function showError(message) {
+                const errorDiv = document.getElementById("error");
+                errorDiv.textContent = message;
+                errorDiv.style.display = "block";
+            }
+        </script>
+        <script src="script.js"></script>
+    </body>
 </html>
