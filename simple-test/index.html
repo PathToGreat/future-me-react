@@ -1921,42 +1921,32 @@
         "Daily Hydration": "Drinking enough water improves energy levels, brain function, and helps maintain healthy skin!",
         "Quality Sleep": "Good sleep enhances memory consolidation, immune function, and reduces stress hormone levels!",
         "Whole Food Nutrition": "Nutrient-dense whole foods reduce inflammation, improve gut health, and strengthen your immune system!",
-        "Meal Preparation": "Planning meals leads to 40% healthier food choices, decreases stress around eating, and saves money on food expenses!",
-        "Evening Wind Down": "A screen-free hour before bed improves sleep quality, reduces eye strain, and helps your brain transition to rest mode!",
         
         // Physical Fitness & Mobility
         "Daily Movement": "Regular physical activity strengthens your heart, builds muscle, and releases mood-boosting endorphins!",
         "Strength Training": "Resistance training increases bone density, boosts metabolism, and improves your body composition!",
-        "Mobility & Stretching": "Regular stretching improves range of motion by up to 30%, reduces injury risk, and helps maintain independence as you age!",
-        "Deep Breathing & Relaxation": "Deep breathing exercises activate your parasympathetic nervous system, reducing anxiety and blood pressure!",
-        "Outdoor Time": "Time in nature lowers cortisol levels, improves immune function, and enhances feelings of well-being and creativity!",
         
         // Mental & Emotional Wellness
         "Morning Gratitude": "Practicing gratitude activates your brain's reward pathways, reduces stress hormones, and improves sleep quality!",
         "Journaling & Reflection": "Regular journaling improves emotional processing, reduces rumination, and enhances self-awareness!",
-        "Screen-Free Hour": "Taking breaks from screens reduces eye strain, improves sleep quality, and increases face-to-face interactions!",
-        "Breathing Exercises": "Controlled breathing techniques can lower blood pressure, reduce anxiety, and improve cognitive performance!",
-        "Emotional Check-in": "Self-awareness of emotions improves decision-making, strengthens relationships, and helps manage stress more effectively!",
+        "Deep Breathing": "Deep breathing exercises activate your parasympathetic nervous system, reducing anxiety and blood pressure!",
         
         // Social & Human Connection
-        "Meaningful Conversation": "Deep conversations strengthen neural connections, build empathy, and create lasting memories and bonds!",
         "Check-in with Loved Ones": "Regular social connections reduce mortality risk by 50%, lower stress hormones, and improve cognitive function!",
         "Acts of Kindness": "Performing kind acts releases oxytocin and endorphins, reduces blood pressure, and activates reward centers in your brain!",
-        "Community Engagement": "People who volunteer regularly report 20% higher life satisfaction and enjoy stronger local support networks!",
-        "Quality Family Time": "Regular meaningful family time improves communication, strengthens relationships, and promotes emotional security!",
+        "Connect With Loved Ones": "Strong social bonds boost your immune system, speed healing, and are linked to greater longevity!",
+        "Family Dinner": "Regular family meals improve communication, strengthen relationships, and promote healthier eating habits!",
         
         // Faith & Spiritual Growth
         "Daily Scripture Reading": "Consistent spiritual practice creates stronger stress resilience, increases purpose, and is linked to reduced depression!",
-        "Prayer & Meditation": "Regular prayer reduces anxiety, increases feelings of peace, and helps develop gratitude and compassion!",
-        "Faith-Based Study": "Contemplative spiritual study improves critical thinking, provides ethical frameworks, and enhances sense of purpose!",
-        "Fellowship & Community": "Spiritual community participation is linked to longer lifespan, greater resilience, and enhanced support networks!",
+        "Scripture Reading": "Regular spiritual practices are associated with increased compassion, gratitude, and overall psychological well-being!",
         
         // Financial & Productivity Habits
         "Daily Budget Check-in": "Regular financial reviews reduce money-related stress by 40%, improve decision-making, and build long-term security!",
         "Work on a Skill": "Consistent skill-building creates neural pathways that make learning easier and increases career opportunities!",
-        "Declutter & Organize": "Organized spaces reduce cognitive load, decrease stress hormones, and improve focus and productivity!",
-        "Limit Impulse Spending": "Mindful spending increases financial security, reduces buyer's remorse, and allows more resources for meaningful goals!",
-        "Review & Plan": "Daily planning reduces decision fatigue, increases productivity by 25%, and lowers stress throughout the day!"
+        "Review & Plan": "Daily planning reduces decision fatigue, increases productivity by 25%, and lowers stress throughout the day!",
+        "Budgeting": "People who track finances save 20% more money, experience less financial anxiety, and reach goals faster!",
+        "Deep Work": "Focused deep work improves cognitive function, creativity, and produces 40% more high-quality output than multitasking!"
       };
       
       // Default message if habit-specific one not found
@@ -2007,7 +1997,7 @@
       {
         id: 1,
         title: "Daily Hydration",
-        description: "Drink at least X oz of water",
+        description: "Drink at least 64 oz of water",
         category: "health",
         frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
         streak: 5,
@@ -2028,17 +2018,6 @@
       },
       {
         id: 3,
-        title: "Meal Preparation",
-        description: "Plan and prepare a healthy meal",
-        category: "health",
-        frequency: [0, 3, 6], // Sun, Wed, Sat
-        streak: 2,
-        completionRate: 60,
-        reminder: "16:00",
-        createdAt: new Date(2025, 2, 18) // March 18, 2025
-      },
-      {
-        id: 4,
         title: "Quality Sleep",
         description: "Sleep for at least 7-9 hours",
         category: "health",
@@ -2049,9 +2028,9 @@
         createdAt: new Date(2025, 2, 5) // March 5, 2025
       },
       {
-        id: 5,
+        id: 4,
         title: "Morning Sunlight",
-        description: "Get direct sunlight exposure within 30 minutes of waking",
+        description: "Get direct sunlight within 30 min of waking",
         category: "health",
         frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
         streak: 2,
@@ -2059,22 +2038,11 @@
         reminder: "07:30",
         createdAt: new Date(2025, 2, 8) // March 8, 2025
       },
-      {
-        id: 6,
-        title: "Evening Wind Down",
-        description: "No screens 1 hour before bed",
-        category: "health",
-        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
-        streak: 1,
-        completionRate: 55,
-        reminder: "21:00",
-        createdAt: new Date(2025, 2, 22) // March 22, 2025
-      },
       // Physical Fitness & Mobility
       {
-        id: 7,
+        id: 5,
         title: "Daily Movement",
-        description: "Walk X steps or move for 30+ minutes",
+        description: "Walk 10,000 steps or move for 30+ minutes",
         category: "health",
         frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
         streak: 3,
@@ -2083,7 +2051,7 @@
         createdAt: new Date(2025, 2, 12) // March 12, 2025
       },
       {
-        id: 8,
+        id: 6,
         title: "Strength Training",
         description: "Perform bodyweight or resistance training",
         category: "health",
@@ -2093,98 +2061,9 @@
         reminder: "17:30",
         createdAt: new Date(2025, 2, 20) // March 20, 2025
       },
-      {
-        id: 9,
-        title: "Mobility & Stretching",
-        description: "Work on flexibility and joint health",
-        category: "health",
-        frequency: [0, 2, 4, 6], // Sun, Tue, Thu, Sat
-        streak: 3,
-        completionRate: 70,
-        reminder: "08:30",
-        createdAt: new Date(2025, 2, 16) // March 16, 2025
-      },
-      {
-        id: 10,
-        title: "Deep Breathing & Relaxation",
-        description: "Activate the parasympathetic nervous system",
-        category: "health",
-        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
-        streak: 4,
-        completionRate: 75,
-        reminder: "12:30",
-        createdAt: new Date(2025, 2, 14) // March 14, 2025
-      },
-      {
-        id: 11,
-        title: "Outdoor Time",
-        description: "Spend at least 15 minutes in nature",
-        category: "health",
-        frequency: [0, 2, 4, 6], // Sun, Tue, Thu, Sat
-        streak: 2,
-        completionRate: 65,
-        reminder: "15:00",
-        createdAt: new Date(2025, 2, 19) // March 19, 2025
-      },
-      // Social & Human Connection
-      {
-        id: 12,
-        title: "Meaningful Conversation",
-        description: "Engage in deep, intentional discussions",
-        category: "relationships",
-        frequency: [1, 4], // Mon, Thu
-        streak: 1,
-        completionRate: 60,
-        reminder: "19:00",
-        createdAt: new Date(2025, 2, 21) // March 21, 2025
-      },
-      {
-        id: 13,
-        title: "Check-in with Loved Ones",
-        description: "Call or message a friend/family member",
-        category: "relationships",
-        frequency: [0, 3, 6], // Sunday, Wednesday, Saturday
-        streak: 3,
-        completionRate: 80,
-        reminder: "18:00",
-        createdAt: new Date(2025, 2, 8) // March 8, 2025
-      },
-      {
-        id: 14,
-        title: "Acts of Kindness",
-        description: "Do one intentional act of kindness today",
-        category: "relationships",
-        frequency: [1, 2, 3, 4, 5], // Weekdays
-        streak: 5,
-        completionRate: 85,
-        reminder: "10:00",
-        createdAt: new Date(2025, 2, 5) // March 5, 2025
-      },
-      {
-        id: 15,
-        title: "Community Engagement",
-        description: "Participate in a group, club, or local event",
-        category: "relationships",
-        frequency: [0, 6], // Sun, Sat
-        streak: 1,
-        completionRate: 50,
-        reminder: "09:00",
-        createdAt: new Date(2025, 2, 23) // March 23, 2025
-      },
-      {
-        id: 16,
-        title: "Quality Family Time",
-        description: "Spend uninterrupted time with family",
-        category: "relationships",
-        frequency: [0, 2, 4, 6], // Sun, Tue, Thu, Sat
-        streak: 2,
-        completionRate: 70,
-        reminder: "18:30",
-        createdAt: new Date(2025, 2, 15) // March 15, 2025
-      },
       // Mental & Emotional Wellness
       {
-        id: 17,
+        id: 7,
         title: "Morning Gratitude",
         description: "Write down three things you're grateful for",
         category: "mindfulness",
@@ -2195,7 +2074,7 @@
         createdAt: new Date(2025, 2, 3) // March 3, 2025
       },
       {
-        id: 18,
+        id: 8,
         title: "Journaling & Reflection",
         description: "Reflect on your day, emotions, or progress",
         category: "mindfulness",
@@ -2205,42 +2084,32 @@
         reminder: "21:00",
         createdAt: new Date(2025, 2, 7) // March 7, 2025
       },
+      // Social & Human Connection
       {
-        id: 19,
-        title: "Screen-Free Hour",
-        description: "Take a break from social media/screens",
-        category: "mindfulness",
-        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
-        streak: 2,
-        completionRate: 60,
-        reminder: "17:00",
-        createdAt: new Date(2025, 2, 17) // March 17, 2025
-      },
-      {
-        id: 20,
-        title: "Breathing Exercises",
-        description: "Use controlled breathing techniques to manage stress",
-        category: "mindfulness",
-        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        id: 9,
+        title: "Check-in with Loved Ones",
+        description: "Call or message a friend/family member",
+        category: "relationships",
+        frequency: [0, 3, 6], // Sunday, Wednesday, Saturday
         streak: 3,
-        completionRate: 70,
-        reminder: "13:00",
-        createdAt: new Date(2025, 2, 10) // March 10, 2025
+        completionRate: 80,
+        reminder: "18:00",
+        createdAt: new Date(2025, 2, 8) // March 8, 2025
       },
       {
-        id: 21,
-        title: "Emotional Check-in",
-        description: "Assess how you feel and why",
-        category: "mindfulness",
-        frequency: [1, 3, 5], // Mon, Wed, Fri
-        streak: 2,
-        completionRate: 65,
-        reminder: "20:00",
-        createdAt: new Date(2025, 2, 18) // March 18, 2025
+        id: 10,
+        title: "Acts of Kindness",
+        description: "Do one intentional act of kindness today",
+        category: "relationships",
+        frequency: [1, 2, 3, 4, 5], // Weekdays
+        streak: 5,
+        completionRate: 85,
+        reminder: "10:00",
+        createdAt: new Date(2025, 2, 5) // March 5, 2025
       },
       // Faith & Spiritual Growth
       {
-        id: 22,
+        id: 11,
         title: "Daily Scripture Reading",
         description: "Read and reflect on a passage",
         category: "mindfulness",
@@ -2250,42 +2119,9 @@
         reminder: "06:30",
         createdAt: new Date(2025, 2, 1) // March 1, 2025
       },
-      {
-        id: 23,
-        title: "Prayer & Meditation",
-        description: "Spend intentional time in prayer or stillness",
-        category: "mindfulness",
-        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
-        streak: 5,
-        completionRate: 80,
-        reminder: "07:15",
-        createdAt: new Date(2025, 2, 4) // March 4, 2025
-      },
-      {
-        id: 24,
-        title: "Faith-Based Study",
-        description: "Study a concept, teaching, or wisdom principle",
-        category: "mindfulness",
-        frequency: [0, 3, 6], // Sun, Wed, Sat
-        streak: 2,
-        completionRate: 65,
-        reminder: "20:30",
-        createdAt: new Date(2025, 2, 11) // March 11, 2025
-      },
-      {
-        id: 25,
-        title: "Fellowship & Community",
-        description: "Engage with a faith-based group or discussion",
-        category: "relationships",
-        frequency: [0], // Sunday
-        streak: 2,
-        completionRate: 75,
-        reminder: "10:30",
-        createdAt: new Date(2025, 2, 9) // March 9, 2025
-      },
       // Financial & Productivity Habits
       {
-        id: 26,
+        id: 12,
         title: "Daily Budget Check-in",
         description: "Review spending and savings goals",
         category: "finance",
@@ -2296,9 +2132,9 @@
         createdAt: new Date(2025, 2, 20) // March 20, 2025
       },
       {
-        id: 27,
+        id: 13,
         title: "Work on a Skill",
-        description: "Learn something new to improve career/business",
+        description: "Learn something new for career/business",
         category: "productivity",
         frequency: [1, 2, 3, 4, 5], // Weekdays
         streak: 4,
@@ -2307,29 +2143,7 @@
         createdAt: new Date(2025, 2, 9) // March 9, 2025
       },
       {
-        id: 28,
-        title: "Declutter & Organize",
-        description: "Spend 10+ minutes organizing your space",
-        category: "productivity",
-        frequency: [2, 5], // Tue, Fri
-        streak: 1,
-        completionRate: 60,
-        reminder: "16:30",
-        createdAt: new Date(2025, 2, 17) // March 17, 2025
-      },
-      {
-        id: 29,
-        title: "Limit Impulse Spending",
-        description: "Avoid unnecessary purchases today",
-        category: "finance",
-        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
-        streak: 3,
-        completionRate: 75,
-        reminder: "11:00",
-        createdAt: new Date(2025, 2, 12) // March 12, 2025
-      },
-      {
-        id: 30,
+        id: 14,
         title: "Review & Plan",
         description: "Set priorities for the next day",
         category: "productivity",

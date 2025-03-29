@@ -4,7 +4,7 @@ modules = ["nodejs-20", "python-3.11"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Simple HTML Server"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
