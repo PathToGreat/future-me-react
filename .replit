@@ -107,8 +107,7 @@ args = "cd simple-test && python -m http.server 5002"
 waitForPort = 5002
 
 [deployment]
-deploymentTarget = "static"
-publicDir = "./"
+run = ["sh", "-c", "npx expo start --web --port 5000"]
 
 [[ports]]
 localPort = 5000
