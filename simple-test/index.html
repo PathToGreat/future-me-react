@@ -1917,36 +1917,46 @@
     function showEncouragingMessage(habitName) {
       const messages = {
         // Health & Wellness
-        "Morning Sunlight": "By getting morning sunlight, you regulate your circadian rhythm, hormones, and increase your vitamin D levels!",
         "Daily Hydration": "Drinking enough water improves energy levels, brain function, and helps maintain healthy skin!",
-        "Quality Sleep": "Good sleep enhances memory consolidation, immune function, and reduces stress hormone levels!",
         "Whole Food Nutrition": "Nutrient-dense whole foods reduce inflammation, improve gut health, and strengthen your immune system!",
+        "Meal Preparation": "Planning meals leads to 67% healthier food choices and reduces impulse eating by 80%!",
+        "Quality Sleep": "Good sleep enhances memory consolidation, immune function, and reduces stress hormone levels!",
+        "Morning Sunlight": "Morning sunlight exposure regulates circadian rhythm, increases vitamin D production, and boosts mood by 40%!",
+        "Evening Wind Down": "A screen-free hour before bed increases melatonin production by 50% and improves sleep quality!",
         
         // Physical Fitness & Mobility
-        "Daily Movement": "Regular physical activity strengthens your heart, builds muscle, and releases mood-boosting endorphins!",
-        "Strength Training": "Resistance training increases bone density, boosts metabolism, and improves your body composition!",
-        
-        // Mental & Emotional Wellness
-        "Morning Gratitude": "Practicing gratitude activates your brain's reward pathways, reduces stress hormones, and improves sleep quality!",
-        "Journaling & Reflection": "Regular journaling improves emotional processing, reduces rumination, and enhances self-awareness!",
-        "Deep Breathing": "Deep breathing exercises activate your parasympathetic nervous system, reducing anxiety and blood pressure!",
+        "Daily Movement": "Just 30 minutes of movement daily decreases cardiovascular disease risk by 30% and improves cognitive function!",
+        "Strength Training": "Resistance training increases bone density by 1-3% per year, boosts metabolism, and improves muscle mass!",
+        "Mobility & Stretching": "Regular stretching increases joint range of motion by 18% and reduces injury risk by up to 60%!",
+        "Deep Breathing & Relaxation": "Deep breathing exercises activate your parasympathetic nervous system, reducing anxiety by 40%!",
+        "Outdoor Time": "Spending 15+ minutes in nature decreases cortisol levels by 16% and increases creativity by 50%!",
         
         // Social & Human Connection
-        "Check-in with Loved Ones": "Regular social connections reduce mortality risk by 50%, lower stress hormones, and improve cognitive function!",
-        "Acts of Kindness": "Performing kind acts releases oxytocin and endorphins, reduces blood pressure, and activates reward centers in your brain!",
-        "Connect With Loved Ones": "Strong social bonds boost your immune system, speed healing, and are linked to greater longevity!",
-        "Family Dinner": "Regular family meals improve communication, strengthen relationships, and promote healthier eating habits!",
+        "Meaningful Conversation": "Deep conversations increase feelings of happiness and well-being by 2x compared to small talk!",
+        "Check-in with Loved Ones": "Regular social connections reduce mortality risk by 50% and improve cognitive function!",
+        "Acts of Kindness": "Performing kind acts releases oxytocin and endorphins, reduces blood pressure, and improves mood!",
+        "Community Engagement": "People involved in community groups report 30% higher life satisfaction and live 5 years longer on average!",
+        "Quality Family Time": "Regular uninterrupted family time strengthens relationships, builds trust, and creates lasting memories!",
+        
+        // Mental & Emotional Wellness
+        "Morning Gratitude": "Practicing gratitude activates brain's reward pathways, reduces stress hormones by 23%, and improves sleep quality!",
+        "Journaling & Reflection": "Regular journaling improves emotional processing, reduces rumination by 43%, and enhances self-awareness!",
+        "Screen-Free Hour": "Taking screen breaks reduces eye strain by 40%, improves sleep quality, and boosts in-person social connections!",
+        "Breathing Exercises": "Controlled breathing techniques lower blood pressure by 5-10 points and activate the parasympathetic nervous system!",
+        "Emotional Check-in": "Self-awareness of emotions improves emotional regulation by 60% and enhances decision-making!",
         
         // Faith & Spiritual Growth
-        "Daily Scripture Reading": "Consistent spiritual practice creates stronger stress resilience, increases purpose, and is linked to reduced depression!",
-        "Scripture Reading": "Regular spiritual practices are associated with increased compassion, gratitude, and overall psychological well-being!",
+        "Daily Scripture Reading": "Consistent spiritual practice creates stronger stress resilience, increases purpose, and reduces depression by 30%!",
+        "Prayer & Meditation": "Regular meditation changes brain structure, improving focus and reducing anxiety by up to 40%!",
+        "Faith-Based Study": "Studying wisdom principles increases compassion, gratitude, and overall psychological well-being!",
+        "Fellowship & Community": "People engaged in faith communities report 20% higher life satisfaction and stronger social support networks!",
         
         // Financial & Productivity Habits
-        "Daily Budget Check-in": "Regular financial reviews reduce money-related stress by 40%, improve decision-making, and build long-term security!",
-        "Work on a Skill": "Consistent skill-building creates neural pathways that make learning easier and increases career opportunities!",
-        "Review & Plan": "Daily planning reduces decision fatigue, increases productivity by 25%, and lowers stress throughout the day!",
-        "Budgeting": "People who track finances save 20% more money, experience less financial anxiety, and reach goals faster!",
-        "Deep Work": "Focused deep work improves cognitive function, creativity, and produces 40% more high-quality output than multitasking!"
+        "Daily Budget Check-in": "Regular financial reviews reduce money-related stress by 40% and improve long-term financial security!",
+        "Work on a Skill": "Consistent skill-building creates neural pathways that make learning easier and increases career opportunities by 25%!",
+        "Declutter & Organize": "Organizing your space reduces stress by 30% and increases productivity by 15%!",
+        "Limit Impulse Spending": "People who pause before purchases save 15-20% more money and make more satisfying buying decisions!",
+        "Review & Plan": "Daily planning reduces decision fatigue, increases productivity by 25%, and lowers stress throughout the day!"
       };
       
       // Default message if habit-specific one not found
