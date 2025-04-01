@@ -31,6 +31,10 @@ args = "Simple HTML Server"
 task = "workflow.run"
 args = "Future Me Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Basic HTML Test"
+
 [[workflows.workflow]]
 name = "Basic Test Server"
 author = "agent"
@@ -104,6 +108,21 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd simple-test && python -m http.server 5002"
+waitForPort = 5002
+
+[[workflows.workflow]]
+name = "Basic HTML Test"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd basic-html-app && python -m http.server 5002"
 waitForPort = 5002
 
 [deployment]

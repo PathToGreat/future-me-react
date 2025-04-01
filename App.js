@@ -1,66 +1,66 @@
-import React, { useEffect } from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Provider as PaperProvider } from 'react-native-paper';
+import React from 'react';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { LogBox, Text, View } from 'react-native';
 
-// Local imports
-import { theme } from './src/config/theme';
-import { AuthProvider } from './src/context/AuthContext';
-import AppNavigator from './src/navigation/AppNavigator';
-
-// Ignore specific warnings for development
-LogBox.ignoreLogs([
-  'AsyncStorage has been extracted from react-native core', // Expo related
-  'Setting a timer for a long period of time', // Firebase timer warning
-  'Require cycle:', // Common in React Native projects
-  'Sending `onAnimatedValueUpdate`', // Animation related
-]);
-
-// Debug component to catch errors
-const ErrorBoundary = ({ children }) => {
-  try {
-    return children;
-  } catch (error) {
-    console.error("Caught error in ErrorBoundary:", error);
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-        <Text style={{ color: 'red', fontSize: 18, marginBottom: 10 }}>
-          Something went wrong!
-        </Text>
-        <Text style={{ color: '#333', marginBottom: 20 }}>
-          {error?.message || "Unknown error"}
-        </Text>
-      </View>
-    );
-  }
-};
-
-// Main App component
+// Simple test app to verify basic rendering
 export default function App() {
-  useEffect(() => {
-    console.log("App component mounted");
-    
-    // Testing that theme is properly defined
-    console.log("Theme colors:", Object.keys(theme.colors));
-    
-    return () => {
-      console.log("App component unmounted");
-    };
-  }, []);
-
+  const [counter, setCounter] = React.useState(0);
+  
+  console.log('Basic App rendering with counter:', counter);
+  
   return (
-    <ErrorBoundary>
-      <SafeAreaProvider>
-        <PaperProvider theme={theme}>
-          <AuthProvider>
-            <ErrorBoundary>
-              <AppNavigator />
-            </ErrorBoundary>
-            <StatusBar style="auto" />
-          </AuthProvider>
-        </PaperProvider>
-      </SafeAreaProvider>
-    </ErrorBoundary>
+    <View style={styles.container}>
+      <Text style={styles.title}>Future Me - Test App</Text>
+      <Text style={styles.description}>This is a simplified version to test basic rendering</Text>
+      
+      <View style={styles.counterContainer}>
+        <Text style={styles.counterText}>Counter: {counter}</Text>
+        <Button 
+          title="Increment" 
+          onPress={() => setCounter(counter + 1)} 
+        />
+      </View>
+      
+      <StatusBar style="auto" />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f7f7f7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#6200EE',
+  },
+  description: {
+    fontSize: 16,
+    marginBottom: 30,
+    textAlign: 'center',
+    color: '#666',
+  },
+  counterContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  counterText: {
+    fontSize: 18,
+    marginBottom: 15,
+    color: '#333',
+  },
+});
