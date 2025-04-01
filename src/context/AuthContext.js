@@ -20,43 +20,95 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
 
-  // We don't need to check for redirect results in our current implementation
+  // Debug mounting of the provider
   useEffect(() => {
     console.log('Auth provider mounted');
+    
+    // Check if Firebase auth object is properly initialized
+    if (auth) {
+      console.log('Firebase auth is available:', !!auth);
+      console.log('Current auth implementation:', 
+        typeof auth.onAuthStateChanged === 'function' ? 'Standard' : 'Mock');
+    } else {
+      console.error('Firebase auth is not available!');
+      setAuthError(new Error('Firebase authentication is not properly initialized'));
+    }
+    
+    return () => {
+      console.log('Auth provider unmounted');
+    }
   }, []);
 
+  // Set up auth state listener
   useEffect(() => {
-    console.log('Setting up auth state listener...');
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log('Auth state changed, user:', !!currentUser);
-      setUser(currentUser);
+    let isMounted = true;
+    
+    try {
+      console.log('Setting up auth state listener...');
       
-      if (currentUser) {
-        // For now, just use the user object as the profile
-        // Will implement Firestore user profiles when database is working
-        const simpleProfile = {
-          uid: currentUser.uid,
-          email: currentUser.email,
-          displayName: currentUser.displayName || '',
-          photoURL: currentUser.photoURL || '',
-          createdAt: new Date().toISOString(),
-          settings: {
-            theme: 'light',
-            notifications: true,
-          }
-        };
-        setUserProfile(simpleProfile);
-        console.log('User profile set:', simpleProfile);
-      } else {
-        setUserProfile(null);
-        console.log('User profile cleared');
-      }
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        console.log('Auth state changed, user:', !!currentUser);
+        
+        if (!isMounted) {
+          console.log('Ignoring auth state change - component unmounted');
+          return;
+        }
+        
+        if (currentUser) {
+          console.log('User authenticated:', {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName || 'Not set',
+            emailVerified: currentUser.emailVerified
+          });
+          
+          // For now, just use the user object as the profile
+          // Will implement Firestore user profiles when database is working
+          const simpleProfile = {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName || '',
+            photoURL: currentUser.photoURL || '',
+            createdAt: new Date().toISOString(),
+            settings: {
+              theme: 'light',
+              notifications: true,
+            }
+          };
+          
+          setUser(currentUser);
+          setUserProfile(simpleProfile);
+          console.log('User profile set');
+        } else {
+          console.log('No authenticated user');
+          setUser(null);
+          setUserProfile(null);
+        }
+        
+        // Clear any auth errors when auth state changes
+        setAuthError(null);
+        setLoading(false);
+      }, (error) => {
+        // This is the error handler for onAuthStateChanged
+        console.error('Auth state change error:', error);
+        setAuthError(error);
+        setLoading(false);
+      });
       
+      // Return cleanup function
+      return () => {
+        console.log('Cleaning up auth state listener');
+        isMounted = false;
+        unsubscribe();
+      };
+    } catch (error) {
+      console.error('Error setting up auth state listener:', error);
+      setAuthError(error);
       setLoading(false);
-    });
-
-    return unsubscribe;
+      return () => { isMounted = false; };
+    }
   }, []);
 
   const updateUserProfile = async (data) => {

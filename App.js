@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
-import { LogBox } from 'react-native';
+import { LogBox, Text, View } from 'react-native';
 
 // Local imports
 import { theme } from './src/config/theme';
@@ -17,16 +17,50 @@ LogBox.ignoreLogs([
   'Sending `onAnimatedValueUpdate`', // Animation related
 ]);
 
+// Debug component to catch errors
+const ErrorBoundary = ({ children }) => {
+  try {
+    return children;
+  } catch (error) {
+    console.error("Caught error in ErrorBoundary:", error);
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+        <Text style={{ color: 'red', fontSize: 18, marginBottom: 10 }}>
+          Something went wrong!
+        </Text>
+        <Text style={{ color: '#333', marginBottom: 20 }}>
+          {error?.message || "Unknown error"}
+        </Text>
+      </View>
+    );
+  }
+};
+
 // Main App component
 export default function App() {
+  useEffect(() => {
+    console.log("App component mounted");
+    
+    // Testing that theme is properly defined
+    console.log("Theme colors:", Object.keys(theme.colors));
+    
+    return () => {
+      console.log("App component unmounted");
+    };
+  }, []);
+
   return (
-    <SafeAreaProvider>
-      <PaperProvider theme={theme}>
-        <AuthProvider>
-          <AppNavigator />
-          <StatusBar style="auto" />
-        </AuthProvider>
-      </PaperProvider>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <PaperProvider theme={theme}>
+          <AuthProvider>
+            <ErrorBoundary>
+              <AppNavigator />
+            </ErrorBoundary>
+            <StatusBar style="auto" />
+          </AuthProvider>
+        </PaperProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }

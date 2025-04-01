@@ -94,27 +94,84 @@ const AppNavigator = () => {
   const { user, loading } = useAuth();
   const theme = useTheme();
   
+  console.log("AppNavigator rendering:", { userExists: !!user, loadingState: loading });
+  
+  // Debug component to verify that rendering works
+  const DebugScreen = () => (
+    <View style={{ 
+      flex: 1, 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      backgroundColor: theme.colors.background,
+      padding: 20
+    }}>
+      <Text style={{ fontSize: 22, fontWeight: 'bold', color: theme.colors.primary, marginBottom: 20 }}>
+        Future Me Debug Screen
+      </Text>
+      <Text style={{ marginBottom: 10, color: theme.colors.text }}>
+        Auth state: {loading ? 'Loading...' : (user ? 'Logged in' : 'Not logged in')}
+      </Text>
+      <Text style={{ marginBottom: 10, color: theme.colors.text }}>
+        User: {user ? `${user.email}` : 'None'}
+      </Text>
+      
+      <View style={{ 
+        marginTop: 30, 
+        padding: 15, 
+        backgroundColor: theme.colors.surface, 
+        borderRadius: 8, 
+        width: '100%',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+      }}>
+        <Text style={{ fontWeight: 'bold', marginBottom: 10, color: theme.colors.text }}>
+          Debug Actions:
+        </Text>
+        <Button 
+          mode="outlined" 
+          onPress={() => console.log("Debug button pressed")}
+          style={{ marginBottom: 10 }}
+        >
+          Log Debug Info
+        </Button>
+      </View>
+    </View>
+  );
+  
   if (loading) {
     // Return a loading indicator
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={{ marginTop: 10, color: theme.colors.text }}>Loading...</Text>
+        <Text style={{ marginTop: 10, color: theme.colors.text }}>Loading authentication state...</Text>
+        <Text style={{ marginTop: 5, fontSize: 12, color: theme.colors.placeholder }}>
+          This should only take a moment.
+        </Text>
       </View>
     );
   }
 
-  return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!user ? (
-          <Stack.Screen name="Auth" component={AuthScreen} />
-        ) : (
-          <Stack.Screen name="Main" component={TabNavigator} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+  try {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {!user ? (
+            <Stack.Screen name="Auth" component={AuthScreen} />
+          ) : (
+            <Stack.Screen name="Main" component={TabNavigator} />
+          )}
+          {/* Debug screen that can be accessed if needed */}
+          <Stack.Screen name="Debug" component={DebugScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  } catch (error) {
+    console.error("Error in AppNavigator:", error);
+    return <DebugScreen />;
+  }
 };
 
 export default AppNavigator;
