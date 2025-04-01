@@ -14,6 +14,8 @@ import {
 import { db } from '../config/firebase';
 import { shouldTrackHabitOnDate } from '../utils/habitUtils';
 
+import { getAllPreloadedHabits } from '../utils/preloadedHabits';
+
 /**
  * Get all habits for a user
  * @param {String} userId - The user ID
@@ -24,13 +26,22 @@ export const getAllHabits = async (userId) => {
     const habitsRef = collection(db, 'users', userId, 'habits');
     const snapshot = await getDocs(habitsRef);
     
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    // If there are habits in Firestore, return them
+    if (!snapshot.empty) {
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    }
+    
+    // If no habits found, return preloaded habits
+    console.log('No habits found in Firestore, returning preloaded habits');
+    return getAllPreloadedHabits();
   } catch (error) {
     console.error('Error getting habits:', error);
-    throw error;
+    // On error, fall back to preloaded habits
+    console.warn('Falling back to preloaded habits due to error');
+    return getAllPreloadedHabits();
   }
 };
 

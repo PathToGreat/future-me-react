@@ -73,8 +73,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx expo start --web --port=5003"
-waitForPort = 5003
+args = "npx expo start --web --port=5000"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Simple HTML Server"
@@ -107,7 +107,9 @@ args = "cd simple-test && python -m http.server 5002"
 waitForPort = 5002
 
 [deployment]
-run = ["sh", "-c", "npx expo start --web --port 5000"]
+deploymentTarget = "static"
+publicDir = "simple-test"
+run = ["sh", "-c", "npx expo start --web --port=5000"]
 
 [[ports]]
 localPort = 5000
