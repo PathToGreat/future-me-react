@@ -43,6 +43,14 @@ args = "React Native Web"
 task = "workflow.run"
 args = "Pure HTML Test"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Future Me Expo Web"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "HTML Habits Server"
+
 [[workflows.workflow]]
 name = "Basic Test Server"
 author = "agent"
@@ -163,10 +171,40 @@ task = "shell.exec"
 args = "cd pure-html && python -m http.server 5000"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Future Me Expo Web"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx expo start --web --port=5050"
+waitForPort = 5050
+
+[[workflows.workflow]]
+name = "HTML Habits Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m http.server 5555"
+waitForPort = 5555
+
 [deployment]
 deploymentTarget = "static"
 publicDir = "simple-test"
-run = ["sh", "-c", "npx expo start --web --port=5000"]
+run = ["sh", "-c", "npx expo start --web --port=5050"]
 
 [[ports]]
 localPort = 5000
@@ -187,6 +225,18 @@ externalPort = 3002
 [[ports]]
 localPort = 5004
 externalPort = 3003
+
+[[ports]]
+localPort = 5005
+externalPort = 4200
+
+[[ports]]
+localPort = 5050
+externalPort = 5000
+
+[[ports]]
+localPort = 5555
+externalPort = 5173
 
 [[ports]]
 localPort = 8080
