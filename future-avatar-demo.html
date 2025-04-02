@@ -128,20 +128,26 @@
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .avatar-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            opacity: 0.1; /* Make real images almost invisible to make silhouettes more visible */
         }
         
         .avatar-now {
             border: 3px solid #999;
+            background-color: #202030; /* Darker background to make silhouettes stand out */
         }
         
         .avatar-future {
             border: 3px solid var(--primary-color);
+            background-color: #202030; /* Darker background to make silhouettes stand out */
         }
         
         .avatar-glow {
@@ -152,19 +158,32 @@
             height: 100%;
             background-color: rgba(98, 0, 238, 0.3);
             animation: pulse 2s infinite ease-in-out;
-            opacity: 0;
-            pointer-events: none;
         }
         
+        /* Base avatar silhouette */
         .avatar-silhouette {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C92,15 102,25 102,40 C102,51 98,60 98,65 L98,75 C101,75 103,78 103,81 C103,84 102,87 100,89 C100,89 109,93 109,105 C109,110 107,115 100,120 L100,125 C100,130 90,145 90,145 L95,150 C95,170 95,180 95,195 L95,210 C94,212 92,215 90,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,150 L70,145 C70,145 60,130 60,125 L60,120 C53,115 51,110 51,105 C51,93 60,89 60,89 C58,87 57,84 57,81 C57,78 59,75 62,75 L62,65 C62,60 58,51 58,40 C58,25 68,15 80,15 Z M100,87 L105,87 C105,87 114,89 119,84 C124,79 124,79 124,79 L125,85 C125,87 123,93 118,95 C113,97 110,95 110,95 L100,87 Z M60,87 L55,87 C55,87 46,89 41,84 C36,79 36,79 36,79 L35,85 C35,87 37,93 42,95 C47,97 50,95 50,95 L60,87 Z'/%3E%3C/svg%3E") no-repeat center center;
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C92,15 102,25 102,40 C102,51 98,60 98,65 L98,75 C101,75 103,78 103,81 C103,84 102,87 100,89 C100,89 109,93 109,105 C109,110 107,115 100,120 L100,125 C100,130 90,145 90,145 L95,150 C95,170 95,180 95,195 L95,210 C94,212 92,215 90,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,150 L70,145 C70,145 60,130 60,125 L60,120 C53,115 51,110 51,105 C51,93 60,89 60,89 C58,87 57,84 57,81 C57,78 59,75 62,75 L62,65 C62,60 58,51 58,40 C58,25 68,15 80,15 Z M100,87 L105,87 C105,87 114,89 119,84 C124,79 124,79 124,79 L125,85 C125,87 123,93 118,95 C113,97 110,95 110,95 L100,87 Z M60,87 L55,87 C55,87 46,89 41,84 C36,79 36,79 36,79 L35,85 C35,87 37,93 42,95 C47,97 50,95 50,95 L60,87 Z'/%3E%3C/svg%3E") no-repeat center center;
+            top: 5%;
+            left: 15%;
+            width: 70%;
+            height: 90%;
+            pointer-events: none;
+            z-index: 2;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        
+        /* Current avatar silhouette - overweight person with poor posture */
+        .current-silhouette {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' fill='rgba(200,120,120,0.9)'%3E%3Cpath d='M50,30 C60,30 65,25 65,15 C65,5 55,0 50,0 C45,0 35,5 35,15 C35,25 40,30 50,30 Z M30,60 C30,50 40,35 50,35 C60,35 70,50 70,60 L75,145 C75,160 72,170 65,180 C67,185 70,190 70,195 C70,197 68,200 65,200 L55,200 L55,190 L45,190 L45,200 L35,200 C32,200 30,197 30,195 C30,190 33,185 35,180 C28,170 25,160 25,145 Z' /%3E%3C/svg%3E");
+            opacity: 0.95;
+        }
+        
+        /* Future avatar silhouette - athletic person with good posture */
+        .future-silhouette {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' fill='rgba(100,230,130,0.9)'%3E%3Cpath d='M50,30 C60,30 65,25 65,15 C65,5 55,0 50,0 C45,0 35,5 35,15 C35,25 40,30 50,30 Z M30,55 C30,45 40,35 50,35 C60,35 70,45 70,55 L70,140 C70,145 68,150 65,155 C68,160 70,165 70,170 C70,172 68,175 65,175 L55,175 L55,165 L45,165 L45,175 L35,175 C32,175 30,172 30,170 C30,165 32,160 35,155 C32,150 30,145 30,140 Z' /%3E%3C/svg%3E");
+            opacity: 0.95;
         }
         
         .upload-container {
@@ -361,6 +380,7 @@
                         <div class="avatar-label">Current You</div>
                         <div class="avatar-image-container avatar-now">
                             <img id="current-avatar" class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=720" alt="Current You">
+                            <div class="avatar-silhouette current-silhouette"></div>
                         </div>
                     </div>
                     
@@ -369,6 +389,7 @@
                         <div class="avatar-image-container avatar-future">
                             <img id="future-avatar" class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=690" alt="Future You">
                             <div class="avatar-glow" id="avatar-glow"></div>
+                            <div class="avatar-silhouette future-silhouette"></div>
                         </div>
                     </div>
                 </div>
