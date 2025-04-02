@@ -1439,7 +1439,57 @@
       align-items: center;
       margin: 2rem auto;
       position: relative;
-      max-width: 140px;
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .avatar-comparison {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    
+    .avatar-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 48%;
+    }
+    
+    .avatar-divider {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      height: 80%;
+      width: 2px;
+      background: linear-gradient(to bottom, rgba(74, 0, 224, 0), rgba(74, 0, 224, 0.5), rgba(74, 0, 224, 0));
+      transform: translateX(-50%);
+    }
+    
+    .avatar-timeline-arrow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 30px;
+      height: 30px;
+      transform: translate(-50%, -50%);
+      background-color: var(--background);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(74, 0, 224, 0.15);
+      z-index: 2;
+    }
+    
+    .avatar-arrow {
+      width: 12px;
+      height: 12px;
+      border-top: 2px solid var(--primary);
+      border-right: 2px solid var(--primary);
+      transform: rotate(45deg);
     }
     
     .future-avatar {
@@ -1449,17 +1499,30 @@
       animation: float 6s ease-in-out infinite;
     }
     
+    .current-avatar {
+      width: 100px; 
+      height: 200px;
+      position: relative;
+    }
+    
     .avatar-silhouette {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C92,15 102,25 102,40 C102,51 98,60 98,65 L98,75 C101,75 103,78 103,81 C103,84 102,87 100,89 C100,89 109,93 109,105 C109,110 107,115 100,120 L100,125 C100,130 90,145 90,145 L95,150 C95,170 95,180 95,195 L95,210 C94,212 92,215 90,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,150 L70,145 C70,145 60,130 60,125 L60,120 C53,115 51,110 51,105 C51,93 60,89 60,89 C58,87 57,84 57,81 C57,78 59,75 62,75 L62,65 C62,60 58,51 58,40 C58,25 68,15 80,15 Z M100,87 L105,87 C105,87 114,89 119,84 C124,79 124,79 124,79 L125,85 C125,87 123,93 118,95 C113,97 110,95 110,95 L100,87 Z M60,87 L55,87 C55,87 46,89 41,84 C36,79 36,79 36,79 L35,85 C35,87 37,93 42,95 C47,97 50,95 50,95 L60,87 Z'/%3E%3C/svg%3E") no-repeat center center;
       -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C92,15 102,25 102,40 C102,51 98,60 98,65 L98,75 C101,75 103,78 103,81 C103,84 102,87 100,89 C100,89 109,93 109,105 C109,110 107,115 100,120 L100,125 C100,130 90,145 90,145 L95,150 C95,170 95,180 95,195 L95,210 C94,212 92,215 90,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,150 L70,145 C70,145 60,130 60,125 L60,120 C53,115 51,110 51,105 C51,93 60,89 60,89 C58,87 57,84 57,81 C57,78 59,75 62,75 L62,65 C62,60 58,51 58,40 C58,25 68,15 80,15 Z M100,87 L105,87 C105,87 114,89 119,84 C124,79 124,79 124,79 L125,85 C125,87 123,93 118,95 C113,97 110,95 110,95 L100,87 Z M60,87 L55,87 C55,87 46,89 41,84 C36,79 36,79 36,79 L35,85 C35,87 37,93 42,95 C47,97 50,95 50,95 L60,87 Z'/%3E%3C/svg%3E") no-repeat center center;
       border-radius: 8px;
       opacity: 0.9;
+    }
+    
+    .current-silhouette {
+      background: linear-gradient(135deg, var(--text-primary), #666);
+    }
+    
+    .future-silhouette {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
     }
     
     .avatar-glow {
@@ -1469,27 +1532,46 @@
       width: 140px;
       height: 160px;
       transform: translate(-50%, -50%);
-      background: radial-gradient(circle, rgba(74, 0, 224, 0.3) 0%, rgba(74, 0, 224, 0) 70%);
       filter: blur(12px);
       border-radius: 50%;
       z-index: -1;
+    }
+    
+    .current-glow {
+      background: radial-gradient(circle, rgba(26, 32, 44, 0.2) 0%, rgba(26, 32, 44, 0) 70%);
+    }
+    
+    .future-glow {
+      background: radial-gradient(circle, rgba(74, 0, 224, 0.3) 0%, rgba(74, 0, 224, 0) 70%);
       animation: pulse 3s ease-in-out infinite;
     }
     
     .avatar-label {
-      margin-top: 1.5rem;
-      color: var(--primary);
+      margin-top: 1rem;
       font-weight: 600;
       text-align: center;
-      font-size: 1.1rem;
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+    }
+    
+    .current-label {
+      color: var(--text-primary);
+    }
+    
+    .future-label {
       background: linear-gradient(90deg, var(--primary-dark), var(--primary), var(--secondary));
       background-size: 200% auto;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       animation: gradientText 4s linear infinite;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+    }
+    
+    .timeframe-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      text-align: center;
     }
     
     /* Responsive adjustments */
@@ -1557,16 +1639,51 @@
       <section class="welcome-section">
         <h1>Build Your Future Self, One Habit at a Time</h1>
         <p>Future Me helps you track habits, visualize your progress, and see how today's small actions shape your tomorrow.</p>
-        <!-- Firebase notification removed as requested -->
+        
+        <div class="wearable-integration-banner" style="margin: 1rem auto 2rem; padding: 0.75rem 1rem; max-width: 90%; border-radius: var(--border-radius); background: linear-gradient(135deg, rgba(74, 0, 224, 0.08), rgba(0, 212, 173, 0.08)); border: 1px solid rgba(74, 0, 224, 0.1);">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.2rem; opacity: 0.9;">🔄</span>
+              <span style="font-weight: 500; color: var(--primary);">Connected Devices</span>
+            </div>
+            <div class="wearable-device-icons" style="display: flex; align-items: center; gap: 0.75rem;">
+              <div class="wearable-icon active" title="Apple Watch" style="width: 28px; height: 28px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 2px solid var(--secondary); position: relative;">
+                <span style="font-size: 0.8rem;">⌚</span>
+                <span style="position: absolute; bottom: -2px; right: -2px; width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span>
+              </div>
+              <div class="wearable-icon" title="Fitbit" style="width: 28px; height: 28px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); opacity: 0.7;">
+                <span style="font-size: 0.8rem;">⚡</span>
+              </div>
+              <div class="wearable-icon" title="Google Fit" style="width: 28px; height: 28px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); opacity: 0.7;">
+                <span style="font-size: 0.8rem;">G</span>
+              </div>
+              <div class="wearable-icon" title="Oura Ring" style="width: 28px; height: 28px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); opacity: 0.7;">
+                <span style="font-size: 0.8rem;">⭕</span>
+              </div>
+              <div class="wearable-icon" title="Garmin" style="width: 28px; height: 28px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); opacity: 0.7;">
+                <span style="font-size: 0.8rem;">G</span>
+              </div>
+            </div>
+            <button class="button button-small" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+              Manage Devices
+            </button>
+          </div>
+        </div>
         
         <div class="stats-container">
           <div class="stat-card">
-            <div class="stat-label">Active Habits</div>
+            <div class="stat-label">
+              <span>Active Habits</span>
+              <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--success); margin-left: 4px;" title="Auto-tracking with connected devices"></span>
+            </div>
             <div class="stat-value">5</div>
             <div class="stat-label">Currently tracking</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Best Streak</div>
+            <div class="stat-label">
+              <span>Best Streak</span>
+              <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--success); margin-left: 4px;" title="Auto-tracking with connected devices"></span>
+            </div>
             <div class="stat-value">12</div>
             <div class="stat-label">Days in a row</div>
           </div>
@@ -1576,9 +1693,9 @@
             <div class="stat-label">Last 30 days</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Habits Created</div>
-            <div class="stat-value">8</div>
-            <div class="stat-label">Total habits</div>
+            <div class="stat-label">Steps Today</div>
+            <div class="stat-value">8,432</div>
+            <div class="stat-label">From Apple Watch</div>
           </div>
         </div>
       </section>
@@ -1594,6 +1711,56 @@
         <div class="section-header">
           <h2>Today's Habits</h2>
           <span>March 26, 2025</span>
+        </div>
+        
+        <div class="wearable-data-summary" style="margin-bottom: 1.5rem; background: var(--surface); border-radius: var(--border-radius); padding: 1.25rem; box-shadow: var(--shadow-sm);">
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.2rem;">⌚</span>
+            <span>Apple Watch Health Data</span>
+            <span style="font-size: 0.8rem; padding: 0.15rem 0.5rem; background: rgba(0, 192, 127, 0.1); color: var(--success); border-radius: 20px; margin-left: auto;">Updated 15m ago</span>
+          </h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem;">
+            <div class="wearable-metric" style="display: flex; flex-direction: column;">
+              <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Steps Today</div>
+              <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">8,432</div>
+              <div style="font-size: 0.8rem; color: var(--success); display: flex; align-items: center; gap: 0.25rem;">
+                <span>↑ 12% </span>
+                <span>vs. yesterday</span>
+              </div>
+            </div>
+            
+            <div class="wearable-metric" style="display: flex; flex-direction: column;">
+              <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Last Night's Sleep</div>
+              <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">7h 20m</div>
+              <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.25rem;">
+                <span style="width: 80px; height: 4px; background: var(--border); border-radius: 2px; position: relative;">
+                  <span style="position: absolute; left: 0; top: 0; height: 100%; width: 75%; background: var(--mindfulness); border-radius: 2px;"></span>
+                </span>
+                <span>75% quality</span>
+              </div>
+            </div>
+            
+            <div class="wearable-metric" style="display: flex; flex-direction: column;">
+              <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Resting Heart Rate</div>
+              <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">64 bpm</div>
+              <div style="font-size: 0.8rem; color: var(--success); display: flex; align-items: center; gap: 0.25rem;">
+                <span>↓ 2 bpm </span>
+                <span>vs. last week</span>
+              </div>
+            </div>
+            
+            <div class="wearable-metric" style="display: flex; flex-direction: column;">
+              <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Active Minutes</div>
+              <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">42 min</div>
+              <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.25rem;">
+                <span style="width: 80px; height: 4px; background: var(--border); border-radius: 2px; position: relative;">
+                  <span style="position: absolute; left: 0; top: 0; height: 100%; width: 70%; background: var(--health); border-radius: 2px;"></span>
+                </span>
+                <span>70% of goal</span>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="habits-grid" id="daily-habits-container">
@@ -1644,10 +1811,112 @@
         </div>
         
         <div class="form-container">
-          <p style="text-align: center; margin-bottom: 1.5rem;">Analytics visualization will be implemented with real data once Firebase integration is complete.</p>
+          <div class="analytics-tabs" style="display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;">
+            <div class="analytics-tab active" style="padding: 0.75rem 1.25rem; cursor: pointer; font-weight: 500; border-bottom: 2px solid var(--primary); color: var(--primary);">Overview</div>
+            <div class="analytics-tab" style="padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-secondary);">Habit Performance</div>
+            <div class="analytics-tab" style="padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-secondary);">Wearable Data</div>
+            <div class="analytics-tab" style="padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-secondary);">Trends</div>
+          </div>
+          
+          <div class="connected-devices-summary" style="margin-bottom: 1.5rem; background: rgba(74, 0, 224, 0.03); border-radius: var(--border-radius); padding: 1rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(74, 0, 224, 0.1);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.2rem;">📊</span>
+              <span>Connected devices are providing data for your analytics</span>
+            </div>
+            <div class="wearable-device-icons" style="display: flex; align-items: center; gap: 0.5rem;">
+              <div class="wearable-icon" title="Apple Watch" style="width: 24px; height: 24px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 2px solid var(--secondary);">
+                <span style="font-size: 0.7rem;">⌚</span>
+              </div>
+              <span style="margin: 0 0.5rem 0 0.25rem; color: var(--text-secondary);">+</span>
+              <span style="color: var(--text-secondary);">3 more</span>
+            </div>
+          </div>
+          
+          <h3 style="margin: 1.5rem 0 1rem; font-size: 1.2rem; color: var(--text-primary);">Wearable Device Insights</h3>
+          
+          <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div class="analytics-card" style="background: var(--surface); border-radius: var(--border-radius); padding: 1.25rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <div style="font-weight: 500; color: var(--text-primary);">Sleep Quality</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">Last 7 days</div>
+              </div>
+              <div style="height: 150px; background: rgba(124, 58, 237, 0.05); border-radius: var(--border-radius-sm); display: flex; align-items: flex-end; padding: 0.5rem; gap: 0.5rem; position: relative;">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 0.5rem; pointer-events: none;">
+                  <div style="border-top: 1px dashed rgba(124, 58, 237, 0.3); font-size: 0.7rem; color: var(--text-secondary); text-align: right; padding-right: 0.5rem;">Excellent</div>
+                  <div style="border-top: 1px dashed rgba(124, 58, 237, 0.3); font-size: 0.7rem; color: var(--text-secondary); text-align: right; padding-right: 0.5rem;">Good</div>
+                  <div style="border-top: 1px dashed rgba(124, 58, 237, 0.3); font-size: 0.7rem; color: var(--text-secondary); text-align: right; padding-right: 0.5rem;">Fair</div>
+                  <div style="border-top: 1px dashed rgba(124, 58, 237, 0.3); font-size: 0.7rem; color: var(--text-secondary); text-align: right; padding-right: 0.5rem;">Poor</div>
+                </div>
+                <div style="flex: 1; height: 60%; background: var(--mindfulness); border-radius: 4px; position: relative;">
+                  <div style="position: absolute; bottom: 100%; left: 0; width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-secondary);">M</div>
+                </div>
+                <div style="flex: 1; height: 70%; background: var(--mindfulness); border-radius: 4px; position: relative;">
+                  <div style="position: absolute; bottom: 100%; left: 0; width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-secondary);">T</div>
+                </div>
+                <div style="flex: 1; height: 50%; background: var(--mindfulness); border-radius: 4px; position: relative;">
+                  <div style="position: absolute; bottom: 100%; left: 0; width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-secondary);">W</div>
+                </div>
+                <div style="flex: 1; height: 80%; background: var(--mindfulness); border-radius: 4px; position: relative;">
+                  <div style="position: absolute; bottom: 100%; left: 0; width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-secondary);">T</div>
+                </div>
+                <div style="flex: 1; height: 75%; background: var(--mindfulness); border-radius: 4px; position: relative;">
+                  <div style="position: absolute; bottom: 100%; left: 0; width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-secondary);">F</div>
+                </div>
+                <div style="flex: 1; height: 90%; background: var(--mindfulness); border-radius: 4px; position: relative;">
+                  <div style="position: absolute; bottom: 100%; left: 0; width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-secondary);">S</div>
+                </div>
+                <div style="flex: 1; height: 65%; background: var(--mindfulness); border-radius: 4px; position: relative;">
+                  <div style="position: absolute; bottom: 100%; left: 0; width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-secondary);">S</div>
+                </div>
+              </div>
+              <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">Average quality: 70%</div>
+                <div style="font-size: 0.85rem; color: var(--success);">↑ 5% vs. last week</div>
+              </div>
+              <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);">Data from: Apple Watch</div>
+            </div>
+            
+            <div class="analytics-card" style="background: var(--surface); border-radius: var(--border-radius); padding: 1.25rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <div style="font-weight: 500; color: var(--text-primary);">Heart Rate Zones</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">Last 7 days</div>
+              </div>
+              <div style="position: relative; width: 100%; height: 150px;">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; gap: 0.5rem;">
+                  <div style="flex: 1; background: rgba(236, 72, 153, 0.1); border-radius: var(--border-radius-sm); display: flex; align-items: center; padding: 0 0.5rem; position: relative;">
+                    <div style="position: absolute; top: 0; left: 0; height: 100%; width: 10%; background: rgba(236, 72, 153, 0.2); border-radius: var(--border-radius-sm);"></div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); z-index: 1;">Maximum (170+ bpm)</div>
+                    <div style="margin-left: auto; font-size: 0.8rem; font-weight: 500; color: var(--relationships); z-index: 1;">10 min</div>
+                  </div>
+                  <div style="flex: 1; background: rgba(236, 72, 153, 0.1); border-radius: var(--border-radius-sm); display: flex; align-items: center; padding: 0 0.5rem; position: relative;">
+                    <div style="position: absolute; top: 0; left: 0; height: 100%; width: 25%; background: rgba(236, 72, 153, 0.2); border-radius: var(--border-radius-sm);"></div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); z-index: 1;">Hard (150-170 bpm)</div>
+                    <div style="margin-left: auto; font-size: 0.8rem; font-weight: 500; color: var(--relationships); z-index: 1;">25 min</div>
+                  </div>
+                  <div style="flex: 1; background: rgba(236, 72, 153, 0.1); border-radius: var(--border-radius-sm); display: flex; align-items: center; padding: 0 0.5rem; position: relative;">
+                    <div style="position: absolute; top: 0; left: 0; height: 100%; width: 40%; background: rgba(236, 72, 153, 0.2); border-radius: var(--border-radius-sm);"></div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); z-index: 1;">Cardio (130-150 bpm)</div>
+                    <div style="margin-left: auto; font-size: 0.8rem; font-weight: 500; color: var(--relationships); z-index: 1;">40 min</div>
+                  </div>
+                  <div style="flex: 1; background: rgba(236, 72, 153, 0.1); border-radius: var(--border-radius-sm); display: flex; align-items: center; padding: 0 0.5rem; position: relative;">
+                    <div style="position: absolute; top: 0; left: 0; height: 100%; width: 65%; background: rgba(236, 72, 153, 0.2); border-radius: var(--border-radius-sm);"></div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); z-index: 1;">Fat Burn (110-130 bpm)</div>
+                    <div style="margin-left: auto; font-size: 0.8rem; font-weight: 500; color: var(--relationships); z-index: 1;">65 min</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">Total active minutes: 140</div>
+                <div style="font-size: 0.85rem; color: var(--success);">↑ the 15% vs. last week</div>
+              </div>
+              <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);">Data from: Fitbit</div>
+            </div>
+          </div>
+          
+          <p style="text-align: center; margin: 1.5rem 0;">Full analytics visualization with all tracked metrics will be available once Firebase integration is complete.</p>
           
           <div style="text-align: center;">
-            <button class="button" onclick="showSampleAnalytics()">Show Sample Charts</button>
+            <button class="button" onclick="showSampleAnalytics()">Show More Sample Charts</button>
           </div>
         </div>
       </div>
@@ -1664,11 +1933,29 @@
           <div class="form-group">
             <label class="form-label">Projection Timeframe</label>
             <select class="form-select" id="projection-timeframe" onchange="if(document.getElementById('timeline-container').innerHTML !== '') showSampleProjections()">
-              <option value="30">30 Days</option>
-              <option value="90" selected>90 Days</option>
+              <option value="30">1 Month</option>
+              <option value="90" selected>3 Months</option>
               <option value="180">6 Months</option>
+              <option value="270">9 Months</option>
               <option value="365">1 Year</option>
+              <option value="1095">3 Years</option>
+              <option value="1825">5 Years</option>
             </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Wearable Device Integration</label>
+            <select class="form-select" id="wearable-device">
+              <option value="none">None Selected</option>
+              <option value="apple-watch">Apple Watch</option>
+              <option value="fitbit">Fitbit</option>
+              <option value="garmin">Garmin</option>
+              <option value="google-fit">Google Fit</option>
+              <option value="oura">Oura Ring</option>
+            </select>
+            <div class="wearable-info" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+              Connected devices automatically sync health metrics, sleep data, and activity to enhance habit tracking precision.
+            </div>
           </div>
           
           <div id="projections-container">
@@ -1812,6 +2099,29 @@
           <div class="form-group">
             <label class="form-label" for="habit-reminder">Set Reminder</label>
             <input class="form-input" type="time" id="habit-reminder">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Smart Device Tracking</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+              <div class="device-checkbox" style="padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--border-radius-sm); display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <div style="width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--primary); position: relative; display: flex; align-items: center; justify-content: center;">
+                  <span style="display: block; width: 10px; height: 10px; background: var(--primary); border-radius: 2px;"></span>
+                </div>
+                <span>Auto-track with Apple Watch</span>
+              </div>
+              <div class="device-checkbox" style="padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--border-radius-sm); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; opacity: 0.7;">
+                <div style="width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--primary); position: relative;"></div>
+                <span>Sleep data from Oura Ring</span>
+              </div>
+              <div class="device-checkbox" style="padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--border-radius-sm); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; opacity: 0.7;">
+                <div style="width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--primary); position: relative;"></div>
+                <span>Heart rate from Fitbit</span>
+              </div>
+            </div>
+            <div class="wearable-info" style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);">
+              Let your wearable devices automatically track completion of this habit based on your activity data.
+            </div>
           </div>
           
           <div class="form-actions">
@@ -2603,6 +2913,25 @@
       title.appendChild(categoryIndicator);
       title.appendChild(document.createTextNode(habit.title));
       
+      // Add wearable device indicator for auto-tracked habits
+      // We'll show this for specific sample habits
+      if (['Daily Hydration', 'Quality Sleep', 'Daily Movement', 'Morning Workout'].includes(habit.title)) {
+        const deviceIndicator = document.createElement('span');
+        deviceIndicator.title = 'Auto-tracked with Apple Watch';
+        deviceIndicator.style.display = 'inline-flex';
+        deviceIndicator.style.alignItems = 'center';
+        deviceIndicator.style.justifyContent = 'center';
+        deviceIndicator.style.fontSize = '0.7rem';
+        deviceIndicator.style.width = '16px';
+        deviceIndicator.style.height = '16px';
+        deviceIndicator.style.borderRadius = '50%';
+        deviceIndicator.style.backgroundColor = 'rgba(74, 0, 224, 0.1)';
+        deviceIndicator.style.color = 'var(--primary)';
+        deviceIndicator.style.marginLeft = '5px';
+        deviceIndicator.textContent = '⌚';
+        title.appendChild(deviceIndicator);
+      }
+      
       const description = document.createElement('div');
       description.className = 'habit-description';
       description.textContent = habit.description;
@@ -3210,12 +3539,56 @@
       avatarContainer.style.opacity = '0';
       avatarContainer.style.transform = 'scale(0.9)';
       
+      // Get timeframe in human-readable format
+      const timeframeDays = parseInt(document.getElementById('projection-timeframe').value);
+      let timeframeText = '';
+      
+      if (timeframeDays <= 30) {
+        timeframeText = '1 Month';
+      } else if (timeframeDays <= 90) {
+        timeframeText = '3 Months';
+      } else if (timeframeDays <= 180) {
+        timeframeText = '6 Months';
+      } else if (timeframeDays <= 270) {
+        timeframeText = '9 Months';
+      } else if (timeframeDays <= 365) {
+        timeframeText = '1 Year';
+      } else if (timeframeDays <= 1095) {
+        timeframeText = '3 Years';
+      } else {
+        timeframeText = '5 Years';
+      }
+      
       avatarContainer.innerHTML = `
-        <div class="future-avatar">
-          <div class="avatar-silhouette"></div>
-          <div class="avatar-glow"></div>
+        <div class="avatar-comparison">
+          <div class="avatar-column">
+            <div class="current-avatar">
+              <div class="avatar-silhouette current-silhouette"></div>
+              <div class="avatar-glow current-glow"></div>
+            </div>
+            <div class="avatar-label current-label">Current You</div>
+            <div class="timeframe-label">Today</div>
+          </div>
+          
+          <div class="avatar-divider"></div>
+          <div class="avatar-timeline-arrow">
+            <div class="avatar-arrow"></div>
+          </div>
+          
+          <div class="avatar-column">
+            <div class="future-avatar">
+              <div class="avatar-silhouette future-silhouette"></div>
+              <div class="avatar-glow future-glow"></div>
+            </div>
+            <div class="avatar-label future-label">Future You</div>
+            <div class="timeframe-label">In ${timeframeText}</div>
+          </div>
         </div>
-        <div class="avatar-label">Future You</div>
+        
+        <div class="wearable-sync-info" style="text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 1rem;">
+          <span style="display: inline-block; vertical-align: middle; width: 12px; height: 12px; background: var(--success); border-radius: 50%; margin-right: 6px;"></span>
+          Wearable data integrated for more accurate projections
+        </div>
       `;
       
       projectionsContainer.appendChild(avatarContainer);
