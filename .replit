@@ -187,8 +187,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx expo start --web --port=5050"
-waitForPort = 5050
+args = "npx expo start --web --port=5000"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "HTML Habits Server"
@@ -202,8 +202,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -m http.server 5555"
-waitForPort = 5555
+args = "python -m http.server 5000"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Simple HTML React"
@@ -223,7 +223,7 @@ waitForPort = 5000
 [deployment]
 deploymentTarget = "static"
 publicDir = "simple-test"
-run = ["sh", "-c", "npx expo start --web --port=5050"]
+run = ["sh", "-c", "npx expo start --web --port=5000"]
 
 [[ports]]
 localPort = 5000
@@ -260,3 +260,7 @@ externalPort = 5173
 [[ports]]
 localPort = 8080
 externalPort = 8080
+
+[[ports]]
+localPort = 19006
+externalPort = 6000
