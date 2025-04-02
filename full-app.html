@@ -1765,6 +1765,44 @@
       </div>
       
       <div id="daily-tab" class="tab-content active">
+        <!-- Future You Welcome Banner -->
+        <div class="future-banner" style="position: relative; margin-bottom: 2rem; padding: 1.5rem; border-radius: var(--border-radius); background: linear-gradient(135deg, #202030, #303050); color: white; box-shadow: var(--shadow-md); overflow: hidden;">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
+            <div style="flex: 1; min-width: 240px; padding-right: 1rem;">
+              <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem; color: white; font-weight: 600;">See Your Future Self</h2>
+              <p style="font-size: 0.95rem; margin-bottom: 1.25rem; opacity: 0.9; line-height: 1.5;">
+                Every habit shapes your future. Our unique avatar technology shows you how today's choices transform your tomorrow.
+              </p>
+              <button id="explore-future-btn" style="background: var(--secondary); color: var(--surface); border: none; padding: 0.6rem 1.2rem; border-radius: 2rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                Explore Your Future
+              </button>
+            </div>
+            
+            <div style="display: flex; justify-content: center; min-width: 220px; max-width: 280px; height: 180px; margin: 0 auto; position: relative;">
+              <!-- Avatar Comparison Container -->
+              <div style="position: relative; width: 100px; height: 100%; margin-right: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden;">
+                <div style="position: absolute; top: 5%; left: 15%; width: 70%; height: 90%; background-color: var(--current-avatar-fill); opacity: 0.95; z-index: 2;
+                    mask: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 160 220\'%3E%3Cpath d=\'M80,15 C95,15 105,25 110,38 C115,51 114,65 114,70 L114,78 C118,78 120,82 120,85 C120,88 118,90 116,92 C116,92 126,97 126,109 C126,114 124,120 117,125 L117,130 C117,135 110,147 110,147 L115,155 C115,175 115,185 115,195 L115,210 C114,212 112,215 110,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,155 L70,147 C70,147 60,135 60,130 L60,125 C53,120 52,114 52,109 C52,97 60,92 60,92 C58,90 57,88 57,85 C57,82 59,78 62,78 L62,70 C62,65 60,51 65,38 C70,25 80,15 80,15 Z\' stroke=\'%2394969c\' stroke-width=\'2\' fill=\'%23b8c2d2\'/%3E%3C/svg%3E') no-repeat center center;
+                    -webkit-mask: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 160 220\'%3E%3Cpath d=\'M80,15 C95,15 105,25 110,38 C115,51 114,65 114,70 L114,78 C118,78 120,82 120,85 C120,88 118,90 116,92 C116,92 126,97 126,109 C126,114 124,120 117,125 L117,130 C117,135 110,147 110,147 L115,155 C115,175 115,185 115,195 L115,210 C114,212 112,215 110,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,155 L70,147 C70,147 60,135 60,130 L60,125 C53,120 52,114 52,109 C52,97 60,92 60,92 C58,90 57,88 57,85 C57,82 59,78 62,78 L62,70 C62,65 60,51 65,38 C70,25 80,15 80,15 Z\' stroke=\'%2394969c\' stroke-width=\'2\' fill=\'%23b8c2d2\'/%3E%3C/svg%3E') no-repeat center center;">
+                </div>
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 0.5rem; text-align: center; font-size: 0.7rem; background: rgba(0,0,0,0.5);">Now</div>
+              </div>
+              
+              <div style="position: relative; width: 100px; height: 100%; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden;">
+                <!-- Future You Silhouette -->
+                <div style="position: absolute; top: 5%; left: 15%; width: 70%; height: 90%; background-color: var(--future-avatar-fill); opacity: 0.95; z-index: 2;
+                    mask: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 160 220\'%3E%3Cpath d=\'M80,15 C95,15 100,25 100,35 C100,45 98,55 98,65 L98,75 C102,75 105,77 105,82 C105,87 102,90 100,91 C100,91 110,96 110,108 C110,120 100,128 100,128 L100,135 L103,140 C103,155 103,175 103,190 L103,205 C103,208 101,211 99,211 L79,211 C77,211 75,208 75,205 L75,190 C75,175 75,155 75,140 L78,135 L78,128 C78,128 68,120 68,108 C68,96 78,91 78,91 C75,90 73,87 73,82 C73,77 75,75 79,75 L79,65 C79,55 77,45 77,35 C77,25 85,15 80,15 Z\' stroke=\'%2368A49A\' stroke-width=\'1\' fill=\'%239de5cf\'/%3E%3C/svg%3E') no-repeat center center;
+                    -webkit-mask: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 160 220\'%3E%3Cpath d=\'M80,15 C95,15 100,25 100,35 C100,45 98,55 98,65 L98,75 C102,75 105,77 105,82 C105,87 102,90 100,91 C100,91 110,96 110,108 C110,120 100,128 100,128 L100,135 L103,140 C103,155 103,175 103,190 L103,205 C103,208 101,211 99,211 L79,211 C77,211 75,208 75,205 L75,190 C75,175 75,155 75,140 L78,135 L78,128 C78,128 68,120 68,108 C68,96 78,91 78,91 C75,90 73,87 73,82 C73,77 75,75 79,75 L79,65 C79,55 77,45 77,35 C77,25 85,15 80,15 Z\' stroke=\'%2368A49A\' stroke-width=\'1\' fill=\'%239de5cf\'/%3E%3C/svg%3E') no-repeat center center;">
+                </div>
+                <div style="position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(0, 255, 150, 0.1) 0%, transparent 70%);"></div>
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 0.5rem; text-align: center; font-size: 0.7rem; background: rgba(0,0,0,0.5);">Future</div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: radial-gradient(circle at 70% 50%, rgba(0, 192, 127, 0.1) 0%, transparent 70%); z-index: 1;"></div>
+        </div>
+
         <div class="section-header">
           <h2>Today's Habits</h2>
           <span>March 26, 2025</span>
@@ -2741,6 +2779,15 @@
       
       // Initialize analytics tabs and device management
       initializeAnalyticsTabsAndDeviceManagement();
+      
+      // Add event listener to the Explore Your Future button
+      const exploreFutureBtn = document.getElementById('explore-future-btn');
+      if (exploreFutureBtn) {
+        exploreFutureBtn.addEventListener('click', function() {
+          switchTab('projections');
+          window.scrollTo(0, 0);
+        });
+      }
       
       // Initialize Firebase
       try {
