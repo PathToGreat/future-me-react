@@ -25,15 +25,15 @@ args = "Pure HTML Test"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Future Me Expo Web"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "HTML Habits Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Simple HTML React"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Investor Demo Server"
 
 [[workflows.workflow]]
 name = "Simple HTML Server"
@@ -81,21 +81,6 @@ args = "cd pure-html && python -m http.server 5000"
 waitForPort = 5000
 
 [[workflows.workflow]]
-name = "Future Me Expo Web"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx expo start --web --port=5000"
-waitForPort = 5000
-
-[[workflows.workflow]]
 name = "HTML Habits Server"
 author = "agent"
 
@@ -112,6 +97,21 @@ waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Simple HTML React"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m http.server 5000"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Investor Demo Server"
 author = "agent"
 
 [workflows.workflow.metadata]
