@@ -57,7 +57,11 @@ args = "Simple HTML React"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Future Me Demo"
+args = "Simple HTML Demo"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "HTML Avatar Demo"
 
 [[workflows.workflow]]
 name = "Basic Test Server"
@@ -225,7 +229,7 @@ args = "python -m http.server 5000"
 waitForPort = 5000
 
 [[workflows.workflow]]
-name = "Future Me Demo"
+name = "Simple HTML Demo"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -236,8 +240,23 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd . && python -m http.server 5001"
-waitForPort = 5001
+args = "python -m http.server 5000"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "HTML Avatar Demo"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m http.server 5003"
+waitForPort = 5003
 
 [deployment]
 deploymentTarget = "static"
