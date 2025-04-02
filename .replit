@@ -236,7 +236,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -m http.server 5001"
+args = "cd . && python -m http.server 5001"
 waitForPort = 5001
 
 [deployment]
