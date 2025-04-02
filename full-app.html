@@ -1618,6 +1618,52 @@
         height: 180px;
       }
     }
+    
+    /* Responsive Analytics Styles */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    
+    .analytics-card {
+      min-width: 0;
+      overflow: hidden;
+    }
+    
+    .analytics-card > div {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    /* Make all text content wrap properly */
+    #analytics-tab * {
+      max-width: 100%;
+      overflow-wrap: break-word;
+    }
+    
+    /* Make sure tables and charts don't overflow */
+    #analytics-tab svg, 
+    #analytics-tab table,
+    #analytics-tab .form-container {
+      max-width: 100%;
+    }
+    
+    /* Responsive text for smaller screens */
+    @media (max-width: 768px) {
+      #analytics-tab .form-container {
+        padding: 1rem;
+      }
+      
+      #analytics-tab h3 {
+        font-size: 1.1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1811,14 +1857,14 @@
         </div>
         
         <div class="form-container">
-          <div class="analytics-tabs" style="display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;">
-            <div id="analytics-overview-tab" class="analytics-tab active" style="padding: 0.75rem 1.25rem; cursor: pointer; font-weight: 500; border-bottom: 2px solid var(--primary); color: var(--primary);">Overview</div>
-            <div id="analytics-habit-tab" class="analytics-tab" style="padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-secondary);">Habit Performance</div>
-            <div id="analytics-wearable-tab" class="analytics-tab" style="padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-secondary);">Wearable Data</div>
-            <div id="analytics-trends-tab" class="analytics-tab" style="padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-secondary);">Trends</div>
+          <div class="analytics-tabs" style="display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;">
+            <div id="analytics-overview-tab" class="analytics-tab active" style="padding: 0.75rem 1.25rem; cursor: pointer; font-weight: 500; border-bottom: 2px solid var(--primary); color: var(--primary); white-space: nowrap;">Overview</div>
+            <div id="analytics-habit-tab" class="analytics-tab" style="padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-secondary); white-space: nowrap;">Habit Performance</div>
+            <div id="analytics-wearable-tab" class="analytics-tab" style="padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-secondary); white-space: nowrap;">Wearable Data</div>
+            <div id="analytics-trends-tab" class="analytics-tab" style="padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-secondary); white-space: nowrap;">Trends</div>
           </div>
           
-          <div class="connected-devices-summary" style="margin-bottom: 1.5rem; background: rgba(74, 0, 224, 0.03); border-radius: var(--border-radius); padding: 1rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(74, 0, 224, 0.1);">
+          <div class="connected-devices-summary" style="margin-bottom: 1.5rem; background: rgba(74, 0, 224, 0.03); border-radius: var(--border-radius); padding: 1rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; border: 1px solid rgba(74, 0, 224, 0.1); gap: 0.75rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <span style="font-size: 1.2rem;">📊</span>
               <span>Connected devices are providing data for your analytics</span>
@@ -4518,9 +4564,23 @@
     
     // Functions for the analytics tabs and manage devices button
     function initializeAnalyticsTabsAndDeviceManagement() {
+      // Ensure the analytics tabs are responsive
+      const analyticsTabsContainer = document.querySelector('.analytics-tabs');
+      if (analyticsTabsContainer) {
+        analyticsTabsContainer.style.display = 'flex';
+        analyticsTabsContainer.style.flexWrap = 'wrap';
+        analyticsTabsContainer.style.borderBottom = '1px solid var(--border)';
+        analyticsTabsContainer.style.marginBottom = '1.5rem';
+      }
+      
       // Add event listeners for analytics tabs
       const analyticsTabs = document.querySelectorAll('.analytics-tab');
       analyticsTabs.forEach(tab => {
+        // Make each tab responsive
+        tab.style.padding = '0.75rem 1.25rem';
+        tab.style.cursor = 'pointer';
+        tab.style.whiteSpace = 'nowrap';
+        
         tab.addEventListener('click', function() {
           // Remove active class from all tabs
           analyticsTabs.forEach(t => {
