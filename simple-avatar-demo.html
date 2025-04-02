@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Me - Avatar & Habits Demo</title>
+    <style>
+        :root {
+            --primary-color: #6200EE;
+            --secondary-color: #3700B3;
+            --background-color: #f5f5f5;
+            --card-background: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --health-color: #4CAF50;
+            --fitness-color: #2196F3;
+            --social-color: #E91E63;
+            --mental-color: #9C27B0;
+            --spiritual-color: #673AB7;
+            --financial-color: #FFC107;
+            
+            --health-rgb: 76, 175, 80;
+            --fitness-rgb: 33, 150, 243;
+            --social-rgb: 233, 30, 99;
+            --mental-rgb: 156, 39, 176;
+            --spiritual-rgb: 103, 58, 183;
+            --financial-rgb: 255, 193, 7;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .card {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .timeframe-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .timeframe-btn {
+            padding: 8px 16px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .timeframe-btn:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .timeframe-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .avatar-label {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .before-after-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+        }
+        
+        .avatar-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .avatar-image-container {
+            width: 180px;
+            height: 280px;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-now {
+            border: 3px solid #999;
+        }
+        
+        .avatar-future {
+            border: 3px solid var(--primary-color);
+        }
+        
+        .avatar-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(98, 0, 238, 0.3);
+            animation: pulse 2s infinite ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .upload-btn {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .upload-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        
+        .effects-container {
+            margin-top: 30px;
+        }
+        
+        .effects-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .effects-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .effect-item {
+            background-color: rgba(98, 0, 238, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            width: calc(50% - 15px);
+            max-width: 250px;
+        }
+        
+        .effect-icon {
+            background-color: var(--primary-color);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .health-effect .effect-icon {
+            background-color: var(--health-color);
+        }
+        
+        .fitness-effect .effect-icon {
+            background-color: var(--fitness-color);
+        }
+        
+        .mental-effect .effect-icon {
+            background-color: var(--mental-color);
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        
+        /* Habits Section */
+        .habits-section {
+            margin-top: 40px;
+        }
+        
+        .category-title {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .habit-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .habit-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .habit-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .habit-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .health-habit {
+            border-left: 4px solid var(--health-color);
+        }
+        
+        .fitness-habit {
+            border-left: 4px solid var(--fitness-color);
+        }
+        
+        .social-habit {
+            border-left: 4px solid var(--social-color);
+        }
+        
+        .mental-habit {
+            border-left: 4px solid var(--mental-color);
+        }
+        
+        .spiritual-habit {
+            border-left: 4px solid var(--spiritual-color);
+        }
+        
+        .financial-habit {
+            border-left: 4px solid var(--financial-color);
+        }
+        
+        @media (max-width: 768px) {
+            .before-after-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .effect-item {
+                width: 100%;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Future Me</h1>
+            <p>See how your habits will transform your future self</p>
+        </header>
+        
+        <div class="card">
+            <h2>Your Future Avatar</h2>
+            <p>Based on your habit consistency, here's a visualization of the physical changes you might expect over time:</p>
+            
+            <div class="timeframe-controls">
+                <button class="timeframe-btn" data-days="30">1 Month</button>
+                <button class="timeframe-btn active" data-days="90">3 Months</button>
+                <button class="timeframe-btn" data-days="180">6 Months</button>
+                <button class="timeframe-btn" data-days="270">9 Months</button>
+                <button class="timeframe-btn" data-days="365">1 Year</button>
+                <button class="timeframe-btn" data-days="1095">3 Years</button>
+                <button class="timeframe-btn" data-days="1825">5 Years</button>
+            </div>
+            
+            <div class="avatar-container">
+                <div class="before-after-container">
+                    <div class="avatar-box">
+                        <div class="avatar-label">Current You</div>
+                        <div class="avatar-image-container avatar-now">
+                            <img id="current-avatar" class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=720" alt="Current You">
+                        </div>
+                    </div>
+                    
+                    <div class="avatar-box">
+                        <div class="avatar-label">Future You <span id="timeframe-label">(3 Months)</span></div>
+                        <div class="avatar-image-container avatar-future">
+                            <img id="future-avatar" class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=690" alt="Future You">
+                            <div class="avatar-glow" id="avatar-glow"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="upload-container">
+                    <button class="upload-btn" id="upload-btn">Upload Your Photo</button>
+                    <input type="file" id="file-input" style="display: none;" accept="image/*">
+                    <p class="upload-info">Upload a full-body photo to see a more accurate transformation</p>
+                </div>
+                
+                <div class="effects-container">
+                    <div class="effects-title">Expected Physical Changes</div>
+                    <div class="effects-list" id="effects-list">
+                        <div class="effect-item health-effect">
+                            <div class="effect-icon">♥</div>
+                            <div class="effect-text">Improved cardiovascular health</div>
+                        </div>
+                        <div class="effect-item fitness-effect">
+                            <div class="effect-icon">⚡</div>
+                            <div class="effect-text">5-10% increase in muscle tone</div>
+                        </div>
+                        <div class="effect-item health-effect">
+                            <div class="effect-icon">🍎</div>
+                            <div class="effect-text">Better skin elasticity and complexion</div>
+                        </div>
+                        <div class="effect-item mental-effect">
+                            <div class="effect-icon">💧</div>
+                            <div class="effect-text">Reduced physical signs of stress</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card habits-section">
+            <h2>Updated Pre-Populated Habits</h2>
+            <p>These habits are categorized to align with the core focus of Future Me:</p>
+            
+            <div class="category-title">Health & Wellness</div>
+            <div class="habit-list">
+                <div class="habit-item health-habit">
+                    <div class="habit-title">Daily Hydration</div>
+                    <div class="habit-description">Drink at least X oz of water</div>
+                </div>
+                <div class="habit-item health-habit">
+                    <div class="habit-title">Whole Food Nutrition</div>
+                    <div class="habit-description">Eat a nutrient-dense meal</div>
+                </div>
+                <div class="habit-item health-habit">
+                    <div class="habit-title">Meal Preparation</div>
+                    <div class="habit-description">Plan and prepare a healthy meal</div>
+                </div>
+                <div class="habit-item health-habit">
+                    <div class="habit-title">Quality Sleep</div>
+                    <div class="habit-description">Sleep for at least 7-9 hours</div>
+                </div>
+                <div class="habit-item health-habit">
+                    <div class="habit-title">Morning Sunlight</div>
+                    <div class="habit-description">Get direct sunlight exposure within 30 minutes of waking</div>
+                </div>
+                <div class="habit-item health-habit">
+                    <div class="habit-title">Evening Wind Down</div>
+                    <div class="habit-description">No screens 1 hour before bed</div>
+                </div>
+            </div>
+            
+            <div class="category-title">Physical Fitness & Mobility</div>
+            <div class="habit-list">
+                <div class="habit-item fitness-habit">
+                    <div class="habit-title">Daily Movement</div>
+                    <div class="habit-description">Walk X steps or move for 30+ minutes</div>
+                </div>
+                <div class="habit-item fitness-habit">
+                    <div class="habit-title">Strength Training</div>
+                    <div class="habit-description">Perform bodyweight or resistance training</div>
+                </div>
+                <div class="habit-item fitness-habit">
+                    <div class="habit-title">Mobility & Stretching</div>
+                    <div class="habit-description">Work on flexibility and joint health</div>
+                </div>
+                <div class="habit-item fitness-habit">
+                    <div class="habit-title">Deep Breathing & Relaxation</div>
+                    <div class="habit-description">Activate the parasympathetic nervous system</div>
+                </div>
+                <div class="habit-item fitness-habit">
+                    <div class="habit-title">Outdoor Time</div>
+                    <div class="habit-description">Spend at least 15 minutes in nature</div>
+                </div>
+            </div>
+            
+            <div class="category-title">Social & Human Connection</div>
+            <div class="habit-list">
+                <div class="habit-item social-habit">
+                    <div class="habit-title">Meaningful Conversation</div>
+                    <div class="habit-description">Engage in deep, intentional discussions</div>
+                </div>
+                <div class="habit-item social-habit">
+                    <div class="habit-title">Check-in with Loved Ones</div>
+                    <div class="habit-description">Call or message a friend/family member</div>
+                </div>
+                <div class="habit-item social-habit">
+                    <div class="habit-title">Acts of Kindness</div>
+                    <div class="habit-description">Do one intentional act of kindness today</div>
+                </div>
+                <div class="habit-item social-habit">
+                    <div class="habit-title">Community Engagement</div>
+                    <div class="habit-description">Participate in a group, club, or local event</div>
+                </div>
+                <div class="habit-item social-habit">
+                    <div class="habit-title">Quality Family Time</div>
+                    <div class="habit-description">Spend uninterrupted time with family</div>
+                </div>
+            </div>
+            
+            <div class="category-title">Mental & Emotional Wellness</div>
+            <div class="habit-list">
+                <div class="habit-item mental-habit">
+                    <div class="habit-title">Morning Gratitude</div>
+                    <div class="habit-description">Write down three things you're grateful for</div>
+                </div>
+                <div class="habit-item mental-habit">
+                    <div class="habit-title">Journaling & Reflection</div>
+                    <div class="habit-description">Reflect on your day, emotions, or progress</div>
+                </div>
+                <div class="habit-item mental-habit">
+                    <div class="habit-title">Screen-Free Hour</div>
+                    <div class="habit-description">Take a break from social media/screens</div>
+                </div>
+                <div class="habit-item mental-habit">
+                    <div class="habit-title">Breathing Exercises</div>
+                    <div class="habit-description">Use controlled breathing techniques to manage stress</div>
+                </div>
+                <div class="habit-item mental-habit">
+                    <div class="habit-title">Emotional Check-in</div>
+                    <div class="habit-description">Assess how you feel and why</div>
+                </div>
+            </div>
+            
+            <div class="category-title">Faith & Spiritual Growth</div>
+            <div class="habit-list">
+                <div class="habit-item spiritual-habit">
+                    <div class="habit-title">Daily Scripture Reading</div>
+                    <div class="habit-description">Read and reflect on a passage</div>
+                </div>
+                <div class="habit-item spiritual-habit">
+                    <div class="habit-title">Prayer & Meditation</div>
+                    <div class="habit-description">Spend intentional time in prayer or stillness</div>
+                </div>
+                <div class="habit-item spiritual-habit">
+                    <div class="habit-title">Faith-Based Study</div>
+                    <div class="habit-description">Study a concept, teaching, or wisdom principle</div>
+                </div>
+                <div class="habit-item spiritual-habit">
+                    <div class="habit-title">Fellowship & Community</div>
+                    <div class="habit-description">Engage with a faith-based group or discussion</div>
+                </div>
+            </div>
+            
+            <div class="category-title">Financial & Productivity Habits</div>
+            <div class="habit-list">
+                <div class="habit-item financial-habit">
+                    <div class="habit-title">Daily Budget Check-in</div>
+                    <div class="habit-description">Review spending and savings goals</div>
+                </div>
+                <div class="habit-item financial-habit">
+                    <div class="habit-title">Work on a Skill</div>
+                    <div class="habit-description">Learn something new to improve career/business</div>
+                </div>
+                <div class="habit-item financial-habit">
+                    <div class="habit-title">Declutter & Organize</div>
+                    <div class="habit-description">Spend 10+ minutes organizing your space</div>
+                </div>
+                <div class="habit-item financial-habit">
+                    <div class="habit-title">Limit Impulse Spending</div>
+                    <div class="habit-description">Avoid unnecessary purchases today</div>
+                </div>
+                <div class="habit-item financial-habit">
+                    <div class="habit-title">Review & Plan</div>
+                    <div class="habit-description">Set priorities for the next day</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple simulation of timeframe changes
+        const timeframeButtons = document.querySelectorAll('.timeframe-btn');
+        const timeframeLabel = document.getElementById('timeframe-label');
+        
+        timeframeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                timeframeButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Get the days value
+                const days = button.getAttribute('data-days');
+                
+                // Update the timeframe label
+                let timeframeText = '';
+                if (days === '30') timeframeText = '(1 Month)';
+                else if (days === '90') timeframeText = '(3 Months)';
+                else if (days === '180') timeframeText = '(6 Months)';
+                else if (days === '270') timeframeText = '(9 Months)';
+                else if (days === '365') timeframeText = '(1 Year)';
+                else if (days === '1095') timeframeText = '(3 Years)';
+                else if (days === '1825') timeframeText = '(5 Years)';
+                
+                timeframeLabel.textContent = timeframeText;
+                
+                // Simulate different effects based on timeframe
+                updateEffects(parseInt(days));
+            });
+        });
+        
+        // Update the effects based on timeframe
+        function updateEffects(days) {
+            const effectsList = document.getElementById('effects-list');
+            effectsList.innerHTML = '';
+            
+            // Short-term effects (1-3 months)
+            if (days <= 90) {
+                addEffect('health-effect', '♥', 'Improved cardiovascular health');
+                addEffect('fitness-effect', '⚡', '5-10% increase in muscle tone');
+                addEffect('health-effect', '🍎', 'Better skin elasticity and complexion');
+                addEffect('mental-effect', '💧', 'Reduced physical signs of stress');
+            }
+            // Medium-term effects (6-9 months)
+            else if (days <= 270) {
+                addEffect('health-effect', '♥', 'Stronger cardiovascular system');
+                addEffect('fitness-effect', '⚡', '15-20% increase in muscle tone');
+                addEffect('health-effect', '🍎', 'Significant improvement in skin health');
+                addEffect('mental-effect', '💧', 'Visible reduction in stress markers');
+                addEffect('fitness-effect', '🏃', 'Increased endurance and stamina');
+            }
+            // Long-term effects (1-5 years)
+            else {
+                addEffect('health-effect', '♥', 'Optimized cardiovascular function');
+                addEffect('fitness-effect', '⚡', '25-40% improvement in physical fitness');
+                addEffect('health-effect', '🍎', 'Age reversal in skin appearance');
+                addEffect('mental-effect', '💧', 'Profound reduction in aging markers');
+                addEffect('fitness-effect', '🏃', 'Total body transformation');
+                addEffect('health-effect', '🌱', 'Significantly reduced risk of chronic disease');
+            }
+        }
+        
+        // Helper to add an effect to the list
+        function addEffect(className, icon, text) {
+            const effectsList = document.getElementById('effects-list');
+            
+            const effectItem = document.createElement('div');
+            effectItem.className = `effect-item ${className}`;
+            
+            const effectIcon = document.createElement('div');
+            effectIcon.className = 'effect-icon';
+            effectIcon.textContent = icon;
+            
+            const effectText = document.createElement('div');
+            effectText.className = 'effect-text';
+            effectText.textContent = text;
+            
+            effectItem.appendChild(effectIcon);
+            effectItem.appendChild(effectText);
+            effectsList.appendChild(effectItem);
+        }
+        
+        // Handle photo upload
+        const uploadBtn = document.getElementById('upload-btn');
+        const fileInput = document.getElementById('file-input');
+        
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const imageUrl = event.target.result;
+                    document.getElementById('current-avatar').src = imageUrl;
+                    document.getElementById('future-avatar').src = imageUrl;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
