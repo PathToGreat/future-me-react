@@ -73,8 +73,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -m http.server 8080"
-waitForPort = 8080
+args = "cd simple-test && python -m http.server 5000"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Future Me Server"
