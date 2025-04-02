@@ -102,6 +102,8 @@
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
         
         .mockup-header {
@@ -124,8 +126,12 @@
         
         .mockup-content {
             padding: 15px;
-            height: calc(100% - 85px);
+            height: calc(100% - 85px); 
+            max-height: 420px; /* Fixed height to prevent content from extending into tab bar */
             overflow-y: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
         
         .mockup-tab-bar {
@@ -137,6 +143,7 @@
             background-color: white;
             display: flex;
             border-top: 1px solid #eee;
+            z-index: 10; /* Ensure tab bar is on top */
         }
         
         .mockup-tab {
@@ -226,8 +233,9 @@
         .avatar-comparison {
             display: flex;
             justify-content: space-between;
-            gap: 20px;
+            gap: 15px;
             flex-wrap: wrap;
+            padding-bottom: 20px; /* Add bottom padding to prevent overlap with tab bar */
         }
         
         .avatar-box {
@@ -244,30 +252,31 @@
         
         .avatar-image-container {
             width: 100%;
-            height: 250px;
+            height: 180px; /* Further reduced height to better fit in the mobile mockup */
             border-radius: 10px;
             overflow: hidden;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: 15px; /* Add bottom margin to prevent content overlap */
         }
         
         .avatar-now {
             border: 3px solid #999;
-            background-color: #f5f5f5;
+            background-color: #202030; /* Darker background to make silhouettes stand out */
         }
         
         .avatar-future {
             border: 3px solid var(--primary-color);
-            background-color: #f5f5f5;
+            background-color: #202030; /* Darker background to make silhouettes stand out */
         }
         
         /* Base avatar silhouette */
         .avatar-silhouette {
             position: absolute;
-            width: 140px;
-            height: 220px;
+            width: 120px; /* Reduced width to better fit in avatar container */
+            height: 180px; /* Reduced height to better fit in avatar container */
             opacity: 0.9;
         }
         
@@ -289,7 +298,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.2; /* Make real images very faint instead of hiding them completely */
+            opacity: 0.1; /* Make real images almost invisible to make silhouettes more visible */
         }
         
         .avatar-glow {
@@ -316,13 +325,13 @@
         }
         
         .current-silhouette {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' fill='rgba(255,255,255,0.6)'%3E%3Cpath d='M50,30 C60,30 65,25 65,15 C65,5 55,0 50,0 C45,0 35,5 35,15 C35,25 40,30 50,30 Z M30,60 C30,50 40,35 50,35 C60,35 70,50 70,60 L75,145 C75,160 72,170 65,180 C67,185 70,190 70,195 C70,197 68,200 65,200 L55,200 L55,190 L45,190 L45,200 L35,200 C32,200 30,197 30,195 C30,190 33,185 35,180 C28,170 25,160 25,145 Z' /%3E%3C/svg%3E");
-            opacity: 0.7;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' fill='rgba(200,120,120,0.9)'%3E%3Cpath d='M50,30 C60,30 65,25 65,15 C65,5 55,0 50,0 C45,0 35,5 35,15 C35,25 40,30 50,30 Z M30,60 C30,50 40,35 50,35 C60,35 70,50 70,60 L75,145 C75,160 72,170 65,180 C67,185 70,190 70,195 C70,197 68,200 65,200 L55,200 L55,190 L45,190 L45,200 L35,200 C32,200 30,197 30,195 C30,190 33,185 35,180 C28,170 25,160 25,145 Z' /%3E%3C/svg%3E");
+            opacity: 0.95;
         }
         
         .future-silhouette {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' fill='rgba(255,255,255,0.7)'%3E%3Cpath d='M50,30 C60,30 65,25 65,15 C65,5 55,0 50,0 C45,0 35,5 35,15 C35,25 40,30 50,30 Z M30,55 C30,45 40,35 50,35 C60,35 70,45 70,55 L70,140 C70,145 68,150 65,155 C68,160 70,165 70,170 C70,172 68,175 65,175 L55,175 L55,165 L45,165 L45,175 L35,175 C32,175 30,172 30,170 C30,165 32,160 35,155 C32,150 30,145 30,140 Z' /%3E%3C/svg%3E");
-            opacity: 0.8;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' fill='rgba(100,230,130,0.9)'%3E%3Cpath d='M50,30 C60,30 65,25 65,15 C65,5 55,0 50,0 C45,0 35,5 35,15 C35,25 40,30 50,30 Z M30,55 C30,45 40,35 50,35 C60,35 70,45 70,55 L70,140 C70,145 68,150 65,155 C68,160 70,165 70,170 C70,172 68,175 65,175 L55,175 L55,165 L45,165 L45,175 L35,175 C32,175 30,172 30,170 C30,165 32,160 35,155 C32,150 30,145 30,140 Z' /%3E%3C/svg%3E");
+            opacity: 0.95;
         }
         
         @keyframes pulse {
