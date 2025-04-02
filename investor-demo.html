@@ -1329,7 +1329,8 @@
                     // If this is in the avatar section, update the label
                     const avatarContainer = this.closest('.avatar-container');
                     if (avatarContainer) {
-                        const futureLabel = avatarContainer.querySelector('.avatar-label:nth-child(1)');
+                        // Find the correct "Future You" label (inside the second avatar-box)
+                        const futureLabel = avatarContainer.querySelector('.avatar-box:nth-child(2) .avatar-label');
                         if (futureLabel) {
                             futureLabel.textContent = `Future You (${this.textContent})`;
                         }
