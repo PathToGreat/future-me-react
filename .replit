@@ -39,6 +39,10 @@ args = "Clean React Native Test"
 task = "workflow.run"
 args = "React Native Web"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Pure HTML Test"
+
 [[workflows.workflow]]
 name = "Basic Test Server"
 author = "agent"
@@ -143,6 +147,21 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "npx expo start --web --port=5004"
 waitForPort = 5004
+
+[[workflows.workflow]]
+name = "Pure HTML Test"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd pure-html && python -m http.server 5000"
+waitForPort = 5000
 
 [deployment]
 deploymentTarget = "static"
