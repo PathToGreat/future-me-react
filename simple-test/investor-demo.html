@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Me - Investor Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6200EE;
+            --secondary-color: #3700B3;
+            --background-color: #f5f5f5;
+            --card-background: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --health-color: #4CAF50;
+            --fitness-color: #2196F3;
+            --social-color: #E91E63;
+            --mental-color: #9C27B0;
+            --spiritual-color: #673AB7;
+            --financial-color: #FFC107;
+            
+            --health-rgb: 76, 175, 80;
+            --fitness-rgb: 33, 150, 243;
+            --social-rgb: 233, 30, 99;
+            --mental-rgb: 156, 39, 176;
+            --spiritual-rgb: 103, 58, 183;
+            --financial-rgb: 255, 193, 7;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .mockup-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+        
+        .mockup {
+            width: 300px;
+            height: 600px;
+            background-color: #fff;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        
+        .mockup-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+        }
+        
+        .mockup-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .mockup-subtitle {
+            font-size: 14px;
+            margin: 5px 0 0;
+            opacity: 0.8;
+        }
+        
+        .mockup-content {
+            padding: 15px;
+            height: calc(100% - 85px);
+            overflow-y: auto;
+        }
+        
+        .mockup-tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: white;
+            display: flex;
+            border-top: 1px solid #eee;
+        }
+        
+        .mockup-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 0;
+        }
+        
+        .mockup-tab.active {
+            color: var(--primary-color);
+        }
+        
+        .tab-icon {
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+        
+        .tab-label {
+            font-size: 12px;
+        }
+        
+        .feature-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .feature-item {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .feature-description {
+            margin-bottom: 15px;
+        }
+        
+        .feature-image {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            align-self: center;
+        }
+        
+        /* Avatar Transformation */
+        .avatar-container {
+            margin: 20px 0;
+        }
+        
+        .timeframe-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .timeframe-btn {
+            padding: 8px 16px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .timeframe-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .avatar-comparison {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .avatar-box {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .avatar-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .avatar-image-container {
+            width: 100%;
+            height: 250px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .avatar-now {
+            border: 3px solid #999;
+        }
+        
+        .avatar-future {
+            border: 3px solid var(--primary-color);
+        }
+        
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(98, 0, 238, 0.3);
+            animation: pulse 2s infinite ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        
+        /* Habit Categories */
+        .categories-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .category-box {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+        }
+        
+        .category-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .category-count {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .health-box {
+            background-color: var(--health-color);
+        }
+        
+        .fitness-box {
+            background-color: var(--fitness-color);
+        }
+        
+        .social-box {
+            background-color: var(--social-color);
+        }
+        
+        .mental-box {
+            background-color: var(--mental-color);
+        }
+        
+        .spiritual-box {
+            background-color: var(--spiritual-color);
+        }
+        
+        .financial-box {
+            background-color: var(--financial-color);
+        }
+        
+        /* Habits */
+        .habits-container {
+            margin: 20px 0;
+        }
+        
+        .habit-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .habit-info {
+            flex: 1;
+        }
+        
+        .habit-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .habit-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .habit-fact {
+            font-style: italic;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .habit-completion {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 15px;
+            border-width: 2px;
+            border-style: solid;
+        }
+        
+        /* Daily Check-in */
+        .daily-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            flex: 1;
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin: 0 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .checkin-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkin-checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .checkin-checkbox.checked {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .checkin-info {
+            flex: 1;
+        }
+        
+        .checkin-title {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .checkin-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* Profile */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            overflow: hidden;
+            margin-right: 20px;
+            border: 3px solid var(--primary-color);
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-info {
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .profile-email {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .edit-profile-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profile-stat {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .profile-stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .profile-stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .profile-menu-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-icon {
+            font-size: 20px;
+            margin-right: 15px;
+            width: 25px;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .mockup-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mockup {
+                margin-bottom: 30px;
+            }
+            
+            .avatar-comparison {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .avatar-box {
+                width: 100%;
+                max-width: 300px;
+                margin-bottom: 20px;
+            }
+            
+            .daily-stats {
+                flex-wrap: wrap;
+            }
+            
+            .stat-box {
+                width: 45%;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Projection chart */
+        .projection-chart {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .chart-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .chart-bar-container {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            gap: 20px;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background-color: var(--primary-color);
+            max-width: 40px;
+            position: relative;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .chart-label {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 10px;
+            color: var(--text-secondary);
+        }
+
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* App buttons and controls */
+        .mockup-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            margin: 5px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .mockup-section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0 10px;
+        }
+
+        .mockup-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Future Me</h1>
+        <p class="subtitle">Transform Your Future Self Through Consistent Habits</p>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <h2>Investor Preview</h2>
+            <p>Future Me is a transformative habit tracking app that visualizes how your habits today shape your future self. Our unique AI-powered avatar transformation shows the physical impact of your habits over time.</p>
+            
+            <div class="mockup-container">
+                <!-- Future Projection Screen Mockup -->
+                <div class="mockup">
+                    <div class="mockup-header">
+                        <h2 class="mockup-title">Future Me</h2>
+                        <p class="mockup-subtitle">Preview for Investors</p>
+                    </div>
+                    <div class="mockup-content">
+                        <h3 class="mockup-section-title">Your Future Avatar</h3>
+                        <p class="mockup-label">Based on your habit consistency, here's a visualization of how you might look over time:</p>
+                        
+                        <div class="timeframe-selector">
+                            <div class="timeframe-btn">1 Month</div>
+                            <div class="timeframe-btn active">3 Months</div>
+                            <div class="timeframe-btn">6 Months</div>
+                            <div class="timeframe-btn">1 Year</div>
+                        </div>
+                        
+                        <div class="avatar-comparison">
+                            <div class="avatar-box">
+                                <div class="avatar-label">Current You</div>
+                                <div class="avatar-image-container avatar-now">
+                                    <img class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=720" alt="Current You">
+                                </div>
+                            </div>
+                            
+                            <div class="avatar-box">
+                                <div class="avatar-label">Future You (3 Months)</div>
+                                <div class="avatar-image-container avatar-future">
+                                    <img class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=690" alt="Future You">
+                                    <div class="avatar-glow"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="mockup-section-title">Expected Physical Changes</h3>
+                        <div class="changes-list">
+                            <div class="habit-card">
+                                <div class="habit-info">
+                                    <div class="habit-title">Improved cardiovascular health</div>
+                                </div>
+                            </div>
+                            <div class="habit-card">
+                                <div class="habit-info">
+                                    <div class="habit-title">5-10% increase in muscle tone</div>
+                                </div>
+                            </div>
+                            <div class="habit-card">
+                                <div class="habit-info">
+                                    <div class="habit-title">Better skin elasticity and complexion</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mockup-tab-bar">
+                        <div class="mockup-tab">
+                            <div class="tab-icon">📋</div>
+                            <div class="tab-label">Daily</div>
+                        </div>
+                        <div class="mockup-tab">
+                            <div class="tab-icon">🔄</div>
+                            <div class="tab-label">Habits</div>
+                        </div>
+                        <div class="mockup-tab active">
+                            <div class="tab-icon">🔭</div>
+                            <div class="tab-label">Future</div>
+                        </div>
+                        <div class="mockup-tab">
+                            <div class="tab-icon">👤</div>
+                            <div class="tab-label">Profile</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Habits Screen Mockup -->
+                <div class="mockup">
+                    <div class="mockup-header">
+                        <h2 class="mockup-title">Future Me</h2>
+                        <p class="mockup-subtitle">Preview for Investors</p>
+                    </div>
+                    <div class="mockup-content">
+                        <h3 class="mockup-section-title">My Habits</h3>
+                        <p class="mockup-label">Track these key habits to transform your future self:</p>
+                        
+                        <div class="timeframe-selector">
+                            <div class="timeframe-btn active">Health</div>
+                            <div class="timeframe-btn">Fitness</div>
+                            <div class="timeframe-btn">Mental</div>
+                        </div>
+                        
+                        <div class="habits-container">
+                            <div class="habit-card">
+                                <div class="habit-info">
+                                    <div class="habit-title">Daily Hydration</div>
+                                    <div class="habit-description">Drink at least 64 oz of water each day</div>
+                                </div>
+                                <div class="habit-completion" style="background-color: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50;">
+                                    85%
+                                </div>
+                            </div>
+                            
+                            <div class="habit-card">
+                                <div class="habit-info">
+                                    <div class="habit-title">Whole Food Nutrition</div>
+                                    <div class="habit-description">Eat a nutrient-dense meal</div>
+                                </div>
+                                <div class="habit-completion" style="background-color: rgba(33, 150, 243, 0.2); border-color: #2196F3; color: #2196F3;">
+                                    70%
+                                </div>
+                            </div>
+                            
+                            <div class="habit-card">
+                                <div class="habit-info">
+                                    <div class="habit-title">Quality Sleep</div>
+                                    <div class="habit-description">Sleep for at least 7-9 hours</div>
+                                </div>
+                                <div class="habit-completion" style="background-color: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50;">
+                                    80%
+                                </div>
+                            </div>
+                            
+                            <div class="habit-card">
+                                <div class="habit-info">
+                                    <div class="habit-title">Morning Sunlight</div>
+                                    <div class="habit-description">Get sunlight within 30 min of waking</div>
+                                </div>
+                                <div class="habit-completion" style="background-color: rgba(233, 30, 99, 0.2); border-color: #E91E63; color: #E91E63;">
+                                    50%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mockup-tab-bar">
+                        <div class="mockup-tab">
+                            <div class="tab-icon">📋</div>
+                            <div class="tab-label">Daily</div>
+                        </div>
+                        <div class="mockup-tab active">
+                            <div class="tab-icon">🔄</div>
+                            <div class="tab-label">Habits</div>
+                        </div>
+                        <div class="mockup-tab">
+                            <div class="tab-icon">🔭</div>
+                            <div class="tab-label">Future</div>
+                        </div>
+                        <div class="mockup-tab">
+                            <div class="tab-icon">👤</div>
+                            <div class="tab-label">Profile</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Daily Check-in Screen Mockup -->
+                <div class="mockup">
+                    <div class="mockup-header">
+                        <h2 class="mockup-title">Future Me</h2>
+                        <p class="mockup-subtitle">Preview for Investors</p>
+                    </div>
+                    <div class="mockup-content">
+                        <h3 class="mockup-section-title">Daily Check-in</h3>
+                        <p class="mockup-label">Track your progress and build momentum:</p>
+                        
+                        <div class="daily-stats">
+                            <div class="stat-box">
+                                <div class="stat-value">5/8</div>
+                                <div class="stat-label">Today's Habits</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">75%</div>
+                                <div class="stat-label">Weekly Avg</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">18</div>
+                                <div class="stat-label">Day Streak</div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="mockup-section-title" style="display: flex; align-items: center; justify-content: space-between;">
+                            <span>Auto-Tracked</span>
+                            <span style="font-size: 0.8em; color: #2196F3; font-weight: normal;">⌚ Connected</span>
+                        </h3>
+                        
+                        <div style="background-color: rgba(33, 150, 243, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: bold; margin-bottom: 3px;">10,253 Steps</div>
+                                    <div style="font-size: 12px; color: #666;">Goal: 10,000 steps</div>
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">102%</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background-color: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: bold; margin-bottom: 3px;">Sleep: 7h 15m</div>
+                                    <div style="font-size: 12px; color: #666;">Goal: 7-9 hours</div>
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">✓</div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="mockup-section-title">Quick Complete</h3>
+                        
+                        <div class="checkin-item">
+                            <div class="checkin-checkbox checked">✓</div>
+                            <div class="checkin-info">
+                                <div class="checkin-title">Daily Hydration</div>
+                                <div class="checkin-description">Drink at least 64 oz of water</div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkin-item">
+                            <div class="checkin-checkbox checked">✓</div>
+                            <div class="checkin-info">
+                                <div class="checkin-title">Morning Sunlight</div>
+                                <div class="checkin-description">Get sunlight within 30 min of waking</div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkin-item">
+                            <div class="checkin-checkbox checked">✓</div>
+                            <div class="checkin-info">
+                                <div class="checkin-title">Strength Training</div>
+                                <div class="checkin-description">Perform resistance training</div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkin-item">
+                            <div class="checkin-checkbox"></div>
+                            <div class="checkin-info">
+                                <div class="checkin-title">Quality Sleep</div>
+                                <div class="checkin-description">Sleep for at least 7-9 hours</div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkin-item">
+                            <div class="checkin-checkbox"></div>
+                            <div class="checkin-info">
+                                <div class="checkin-title">Daily Movement</div>
+                                <div class="checkin-description">10,000 steps or 30+ min activity</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mockup-tab-bar">
+                        <div class="mockup-tab active">
+                            <div class="tab-icon">📋</div>
+                            <div class="tab-label">Daily</div>
+                        </div>
+                        <div class="mockup-tab">
+                            <div class="tab-icon">🔄</div>
+                            <div class="tab-label">Habits</div>
+                        </div>
+                        <div class="mockup-tab">
+                            <div class="tab-icon">🔭</div>
+                            <div class="tab-label">Future</div>
+                        </div>
+                        <div class="mockup-tab">
+                            <div class="tab-icon">👤</div>
+                            <div class="tab-label">Profile</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Key Features</h2>
+            
+            <div class="feature-item">
+                <div class="feature-title">AI-Powered Avatar Transformation</div>
+                <div class="feature-description">
+                    <p>See the physical impact of your habits over time with our advanced avatar transformation technology. The app generates a future version of you based on your habit consistency across multiple timeframes.</p>
+                </div>
+                <div class="avatar-container">
+                    <div class="timeframe-selector">
+                        <button class="timeframe-btn">1 Month</button>
+                        <button class="timeframe-btn active">3 Months</button>
+                        <button class="timeframe-btn">6 Months</button>
+                        <button class="timeframe-btn">1 Year</button>
+                        <button class="timeframe-btn">3 Years</button>
+                        <button class="timeframe-btn">5 Years</button>
+                    </div>
+                    
+                    <div class="avatar-comparison">
+                        <div class="avatar-box">
+                            <div class="avatar-label">Current You</div>
+                            <div class="avatar-image-container avatar-now">
+                                <img class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=720" alt="Current You">
+                            </div>
+                        </div>
+                        
+                        <div class="avatar-box">
+                            <div class="avatar-label">Future You (3 Months)</div>
+                            <div class="avatar-image-container avatar-future">
+                                <img class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=690" alt="Future You">
+                                <div class="avatar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">Six Categories of Science-Based Habits</div>
+                <div class="feature-description">
+                    <p>Future Me includes a comprehensive library of pre-loaded habits across six key categories, each designed with scientific research on longevity, wellness, and personal development.</p>
+                </div>
+                <div class="categories-container">
+                    <div class="category-box health-box">
+                        <div class="category-title">Health & Wellness</div>
+                        <div class="category-count">6 Habits</div>
+                    </div>
+                    <div class="category-box fitness-box">
+                        <div class="category-title">Physical Fitness</div>
+                        <div class="category-count">5 Habits</div>
+                    </div>
+                    <div class="category-box social-box">
+                        <div class="category-title">Social Connection</div>
+                        <div class="category-count">5 Habits</div>
+                    </div>
+                    <div class="category-box mental-box">
+                        <div class="category-title">Mental Wellness</div>
+                        <div class="category-count">5 Habits</div>
+                    </div>
+                    <div class="category-box spiritual-box">
+                        <div class="category-title">Spiritual Growth</div>
+                        <div class="category-count">4 Habits</div>
+                    </div>
+                    <div class="category-box financial-box">
+                        <div class="category-title">Financial Habits</div>
+                        <div class="category-count">5 Habits</div>
+                    </div>
+                </div>
+                
+                <div class="habits-container">
+                    <h3>Sample Habits</h3>
+                    <div class="habit-card">
+                        <div class="habit-info">
+                            <div class="habit-title">Daily Hydration</div>
+                            <div class="habit-description">Drink at least 64 oz of water each day</div>
+                            <div class="habit-fact">Proper hydration improves cognition, energy levels, and skin health while reducing the risk of kidney stones and helping control body temperature.</div>
+                        </div>
+                        <div class="habit-completion" style="background-color: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50;">
+                            85%
+                        </div>
+                    </div>
+                    
+                    <div class="habit-card">
+                        <div class="habit-info">
+                            <div class="habit-title">Strength Training</div>
+                            <div class="habit-description">Perform bodyweight or resistance training</div>
+                            <div class="habit-fact">Strength training increases bone density, improves joint function, boosts metabolism, and helps maintain muscle mass as you age.</div>
+                        </div>
+                        <div class="habit-completion" style="background-color: rgba(33, 150, 243, 0.2); border-color: #2196F3; color: #2196F3;">
+                            70%
+                        </div>
+                    </div>
+                    
+                    <div class="habit-card">
+                        <div class="habit-info">
+                            <div class="habit-title">Morning Gratitude</div>
+                            <div class="habit-description">Write down three things you are grateful for</div>
+                            <div class="habit-fact">Practicing gratitude rewires the brain to notice positive experiences more frequently and has been shown to improve sleep, reduce depression, and increase happiness.</div>
+                        </div>
+                        <div class="habit-completion" style="background-color: rgba(156, 39, 176, 0.2); border-color: #9C27B0; color: #9C27B0;">
+                            65%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">Visual Progress Tracking</div>
+                <div class="feature-description">
+                    <p>Track your progress over time with intuitive visualizations and projections. See how your habit consistency translates to physical and lifestyle changes.</p>
+                </div>
+                <div class="projection-chart">
+                    <div class="chart-title">Projected Improvements Over Time</div>
+                    <div class="chart-bar-container">
+                        <div>
+                            <div class="chart-bar" style="height: 40px; background-color: #4CAF50;">
+                                <div class="chart-value">40%</div>
+                            </div>
+                            <div class="chart-label">1 Month</div>
+                        </div>
+                        <div>
+                            <div class="chart-bar" style="height: 80px; background-color: #4CAF50;">
+                                <div class="chart-value">80%</div>
+                            </div>
+                            <div class="chart-label">3 Months</div>
+                        </div>
+                        <div>
+                            <div class="chart-bar" style="height: 120px; background-color: #4CAF50;">
+                                <div class="chart-value">120%</div>
+                            </div>
+                            <div class="chart-label">6 Months</div>
+                        </div>
+                        <div>
+                            <div class="chart-bar" style="height: 160px; background-color: #4CAF50;">
+                                <div class="chart-value">160%</div>
+                            </div>
+                            <div class="chart-label">1 Year</div>
+                        </div>
+                        <div>
+                            <div class="chart-bar" style="height: 180px; background-color: #4CAF50;">
+                                <div class="chart-value">180%</div>
+                            </div>
+                            <div class="chart-label">3 Years</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">Daily Check-in System</div>
+                <div class="feature-description">
+                    <p>Build momentum with an intuitive daily check-in system. Track your habits, see your streaks, and maintain consistency with reminders and motivational feedback.</p>
+                </div>
+                <div class="daily-stats">
+                    <div class="stat-box">
+                        <div class="stat-value">5/8</div>
+                        <div class="stat-label">Today's Habits</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">75%</div>
+                        <div class="stat-label">Weekly Average</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">18</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                </div>
+                
+                <div class="checkin-item">
+                    <div class="checkin-checkbox checked">✓</div>
+                    <div class="checkin-info">
+                        <div class="checkin-title">Daily Hydration</div>
+                        <div class="checkin-description">Drink at least 64 oz of water</div>
+                    </div>
+                </div>
+                
+                <div class="checkin-item">
+                    <div class="checkin-checkbox checked">✓</div>
+                    <div class="checkin-info">
+                        <div class="checkin-title">Morning Sunlight</div>
+                        <div class="checkin-description">Get sunlight within 30 min of waking</div>
+                    </div>
+                </div>
+                
+                <div class="checkin-item">
+                    <div class="checkin-checkbox"></div>
+                    <div class="checkin-info">
+                        <div class="checkin-title">Quality Sleep</div>
+                        <div class="checkin-description">Sleep for at least 7-9 hours</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Smart Device Integration</h2>
+            <div class="feature-item">
+                <div class="feature-title">Seamless Wearable Technology Integration</div>
+                <div class="feature-description">
+                    <p>Future Me connects with popular wearable devices and fitness trackers to automatically collect and analyze real-time health data, reducing manual input and improving accuracy.</p>
+                </div>
+                
+                <div style="background-color: white; border-radius: 10px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                    <h3 style="color: var(--primary-color); margin-top: 0;">Supported Data Points</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+                        <div style="flex: 1; min-width: 200px; background-color: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                            <div style="font-weight: bold; color: #4CAF50; margin-bottom: 5px;">Sleep Metrics</div>
+                            <div style="font-size: 14px;">Duration, quality, cycles, and patterns from smartwatches and sleep trackers</div>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 200px; background-color: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #2196F3;">
+                            <div style="font-weight: bold; color: #2196F3; margin-bottom: 5px;">Physical Activity</div>
+                            <div style="font-size: 14px;">Steps, workouts, heart rate, and active minutes from fitness trackers</div>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 200px; background-color: rgba(156, 39, 176, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #9C27B0;">
+                            <div style="font-weight: bold; color: #9C27B0; margin-bottom: 5px;">Biometrics</div>
+                            <div style="font-size: 14px;">Heart rate variability, blood oxygen, stress levels, and recovery metrics</div>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 200px; background-color: rgba(255, 193, 7, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #FFC107;">
+                            <div style="font-weight: bold; color: #FFC107; margin-bottom: 5px;">Nutrition</div>
+                            <div style="font-size: 14px;">Integration with smart scales and nutrition apps for comprehensive tracking</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="color: var(--primary-color); margin-top: 30px;">Compatible Devices</h3>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; text-align: center; margin-top: 20px;">
+                        <div style="flex: 1; min-width: 120px;">
+                            <div style="font-size: 24px;">⌚</div>
+                            <div style="font-weight: bold; margin: 5px 0;">Apple Watch</div>
+                            <div style="font-size: 12px; color: #666;">Health Kit</div>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 120px;">
+                            <div style="font-size: 24px;">🔄</div>
+                            <div style="font-weight: bold; margin: 5px 0;">Fitbit</div>
+                            <div style="font-size: 12px; color: #666;">Sense, Versa, Charge</div>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 120px;">
+                            <div style="font-size: 24px;">⌚</div>
+                            <div style="font-weight: bold; margin: 5px 0;">Garmin</div>
+                            <div style="font-size: 12px; color: #666;">Connect API</div>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 120px;">
+                            <div style="font-size: 24px;">🤖</div>
+                            <div style="font-weight: bold; margin: 5px 0;">Google Fit</div>
+                            <div style="font-size: 12px; color: #666;">Android Ecosystem</div>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 120px;">
+                            <div style="font-size: 24px;">💍</div>
+                            <div style="font-weight: bold; margin: 5px 0;">Oura Ring</div>
+                            <div style="font-size: 12px; color: #666;">Sleep & Recovery</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin: 30px 0;">
+                    <h3 style="color: var(--primary-color);">Key Benefits of Wearable Integration</h3>
+                    <ul style="list-style-type: none; padding: 0;">
+                        <li style="margin-bottom: 15px; padding-left: 30px; position: relative;">
+                            <div style="position: absolute; left: 0; top: 0; color: var(--primary-color);">✓</div>
+                            <strong>Frictionless Data Collection:</strong> Automatic syncing reduces user input burden and increases adherence.
+                        </li>
+                        <li style="margin-bottom: 15px; padding-left: 30px; position: relative;">
+                            <div style="position: absolute; left: 0; top: 0; color: var(--primary-color);">✓</div>
+                            <strong>Enhanced Accuracy:</strong> Direct device measurements provide more reliable data than self-reporting.
+                        </li>
+                        <li style="margin-bottom: 15px; padding-left: 30px; position: relative;">
+                            <div style="position: absolute; left: 0; top: 0; color: var(--primary-color);">✓</div>
+                            <strong>Holistic Health Insights:</strong> Comprehensive data allows for more nuanced avatar transformations.
+                        </li>
+                        <li style="margin-bottom: 15px; padding-left: 30px; position: relative;">
+                            <div style="position: absolute; left: 0; top: 0; color: var(--primary-color);">✓</div>
+                            <strong>Personalized Recommendations:</strong> AI analyzes patterns to suggest habit optimizations.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Technology Stack</h2>
+            <ul>
+                <li><strong>Frontend:</strong> React Native with Expo for cross-platform mobile development</li>
+                <li><strong>Backend:</strong> Firebase Authentication and Firestore Database for secure, scalable data storage</li>
+                <li><strong>Avatar Generation:</strong> Advanced image processing and transformation algorithms</li>
+                <li><strong>Wearable Integration:</strong> SDK support for major fitness trackers and health devices</li>
+                <li><strong>Analytics:</strong> Custom analytics and projection algorithms based on habit science</li>
+                <li><strong>UI/UX:</strong> Modern, intuitive interface with customizable themes and accessibility features</li>
+            </ul>
+            
+            <h3>Market Opportunity</h3>
+            <p>The global health and wellness market is projected to reach $7.6 trillion by 2030, with digital health applications seeing accelerated adoption. Future Me combines four powerful market trends:</p>
+            <ol>
+                <li>AI-enhanced personalization in wellness applications</li>
+                <li>Visual feedback and gamification for habit formation</li>
+                <li>Integration with the growing wearable device ecosystem</li>
+                <li>Science-based approach to physical and mental wellness</li>
+            </ol>
+            
+            <h3>Investment Opportunity</h3>
+            <p>We're seeking investment to accelerate development and bring Future Me to market. Funds will be allocated to:</p>
+            <ul>
+                <li>Enhanced AI-powered avatar transformation technology</li>
+                <li>Expanded wearable device integration and API partnerships</li>
+                <li>Clinical validation of the habit recommendations</li>
+                <li>User acquisition and marketing</li>
+                <li>Team expansion with key engineering and design talent</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Simple JavaScript to make the timeframe buttons interactive
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeframeButtons = document.querySelectorAll('.timeframe-btn');
+            
+            timeframeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons in the same container
+                    const container = this.closest('.timeframe-selector');
+                    container.querySelectorAll('.timeframe-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // If this is in the avatar section, update the label
+                    const avatarContainer = this.closest('.avatar-container');
+                    if (avatarContainer) {
+                        const futureLabel = avatarContainer.querySelector('.avatar-label:nth-child(1)');
+                        if (futureLabel) {
+                            futureLabel.textContent = `Future You (${this.textContent})`;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

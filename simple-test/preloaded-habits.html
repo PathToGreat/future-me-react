@@ -7,132 +7,123 @@
     <style>
         :root {
             --primary-color: #6200EE;
-            --secondary-color: #03DAC6;
             --background-color: #f5f5f5;
             --card-background: #ffffff;
             --text-primary: #333333;
             --text-secondary: #666666;
-            --border-radius: 12px;
-            --spacing-unit: 16px;
             --health-color: #4CAF50;
             --fitness-color: #2196F3;
             --social-color: #E91E63;
             --mental-color: #9C27B0;
-            --spiritual-color: #FF9800;
+            --spiritual-color: #673AB7;
             --financial-color: #FFC107;
         }
-
+        
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--background-color);
             color: var(--text-primary);
             margin: 0;
-            padding: 0;
+            padding: 20px;
             line-height: 1.6;
         }
-
+        
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: var(--spacing-unit);
         }
-
+        
         header {
-            padding: calc(var(--spacing-unit) * 2) var(--spacing-unit);
-            background-color: var(--primary-color);
-            color: white;
             text-align: center;
-            margin-bottom: calc(var(--spacing-unit) * 2);
+            margin-bottom: 30px;
         }
-
+        
         h1 {
-            margin: 0;
-            font-size: 2rem;
-            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
-
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.8;
-            margin-top: 8px;
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
         }
-
+        
         .categories {
             display: flex;
-            overflow-x: auto;
-            padding-bottom: var(--spacing-unit);
-            margin-bottom: var(--spacing-unit);
+            flex-wrap: wrap;
             gap: 10px;
+            margin-bottom: 20px;
         }
-
-        .category-button {
-            padding: 10px 20px;
+        
+        .category-btn {
+            padding: 8px 16px;
             background-color: #e0e0e0;
             border: none;
             border-radius: 20px;
             cursor: pointer;
-            white-space: nowrap;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            font-size: 14px;
+            transition: all 0.3s;
         }
-
-        .category-button:hover {
+        
+        .category-btn:hover {
             background-color: #d0d0d0;
         }
-
-        .category-button.active {
+        
+        .category-btn.active {
             background-color: var(--primary-color);
             color: white;
         }
-
+        
         .habits-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: var(--spacing-unit);
+            gap: 20px;
         }
-
+        
         .habit-card {
             background-color: var(--card-background);
-            border-radius: var(--border-radius);
-            padding: calc(var(--spacing-unit) * 1.5);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-
+        
         .habit-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
         }
-
+        
         .habit-title {
-            margin-top: 0;
-            margin-bottom: calc(var(--spacing-unit) / 2);
+            font-size: 18px;
             font-weight: 600;
-            font-size: 1.2rem;
-            color: var(--primary-color);
+            margin-bottom: 10px;
         }
-
+        
         .habit-description {
-            margin-bottom: var(--spacing-unit);
             color: var(--text-secondary);
+            margin-bottom: 15px;
         }
-
+        
         .habit-fact {
             font-style: italic;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+            font-size: 14px;
+            color: #777;
             border-top: 1px solid #eee;
-            padding-top: var(--spacing-unit);
-            margin-top: var(--spacing-unit);
+            padding-top: 12px;
+            margin-top: 12px;
         }
-
+        
         .health { border-top: 4px solid var(--health-color); }
         .fitness { border-top: 4px solid var(--fitness-color); }
         .social { border-top: 4px solid var(--social-color); }
         .mental { border-top: 4px solid var(--mental-color); }
         .spiritual { border-top: 4px solid var(--spiritual-color); }
         .financial { border-top: 4px solid var(--financial-color); }
-
+        
         @media (max-width: 768px) {
             .habits-container {
                 grid-template-columns: 1fr;
@@ -141,372 +132,346 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Future Me</h1>
-        <div class="subtitle">Preloaded Habits Library</div>
-    </header>
-
     <div class="container">
-        <div class="categories" id="categories">
-            <!-- Category buttons will be inserted here -->
+        <header>
+            <h1>Future Me</h1>
+            <p>Preloaded Habits to Help Shape Your Future Self</p>
+        </header>
+        
+        <div class="categories">
+            <button class="category-btn active" data-category="all">All Categories</button>
+            <button class="category-btn" data-category="Health & Wellness">Health & Wellness</button>
+            <button class="category-btn" data-category="Physical Fitness & Mobility">Physical Fitness</button>
+            <button class="category-btn" data-category="Social & Human Connection">Social Connection</button>
+            <button class="category-btn" data-category="Mental & Emotional Wellness">Mental Wellness</button>
+            <button class="category-btn" data-category="Faith & Spiritual Growth">Spiritual Growth</button>
+            <button class="category-btn" data-category="Financial & Productivity Habits">Financial & Productivity</button>
         </div>
-
-        <div class="habits-container" id="habits-container">
-            <!-- Habit cards will be inserted here -->
+        
+        <div id="habits-container" class="habits-container">
+            <!-- Habits will be populated here with JavaScript -->
         </div>
     </div>
-
+    
     <script>
-        // Category definitions
-        const CATEGORIES = {
-            HEALTH: "Health & Wellness",
-            FITNESS: "Physical Fitness & Mobility",
-            SOCIAL: "Social & Human Connection",
-            MENTAL: "Mental & Emotional Wellness",
-            SPIRITUAL: "Faith & Spiritual Growth",
-            FINANCIAL: "Financial & Productivity Habits"
+        // Categories and their color classes
+        const categoryClasses = {
+            "Health & Wellness": "health",
+            "Physical Fitness & Mobility": "fitness",
+            "Social & Human Connection": "social",
+            "Mental & Emotional Wellness": "mental",
+            "Faith & Spiritual Growth": "spiritual",
+            "Financial & Productivity Habits": "financial"
         };
-
-        // Preloaded habits data
+        
+        // Pre-loaded habits data
+        const CATEGORIES = {
+          HEALTH: "Health & Wellness",
+          FITNESS: "Physical Fitness & Mobility",
+          SOCIAL: "Social & Human Connection",
+          MENTAL: "Mental & Emotional Wellness",
+          SPIRITUAL: "Faith & Spiritual Growth",
+          FINANCIAL: "Financial & Productivity Habits"
+        };
+        
         const preloadedHabits = [
-            // Health & Wellness
-            {
-                title: 'Daily Hydration',
-                description: 'Drink at least 64 oz of water each day',
-                category: CATEGORIES.HEALTH,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Proper hydration improves cognition, energy levels, and skin health while reducing the risk of kidney stones and helping control body temperature.',
-                cssClass: 'health'
-            },
-            {
-                title: 'Whole Food Nutrition',
-                description: 'Eat a nutrient-dense meal',
-                category: CATEGORIES.HEALTH,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Whole foods provide essential nutrients that support immune function, reduce inflammation, and lower the risk of chronic diseases like heart disease and diabetes.',
-                cssClass: 'health'
-            },
-            {
-                title: 'Meal Preparation',
-                description: 'Plan and prepare a healthy meal',
-                category: CATEGORIES.HEALTH,
-                frequency: [0, 3, 6], // Sunday, Wednesday, Saturday
-                factDescription: 'Meal preparation reduces the likelihood of choosing unhealthy food options, saves money, and helps maintain consistent portion control.',
-                cssClass: 'health'
-            },
-            {
-                title: 'Quality Sleep',
-                description: 'Sleep for at least 7-9 hours',
-                category: CATEGORIES.HEALTH,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Quality sleep strengthens memory formation, enhances immune function, and regulates metabolism, with consistent sleep schedules improving overall sleep quality.',
-                cssClass: 'health'
-            },
-            {
-                title: 'Morning Sunlight',
-                description: 'Get direct sunlight exposure within 30 minutes of waking',
-                category: CATEGORIES.HEALTH,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Morning sunlight exposure helps regulate your circadian rhythm, improves mood, increases vitamin D production, and enhances alertness throughout the day.',
-                cssClass: 'health'
-            },
-            {
-                title: 'Evening Wind Down',
-                description: 'No screens 1 hour before bed',
-                category: CATEGORIES.HEALTH,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Avoiding screens before bed prevents blue light exposure, which can interfere with melatonin production and make it harder to fall asleep.',
-                cssClass: 'health'
-            },
-            
-            // Physical Fitness & Mobility
-            {
-                title: 'Daily Movement',
-                description: 'Walk 10,000 steps or move for 30+ minutes',
-                category: CATEGORIES.FITNESS,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Regular movement throughout the day improves cardiovascular health, regulates blood sugar levels, and may add years to your life expectancy.',
-                cssClass: 'fitness'
-            },
-            {
-                title: 'Strength Training',
-                description: 'Perform bodyweight or resistance training',
-                category: CATEGORIES.FITNESS,
-                frequency: [1, 3, 5], // Monday, Wednesday, Friday
-                factDescription: 'Strength training increases bone density, improves joint function, boosts metabolism, and helps maintain muscle mass as you age.',
-                cssClass: 'fitness'
-            },
-            {
-                title: 'Mobility & Stretching',
-                description: 'Work on flexibility and joint health',
-                category: CATEGORIES.FITNESS,
-                frequency: [0, 2, 4, 6], // Sunday, Tuesday, Thursday, Saturday
-                factDescription: 'Regular stretching improves range of motion, reduces injury risk, promotes better posture, and can help alleviate stress and tension in the body.',
-                cssClass: 'fitness'
-            },
-            {
-                title: 'Deep Breathing & Relaxation',
-                description: 'Activate the parasympathetic nervous system',
-                category: CATEGORIES.FITNESS,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Deep breathing exercises reduce stress hormones, lower blood pressure, improve concentration, and help manage anxiety and pain.',
-                cssClass: 'fitness'
-            },
-            {
-                title: 'Outdoor Time',
-                description: 'Spend at least 15 minutes in nature',
-                category: CATEGORIES.FITNESS,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Time spent in nature reduces stress hormones, improves mood, enhances creativity, and has been linked to improved immune function.',
-                cssClass: 'fitness'
-            },
-            
-            // Social & Human Connection
-            {
-                title: 'Meaningful Conversation',
-                description: 'Engage in deep, intentional discussions',
-                category: CATEGORIES.SOCIAL,
-                frequency: [1, 3, 5], // Monday, Wednesday, Friday
-                factDescription: 'Meaningful conversations strengthen relationships, improve emotional well-being, and have been linked to greater life satisfaction and happiness.',
-                cssClass: 'social'
-            },
-            {
-                title: 'Check-in with Loved Ones',
-                description: 'Call or message a friend/family member',
-                category: CATEGORIES.SOCIAL,
-                frequency: [0, 2, 4], // Sunday, Tuesday, Thursday
-                factDescription: 'Regular communication with loved ones reduces feelings of isolation, strengthens social bonds, and creates a support network for challenging times.',
-                cssClass: 'social'
-            },
-            {
-                title: 'Acts of Kindness',
-                description: 'Do one intentional act of kindness today',
-                category: CATEGORIES.SOCIAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Performing acts of kindness releases oxytocin and endorphins, reduces stress, and creates a positive feedback loop that improves both your mood and others.',
-                cssClass: 'social'
-            },
-            {
-                title: 'Community Engagement',
-                description: 'Participate in a group, club, or local event',
-                category: CATEGORIES.SOCIAL,
-                frequency: [3, 6], // Wednesday, Saturday
-                factDescription: 'Community involvement provides a sense of belonging, expands your social network, and has been linked to greater longevity and life satisfaction.',
-                cssClass: 'social'
-            },
-            {
-                title: 'Quality Family Time',
-                description: 'Spend uninterrupted time with family',
-                category: CATEGORIES.SOCIAL,
-                frequency: [0, 2, 4, 6], // Sunday, Tuesday, Thursday, Saturday
-                factDescription: 'Quality family time builds stronger familial bonds, creates lasting memories, and provides emotional stability for both children and adults.',
-                cssClass: 'social'
-            },
-            
-            // Mental & Emotional Wellness
-            {
-                title: 'Morning Gratitude',
-                description: 'Write down three things you are grateful for',
-                category: CATEGORIES.MENTAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Practicing gratitude rewires the brain to notice positive experiences more frequently and has been shown to improve sleep, reduce depression, and increase happiness.',
-                cssClass: 'mental'
-            },
-            {
-                title: 'Journaling & Reflection',
-                description: 'Reflect on your day, emotions, or progress',
-                category: CATEGORIES.MENTAL,
-                frequency: [0, 2, 4, 6], // Sunday, Tuesday, Thursday, Saturday
-                factDescription: 'Regular journaling reduces stress, improves emotional processing, clarifies thoughts, and can help track patterns in your behavior and emotions.',
-                cssClass: 'mental'
-            },
-            {
-                title: 'Screen-Free Hour',
-                description: 'Take a break from social media/screens',
-                category: CATEGORIES.MENTAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Taking breaks from screens reduces eye strain, improves sleep quality, decreases anxiety, and often leads to more meaningful social interactions.',
-                cssClass: 'mental'
-            },
-            {
-                title: 'Breathing Exercises',
-                description: 'Use controlled breathing techniques to manage stress',
-                category: CATEGORIES.MENTAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Controlled breathing exercises can reduce blood pressure within minutes, decrease stress hormones, and improve mental clarity and focus.',
-                cssClass: 'mental'
-            },
-            {
-                title: 'Emotional Check-in',
-                description: 'Assess how you feel and why',
-                category: CATEGORIES.MENTAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Regular emotional check-ins improve emotional intelligence, help identify patterns in your emotional responses, and prevent emotional burnout.',
-                cssClass: 'mental'
-            },
-            
-            // Faith & Spiritual Growth
-            {
-                title: 'Daily Scripture Reading',
-                description: 'Read and reflect on a passage',
-                category: CATEGORIES.SPIRITUAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Regular scripture reading provides moral guidance, reduces anxiety, and creates a framework for interpreting life experiences through a spiritual lens.',
-                cssClass: 'spiritual'
-            },
-            {
-                title: 'Prayer & Meditation',
-                description: 'Spend intentional time in prayer or stillness',
-                category: CATEGORIES.SPIRITUAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Regular prayer and meditation increase feelings of peace, improve concentration, reduce blood pressure, and have been linked to greater resilience during difficulties.',
-                cssClass: 'spiritual'
-            },
-            {
-                title: 'Faith-Based Study',
-                description: 'Study a concept, teaching, or wisdom principle',
-                category: CATEGORIES.SPIRITUAL,
-                frequency: [1, 3, 5], // Monday, Wednesday, Friday
-                factDescription: 'Faith-based study deepens spiritual understanding, provides clarity on personal values, and strengthens your foundation for making difficult decisions.',
-                cssClass: 'spiritual'
-            },
-            {
-                title: 'Fellowship & Community',
-                description: 'Engage with a faith-based group or discussion',
-                category: CATEGORIES.SPIRITUAL,
-                frequency: [0, 3], // Sunday, Wednesday
-                factDescription: 'Spiritual community involvement provides social support, accountability, shared purpose, and opportunities for service that enhance overall well-being.',
-                cssClass: 'spiritual'
-            },
-            
-            // Financial & Productivity Habits
-            {
-                title: 'Daily Budget Check-in',
-                description: 'Review spending and savings goals',
-                category: CATEGORIES.FINANCIAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Daily budget awareness reduces impulsive spending, accelerates debt repayment, and helps build emergency savings that reduce financial stress.',
-                cssClass: 'financial'
-            },
-            {
-                title: 'Work on a Skill',
-                description: 'Learn something new to improve career/business',
-                category: CATEGORIES.FINANCIAL,
-                frequency: [1, 2, 3, 4, 5], // Weekdays
-                factDescription: 'Continuous skill development increases earning potential, makes you more valuable in your field, and provides mental stimulation that keeps your brain healthy.',
-                cssClass: 'financial'
-            },
-            {
-                title: 'Declutter & Organize',
-                description: 'Spend 10+ minutes organizing your space',
-                category: CATEGORIES.FINANCIAL,
-                frequency: [1, 4], // Monday, Thursday
-                factDescription: 'An organized environment reduces stress, improves focus, saves time looking for items, and can lead to financial savings by preventing duplicate purchases.',
-                cssClass: 'financial'
-            },
-            {
-                title: 'Limit Impulse Spending',
-                description: 'Avoid unnecessary purchases today',
-                category: CATEGORIES.FINANCIAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Avoiding impulse purchases can save the average person thousands of dollars per year and leads to greater satisfaction with the purchases you do make.',
-                cssClass: 'financial'
-            },
-            {
-                title: 'Review & Plan',
-                description: 'Set priorities for the next day',
-                category: CATEGORIES.FINANCIAL,
-                frequency: [0, 1, 2, 3, 4, 5, 6], // every day
-                factDescription: 'Planning the next day improves productivity by up to 25%, reduces decision fatigue, and helps ensure important tasks are completed before urgent ones take over.',
-                cssClass: 'financial'
-            },
+          // Health & Wellness
+          {
+            title: 'Daily Hydration',
+            description: 'Drink at least 64 oz of water each day',
+            category: CATEGORIES.HEALTH,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Proper hydration improves cognition, energy levels, and skin health while reducing the risk of kidney stones and helping control body temperature.',
+          },
+          {
+            title: 'Whole Food Nutrition',
+            description: 'Eat a nutrient-dense meal',
+            category: CATEGORIES.HEALTH,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Whole foods provide essential nutrients that support immune function, reduce inflammation, and lower the risk of chronic diseases like heart disease and diabetes.',
+          },
+          {
+            title: 'Meal Preparation',
+            description: 'Plan and prepare a healthy meal',
+            category: CATEGORIES.HEALTH,
+            frequency: [0, 3, 6], // Sunday, Wednesday, Saturday
+            reminder: null,
+            factDescription: 'Meal preparation reduces the likelihood of choosing unhealthy food options, saves money, and helps maintain consistent portion control.',
+          },
+          {
+            title: 'Quality Sleep',
+            description: 'Sleep for at least 7-9 hours',
+            category: CATEGORIES.HEALTH,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Quality sleep strengthens memory formation, enhances immune function, and regulates metabolism, with consistent sleep schedules improving overall sleep quality.',
+          },
+          {
+            title: 'Morning Sunlight',
+            description: 'Get direct sunlight exposure within 30 minutes of waking',
+            category: CATEGORIES.HEALTH,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Morning sunlight exposure helps regulate your circadian rhythm, improves mood, increases vitamin D production, and enhances alertness throughout the day.',
+          },
+          {
+            title: 'Evening Wind Down',
+            description: 'No screens 1 hour before bed',
+            category: CATEGORIES.HEALTH,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Avoiding screens before bed prevents blue light exposure, which can interfere with melatonin production and make it harder to fall asleep.',
+          },
+          
+          // Physical Fitness & Mobility
+          {
+            title: 'Daily Movement',
+            description: 'Walk 10,000 steps or move for 30+ minutes',
+            category: CATEGORIES.FITNESS,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Regular movement throughout the day improves cardiovascular health, regulates blood sugar levels, and may add years to your life expectancy.',
+          },
+          {
+            title: 'Strength Training',
+            description: 'Perform bodyweight or resistance training',
+            category: CATEGORIES.FITNESS,
+            frequency: [1, 3, 5], // Monday, Wednesday, Friday
+            reminder: null,
+            factDescription: 'Strength training increases bone density, improves joint function, boosts metabolism, and helps maintain muscle mass as you age.',
+          },
+          {
+            title: 'Mobility & Stretching',
+            description: 'Work on flexibility and joint health',
+            category: CATEGORIES.FITNESS,
+            frequency: [0, 2, 4, 6], // Sunday, Tuesday, Thursday, Saturday
+            reminder: null,
+            factDescription: 'Regular stretching improves range of motion, reduces injury risk, promotes better posture, and can help alleviate stress and tension in the body.',
+          },
+          {
+            title: 'Deep Breathing & Relaxation',
+            description: 'Activate the parasympathetic nervous system',
+            category: CATEGORIES.FITNESS,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Deep breathing exercises reduce stress hormones, lower blood pressure, improve concentration, and help manage anxiety and pain.',
+          },
+          {
+            title: 'Outdoor Time',
+            description: 'Spend at least 15 minutes in nature',
+            category: CATEGORIES.FITNESS,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Time spent in nature reduces stress hormones, improves mood, enhances creativity, and has been linked to improved immune function.',
+          },
+          
+          // Social & Human Connection
+          {
+            title: 'Meaningful Conversation',
+            description: 'Engage in deep, intentional discussions',
+            category: CATEGORIES.SOCIAL,
+            frequency: [1, 3, 5], // Monday, Wednesday, Friday
+            reminder: null,
+            factDescription: 'Meaningful conversations strengthen relationships, improve emotional well-being, and have been linked to greater life satisfaction and happiness.',
+          },
+          {
+            title: 'Check-in with Loved Ones',
+            description: 'Call or message a friend/family member',
+            category: CATEGORIES.SOCIAL,
+            frequency: [0, 2, 4], // Sunday, Tuesday, Thursday
+            reminder: null,
+            factDescription: 'Regular communication with loved ones reduces feelings of isolation, strengthens social bonds, and creates a support network for challenging times.',
+          },
+          {
+            title: 'Acts of Kindness',
+            description: 'Do one intentional act of kindness today',
+            category: CATEGORIES.SOCIAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Performing acts of kindness releases oxytocin and endorphins, reduces stress, and creates a positive feedback loop that improves both your mood and others.',
+          },
+          {
+            title: 'Community Engagement',
+            description: 'Participate in a group, club, or local event',
+            category: CATEGORIES.SOCIAL,
+            frequency: [3, 6], // Wednesday, Saturday
+            reminder: null,
+            factDescription: 'Community involvement provides a sense of belonging, expands your social network, and has been linked to greater longevity and life satisfaction.',
+          },
+          {
+            title: 'Quality Family Time',
+            description: 'Spend uninterrupted time with family',
+            category: CATEGORIES.SOCIAL,
+            frequency: [0, 2, 4, 6], // Sunday, Tuesday, Thursday, Saturday
+            reminder: null,
+            factDescription: 'Quality family time builds stronger familial bonds, creates lasting memories, and provides emotional stability for both children and adults.',
+          },
+          
+          // Mental & Emotional Wellness
+          {
+            title: 'Morning Gratitude',
+            description: 'Write down three things you are grateful for',
+            category: CATEGORIES.MENTAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Practicing gratitude rewires the brain to notice positive experiences more frequently and has been shown to improve sleep, reduce depression, and increase happiness.',
+          },
+          {
+            title: 'Journaling & Reflection',
+            description: 'Reflect on your day, emotions, or progress',
+            category: CATEGORIES.MENTAL,
+            frequency: [0, 2, 4, 6], // Sunday, Tuesday, Thursday, Saturday
+            reminder: null,
+            factDescription: 'Regular journaling reduces stress, improves emotional processing, clarifies thoughts, and can help track patterns in your behavior and emotions.',
+          },
+          {
+            title: 'Screen-Free Hour',
+            description: 'Take a break from social media/screens',
+            category: CATEGORIES.MENTAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Taking breaks from screens reduces eye strain, improves sleep quality, decreases anxiety, and often leads to more meaningful social interactions.',
+          },
+          {
+            title: 'Breathing Exercises',
+            description: 'Use controlled breathing techniques to manage stress',
+            category: CATEGORIES.MENTAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Controlled breathing exercises can reduce blood pressure within minutes, decrease stress hormones, and improve mental clarity and focus.',
+          },
+          {
+            title: 'Emotional Check-in',
+            description: 'Assess how you feel and why',
+            category: CATEGORIES.MENTAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Regular emotional check-ins improve emotional intelligence, help identify patterns in your emotional responses, and prevent emotional burnout.',
+          },
+          
+          // Faith & Spiritual Growth
+          {
+            title: 'Daily Scripture Reading',
+            description: 'Read and reflect on a passage',
+            category: CATEGORIES.SPIRITUAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Regular scripture reading provides moral guidance, reduces anxiety, and creates a framework for interpreting life experiences through a spiritual lens.',
+          },
+          {
+            title: 'Prayer & Meditation',
+            description: 'Spend intentional time in prayer or stillness',
+            category: CATEGORIES.SPIRITUAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Regular prayer and meditation increase feelings of peace, improve concentration, reduce blood pressure, and have been linked to greater resilience during difficulties.',
+          },
+          {
+            title: 'Faith-Based Study',
+            description: 'Study a concept, teaching, or wisdom principle',
+            category: CATEGORIES.SPIRITUAL,
+            frequency: [1, 3, 5], // Monday, Wednesday, Friday
+            reminder: null,
+            factDescription: 'Faith-based study deepens spiritual understanding, provides clarity on personal values, and strengthens your foundation for making difficult decisions.',
+          },
+          {
+            title: 'Fellowship & Community',
+            description: 'Engage with a faith-based group or discussion',
+            category: CATEGORIES.SPIRITUAL,
+            frequency: [0, 3], // Sunday, Wednesday
+            reminder: null,
+            factDescription: 'Spiritual community involvement provides social support, accountability, shared purpose, and opportunities for service that enhance overall well-being.',
+          },
+          
+          // Financial & Productivity Habits
+          {
+            title: 'Daily Budget Check-in',
+            description: 'Review spending and savings goals',
+            category: CATEGORIES.FINANCIAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Daily budget awareness reduces impulsive spending, accelerates debt repayment, and helps build emergency savings that reduce financial stress.',
+          },
+          {
+            title: 'Work on a Skill',
+            description: 'Learn something new to improve career/business',
+            category: CATEGORIES.FINANCIAL,
+            frequency: [1, 2, 3, 4, 5], // Weekdays
+            reminder: null,
+            factDescription: 'Continuous skill development increases earning potential, makes you more valuable in your field, and provides mental stimulation that keeps your brain healthy.',
+          },
+          {
+            title: 'Declutter & Organize',
+            description: 'Spend 10+ minutes organizing your space',
+            category: CATEGORIES.FINANCIAL,
+            frequency: [1, 4], // Monday, Thursday
+            reminder: null,
+            factDescription: 'An organized environment reduces stress, improves focus, saves time looking for items, and can lead to financial savings by preventing duplicate purchases.',
+          },
+          {
+            title: 'Limit Impulse Spending',
+            description: 'Avoid unnecessary purchases today',
+            category: CATEGORIES.FINANCIAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Avoiding impulse purchases can save the average person thousands of dollars per year and leads to greater satisfaction with the purchases you do make.',
+          },
+          {
+            title: 'Review & Plan',
+            description: 'Set priorities for the next day',
+            category: CATEGORIES.FINANCIAL,
+            frequency: [0, 1, 2, 3, 4, 5, 6], // every day
+            reminder: null,
+            factDescription: 'Planning the next day improves productivity by up to 25%, reduces decision fatigue, and helps ensure important tasks are completed before urgent ones take over.',
+          },
         ];
-
-        // Get unique categories from habits
-        const uniqueCategories = [...new Set(preloadedHabits.map(habit => habit.category))];
         
-        // DOM elements
-        const categoriesContainer = document.getElementById('categories');
-        const habitsContainer = document.getElementById('habits-container');
-        
-        // Initial state
-        let activeCategory = uniqueCategories[0];
-
-        // Create category buttons
-        function createCategoryButtons() {
-            uniqueCategories.forEach(category => {
-                const button = document.createElement('button');
-                button.textContent = category;
-                button.className = 'category-button';
-                button.dataset.category = category;
-                
-                if (category === activeCategory) {
-                    button.classList.add('active');
-                }
-                
-                button.addEventListener('click', () => {
-                    activeCategory = category;
-                    updateActiveButton();
-                    renderHabits();
-                });
-                
-                categoriesContainer.appendChild(button);
-            });
-        }
-
-        // Update active button
-        function updateActiveButton() {
-            document.querySelectorAll('.category-button').forEach(button => {
-                if (button.dataset.category === activeCategory) {
-                    button.classList.add('active');
-                } else {
-                    button.classList.remove('active');
-                }
-            });
-        }
-
-        // Render habits for the active category
-        function renderHabits() {
+        // Function to create and display habit cards
+        function displayHabits(filteredCategory = 'all') {
+            const habitsContainer = document.getElementById('habits-container');
             habitsContainer.innerHTML = '';
             
-            const filteredHabits = preloadedHabits.filter(habit => 
-                activeCategory === 'All' || habit.category === activeCategory
-            );
+            const habitsToDisplay = filteredCategory === 'all' 
+                ? preloadedHabits 
+                : preloadedHabits.filter(habit => habit.category === filteredCategory);
             
-            filteredHabits.forEach(habit => {
+            habitsToDisplay.forEach(habit => {
+                const categoryClass = categoryClasses[habit.category] || '';
+                
                 const habitCard = document.createElement('div');
-                habitCard.className = `habit-card ${habit.cssClass}`;
+                habitCard.className = `habit-card ${categoryClass}`;
                 
-                const title = document.createElement('h3');
-                title.className = 'habit-title';
-                title.textContent = habit.title;
-                
-                const description = document.createElement('p');
-                description.className = 'habit-description';
-                description.textContent = habit.description;
-                
-                const fact = document.createElement('div');
-                fact.className = 'habit-fact';
-                fact.textContent = habit.factDescription;
-                
-                habitCard.appendChild(title);
-                habitCard.appendChild(description);
-                habitCard.appendChild(fact);
+                habitCard.innerHTML = `
+                    <div class="habit-title">${habit.title}</div>
+                    <div class="habit-description">${habit.description}</div>
+                    <div class="habit-fact">Fact: ${habit.factDescription}</div>
+                `;
                 
                 habitsContainer.appendChild(habitCard);
             });
         }
-
-        // Initialize the application
-        function init() {
-            // Add "All" category at the beginning
-            uniqueCategories.unshift('All');
-            createCategoryButtons();
-            renderHabits();
-        }
-
-        // Start the app
-        init();
+        
+        // Initialize the display
+        displayHabits();
+        
+        // Add event listeners to category buttons
+        document.querySelectorAll('.category-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Filter and display habits based on category
+                const category = this.getAttribute('data-category');
+                displayHabits(category);
+            });
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Me - Avatar Transformation</title>
+    <style>
+        :root {
+            --primary-color: #6200EE;
+            --secondary-color: #3700B3;
+            --background-color: #f5f5f5;
+            --card-background: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --health-color: #4CAF50;
+            --fitness-color: #2196F3;
+            --social-color: #E91E63;
+            --mental-color: #9C27B0;
+            --spiritual-color: #673AB7;
+            --financial-color: #FFC107;
+            
+            --health-rgb: 76, 175, 80;
+            --fitness-rgb: 33, 150, 243;
+            --social-rgb: 233, 30, 99;
+            --mental-rgb: 156, 39, 176;
+            --spiritual-rgb: 103, 58, 183;
+            --financial-rgb: 255, 193, 7;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .card {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .timeframe-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .timeframe-btn {
+            padding: 8px 16px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .timeframe-btn:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .timeframe-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .avatar-label {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .before-after-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+        }
+        
+        .avatar-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .avatar-image-container {
+            width: 180px;
+            height: 280px;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-now {
+            border: 3px solid #999;
+        }
+        
+        .avatar-future {
+            border: 3px solid var(--primary-color);
+        }
+        
+        .avatar-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(98, 0, 238, 0.3);
+            animation: pulse 2s infinite ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .avatar-silhouette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C92,15 102,25 102,40 C102,51 98,60 98,65 L98,75 C101,75 103,78 103,81 C103,84 102,87 100,89 C100,89 109,93 109,105 C109,110 107,115 100,120 L100,125 C100,130 90,145 90,145 L95,150 C95,170 95,180 95,195 L95,210 C94,212 92,215 90,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,150 L70,145 C70,145 60,130 60,125 L60,120 C53,115 51,110 51,105 C51,93 60,89 60,89 C58,87 57,84 57,81 C57,78 59,75 62,75 L62,65 C62,60 58,51 58,40 C58,25 68,15 80,15 Z M100,87 L105,87 C105,87 114,89 119,84 C124,79 124,79 124,79 L125,85 C125,87 123,93 118,95 C113,97 110,95 110,95 L100,87 Z M60,87 L55,87 C55,87 46,89 41,84 C36,79 36,79 36,79 L35,85 C35,87 37,93 42,95 C47,97 50,95 50,95 L60,87 Z'/%3E%3C/svg%3E") no-repeat center center;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C92,15 102,25 102,40 C102,51 98,60 98,65 L98,75 C101,75 103,78 103,81 C103,84 102,87 100,89 C100,89 109,93 109,105 C109,110 107,115 100,120 L100,125 C100,130 90,145 90,145 L95,150 C95,170 95,180 95,195 L95,210 C94,212 92,215 90,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,150 L70,145 C70,145 60,130 60,125 L60,120 C53,115 51,110 51,105 C51,93 60,89 60,89 C58,87 57,84 57,81 C57,78 59,75 62,75 L62,65 C62,60 58,51 58,40 C58,25 68,15 80,15 Z M100,87 L105,87 C105,87 114,89 119,84 C124,79 124,79 124,79 L125,85 C125,87 123,93 118,95 C113,97 110,95 110,95 L100,87 Z M60,87 L55,87 C55,87 46,89 41,84 C36,79 36,79 36,79 L35,85 C35,87 37,93 42,95 C47,97 50,95 50,95 L60,87 Z'/%3E%3C/svg%3E") no-repeat center center;
+        }
+        
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .upload-btn {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .upload-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        
+        .effects-container {
+            margin-top: 30px;
+        }
+        
+        .effects-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .effects-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .effect-item {
+            background-color: rgba(98, 0, 238, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            width: calc(50% - 15px);
+            max-width: 250px;
+        }
+        
+        .effect-icon {
+            background-color: var(--primary-color);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .health-effect .effect-icon {
+            background-color: var(--health-color);
+        }
+        
+        .fitness-effect .effect-icon {
+            background-color: var(--fitness-color);
+        }
+        
+        .mental-effect .effect-icon {
+            background-color: var(--mental-color);
+        }
+        
+        .effect-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        
+        .habit-container {
+            margin-top: 40px;
+        }
+        
+        .habit-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .habit-box {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .habit-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .habit-rate {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .habit-progress {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .habit-progress.high {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--health-color);
+        }
+        
+        .habit-progress.medium {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: var(--financial-color);
+        }
+        
+        .habit-progress.low {
+            background-color: rgba(233, 30, 99, 0.2);
+            color: var(--social-color);
+        }
+        
+        @media (max-width: 768px) {
+            .before-after-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .effect-item {
+                width: 100%;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Future Me</h1>
+            <p>See how your habits will transform your future self</p>
+        </header>
+        
+        <div class="card">
+            <h2>Your Future Avatar</h2>
+            <p>Based on your habit consistency, here's a visualization of the physical changes you might expect over time:</p>
+            
+            <div class="timeframe-controls">
+                <button class="timeframe-btn" data-days="30">1 Month</button>
+                <button class="timeframe-btn active" data-days="90">3 Months</button>
+                <button class="timeframe-btn" data-days="180">6 Months</button>
+                <button class="timeframe-btn" data-days="270">9 Months</button>
+                <button class="timeframe-btn" data-days="365">1 Year</button>
+                <button class="timeframe-btn" data-days="1095">3 Years</button>
+                <button class="timeframe-btn" data-days="1825">5 Years</button>
+            </div>
+            
+            <div class="avatar-container">
+                <div class="before-after-container">
+                    <div class="avatar-box">
+                        <div class="avatar-label">Current You</div>
+                        <div class="avatar-image-container avatar-now">
+                            <img id="current-avatar" class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=720" alt="Current You">
+                        </div>
+                    </div>
+                    
+                    <div class="avatar-box">
+                        <div class="avatar-label">Future You <span id="timeframe-label">(3 Months)</span></div>
+                        <div class="avatar-image-container avatar-future">
+                            <img id="future-avatar" class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=690" alt="Future You">
+                            <div class="avatar-glow" id="avatar-glow"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="upload-container">
+                    <button class="upload-btn" id="upload-btn">Upload Your Photo</button>
+                    <input type="file" id="file-input" style="display: none;" accept="image/*">
+                    <p class="upload-info">Upload a full-body photo to see a more accurate transformation</p>
+                </div>
+                
+                <div class="effects-container">
+                    <div class="effects-title">Expected Physical Changes</div>
+                    <div class="effects-list" id="effects-list">
+                        <div class="effect-item health-effect">
+                            <div class="effect-icon">♥</div>
+                            <div class="effect-text">Improved cardiovascular health</div>
+                        </div>
+                        <div class="effect-item fitness-effect">
+                            <div class="effect-icon">⚡</div>
+                            <div class="effect-text">5-10% increase in muscle tone</div>
+                        </div>
+                        <div class="effect-item health-effect">
+                            <div class="effect-icon">🍎</div>
+                            <div class="effect-text">Better skin elasticity and complexion</div>
+                        </div>
+                        <div class="effect-item mental-effect">
+                            <div class="effect-icon">💧</div>
+                            <div class="effect-text">Reduced physical signs of stress</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Habits Influencing Your Transformation</h2>
+            <p>Your consistency with these key habits will determine your physical transformation:</p>
+            
+            <div class="habit-list">
+                <div class="habit-box">
+                    <div>
+                        <div class="habit-name">Daily Hydration</div>
+                        <div class="habit-rate">Consistency: 85%</div>
+                    </div>
+                    <div class="habit-progress high">85%</div>
+                </div>
+                
+                <div class="habit-box">
+                    <div>
+                        <div class="habit-name">Strength Training</div>
+                        <div class="habit-rate">Consistency: 70%</div>
+                    </div>
+                    <div class="habit-progress high">70%</div>
+                </div>
+                
+                <div class="habit-box">
+                    <div>
+                        <div class="habit-name">Quality Sleep</div>
+                        <div class="habit-rate">Consistency: 60%</div>
+                    </div>
+                    <div class="habit-progress medium">60%</div>
+                </div>
+                
+                <div class="habit-box">
+                    <div>
+                        <div class="habit-name">Whole Food Nutrition</div>
+                        <div class="habit-rate">Consistency: 45%</div>
+                    </div>
+                    <div class="habit-progress medium">45%</div>
+                </div>
+                
+                <div class="habit-box">
+                    <div>
+                        <div class="habit-name">Outdoor Activity</div>
+                        <div class="habit-rate">Consistency: 30%</div>
+                    </div>
+                    <div class="habit-progress low">30%</div>
+                </div>
+                
+                <div class="habit-box">
+                    <div>
+                        <div class="habit-name">Stress Management</div>
+                        <div class="habit-rate">Consistency: 25%</div>
+                    </div>
+                    <div class="habit-progress low">25%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Timeframe selection functionality
+        const timeframeBtns = document.querySelectorAll('.timeframe-btn');
+        const timeframeLabel = document.getElementById('timeframe-label');
+        const avatarGlow = document.getElementById('avatar-glow');
+        const futureAvatar = document.getElementById('future-avatar');
+        const uploadBtn = document.getElementById('upload-btn');
+        const fileInput = document.getElementById('file-input');
+        const currentAvatar = document.getElementById('current-avatar');
+        const effectsList = document.getElementById('effects-list');
+        
+        // Sample effects data by timeframe
+        const effectsByTimeframe = {
+            '30': [
+                { category: 'health', text: 'Slightly improved skin hydration' },
+                { category: 'fitness', text: 'Early signs of improved posture' },
+                { category: 'mental', text: 'Reduced visible tension in face' },
+                { category: 'health', text: 'Initial reduction in puffiness' }
+            ],
+            '90': [
+                { category: 'health', text: 'Improved cardiovascular health' },
+                { category: 'fitness', text: '5-10% increase in muscle tone' },
+                { category: 'health', text: 'Better skin elasticity and complexion' },
+                { category: 'mental', text: 'Reduced physical signs of stress' }
+            ],
+            '180': [
+                { category: 'health', text: 'Significant weight optimization' },
+                { category: 'fitness', text: '15-20% increase in muscle definition' },
+                { category: 'health', text: 'Noticeable posture improvement' },
+                { category: 'mental', text: 'Balanced facial expressions' },
+                { category: 'fitness', text: 'Enhanced physical symmetry' }
+            ],
+            '270': [
+                { category: 'health', text: 'Substantial body composition change' },
+                { category: 'fitness', text: '20-25% increase in muscle definition' },
+                { category: 'health', text: 'Consistent healthy weight maintenance' },
+                { category: 'mental', text: 'Stable energy levels visible in appearance' },
+                { category: 'fitness', text: 'Athletic physical appearance development' },
+                { category: 'health', text: 'Vibrant skin and improved complexion' }
+            ],
+            '365': [
+                { category: 'health', text: 'Complete body composition change' },
+                { category: 'fitness', text: '25-30% increase in lean muscle mass' },
+                { category: 'health', text: 'Significant reduction in biological age markers' },
+                { category: 'mental', text: 'Visible confidence in posture and movement' },
+                { category: 'fitness', text: 'Athletic physical appearance' },
+                { category: 'health', text: 'Vibrant skin and hair quality' }
+            ],
+            '1095': [
+                { category: 'health', text: 'Dramatic reduction in biological age markers (5-7 years)' },
+                { category: 'fitness', text: 'Fully developed athletic physique' },
+                { category: 'health', text: 'Complete transformation of physical presence' },
+                { category: 'mental', text: 'Profound confidence and energy in posture' },
+                { category: 'fitness', text: 'Elite-level fitness indicators visible' },
+                { category: 'health', text: 'Optimal body composition maintained long-term' },
+                { category: 'mental', text: 'Stress resilience visible in appearance' }
+            ],
+            '1825': [
+                { category: 'health', text: 'Extraordinary reduction in biological age (7-10 years)' },
+                { category: 'fitness', text: 'Exemplary physical condition maintained over years' },
+                { category: 'health', text: 'Complete transformation of aging trajectory' },
+                { category: 'mental', text: 'Mastery-level confidence and presence' },
+                { category: 'fitness', text: 'Life-long optimal physical capacity indicators' },
+                { category: 'health', text: 'Exceptional longevity markers across all systems' },
+                { category: 'mental', text: 'Deep resilience and joy visible in appearance' },
+                { category: 'health', text: 'Radiant vitality uncommon for chronological age' }
+            ]
+        };
+        
+        // Update the future avatar based on timeframe
+        function updateAvatar(days) {
+            // Calculate transformation amount (0-100)
+            let transformAmount = 0;
+            
+            switch(days) {
+                case '30':
+                    transformAmount = 5;
+                    avatarGlow.style.backgroundColor = 'rgba(255, 193, 7, 0.3)'; // Yellow
+                    break;
+                case '90':
+                    transformAmount = 10;
+                    avatarGlow.style.backgroundColor = 'rgba(33, 150, 243, 0.3)'; // Blue
+                    break;
+                case '180':
+                    transformAmount = 15;
+                    avatarGlow.style.backgroundColor = 'rgba(156, 39, 176, 0.3)'; // Purple
+                    break;
+                case '270':
+                    transformAmount = 18;
+                    avatarGlow.style.backgroundColor = 'rgba(233, 30, 99, 0.3)'; // Pink
+                    break;
+                case '365':
+                    transformAmount = 20;
+                    avatarGlow.style.backgroundColor = 'rgba(76, 175, 80, 0.3)'; // Green
+                    break;
+                case '1095':
+                    transformAmount = 25;
+                    avatarGlow.style.backgroundColor = 'rgba(103, 58, 183, 0.3)'; // Deep Purple
+                    break;
+                case '1825':
+                    transformAmount = 30;
+                    avatarGlow.style.backgroundColor = 'rgba(0, 150, 136, 0.3)'; // Teal
+                    break;
+            }
+            
+            // Simulate physical transformation by adjusting width
+            const newWidth = Math.max(100 - transformAmount, 70);
+            futureAvatar.style.width = `${newWidth}%`;
+            
+            // Make the glow effect visible
+            avatarGlow.style.opacity = 1;
+            
+            // Set timeframe label
+            switch(days) {
+                case '30': 
+                    timeframeLabel.textContent = '(1 Month)';
+                    break;
+                case '90': 
+                    timeframeLabel.textContent = '(3 Months)';
+                    break;
+                case '180': 
+                    timeframeLabel.textContent = '(6 Months)';
+                    break;
+                case '270': 
+                    timeframeLabel.textContent = '(9 Months)';
+                    break;
+                case '365': 
+                    timeframeLabel.textContent = '(1 Year)';
+                    break;
+                case '1095': 
+                    timeframeLabel.textContent = '(3 Years)';
+                    break;
+                case '1825': 
+                    timeframeLabel.textContent = '(5 Years)';
+                    break;
+            }
+            
+            // Add stronger visual effect for longer timeframes
+            if (days === '1095' || days === '1825') {
+                avatarGlow.style.animation = 'pulse 1.5s infinite ease-in-out';
+                futureAvatar.style.filter = 'brightness(1.1) contrast(1.1)';
+            } else {
+                avatarGlow.style.animation = 'pulse 2s infinite ease-in-out';
+                futureAvatar.style.filter = 'none';
+            }
+            
+            // Update effects list
+            updateEffects(days);
+        }
+        
+        // Update effects based on timeframe
+        function updateEffects(days) {
+            const effects = effectsByTimeframe[days];
+            let effectsHTML = '';
+            
+            effects.forEach(effect => {
+                effectsHTML += `
+                    <div class="effect-item ${effect.category}-effect">
+                        <div class="effect-icon">${getCategoryIcon(effect.category)}</div>
+                        <div class="effect-text">${effect.text}</div>
+                    </div>
+                `;
+            });
+            
+            effectsList.innerHTML = effectsHTML;
+        }
+        
+        // Get icon for category
+        function getCategoryIcon(category) {
+            switch(category) {
+                case 'health': return '♥';
+                case 'fitness': return '⚡';
+                case 'mental': return '💧';
+                default: return '✓';
+            }
+        }
+        
+        // Add event listeners to timeframe buttons
+        timeframeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                timeframeBtns.forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Get days from data attribute
+                const days = this.getAttribute('data-days');
+                
+                // Update avatar
+                updateAvatar(days);
+            });
+        });
+        
+        // Handle file upload
+        uploadBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    // Set both avatars to the uploaded image
+                    currentAvatar.src = e.target.result;
+                    futureAvatar.src = e.target.result;
+                    
+                    // Update the avatar based on current timeframe
+                    const activeBtn = document.querySelector('.timeframe-btn.active');
+                    const days = activeBtn.getAttribute('data-days');
+                    updateAvatar(days);
+                }
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        
+        // Initialize with default timeframe (90 days)
+        updateAvatar('90');
+    </script>
+</body>
+</html>
