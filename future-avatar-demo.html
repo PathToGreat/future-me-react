@@ -491,6 +491,14 @@
                 { category: 'mental', text: 'Balanced facial expressions' },
                 { category: 'fitness', text: 'Enhanced physical symmetry' }
             ],
+            '270': [
+                { category: 'health', text: 'Substantial body composition change' },
+                { category: 'fitness', text: '20-25% increase in muscle definition' },
+                { category: 'health', text: 'Consistent healthy weight maintenance' },
+                { category: 'mental', text: 'Stable energy levels visible in appearance' },
+                { category: 'fitness', text: 'Athletic physical appearance development' },
+                { category: 'health', text: 'Vibrant skin and improved complexion' }
+            ],
             '365': [
                 { category: 'health', text: 'Complete body composition change' },
                 { category: 'fitness', text: '25-30% increase in lean muscle mass' },
@@ -498,6 +506,25 @@
                 { category: 'mental', text: 'Visible confidence in posture and movement' },
                 { category: 'fitness', text: 'Athletic physical appearance' },
                 { category: 'health', text: 'Vibrant skin and hair quality' }
+            ],
+            '1095': [
+                { category: 'health', text: 'Dramatic reduction in biological age markers (5-7 years)' },
+                { category: 'fitness', text: 'Fully developed athletic physique' },
+                { category: 'health', text: 'Complete transformation of physical presence' },
+                { category: 'mental', text: 'Profound confidence and energy in posture' },
+                { category: 'fitness', text: 'Elite-level fitness indicators visible' },
+                { category: 'health', text: 'Optimal body composition maintained long-term' },
+                { category: 'mental', text: 'Stress resilience visible in appearance' }
+            ],
+            '1825': [
+                { category: 'health', text: 'Extraordinary reduction in biological age (7-10 years)' },
+                { category: 'fitness', text: 'Exemplary physical condition maintained over years' },
+                { category: 'health', text: 'Complete transformation of aging trajectory' },
+                { category: 'mental', text: 'Mastery-level confidence and presence' },
+                { category: 'fitness', text: 'Life-long optimal physical capacity indicators' },
+                { category: 'health', text: 'Exceptional longevity markers across all systems' },
+                { category: 'mental', text: 'Deep resilience and joy visible in appearance' },
+                { category: 'health', text: 'Radiant vitality uncommon for chronological age' }
             ]
         };
         
@@ -519,14 +546,26 @@
                     transformAmount = 15;
                     avatarGlow.style.backgroundColor = 'rgba(156, 39, 176, 0.3)'; // Purple
                     break;
+                case '270':
+                    transformAmount = 18;
+                    avatarGlow.style.backgroundColor = 'rgba(233, 30, 99, 0.3)'; // Pink
+                    break;
                 case '365':
                     transformAmount = 20;
                     avatarGlow.style.backgroundColor = 'rgba(76, 175, 80, 0.3)'; // Green
                     break;
+                case '1095':
+                    transformAmount = 25;
+                    avatarGlow.style.backgroundColor = 'rgba(103, 58, 183, 0.3)'; // Deep Purple
+                    break;
+                case '1825':
+                    transformAmount = 30;
+                    avatarGlow.style.backgroundColor = 'rgba(0, 150, 136, 0.3)'; // Teal
+                    break;
             }
             
             // Simulate physical transformation by adjusting width
-            const newWidth = Math.max(100 - transformAmount, 80);
+            const newWidth = Math.max(100 - transformAmount, 70);
             futureAvatar.style.width = `${newWidth}%`;
             
             // Make the glow effect visible
@@ -543,9 +582,27 @@
                 case '180': 
                     timeframeLabel.textContent = '(6 Months)';
                     break;
+                case '270': 
+                    timeframeLabel.textContent = '(9 Months)';
+                    break;
                 case '365': 
                     timeframeLabel.textContent = '(1 Year)';
                     break;
+                case '1095': 
+                    timeframeLabel.textContent = '(3 Years)';
+                    break;
+                case '1825': 
+                    timeframeLabel.textContent = '(5 Years)';
+                    break;
+            }
+            
+            // Add stronger visual effect for longer timeframes
+            if (days === '1095' || days === '1825') {
+                avatarGlow.style.animation = 'pulse 1.5s infinite ease-in-out';
+                futureAvatar.style.filter = 'brightness(1.1) contrast(1.1)';
+            } else {
+                avatarGlow.style.animation = 'pulse 2s infinite ease-in-out';
+                futureAvatar.style.filter = 'none';
             }
             
             // Update effects list
