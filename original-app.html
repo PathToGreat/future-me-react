@@ -1,0 +1,4145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="refresh" content="0; url=navigation.html">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Future Me - Habit Tracker with Firebase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Primary palette - Deep Blue/Purple */
+      --primary: #4a00e0;
+      --primary-dark: #3700b3;
+      --primary-light: #f0e7ff;
+      --secondary: #00d4ad;
+      --secondary-dark: #00a187;
+      
+      /* Spacing variables for consistent layout */
+      --spacing-xs: 0.5rem;
+      --spacing-sm: 0.75rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --spacing-xl: 2rem;
+      --spacing-xxl: 3rem;
+      
+      /* Status colors */
+      --error: #e53e3e;
+      --error-light: #fee2e2;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      
+      /* Text colors - enhanced readability */
+      --text-primary: #1a202c;
+      --text-secondary: #4a5568;
+      --text-hint: #a0aec0;
+      
+      /* Background and surface colors - clean and bright */
+      --background: #f8faff;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --bg-secondary: #eef4ff;
+      
+      /* Category colors - Vibrant and motivating */
+      --health: #00c07f; /* Energetic green */
+      --health-rgb: 0, 192, 127;
+      
+      --mindfulness: #7c3aed; /* Deep purple */
+      --mindfulness-rgb: 124, 58, 237;
+      
+      --productivity: #3b82f6; /* Clear blue */
+      --productivity-rgb: 59, 130, 246;
+      
+      --relationships: #ec4899; /* Vibrant pink */
+      --relationships-rgb: 236, 72, 153;
+      
+      --finance: #f59e0b; /* Warm amber */
+      --finance-rgb: 245, 158, 11;
+      
+      /* Shadows for depth */
+      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.12);
+      
+      /* Border radius for modern touch */
+      --border-radius-sm: 0.375rem;
+      --border-radius: 0.625rem;
+      --border-radius-lg: 1rem;
+      
+      /* Animation */
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    header {
+      background-color: var(--surface);
+      color: var(--text-primary);
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0.5rem 0;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.025em;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .header-config-btn {
+      white-space: nowrap;
+    }
+    
+    .auth-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    main {
+      flex: 1;
+      padding: 2rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .welcome-section {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 2.5rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary-light), rgba(74, 0, 224, 0.05));
+      border-radius: var(--border-radius-lg);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(124, 58, 237, 0.1);
+    }
+    
+    .welcome-section::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(124, 58, 237, 0.1);
+      z-index: 0;
+    }
+    
+    .welcome-section::after {
+      content: '';
+      position: absolute;
+      bottom: -30px;
+      left: -30px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(0, 192, 127, 0.1);
+      z-index: 0;
+    }
+    
+    .welcome-section > * {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .welcome-section h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.25rem;
+      color: var(--text-primary);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(90deg, var(--primary), var(--secondary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .welcome-section p {
+      font-size: 1.2rem;
+      max-width: 800px;
+      margin: 0 auto 2rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      background-color: var(--surface);
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      padding: 0 0.5rem;
+      overflow-x: auto;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* Internet Explorer and Edge */
+    }
+    
+    .tabs::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+    
+    .tab {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      font-weight: 600;
+      transition: var(--transition);
+      color: var(--text-secondary);
+      white-space: nowrap;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+    }
+    
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 1px;
+    }
+    
+    .tab:hover {
+      color: var(--primary-dark);
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .habits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .habit-card {
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius);
+      padding: 1.75rem;
+      background-color: var(--surface);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .habit-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(74, 0, 224, 0.1);
+    }
+    
+    .habit-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background-color: var(--primary);
+    }
+    
+    .habit-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to right,
+        rgba(74, 0, 224, 0.03) 0%,
+        rgba(74, 0, 224, 0.01) 20%,
+        rgba(255, 255, 255, 0) 50%
+      );
+      pointer-events: none;
+    }
+    
+    .habit-card.health::before { 
+      background-color: var(--health);
+    }
+    
+    .habit-card.health::after {
+      background: linear-gradient(
+        to right,
+        rgba(var(--health-rgb), 0.03) 0%,
+        rgba(var(--health-rgb), 0.01) 20%,
+        rgba(255, 255, 255, 0) 50%
+      );
+    }
+    
+    .habit-card.health:hover {
+      border-color: rgba(var(--health-rgb), 0.1);
+    }
+    
+    .habit-card.mindfulness::before { 
+      background-color: var(--mindfulness);
+    }
+    
+    .habit-card.mindfulness::after {
+      background: linear-gradient(
+        to right,
+        rgba(var(--mindfulness-rgb), 0.03) 0%,
+        rgba(var(--mindfulness-rgb), 0.01) 20%,
+        rgba(255, 255, 255, 0) 50%
+      );
+    }
+    
+    .habit-card.mindfulness:hover {
+      border-color: rgba(var(--mindfulness-rgb), 0.1);
+    }
+    
+    .habit-card.productivity::before { 
+      background-color: var(--productivity);
+    }
+    
+    .habit-card.productivity::after {
+      background: linear-gradient(
+        to right,
+        rgba(var(--productivity-rgb), 0.03) 0%,
+        rgba(var(--productivity-rgb), 0.01) 20%,
+        rgba(255, 255, 255, 0) 50%
+      );
+    }
+    
+    .habit-card.productivity:hover {
+      border-color: rgba(var(--productivity-rgb), 0.1);
+    }
+    
+    .habit-card.relationships::before { 
+      background-color: var(--relationships);
+    }
+    
+    .habit-card.relationships::after {
+      background: linear-gradient(
+        to right,
+        rgba(var(--relationships-rgb), 0.03) 0%,
+        rgba(var(--relationships-rgb), 0.01) 20%,
+        rgba(255, 255, 255, 0) 50%
+      );
+    }
+    
+    .habit-card.relationships:hover {
+      border-color: rgba(var(--relationships-rgb), 0.1);
+    }
+    
+    .habit-card.finance::before { 
+      background-color: var(--finance);
+    }
+    
+    .habit-card.finance::after {
+      background: linear-gradient(
+        to right,
+        rgba(var(--finance-rgb), 0.03) 0%,
+        rgba(var(--finance-rgb), 0.01) 20%,
+        rgba(255, 255, 255, 0) 50%
+      );
+    }
+    
+    .habit-card.finance:hover {
+      border-color: rgba(var(--finance-rgb), 0.1);
+    }
+    
+    .habit-title {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+    }
+    
+    .habit-description {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .habit-stats {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-hint);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.8rem;
+      margin-top: 0.8rem;
+    }
+    
+    .habit-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    
+    .color-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    
+    .health { background-color: var(--health); }
+    .productivity { background-color: var(--productivity); }
+    .mindfulness { background-color: var(--mindfulness); }
+    .relationships { background-color: var(--relationships); }
+    .finance { background-color: var(--finance); }
+    
+    .button {
+      background-color: var(--primary);
+      background-image: linear-gradient(135deg, var(--primary), rgba(74, 0, 224, 0.85));
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 14px rgba(74, 0, 224, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.025em;
+      position: relative;
+      overflow: hidden;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 70%);
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    
+    .button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .button:hover {
+      background-image: linear-gradient(135deg, var(--primary), rgba(74, 0, 224, 0.9));
+      box-shadow: 0 6px 20px rgba(74, 0, 224, 0.4);
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    .button:hover::before {
+      opacity: 1;
+      transform: scale(1.5);
+    }
+    
+    .button:hover::after {
+      opacity: 1;
+    }
+    
+    .button:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 3px 10px rgba(74, 0, 224, 0.3);
+    }
+    
+    .button-small {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.85rem;
+      border-radius: var(--border-radius-sm);
+    }
+    
+    .button-secondary {
+      background-color: var(--secondary);
+      background-image: linear-gradient(135deg, var(--secondary), rgba(0, 212, 173, 0.85));
+      box-shadow: 0 4px 14px rgba(0, 212, 173, 0.25);
+    }
+    
+    .button-secondary:hover {
+      background-image: linear-gradient(135deg, var(--secondary), rgba(0, 212, 173, 0.9));
+      box-shadow: 0 6px 20px rgba(0, 212, 173, 0.4);
+    }
+    
+    .button-secondary:active {
+      box-shadow: 0 3px 10px rgba(0, 212, 173, 0.3);
+    }
+    
+    .button-text {
+      background-color: transparent;
+      background-image: none;
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius-sm);
+      box-shadow: none;
+      font-weight: 500;
+      text-shadow: none;
+    }
+    
+    .button-text:hover {
+      background-color: rgba(74, 0, 224, 0.1);
+      background-image: none;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .button-text::after {
+      display: none;
+    }
+    
+    .button-outline {
+      background-color: transparent;
+      background-image: none;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      box-shadow: none;
+      text-shadow: none;
+    }
+    
+    .button-outline:hover {
+      background-color: rgba(74, 0, 224, 0.05);
+      background-image: none;
+      box-shadow: 0 2px 8px rgba(74, 0, 224, 0.15);
+      border-color: var(--primary);
+    }
+    
+    .button-outline::after {
+      display: none;
+    }
+    
+    .form-container {
+      background-color: var(--surface);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .form-title {
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      color: var(--primary);
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 0.9rem 1.1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius-sm);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      color: var(--text-primary);
+      background-color: var(--surface);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.01em;
+    }
+    
+    .form-input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.15);
+      transform: translateY(-1px);
+    }
+    
+    .form-input:hover {
+      border-color: rgba(74, 0, 224, 0.3);
+    }
+    
+    .form-input::placeholder {
+      color: var(--text-hint);
+      font-weight: 400;
+      opacity: 0.7;
+    }
+    
+    .form-select {
+      width: 100%;
+      padding: 0.9rem 1.1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius-sm);
+      font-size: 0.95rem;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%234a5568' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem top 50%;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      color: var(--text-primary);
+      background-color: var(--surface);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.01em;
+    }
+    
+    .form-select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.15);
+      transform: translateY(-1px);
+    }
+    
+    .form-select:hover {
+      border-color: rgba(74, 0, 224, 0.3);
+    }
+    
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    
+    .auth-form {
+      max-width: 400px;
+      margin: 2rem auto;
+    }
+    
+    .notification {
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .notification-error {
+      background-color: var(--error-light);
+      color: var(--error);
+    }
+    
+    .notification-success {
+      background-color: var(--success-light);
+      color: var(--success);
+    }
+    
+    .notification-encouraging {
+      background-color: var(--health);
+      color: white;
+      padding: 16px 20px;
+      margin: 10px;
+      border-radius: 12px;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      max-width: 380px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    
+    .encouraging-icon {
+      font-size: 24px;
+      margin-right: 12px;
+      display: inline-block;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background-color: var(--surface);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+    
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+    }
+    
+    .stat-value {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin: 0.75rem 0;
+      color: var(--primary);
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+    
+    .stat-label:last-child {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      font-weight: 400;
+    }
+    
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+    }
+    
+    .checkbox-container input {
+      margin-right: 0.5rem;
+    }
+    
+    .category-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    
+    .category-badge {
+      padding: 0.6rem 1rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      background-color: var(--background);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .category-badge:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    
+    .category-badge.active {
+      background-color: rgba(74, 0, 224, 0.08);
+      color: var(--primary);
+      border-color: rgba(74, 0, 224, 0.2);
+      box-shadow: 0 2px 5px rgba(74, 0, 224, 0.15);
+    }
+    
+    .category-badge.health.active {
+      background-color: rgba(var(--health-rgb), 0.08);
+      color: var(--health);
+      border-color: rgba(var(--health-rgb), 0.2);
+      box-shadow: 0 2px 5px rgba(var(--health-rgb), 0.15);
+    }
+    
+    .category-badge.mindfulness.active {
+      background-color: rgba(var(--mindfulness-rgb), 0.08);
+      color: var(--mindfulness);
+      border-color: rgba(var(--mindfulness-rgb), 0.2);
+      box-shadow: 0 2px 5px rgba(var(--mindfulness-rgb), 0.15);
+    }
+    
+    .category-badge.productivity.active {
+      background-color: rgba(var(--productivity-rgb), 0.08);
+      color: var(--productivity);
+      border-color: rgba(var(--productivity-rgb), 0.2);
+      box-shadow: 0 2px 5px rgba(var(--productivity-rgb), 0.15);
+    }
+    
+    .category-badge.relationships.active {
+      background-color: rgba(var(--relationships-rgb), 0.08);
+      color: var(--relationships);
+      border-color: rgba(var(--relationships-rgb), 0.2);
+      box-shadow: 0 2px 5px rgba(var(--relationships-rgb), 0.15);
+    }
+    
+    .category-badge.finance.active {
+      background-color: rgba(var(--finance-rgb), 0.08);
+      color: var(--finance);
+      border-color: rgba(var(--finance-rgb), 0.2);
+      box-shadow: 0 2px 5px rgba(var(--finance-rgb), 0.15);
+    }
+    
+    footer {
+      background-color: white;
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+      font-size: 0.9rem;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal.open {
+      display: flex;
+    }
+    
+    .modal-content {
+      background-color: var(--surface);
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-hint);
+    }
+    
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background-color: var(--border);
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      border-radius: 4px;
+      background-color: var(--primary);
+      transition: width 0.3s ease;
+    }
+    
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    
+    .day-cell {
+      aspect-ratio: 1/1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background-color: var(--background);
+      cursor: pointer;
+    }
+    
+    .day-cell.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .day-label {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-hint);
+    }
+    
+    /* Authentication form styles */
+    .auth-toggle {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .auth-toggle a {
+      color: var(--primary);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    
+    /* Responsive design breakpoints */
+    @media (max-width: 992px) {
+      .habits-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+      
+      main {
+        padding: 1.5rem 1rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .habits-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+      }
+      
+      .welcome-section {
+        padding: 2rem 1.25rem;
+      }
+      
+      .welcome-section h1 {
+        font-size: 2rem;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0.75rem 0.5rem;
+      }
+      
+      .header-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+      
+      .header-config-btn {
+        width: 100%;
+      }
+      
+      .category-badges {
+        justify-content: center;
+        gap: 0.4rem;
+      }
+      
+      .tab {
+        padding: 0.8rem 1.2rem;
+        font-size: 0.9rem;
+      }
+      
+      .modal-content {
+        padding: 1.5rem;
+        width: 95%;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .welcome-section {
+        margin-bottom: 2rem;
+      }
+      
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+      
+      .button {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+      
+      .form-container {
+        padding: 1.5rem 1rem;
+      }
+      
+      .habit-title {
+        font-size: 1.1rem;
+      }
+      
+      .auth-buttons {
+        display: flex;
+        width: 100%;
+        gap: 0.75rem;
+      }
+      
+      .auth-buttons button {
+        flex: 1;
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+      
+      .section-header button {
+        width: 100%;
+      }
+      
+      .day-cell {
+        font-size: 0.7rem;
+      }
+    }
+    
+    /* Fix for very small screens */
+    @media (max-width: 350px) {
+      body {
+        font-size: 14px;
+      }
+      
+      .welcome-section h1 {
+        font-size: 1.75rem;
+      }
+      
+      .welcome-section p {
+        font-size: 1rem;
+      }
+      
+      .stat-value {
+        font-size: 1.75rem;
+      }
+      
+      .button-small {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+    }
+    
+    /* Timeline and Projection Styles */
+    .timeline {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      margin: 2rem 0;
+      padding: 2rem 1rem;
+      background: var(--bg-secondary);
+      border-radius: 0.5rem;
+      position: relative;
+    }
+    
+    .timeline:before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 1rem;
+      right: 1rem;
+      height: 2px;
+      background: var(--primary);
+      opacity: 0.3;
+      z-index: 1;
+    }
+    
+    .timeline-milestone {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 22%;
+    }
+    
+    .timeline-milestone:before {
+      content: '';
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .timeline-content {
+      background: white;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      height: 100%;
+    }
+    
+    .timeline-content h4 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .timeline-content p {
+      margin: 0.5rem 0;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: var(--text-secondary);
+    }
+    
+    .timeline-date {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    
+    .projection-progress {
+      margin: 1.5rem 0;
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .projection-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .projection-label span:last-child {
+      font-weight: 500;
+    }
+    
+    .projection-bar-container {
+      height: 10px;
+      background-color: var(--bg-secondary);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    
+    .projection-bar {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .projection-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        rgba(255, 255, 255, 0) 100%);
+      animation: shine 2s infinite;
+    }
+    
+    .projection-bar.health { background-color: var(--health); }
+    .projection-bar.mindfulness { background-color: var(--mindfulness); }
+    .projection-bar.productivity { background-color: var(--productivity); }
+    .projection-bar.relationships { background-color: var(--relationships); }
+    .projection-bar.finance { background-color: var(--finance); }
+    
+    .projection-chart {
+      height: 200px;
+      position: relative;
+      background: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .chart-title {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    
+    .chart-container {
+      position: relative;
+      height: 150px;
+      width: 100%;
+    }
+    
+    #chart-lines-container {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      border-bottom: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+    
+    .chart-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      opacity: 0.7;
+      transition: height 1s ease-out;
+      z-index: 2;
+    }
+    
+    .chart-line.health { background-color: var(--health); }
+    .chart-line.mindfulness { background-color: var(--mindfulness); }
+    .chart-line.productivity { background-color: var(--productivity); }
+    .chart-line.relationships { background-color: var(--relationships); }
+    .chart-line.finance { background-color: var(--finance); }
+    
+    .chart-marker {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      position: absolute;
+      transform: translate(-50%, 50%);
+      z-index: 3;
+    }
+    
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      width: 100%;
+    }
+    
+    .chart-y-label {
+      position: absolute;
+      left: -1rem;
+      top: 50%;
+      transform: rotate(-90deg) translateX(50%);
+      transform-origin: left center;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .impact-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    
+    .impact-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .impact-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .impact-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 1.2rem;
+    }
+    
+    .impact-icon.health { 
+      background-color: rgba(var(--health-rgb), 0.1);
+      color: var(--health);
+    }
+    
+    .impact-icon.productivity { 
+      background-color: rgba(var(--productivity-rgb), 0.1);
+      color: var(--productivity);
+    }
+    
+    .impact-icon.mindfulness { 
+      background-color: rgba(var(--mindfulness-rgb), 0.1);
+      color: var(--mindfulness);
+    }
+    
+    .impact-icon.finance { 
+      background-color: rgba(var(--finance-rgb), 0.1);
+      color: var(--finance);
+    }
+    
+    .impact-icon.relationships { 
+      background-color: rgba(var(--relationships-rgb), 0.1);
+      color: var(--relationships);
+    }
+    
+    .impact-title {
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+    
+    .impact-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0.5rem 0;
+      color: var(--primary);
+    }
+    
+    /* Animation keyframes */
+    @keyframes shine {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+    
+    @keyframes pulse {
+      0% {
+        opacity: 0.6;
+        transform: scale(0.98);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0.6;
+        transform: scale(0.98);
+      }
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+    
+    @keyframes gradientText {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    
+    /* Avatar container */
+    .future-avatar-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 2rem auto;
+      position: relative;
+      max-width: 140px;
+    }
+    
+    .future-avatar {
+      width: 100px; 
+      height: 200px;
+      position: relative;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .avatar-silhouette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C92,15 102,25 102,40 C102,51 98,60 98,65 L98,75 C101,75 103,78 103,81 C103,84 102,87 100,89 C100,89 109,93 109,105 C109,110 107,115 100,120 L100,125 C100,130 90,145 90,145 L95,150 C95,170 95,180 95,195 L95,210 C94,212 92,215 90,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,150 L70,145 C70,145 60,130 60,125 L60,120 C53,115 51,110 51,105 C51,93 60,89 60,89 C58,87 57,84 57,81 C57,78 59,75 62,75 L62,65 C62,60 58,51 58,40 C58,25 68,15 80,15 Z M100,87 L105,87 C105,87 114,89 119,84 C124,79 124,79 124,79 L125,85 C125,87 123,93 118,95 C113,97 110,95 110,95 L100,87 Z M60,87 L55,87 C55,87 46,89 41,84 C36,79 36,79 36,79 L35,85 C35,87 37,93 42,95 C47,97 50,95 50,95 L60,87 Z'/%3E%3C/svg%3E") no-repeat center center;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C92,15 102,25 102,40 C102,51 98,60 98,65 L98,75 C101,75 103,78 103,81 C103,84 102,87 100,89 C100,89 109,93 109,105 C109,110 107,115 100,120 L100,125 C100,130 90,145 90,145 L95,150 C95,170 95,180 95,195 L95,210 C94,212 92,215 90,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,150 L70,145 C70,145 60,130 60,125 L60,120 C53,115 51,110 51,105 C51,93 60,89 60,89 C58,87 57,84 57,81 C57,78 59,75 62,75 L62,65 C62,60 58,51 58,40 C58,25 68,15 80,15 Z M100,87 L105,87 C105,87 114,89 119,84 C124,79 124,79 124,79 L125,85 C125,87 123,93 118,95 C113,97 110,95 110,95 L100,87 Z M60,87 L55,87 C55,87 46,89 41,84 C36,79 36,79 36,79 L35,85 C35,87 37,93 42,95 C47,97 50,95 50,95 L60,87 Z'/%3E%3C/svg%3E") no-repeat center center;
+      border-radius: 8px;
+      opacity: 0.9;
+    }
+    
+    .avatar-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140px;
+      height: 160px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(74, 0, 224, 0.3) 0%, rgba(74, 0, 224, 0) 70%);
+      filter: blur(12px);
+      border-radius: 50%;
+      z-index: -1;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    
+    .avatar-label {
+      margin-top: 1.5rem;
+      color: var(--primary);
+      font-weight: 600;
+      text-align: center;
+      font-size: 1.1rem;
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary), var(--secondary));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientText 4s linear infinite;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .timeline {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .timeline:before {
+        height: 100%;
+        width: 2px;
+        left: 50%;
+        right: auto;
+        top: 1rem;
+        bottom: 1rem;
+      }
+      
+      .timeline-milestone {
+        max-width: 90%;
+        margin-bottom: 2rem;
+      }
+      
+      .timeline-milestone:last-child {
+        margin-bottom: 0;
+      }
+      
+      .impact-card {
+        padding: 1rem;
+      }
+      
+      .impact-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+      }
+      
+      .impact-value {
+        font-size: 1.5rem;
+      }
+      
+      .future-avatar {
+        width: 80px;
+        height: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="header-content">
+        <div class="logo">Future Me</div>
+        <div class="header-actions">
+          <!-- Firebase configuration button removed as requested -->
+          <div class="auth-buttons">
+            <button class="button button-small button-outline" onclick="openAuthModal('login')">Login</button>
+            <button class="button button-small" onclick="openAuthModal('signup')">Sign Up</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <main>
+      <section class="welcome-section">
+        <h1>Build Your Future Self, One Habit at a Time</h1>
+        <p>Future Me helps you track habits, visualize your progress, and see how today's small actions shape your tomorrow.</p>
+        <!-- Firebase notification removed as requested -->
+        
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-label">Active Habits</div>
+            <div class="stat-value">5</div>
+            <div class="stat-label">Currently tracking</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Best Streak</div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Days in a row</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Completion Rate</div>
+            <div class="stat-value">78%</div>
+            <div class="stat-label">Last 30 days</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Habits Created</div>
+            <div class="stat-value">8</div>
+            <div class="stat-label">Total habits</div>
+          </div>
+        </div>
+      </section>
+      
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('daily')">Daily Check-in</div>
+        <div class="tab" onclick="switchTab('habits')">My Habits</div>
+        <div class="tab" onclick="switchTab('analytics')">Analytics</div>
+        <div class="tab" onclick="switchTab('projections')">Future Projections</div>
+      </div>
+      
+      <div id="daily-tab" class="tab-content active">
+        <div class="section-header">
+          <h2>Today's Habits</h2>
+          <span>March 26, 2025</span>
+        </div>
+        
+        <div class="habits-grid" id="daily-habits-container">
+          <!-- Daily habits will be loaded here -->
+        </div>
+      </div>
+      
+      <div id="habits-tab" class="tab-content">
+        <div class="section-header">
+          <h2>My Habits</h2>
+          <button class="button" onclick="openHabitModal()">Add New Habit</button>
+        </div>
+        
+        <div class="category-badges">
+          <div class="category-badge active" onclick="filterHabits('all')">
+            <span>All</span>
+          </div>
+          <div class="category-badge" onclick="filterHabits('health')">
+            <span class="color-indicator health"></span>
+            <span>Health</span>
+          </div>
+          <div class="category-badge" onclick="filterHabits('productivity')">
+            <span class="color-indicator productivity"></span>
+            <span>Productivity</span>
+          </div>
+          <div class="category-badge" onclick="filterHabits('mindfulness')">
+            <span class="color-indicator mindfulness"></span>
+            <span>Mindfulness</span>
+          </div>
+          <div class="category-badge" onclick="filterHabits('relationships')">
+            <span class="color-indicator relationships"></span>
+            <span>Relationships</span>
+          </div>
+          <div class="category-badge" onclick="filterHabits('finance')">
+            <span class="color-indicator finance"></span>
+            <span>Finance</span>
+          </div>
+        </div>
+        
+        <div class="habits-grid" id="all-habits-container">
+          <!-- All habits will be loaded here -->
+        </div>
+      </div>
+      
+      <div id="analytics-tab" class="tab-content">
+        <div class="section-header">
+          <h2>Your Progress Analytics</h2>
+        </div>
+        
+        <div class="form-container">
+          <p style="text-align: center; margin-bottom: 1.5rem;">Analytics visualization will be implemented with real data once Firebase integration is complete.</p>
+          
+          <div style="text-align: center;">
+            <button class="button" onclick="showSampleAnalytics()">Show Sample Charts</button>
+          </div>
+        </div>
+      </div>
+      
+      <div id="projections-tab" class="tab-content">
+        <div class="section-header">
+          <h2>Future Projections</h2>
+        </div>
+        
+        <div class="form-container">
+          <h3 class="form-title">See Your Future Self</h3>
+          <p style="text-align: center; margin-bottom: 1.5rem;">Based on your current habits, here's a projection of how today's small actions can transform your future.</p>
+          
+          <div class="form-group">
+            <label class="form-label">Projection Timeframe</label>
+            <select class="form-select" id="projection-timeframe" onchange="if(document.getElementById('timeline-container').innerHTML !== '') showSampleProjections()">
+              <option value="30">30 Days</option>
+              <option value="90" selected>90 Days</option>
+              <option value="180">6 Months</option>
+              <option value="365">1 Year</option>
+            </select>
+          </div>
+          
+          <div id="projections-container">
+            <p style="text-align: center; color: var(--text-secondary);">Generate a projection to see how your habits will compound over time.</p>
+          </div>
+          
+          <div style="text-align: center; margin-top: 1.5rem;">
+            <button class="button" onclick="showSampleProjections()">Generate Sample Projection</button>
+          </div>
+          
+          <div id="timeline-container" class="timeline" style="display: none;">
+            <!-- Timeline content will be generated dynamically -->
+          </div>
+          
+          <div id="impact-metrics" style="display: none;">
+            <h3 style="margin: 2rem 0 1rem; text-align: center; color: var(--primary);">Impact Metrics</h3>
+            <div class="stats-container">
+              <!-- Impact metrics cards will be generated dynamically -->
+            </div>
+          </div>
+          
+          <div id="progress-charts" style="display: none;">
+            <h3 style="margin: 2rem 0 1rem; text-align: center; color: var(--primary);">Progress Projections</h3>
+            <!-- Progress bars will be generated dynamically -->
+          </div>
+          
+          <div id="projection-chart-container" style="display: none;">
+            <h3 style="margin: 2rem 0 1rem; text-align: center; color: var(--primary);">Cumulative Growth</h3>
+            <div class="projection-chart">
+              <div class="chart-y-label">Impact</div>
+              <div id="chart-lines-container">
+                <!-- Chart lines will be generated dynamically -->
+              </div>
+              <div class="chart-labels">
+                <span>Today</span>
+                <span>30 Days</span>
+                <span>60 Days</span>
+                <span>90 Days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Firebase Config Modal -->
+    <div id="firebase-config-modal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeFirebaseConfigModal()">&times;</button>
+        <h2 class="form-title">Firebase Configuration</h2>
+        
+        <div id="firebase-config-notification" class="notification hidden"></div>
+        
+        <form id="firebase-config-form" onsubmit="return saveFirebaseConfig(event)">
+          <div class="form-group">
+            <label class="form-label" for="firebase-api-key">Firebase API Key*</label>
+            <input class="form-input" type="text" id="firebase-api-key" required placeholder="Your Firebase API Key">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="firebase-project-id">Firebase Project ID*</label>
+            <input class="form-input" type="text" id="firebase-project-id" required placeholder="Your Firebase Project ID">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="firebase-app-id">Firebase App ID*</label>
+            <input class="form-input" type="text" id="firebase-app-id" required placeholder="Your Firebase App ID">
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="button button-outline" onclick="closeFirebaseConfigModal()">Cancel</button>
+            <button type="submit" class="button">Save Configuration</button>
+          </div>
+        </form>
+        
+        <div style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-secondary);">
+          <p>To get these credentials:</p>
+          <ol style="margin-left: 1.5rem; line-height: 1.4;">
+            <li>Go to the <a href="https://console.firebase.google.com/" target="_blank" style="color: var(--primary);">Firebase console</a></li>
+            <li>Create a new project or select an existing one</li>
+            <li>Click "Add app" and select the Web platform (look for the &lt;/&gt; icon)</li>
+            <li>Register your app with a name (like "Future Me")</li>
+            <li>Copy the configuration values from the provided code snippet</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Habit Form Modal -->
+    <div id="habit-modal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeHabitModal()">&times;</button>
+        <h2 class="form-title">Add New Habit</h2>
+        
+        <div id="habit-form-notification" class="notification hidden"></div>
+        
+        <form id="habit-form" onsubmit="return saveHabit(event)">
+          <div class="form-group">
+            <label class="form-label" for="habit-title">Habit Title*</label>
+            <input class="form-input" type="text" id="habit-title" required placeholder="e.g., Morning Meditation">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="habit-description">Description</label>
+            <input class="form-input" type="text" id="habit-description" placeholder="e.g., 15 minutes of meditation each morning">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="habit-category">Category*</label>
+            <select class="form-select" id="habit-category" required>
+              <option value="">Select a category</option>
+              <option value="health">Health</option>
+              <option value="productivity">Productivity</option>
+              <option value="mindfulness">Mindfulness</option>
+              <option value="relationships">Relationships</option>
+              <option value="finance">Finance</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Frequency</label>
+            <div class="days-grid">
+              <div class="day-label">Sun</div>
+              <div class="day-label">Mon</div>
+              <div class="day-label">Tue</div>
+              <div class="day-label">Wed</div>
+              <div class="day-label">Thu</div>
+              <div class="day-label">Fri</div>
+              <div class="day-label">Sat</div>
+              
+              <div class="day-cell" data-day="0" onclick="toggleDay(this)">S</div>
+              <div class="day-cell" data-day="1" onclick="toggleDay(this)">M</div>
+              <div class="day-cell" data-day="2" onclick="toggleDay(this)">T</div>
+              <div class="day-cell" data-day="3" onclick="toggleDay(this)">W</div>
+              <div class="day-cell" data-day="4" onclick="toggleDay(this)">T</div>
+              <div class="day-cell" data-day="5" onclick="toggleDay(this)">F</div>
+              <div class="day-cell" data-day="6" onclick="toggleDay(this)">S</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="habit-reminder">Set Reminder</label>
+            <input class="form-input" type="time" id="habit-reminder">
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="button button-outline" onclick="closeHabitModal()">Cancel</button>
+            <button type="submit" class="button">Save Habit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Authentication Modal -->
+    <div id="auth-modal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+        
+        <div id="login-form-container">
+          <h2 class="form-title">Log In</h2>
+          
+          <div id="login-notification" class="notification hidden"></div>
+          
+          <form id="login-form" class="auth-form" onsubmit="return loginUser(event)">
+            <div class="form-group">
+              <label class="form-label" for="login-email">Email</label>
+              <input class="form-input" type="email" id="login-email" required placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="login-password">Password</label>
+              <input class="form-input" type="password" id="login-password" required placeholder="Your password">
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="button">Log In</button>
+            </div>
+            
+            <div class="form-group" style="text-align: center; margin-top: 1rem;">
+              <button type="button" class="button button-text" onclick="loginWithGoogleAuth()">
+                Sign in with Google
+              </button>
+            </div>
+            
+            <div class="auth-toggle">
+              Don't have an account? <a onclick="switchAuthForm('signup')">Sign up</a>
+            </div>
+          </form>
+        </div>
+        
+        <div id="signup-form-container" class="hidden">
+          <h2 class="form-title">Create Account</h2>
+          
+          <div id="signup-notification" class="notification hidden"></div>
+          
+          <form id="signup-form" class="auth-form" onsubmit="return registerUser(event)">
+            <div class="form-group">
+              <label class="form-label" for="signup-name">Name</label>
+              <input class="form-input" type="text" id="signup-name" required placeholder="Your name">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="signup-email">Email</label>
+              <input class="form-input" type="email" id="signup-email" required placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="signup-password">Password</label>
+              <input class="form-input" type="password" id="signup-password" required placeholder="Create a password (min. 8 characters)">
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="button">Create Account</button>
+            </div>
+            
+            <div class="form-group" style="text-align: center; margin-top: 1rem;">
+              <button type="button" class="button button-text" onclick="loginWithGoogleAuth()">
+                Sign up with Google
+              </button>
+            </div>
+            
+            <div class="auth-toggle">
+              Already have an account? <a onclick="switchAuthForm('login')">Log in</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
+      <p>&copy; 2025 Future Me. All rights reserved.</p>
+      <p>A habit tracking app to help you build your best future self.</p>
+    </footer>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  
+  <!-- Our Firebase configuration -->
+  <script src="firebase-config.js"></script>
+
+  <script>
+    // Function to show encouraging message when a habit is completed
+    function showEncouragingMessage(habitName) {
+      const messages = {
+        // Health & Wellness
+        "Daily Hydration": "Drinking enough water improves energy levels, brain function, and helps maintain healthy skin!",
+        "Whole Food Nutrition": "Nutrient-dense whole foods reduce inflammation, improve gut health, and strengthen your immune system!",
+        "Meal Preparation": "Planning meals leads to 67% healthier food choices and reduces impulse eating by 80%!",
+        "Quality Sleep": "Good sleep enhances memory consolidation, immune function, and reduces stress hormone levels!",
+        "Morning Sunlight": "Morning sunlight exposure regulates circadian rhythm, increases vitamin D production, and boosts mood by 40%!",
+        "Evening Wind Down": "A screen-free hour before bed increases melatonin production by 50% and improves sleep quality!",
+        
+        // Physical Fitness & Mobility
+        "Daily Movement": "Just 30 minutes of movement daily decreases cardiovascular disease risk by 30% and improves cognitive function!",
+        "Strength Training": "Resistance training increases bone density by 1-3% per year, boosts metabolism, and improves muscle mass!",
+        "Mobility & Stretching": "Regular stretching increases joint range of motion by 18% and reduces injury risk by up to 60%!",
+        "Deep Breathing & Relaxation": "Deep breathing exercises activate your parasympathetic nervous system, reducing anxiety by 40%!",
+        "Outdoor Time": "Spending 15+ minutes in nature decreases cortisol levels by 16% and increases creativity by 50%!",
+        
+        // Social & Human Connection
+        "Meaningful Conversation": "Deep conversations increase feelings of happiness and well-being by 2x compared to small talk!",
+        "Check-in with Loved Ones": "Regular social connections reduce mortality risk by 50% and improve cognitive function!",
+        "Acts of Kindness": "Performing kind acts releases oxytocin and endorphins, reduces blood pressure, and improves mood!",
+        "Community Engagement": "People involved in community groups report 30% higher life satisfaction and live 5 years longer on average!",
+        "Quality Family Time": "Regular uninterrupted family time strengthens relationships, builds trust, and creates lasting memories!",
+        
+        // Mental & Emotional Wellness
+        "Morning Gratitude": "Practicing gratitude activates brain's reward pathways, reduces stress hormones by 23%, and improves sleep quality!",
+        "Journaling & Reflection": "Regular journaling improves emotional processing, reduces rumination by 43%, and enhances self-awareness!",
+        "Screen-Free Hour": "Taking screen breaks reduces eye strain by 40%, improves sleep quality, and boosts in-person social connections!",
+        "Breathing Exercises": "Controlled breathing techniques lower blood pressure by 5-10 points and activate the parasympathetic nervous system!",
+        "Emotional Check-in": "Self-awareness of emotions improves emotional regulation by 60% and enhances decision-making!",
+        
+        // Faith & Spiritual Growth
+        "Daily Scripture Reading": "Consistent spiritual practice creates stronger stress resilience, increases purpose, and reduces depression by 30%!",
+        "Prayer & Meditation": "Regular meditation changes brain structure, improving focus and reducing anxiety by up to 40%!",
+        "Faith-Based Study": "Studying wisdom principles increases compassion, gratitude, and overall psychological well-being!",
+        "Fellowship & Community": "People engaged in faith communities report 20% higher life satisfaction and stronger social support networks!",
+        
+        // Financial & Productivity Habits
+        "Daily Budget Check-in": "Regular financial reviews reduce money-related stress by 40% and improve long-term financial security!",
+        "Work on a Skill": "Consistent skill-building creates neural pathways that make learning easier and increases career opportunities by 25%!",
+        "Declutter & Organize": "Organizing your space reduces stress by 30% and increases productivity by 15%!",
+        "Limit Impulse Spending": "People who pause before purchases save 15-20% more money and make more satisfying buying decisions!",
+        "Review & Plan": "Daily planning reduces decision fatigue, increases productivity by 25%, and lowers stress throughout the day!"
+      };
+      
+      // Default message if habit-specific one not found
+      const defaultMessage = "Consistency in good habits creates compounding benefits for your health and well-being over time!";
+      
+      // Get message for this habit or use default
+      const message = messages[habitName] || defaultMessage;
+      
+      // Create special notification with encouraging style
+      const notification = document.createElement('div');
+      notification.className = 'notification-encouraging';
+      
+      // Create badge/icon
+      const icon = document.createElement('span');
+      icon.className = 'encouraging-icon';
+      icon.innerHTML = '💪';
+      
+      // Create message element
+      const messageEl = document.createElement('span');
+      messageEl.textContent = message;
+      
+      // Add elements to notification
+      notification.appendChild(icon);
+      notification.appendChild(messageEl);
+      
+      document.body.appendChild(notification);
+      
+      // Animate in
+      setTimeout(() => {
+        notification.style.transform = 'translateY(0)';
+        notification.style.opacity = '1';
+      }, 10);
+      
+      // Auto dismiss after longer time (these are educational)
+      setTimeout(() => {
+        notification.style.transform = 'translateY(-20px)';
+        notification.style.opacity = '0';
+        
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 500);
+      }, 6000);
+    }
+    
+    // Sample data for demonstration
+    const sampleHabits = [
+      // Health & Wellness
+      {
+        id: 1,
+        title: "Daily Hydration",
+        description: "Drink at least 64 oz of water",
+        category: "health",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 5,
+        completionRate: 80,
+        reminder: "08:00",
+        createdAt: new Date(2025, 2, 10), // March 10, 2025
+        factDescription: "Proper hydration improves cognition, energy levels, and skin health while reducing the risk of kidney stones and helping control body temperature."
+      },
+      {
+        id: 2,
+        title: "Whole Food Nutrition",
+        description: "Eat a nutrient-dense meal",
+        category: "health",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 3,
+        completionRate: 65,
+        reminder: "12:00",
+        createdAt: new Date(2025, 2, 15), // March 15, 2025
+        factDescription: "Whole foods provide essential nutrients that support immune function, reduce inflammation, and lower the risk of chronic diseases like heart disease and diabetes."
+      },
+      {
+        id: 3,
+        title: "Meal Preparation",
+        description: "Plan and prepare a healthy meal",
+        category: "health",
+        frequency: [0, 3], // Sunday, Wednesday
+        streak: 2,
+        completionRate: 60,
+        reminder: "16:00",
+        createdAt: new Date(2025, 2, 18), // March 18, 2025
+        factDescription: "Meal prepping reduces decision fatigue, saves time and money, and helps maintain consistent nutrition, leading to better weight control and long-term health outcomes."
+      },
+      {
+        id: 4,
+        title: "Quality Sleep",
+        description: "Sleep for at least 7-9 hours",
+        category: "health",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 4,
+        completionRate: 75,
+        reminder: "22:00",
+        createdAt: new Date(2025, 2, 5), // March 5, 2025
+        factDescription: "Quality sleep enhances memory consolidation, immune function, and metabolic health while reducing risk of chronic diseases, improving mood, and increasing cognitive performance."
+      },
+      {
+        id: 5,
+        title: "Morning Sunlight",
+        description: "Get direct sunlight within 30 min of waking",
+        category: "health",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 2,
+        completionRate: 60,
+        reminder: "07:30",
+        createdAt: new Date(2025, 2, 8), // March 8, 2025
+        factDescription: "Morning sunlight exposure regulates circadian rhythm, improves sleep quality, boosts vitamin D production, and enhances mood by increasing serotonin levels."
+      },
+      {
+        id: 6,
+        title: "Evening Wind Down",
+        description: "No screens 1 hour before bed",
+        category: "health",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 1,
+        completionRate: 50,
+        reminder: "21:00",
+        createdAt: new Date(2025, 2, 22), // March 22, 2025
+        factDescription: "Avoiding screens before bed reduces blue light exposure that suppresses melatonin production, helping you fall asleep faster and experience deeper, more restorative sleep cycles."
+      },
+      // Physical Fitness & Mobility
+      {
+        id: 7,
+        title: "Daily Movement",
+        description: "Walk 10,000 steps or move for 30+ minutes",
+        category: "health",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 3,
+        completionRate: 70,
+        reminder: "16:00",
+        createdAt: new Date(2025, 2, 12), // March 12, 2025
+        factDescription: "Regular physical activity strengthens the heart, reduces chronic disease risk, improves bone density, enhances brain function, and releases endorphins that boost mood and energy."
+      },
+      {
+        id: 8,
+        title: "Strength Training",
+        description: "Perform bodyweight or resistance training",
+        category: "health",
+        frequency: [1, 3, 5], // Monday, Wednesday, Friday
+        streak: 2,
+        completionRate: 65,
+        reminder: "17:30",
+        createdAt: new Date(2025, 2, 20), // March 20, 2025
+        factDescription: "Strength training builds muscle mass, increases metabolism, improves insulin sensitivity, strengthens bones, enhances posture, and helps maintain functional ability as you age."
+      },
+      {
+        id: 9,
+        title: "Mobility & Stretching",
+        description: "Work on flexibility and joint health",
+        category: "health",
+        frequency: [0, 2, 4, 6], // Sunday, Tuesday, Thursday, Saturday
+        streak: 1,
+        completionRate: 55,
+        reminder: "18:30",
+        createdAt: new Date(2025, 2, 19), // March 19, 2025
+        factDescription: "Regular stretching and mobility work increases range of motion, improves circulation, reduces muscle tension, prevents injuries, and can help alleviate chronic pain conditions."
+      },
+      {
+        id: 10,
+        title: "Deep Breathing & Relaxation",
+        description: "Activate the parasympathetic nervous system",
+        category: "mindfulness",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 3,
+        completionRate: 70,
+        reminder: "12:30",
+        createdAt: new Date(2025, 2, 14), // March 14, 2025
+        factDescription: "Deep breathing exercises activate the parasympathetic nervous system, reducing stress hormones, lowering blood pressure, improving focus, and creating a sense of calm and mental clarity."
+      },
+      {
+        id: 11,
+        title: "Outdoor Time",
+        description: "Spend at least 15 minutes in nature",
+        category: "health",
+        frequency: [0, 2, 4, 6], // Sunday, Tuesday, Thursday, Saturday
+        streak: 2,
+        completionRate: 60,
+        reminder: "15:00",
+        createdAt: new Date(2025, 2, 16), // March 16, 2025
+        factDescription: "Time spent in nature reduces cortisol levels, improves vitamin D levels, boosts creativity and focus, enhances mood, and has been linked to lower rates of depression and anxiety."
+      },
+      // Social & Human Connection
+      {
+        id: 12,
+        title: "Meaningful Conversation",
+        description: "Engage in deep, intentional discussions",
+        category: "relationships",
+        frequency: [1, 4], // Monday, Thursday
+        streak: 1,
+        completionRate: 55,
+        reminder: "19:00",
+        createdAt: new Date(2025, 2, 21), // March 21, 2025
+        factDescription: "Meaningful conversations stimulate brain regions associated with reward and emotional processing, reduce feelings of isolation, strengthen relationship bonds, and contribute to overall psychological well-being."
+      },
+      {
+        id: 13,
+        title: "Check-in with Loved Ones",
+        description: "Call or message a friend/family member",
+        category: "relationships",
+        frequency: [0, 3, 6], // Sunday, Wednesday, Saturday
+        streak: 3,
+        completionRate: 80,
+        reminder: "18:00",
+        createdAt: new Date(2025, 2, 8), // March 8, 2025
+        factDescription: "Regular social connections reduce the risk of depression and anxiety, boost immunity, improve cognitive function, and are linked to greater longevity and higher self-rated happiness."
+      },
+      {
+        id: 14,
+        title: "Acts of Kindness",
+        description: "Do one intentional act of kindness today",
+        category: "relationships",
+        frequency: [1, 2, 3, 4, 5], // Weekdays
+        streak: 5,
+        completionRate: 85,
+        reminder: "10:00",
+        createdAt: new Date(2025, 2, 5), // March 5, 2025
+        factDescription: "Acts of kindness release oxytocin, reduce inflammation, lower blood pressure, and activate the brain's reward system, creating a 'helper's high' that improves both emotional and physical well-being."
+      },
+      {
+        id: 15,
+        title: "Community Engagement",
+        description: "Participate in a group, club, or local event",
+        category: "relationships",
+        frequency: [6], // Saturday
+        streak: 1,
+        completionRate: 50,
+        reminder: "10:00",
+        createdAt: new Date(2025, 2, 23), // March 23, 2025
+        factDescription: "Community engagement increases social capital, builds a sense of belonging, reduces feelings of isolation, improves mental health, and creates meaningful connections that contribute to overall life satisfaction."
+      },
+      {
+        id: 16,
+        title: "Quality Family Time",
+        description: "Spend uninterrupted time with family",
+        category: "relationships",
+        frequency: [0, 5], // Sunday, Friday
+        streak: 2,
+        completionRate: 70,
+        reminder: "18:30",
+        createdAt: new Date(2025, 2, 17), // March 17, 2025
+        factDescription: "Regular family interactions strengthen emotional bonds, increase psychological well-being, lower stress levels, provide social support during difficult times, and create lasting shared memories."
+      },
+      // Mental & Emotional Wellness
+      {
+        id: 17,
+        title: "Morning Gratitude",
+        description: "Write down three things you're grateful for",
+        category: "mindfulness",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 7,
+        completionRate: 90,
+        reminder: "07:00",
+        createdAt: new Date(2025, 2, 3), // March 3, 2025
+        factDescription: "Daily gratitude practice activates positive emotion centers in the brain, increases dopamine and serotonin production, reduces stress hormones, improves sleep quality, and builds psychological resilience."
+      },
+      {
+        id: 18,
+        title: "Journaling & Reflection",
+        description: "Reflect on your day, emotions, or progress",
+        category: "mindfulness",
+        frequency: [1, 3, 5], // Monday, Wednesday, Friday
+        streak: 4,
+        completionRate: 75,
+        reminder: "21:00",
+        createdAt: new Date(2025, 2, 7), // March 7, 2025
+        factDescription: "Regular journaling strengthens memory, reduces intrusive thoughts, helps process emotions, improves self-awareness, reduces symptoms of depression, and enhances working memory."
+      },
+      {
+        id: 19,
+        title: "Screen-Free Hour",
+        description: "Take a break from social media/screens",
+        category: "mindfulness",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 3,
+        completionRate: 65,
+        reminder: "19:30",
+        createdAt: new Date(2025, 2, 11), // March 11, 2025
+        factDescription: "Screen breaks reduce eye strain and digital fatigue, lower stress hormones, improve quality of sleep by reducing blue light exposure, and enhance in-person social connections."
+      },
+      {
+        id: 20,
+        title: "Breathing Exercises",
+        description: "Use controlled breathing techniques to manage stress",
+        category: "mindfulness",
+        frequency: [1, 2, 3, 4, 5], // Weekdays
+        streak: 4,
+        completionRate: 80,
+        reminder: "13:00",
+        createdAt: new Date(2025, 2, 10), // March 10, 2025
+        factDescription: "Deep breathing exercises activate the parasympathetic nervous system, decrease blood pressure, reduce cortisol, increase oxygen flow to the brain, and can significantly lower anxiety levels in just 5-10 minutes."
+      },
+      {
+        id: 21,
+        title: "Emotional Check-in",
+        description: "Assess how you feel and why",
+        category: "mindfulness",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 5,
+        completionRate: 85,
+        reminder: "18:00",
+        createdAt: new Date(2025, 2, 4), // March 4, 2025
+        factDescription: "Regular emotional self-assessment improves emotional intelligence, helps identify stress triggers, reduces rumination, strengthens emotional regulation, and leads to greater self-awareness and mental health."
+      },
+      // Faith & Spiritual Growth
+      {
+        id: 22,
+        title: "Daily Scripture Reading",
+        description: "Read and reflect on a passage",
+        category: "mindfulness",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 6,
+        completionRate: 85,
+        reminder: "06:30",
+        createdAt: new Date(2025, 2, 1) // March 1, 2025
+      },
+      {
+        id: 23,
+        title: "Prayer & Meditation",
+        description: "Spend intentional time in prayer or stillness",
+        category: "mindfulness",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 5,
+        completionRate: 80,
+        reminder: "06:00",
+        createdAt: new Date(2025, 2, 5) // March 5, 2025
+      },
+      {
+        id: 24,
+        title: "Faith-Based Study",
+        description: "Study a concept, teaching, or wisdom principle",
+        category: "mindfulness",
+        frequency: [0, 3], // Sunday, Wednesday
+        streak: 2,
+        completionRate: 65,
+        reminder: "19:00",
+        createdAt: new Date(2025, 2, 15) // March 15, 2025
+      },
+      {
+        id: 25,
+        title: "Fellowship & Community",
+        description: "Engage with a faith-based group or discussion",
+        category: "relationships",
+        frequency: [0], // Sunday
+        streak: 3,
+        completionRate: 75,
+        reminder: "09:00",
+        createdAt: new Date(2025, 2, 9) // March 9, 2025
+      },
+      // Financial & Productivity Habits
+      {
+        id: 26,
+        title: "Daily Budget Check-in",
+        description: "Review spending and savings goals",
+        category: "finance",
+        frequency: [1, 4], // Monday and Thursday
+        streak: 2,
+        completionRate: 70,
+        reminder: "19:30",
+        createdAt: new Date(2025, 2, 20) // March 20, 2025
+      },
+      {
+        id: 27,
+        title: "Work on a Skill",
+        description: "Learn something new for career/business",
+        category: "productivity",
+        frequency: [1, 2, 3, 4, 5], // Weekdays
+        streak: 4,
+        completionRate: 80,
+        reminder: "20:00",
+        createdAt: new Date(2025, 2, 9) // March 9, 2025
+      },
+      {
+        id: 28,
+        title: "Declutter & Organize",
+        description: "Spend 10+ minutes organizing your space",
+        category: "productivity",
+        frequency: [2, 5], // Tuesday, Friday
+        streak: 1,
+        completionRate: 60,
+        reminder: "16:30",
+        createdAt: new Date(2025, 2, 18) // March 18, 2025
+      },
+      {
+        id: 29,
+        title: "Limit Impulse Spending",
+        description: "Avoid unnecessary purchases today",
+        category: "finance",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 2,
+        completionRate: 65,
+        reminder: "09:30",
+        createdAt: new Date(2025, 2, 21) // March 21, 2025
+      },
+      {
+        id: 30,
+        title: "Review & Plan",
+        description: "Set priorities for the next day",
+        category: "productivity",
+        frequency: [0, 1, 2, 3, 4, 5, 6], // Every day
+        streak: 8,
+        completionRate: 95,
+        reminder: "21:30",
+        createdAt: new Date(2025, 2, 2) // March 2, 2025
+      }
+    ];
+    
+    let selectedDays = [];
+    let userLoggedIn = false;
+    let currentUser = null;
+    let currentAuthMode = 'login';
+    
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Try to load saved Firebase config
+      loadSavedFirebaseConfig();
+      
+      // Initialize Firebase
+      try {
+        // Check if Firebase config is valid
+        if (checkFirebaseConfig()) {
+          initializeFirebase();
+          console.log("Firebase initialized successfully!");
+          
+          // Set up auth state change listener
+          firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+              // User is signed in
+              currentUser = user;
+              userLoggedIn = true;
+              
+              // Update UI
+              updateAuthUI(user);
+              
+              // Load habits from Firebase
+              loadUserHabits(user.uid);
+            } else {
+              // User is signed out
+              currentUser = null;
+              userLoggedIn = false;
+              
+              // Update UI for logged out state
+              updateAuthUI(null);
+              
+              // Load sample habits
+              loadSampleHabits();
+            }
+          });
+        } else {
+          // Config invalid, use sample data
+          console.warn("Firebase configuration incomplete. Using sample data.");
+          loadSampleHabits();
+          
+          // Firebase auto-popup has been removed as requested
+        }
+      } catch (error) {
+        console.error("Error initializing Firebase:", error);
+        // Fallback to sample data
+        loadSampleHabits();
+      }
+      
+      console.log("Future Me app loaded successfully!");
+    });
+    
+    // Firebase configuration modal functions
+    function openFirebaseConfigModal() {
+      // Load saved values if they exist
+      const savedConfig = JSON.parse(localStorage.getItem('firebase_config') || '{}');
+      
+      if (savedConfig.apiKey) {
+        document.getElementById('firebase-api-key').value = savedConfig.apiKey;
+      }
+      
+      if (savedConfig.projectId) {
+        document.getElementById('firebase-project-id').value = savedConfig.projectId;
+      }
+      
+      if (savedConfig.appId) {
+        document.getElementById('firebase-app-id').value = savedConfig.appId;
+      }
+      
+      // Open modal
+      document.getElementById('firebase-config-modal').classList.add('open');
+    }
+    
+    function closeFirebaseConfigModal() {
+      document.getElementById('firebase-config-modal').classList.remove('open');
+    }
+    
+    // Save Firebase configuration
+    function saveFirebaseConfig(event) {
+      event.preventDefault();
+      
+      const apiKey = document.getElementById('firebase-api-key').value.trim();
+      const projectId = document.getElementById('firebase-project-id').value.trim();
+      const appId = document.getElementById('firebase-app-id').value.trim();
+      
+      // Validate inputs
+      if (!apiKey || !projectId || !appId) {
+        document.getElementById('firebase-config-notification').textContent = 'Please fill in all required fields';
+        document.getElementById('firebase-config-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      try {
+        // Save to local storage
+        const configObj = { apiKey, projectId, appId };
+        localStorage.setItem('firebase_config', JSON.stringify(configObj));
+        
+        // Update the Firebase config
+        setFirebaseConfig(apiKey, projectId, appId);
+        
+        // Close modal
+        closeFirebaseConfigModal();
+        
+        // Show success notification
+        showNotification('Firebase configuration saved successfully. Please refresh the page to apply changes.', 'success');
+        
+        // Reinitialize Firebase
+        if (firebase.apps.length > 0) {
+          // Delete the existing app instance
+          firebase.app().delete().then(() => {
+            // Initialize with new config
+            initializeFirebase();
+            showNotification('Firebase reinitialized with new configuration.', 'success');
+            
+            // Set up auth state listener again
+            firebase.auth().onAuthStateChanged(function(user) {
+              if (user) {
+                // User is signed in
+                currentUser = user;
+                userLoggedIn = true;
+                
+                // Update UI
+                updateAuthUI(user);
+                
+                // Load habits from Firebase
+                loadUserHabits(user.uid);
+              } else {
+                // User is signed out
+                currentUser = null;
+                userLoggedIn = false;
+                
+                // Update UI for logged out state
+                updateAuthUI(null);
+                
+                // Load sample habits
+                loadSampleHabits();
+              }
+            });
+          });
+        } else {
+          // Initialize with new config
+          initializeFirebase();
+          showNotification('Firebase initialized with your configuration.', 'success');
+        }
+      } catch (error) {
+        console.error("Error saving Firebase config:", error);
+        document.getElementById('firebase-config-notification').textContent = error.message || 'Error saving configuration';
+        document.getElementById('firebase-config-notification').className = 'notification notification-error';
+      }
+      
+      return false;
+    }
+    
+    // Load saved Firebase configuration from localStorage
+    function loadSavedFirebaseConfig() {
+      try {
+        const savedConfig = JSON.parse(localStorage.getItem('firebase_config') || '{}');
+        
+        if (savedConfig.apiKey && savedConfig.projectId && savedConfig.appId) {
+          setFirebaseConfig(savedConfig.apiKey, savedConfig.projectId, savedConfig.appId);
+          return true;
+        }
+      } catch (error) {
+        console.error("Error loading saved Firebase config:", error);
+      }
+      
+      return false;
+    }
+    
+    // Tab Switching
+    function switchTab(tabId) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Remove active class from all tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show selected tab content
+      document.getElementById(tabId + '-tab').classList.add('active');
+      
+      // Add active class to selected tab
+      event.target.classList.add('active');
+    }
+    
+    // Load habits into containers
+    function loadHabits() {
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      
+      // Clear containers
+      document.getElementById('daily-habits-container').innerHTML = '';
+      document.getElementById('all-habits-container').innerHTML = '';
+      
+      // Load today's habits (filter by day of week)
+      const todaysHabits = sampleHabits.filter(habit => 
+        habit.frequency.includes(dayOfWeek)
+      );
+      
+      if (todaysHabits.length === 0) {
+        document.getElementById('daily-habits-container').innerHTML = 
+          '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">No habits scheduled for today.</p>';
+      } else {
+        todaysHabits.forEach(habit => {
+          document.getElementById('daily-habits-container').appendChild(
+            createHabitCard(habit, true)
+          );
+        });
+      }
+      
+      // Load all habits
+      sampleHabits.forEach(habit => {
+        document.getElementById('all-habits-container').appendChild(
+          createHabitCard(habit, false)
+        );
+      });
+    }
+    
+    // Create habit card element
+    function createHabitCard(habit, isDaily) {
+      const card = document.createElement('div');
+      card.className = 'habit-card';
+      card.dataset.id = habit.id;
+      card.dataset.category = habit.category;
+      
+      const categoryIndicator = document.createElement('span');
+      categoryIndicator.className = `color-indicator ${habit.category}`;
+      
+      const title = document.createElement('div');
+      title.className = 'habit-title';
+      title.appendChild(categoryIndicator);
+      title.appendChild(document.createTextNode(habit.title));
+      
+      const description = document.createElement('div');
+      description.className = 'habit-description';
+      description.textContent = habit.description;
+      
+      const stats = document.createElement('div');
+      stats.className = 'habit-stats';
+      stats.innerHTML = `<span>Streak: ${habit.streak} days</span><span>Completion: ${habit.completionRate}%</span>`;
+      
+      card.appendChild(title);
+      card.appendChild(description);
+      
+      // Add progress bar
+      const progressContainer = document.createElement('div');
+      progressContainer.className = 'progress-container';
+      
+      const progressBar = document.createElement('div');
+      progressBar.className = 'progress-bar';
+      progressBar.style.width = `${habit.completionRate}%`;
+      
+      progressContainer.appendChild(progressBar);
+      card.appendChild(progressContainer);
+      
+      card.appendChild(stats);
+      
+      // Add actions
+      const actions = document.createElement('div');
+      actions.className = 'habit-actions';
+      
+      if (isDaily) {
+        // For daily view, add complete button
+        const completeBtn = document.createElement('button');
+        completeBtn.className = 'button button-small';
+        completeBtn.textContent = 'Complete';
+        completeBtn.onclick = function() {
+          completeHabit(habit.id);
+        };
+        actions.appendChild(completeBtn);
+      } else {
+        // For all habits view, add edit/delete buttons
+        const editBtn = document.createElement('button');
+        editBtn.className = 'button button-small button-outline';
+        editBtn.textContent = 'Edit';
+        editBtn.onclick = function() {
+          editHabit(habit.id);
+        };
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'button button-small button-text';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = function() {
+          deleteHabit(habit.id);
+        };
+        
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+      }
+      
+      card.appendChild(actions);
+      
+      return card;
+    }
+    
+    // Filter habits by category
+    function filterHabits(category) {
+      // Update active category badge
+      document.querySelectorAll('.category-badge').forEach(badge => {
+        badge.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+      
+      // Filter habits
+      const habitCards = document.querySelectorAll('#all-habits-container .habit-card');
+      
+      habitCards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+    
+    // Complete habit
+    function completeHabit(habitId) {
+      // In real app, this would update Firebase
+      console.log(`Habit ${habitId} completed for today!`);
+      
+      // Find the habit data
+      const habit = sampleHabits.find(h => h.id === habitId);
+      
+      // Update UI
+      const card = document.querySelector(`.habit-card[data-id="${habitId}"]`);
+      card.style.opacity = '0.6';
+      
+      const completeBtn = card.querySelector('.button');
+      completeBtn.textContent = 'Completed';
+      completeBtn.disabled = true;
+      completeBtn.style.backgroundColor = 'var(--success)';
+      
+      // Show success message
+      showNotification('Habit completed! Great job!', 'success');
+      
+      // Show encouraging message with habit-specific information
+      if (habit) {
+        showEncouragingMessage(habit.title);
+      }
+    }
+    
+    // Edit habit
+    function editHabit(habitId) {
+      const habit = sampleHabits.find(h => h.id === habitId);
+      
+      if (habit) {
+        // Fill form with habit data
+        document.getElementById('habit-title').value = habit.title;
+        document.getElementById('habit-description').value = habit.description;
+        document.getElementById('habit-category').value = habit.category;
+        document.getElementById('habit-reminder').value = habit.reminder || '';
+        
+        // Set selected days
+        selectedDays = [...habit.frequency];
+        document.querySelectorAll('.day-cell').forEach(dayCell => {
+          const day = parseInt(dayCell.dataset.day);
+          if (selectedDays.includes(day)) {
+            dayCell.classList.add('active');
+          } else {
+            dayCell.classList.remove('active');
+          }
+        });
+        
+        // Set form title
+        document.querySelector('#habit-modal .form-title').textContent = 'Edit Habit';
+        
+        // Set form submission to update mode
+        document.getElementById('habit-form').dataset.mode = 'edit';
+        document.getElementById('habit-form').dataset.habitId = habitId;
+        
+        // Open modal
+        openHabitModal();
+      }
+    }
+    
+    // Delete habit
+    function deleteHabit(habitId) {
+      // In real app, this would update Firebase
+      if (confirm('Are you sure you want to delete this habit?')) {
+        console.log(`Habit ${habitId} deleted!`);
+        
+        // Remove from UI
+        const card = document.querySelector(`.habit-card[data-id="${habitId}"]`);
+        card.remove();
+        
+        // Show success message
+        showNotification('Habit deleted successfully', 'success');
+      }
+    }
+    
+    // Show notification
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.className = `notification notification-${type}`;
+      notification.textContent = message;
+      
+      // Insert at top of main
+      const main = document.querySelector('main');
+      main.insertBefore(notification, main.firstChild);
+      
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+    }
+    
+    // Toggle day selection in habit form
+    function toggleDay(element) {
+      element.classList.toggle('active');
+      
+      const day = parseInt(element.dataset.day);
+      
+      if (element.classList.contains('active')) {
+        // Add day if not already in array
+        if (!selectedDays.includes(day)) {
+          selectedDays.push(day);
+        }
+      } else {
+        // Remove day if in array
+        selectedDays = selectedDays.filter(d => d !== day);
+      }
+    }
+    
+    // Save habit form
+    function saveHabit(event) {
+      event.preventDefault();
+      
+      // Validate form
+      const title = document.getElementById('habit-title').value.trim();
+      const description = document.getElementById('habit-description').value.trim();
+      const category = document.getElementById('habit-category').value;
+      const reminder = document.getElementById('habit-reminder').value;
+      
+      if (!title || !category) {
+        document.getElementById('habit-form-notification').textContent = 'Please fill in all required fields';
+        document.getElementById('habit-form-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      if (selectedDays.length === 0) {
+        document.getElementById('habit-form-notification').textContent = 'Please select at least one day for your habit';
+        document.getElementById('habit-form-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      // Get form mode (add or edit)
+      const mode = document.getElementById('habit-form').dataset.mode || 'add';
+      
+      if (mode === 'edit') {
+        // Update existing habit
+        const habitId = parseInt(document.getElementById('habit-form').dataset.habitId);
+        console.log(`Updating habit ${habitId} in Firebase...`);
+        
+        // In real app, this would update Firebase
+        // For now, just update UI to simulate
+        loadHabits(); // Reload habits
+        showNotification('Habit updated successfully!', 'success');
+      } else {
+        // Add new habit
+        console.log('Adding new habit to Firebase...');
+        
+        // Create new habit object
+        const newHabit = {
+          id: sampleHabits.length + 1,
+          title,
+          description,
+          category,
+          frequency: selectedDays,
+          streak: 0,
+          completionRate: 0,
+          reminder,
+          createdAt: new Date()
+        };
+        
+        // In real app, this would add to Firebase
+        // For now, just add to local array and update UI
+        sampleHabits.push(newHabit);
+        loadHabits(); // Reload habits
+        showNotification('New habit added successfully!', 'success');
+      }
+      
+      // Close modal
+      closeHabitModal();
+      return false;
+    }
+    
+    // Open habit modal
+    function openHabitModal() {
+      // Reset form
+      document.getElementById('habit-form').reset();
+      document.getElementById('habit-form-notification').className = 'notification hidden';
+      document.querySelector('#habit-modal .form-title').textContent = 'Add New Habit';
+      document.getElementById('habit-form').dataset.mode = 'add';
+      delete document.getElementById('habit-form').dataset.habitId;
+      
+      // Reset selected days
+      selectedDays = [];
+      document.querySelectorAll('.day-cell').forEach(dayCell => {
+        dayCell.classList.remove('active');
+      });
+      
+      // Open modal
+      document.getElementById('habit-modal').classList.add('open');
+    }
+    
+    // Close habit modal
+    function closeHabitModal() {
+      document.getElementById('habit-modal').classList.remove('open');
+    }
+    
+    // Authentication functions
+    
+    // Open auth modal
+    function openAuthModal(mode) {
+      currentAuthMode = mode || 'login';
+      switchAuthForm(currentAuthMode);
+      document.getElementById('auth-modal').classList.add('open');
+    }
+    
+    // Close auth modal
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.remove('open');
+    }
+    
+    // Switch between login and signup forms
+    function switchAuthForm(mode) {
+      if (mode === 'login') {
+        document.getElementById('login-form-container').classList.remove('hidden');
+        document.getElementById('signup-form-container').classList.add('hidden');
+      } else {
+        document.getElementById('login-form-container').classList.add('hidden');
+        document.getElementById('signup-form-container').classList.remove('hidden');
+      }
+    }
+    
+    // Login user
+    function loginUser(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      
+      // Validate input
+      if (!email || !password) {
+        document.getElementById('login-notification').textContent = 'Please enter both email and password';
+        document.getElementById('login-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      // In real app, this would authenticate with Firebase
+      console.log(`Authenticating user with email: ${email}`);
+      
+      // For demonstration, simulate successful login
+      simulateSuccessfulAuth({
+        uid: '123456',
+        email: email,
+        displayName: email.split('@')[0]
+      });
+      
+      return false;
+    }
+    
+    // Register user
+    function registerUser(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      
+      // Validate input
+      if (!name || !email || !password) {
+        document.getElementById('signup-notification').textContent = 'Please fill in all fields';
+        document.getElementById('signup-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      if (password.length < 8) {
+        document.getElementById('signup-notification').textContent = 'Password must be at least 8 characters';
+        document.getElementById('signup-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      // In real app, this would register with Firebase
+      console.log(`Registering user: ${name}, ${email}`);
+      
+      // For demonstration, simulate successful registration
+      simulateSuccessfulAuth({
+        uid: '123456',
+        email: email,
+        displayName: name
+      });
+      
+      return false;
+    }
+    
+    // Login with Google
+    function loginWithGoogle() {
+      // In real app, this would use Firebase Google Auth
+      console.log('Initiating Google sign-in...');
+      
+      // For demonstration, simulate successful login
+      simulateSuccessfulAuth({
+        uid: '789012',
+        email: 'user@gmail.com',
+        displayName: 'Google User'
+      });
+    }
+    
+    // Simulate successful authentication
+    function simulateSuccessfulAuth(user) {
+      // Set current user
+      currentUser = user;
+      userLoggedIn = true;
+      
+      // Update UI
+      document.querySelector('.auth-buttons').innerHTML = `
+        <span style="color: white; margin-right: 10px;">Welcome, ${user.displayName}</span>
+        <button class="button button-small button-outline" onclick="logoutUser()">Logout</button>
+      `;
+      
+      // Close auth modal
+      closeAuthModal();
+      
+      // Show success message
+      showNotification('Successfully logged in!', 'success');
+    }
+    
+    // Logout user
+    function logoutUser() {
+      // In real app, this would sign out of Firebase
+      console.log('Logging out user...');
+      
+      // Reset current user
+      currentUser = null;
+      userLoggedIn = false;
+      
+      // Update UI
+      document.querySelector('.auth-buttons').innerHTML = `
+        <button class="button button-small button-outline" onclick="openAuthModal('login')">Login</button>
+        <button class="button button-small" onclick="openAuthModal('signup')">Sign Up</button>
+      `;
+      
+      // Show success message
+      showNotification('Successfully logged out', 'success');
+    }
+    
+    // Sample Analytics
+    function showSampleAnalytics() {
+      const analyticsTab = document.getElementById('analytics-tab');
+      
+      // Create a simple visualization with HTML/CSS
+      analyticsTab.innerHTML = `
+        <div class="section-header">
+          <h2>Your Progress Analytics</h2>
+        </div>
+        
+        <div class="form-container">
+          <h3 class="form-title">Weekly Completion Rate</h3>
+          
+          <div style="margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; height: 200px; align-items: flex-end; margin-bottom: 10px;">
+              <div style="width: 12%; background-color: var(--primary); height: 65%; position: relative;">
+                <div style="position: absolute; top: -25px; left: 0; right: 0; text-align: center;">65%</div>
+              </div>
+              <div style="width: 12%; background-color: var(--primary); height: 70%; position: relative;">
+                <div style="position: absolute; top: -25px; left: 0; right: 0; text-align: center;">70%</div>
+              </div>
+              <div style="width: 12%; background-color: var(--primary); height: 60%; position: relative;">
+                <div style="position: absolute; top: -25px; left: 0; right: 0; text-align: center;">60%</div>
+              </div>
+              <div style="width: 12%; background-color: var(--primary); height: 85%; position: relative;">
+                <div style="position: absolute; top: -25px; left: 0; right: 0; text-align: center;">85%</div>
+              </div>
+              <div style="width: 12%; background-color: var(--primary); height: 75%; position: relative;">
+                <div style="position: absolute; top: -25px; left: 0; right: 0; text-align: center;">75%</div>
+              </div>
+              <div style="width: 12%; background-color: var(--primary); height: 90%; position: relative;">
+                <div style="position: absolute; top: -25px; left: 0; right: 0; text-align: center;">90%</div>
+              </div>
+              <div style="width: 12%; background-color: var(--primary); height: 80%; position: relative;">
+                <div style="position: absolute; top: -25px; left: 0; right: 0; text-align: center;">80%</div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+              <div style="width: 12%; text-align: center;">Mon</div>
+              <div style="width: 12%; text-align: center;">Tue</div>
+              <div style="width: 12%; text-align: center;">Wed</div>
+              <div style="width: 12%; text-align: center;">Thu</div>
+              <div style="width: 12%; text-align: center;">Fri</div>
+              <div style="width: 12%; text-align: center;">Sat</div>
+              <div style="width: 12%; text-align: center;">Sun</div>
+            </div>
+          </div>
+          
+          <h3 class="form-title">Habit Performance</h3>
+          
+          <div style="margin: 2rem 0;">
+            <div style="display: flex; margin-bottom: 15px; align-items: center;">
+              <div style="width: 30%; font-weight: 500;">Daily Meditation</div>
+              <div style="width: 70%; height: 20px; background-color: var(--border); border-radius: 10px; overflow: hidden;">
+                <div style="width: 80%; height: 100%; background-color: var(--mindfulness);"></div>
+              </div>
+              <div style="margin-left: 10px;">80%</div>
+            </div>
+            
+            <div style="display: flex; margin-bottom: 15px; align-items: center;">
+              <div style="width: 30%; font-weight: 500;">Exercise</div>
+              <div style="width: 70%; height: 20px; background-color: var(--border); border-radius: 10px; overflow: hidden;">
+                <div style="width: 65%; height: 100%; background-color: var(--health);"></div>
+              </div>
+              <div style="margin-left: 10px;">65%</div>
+            </div>
+            
+            <div style="display: flex; margin-bottom: 15px; align-items: center;">
+              <div style="width: 30%; font-weight: 500;">Reading</div>
+              <div style="width: 70%; height: 20px; background-color: var(--border); border-radius: 10px; overflow: hidden;">
+                <div style="width: 90%; height: 100%; background-color: var(--productivity);"></div>
+              </div>
+              <div style="margin-left: 10px;">90%</div>
+            </div>
+            
+            <div style="display: flex; margin-bottom: 15px; align-items: center;">
+              <div style="width: 30%; font-weight: 500;">Family Call</div>
+              <div style="width: 70%; height: 20px; background-color: var(--border); border-radius: 10px; overflow: hidden;">
+                <div style="width: 85%; height: 100%; background-color: var(--relationships);"></div>
+              </div>
+              <div style="margin-left: 10px;">85%</div>
+            </div>
+            
+            <div style="display: flex; margin-bottom: 15px; align-items: center;">
+              <div style="width: 30%; font-weight: 500;">Budget Review</div>
+              <div style="width: 70%; height: 20px; background-color: var(--border); border-radius: 10px; overflow: hidden;">
+                <div style="width: 70%; height: 100%; background-color: var(--finance);"></div>
+              </div>
+              <div style="margin-left: 10px;">70%</div>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin-top: 1.5rem;">
+            <button class="button" onclick="switchTab('habits')">Go to My Habits</button>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Sample Projections
+    function showSampleProjections() {
+      const timeframe = parseInt(document.getElementById('projection-timeframe').value);
+      const projectionsContainer = document.getElementById('projections-container');
+      const timelineContainer = document.getElementById('timeline-container');
+      const impactMetrics = document.getElementById('impact-metrics');
+      const progressCharts = document.getElementById('progress-charts');
+      const projectionChartContainer = document.getElementById('projection-chart-container');
+      
+      // Clear containers
+      projectionsContainer.innerHTML = '';
+      
+      // Show all containers
+      impactMetrics.style.display = 'block';
+      progressCharts.style.display = 'block';
+      projectionChartContainer.style.display = 'block';
+      
+      // Scaling factors based on timeframe
+      const scalingFactor = timeframe / 90;
+      
+      // Create timeline - will handle its own display style
+      generateTimeline(timeframe);
+      
+      // Create impact metrics cards
+      generateImpactMetrics(timeframe);
+      
+      // Create progress charts
+      generateProgressBars(timeframe);
+      
+      // Create projection chart
+      generateProjectionChart(timeframe);
+      
+      // Animate progress bars after a short delay
+      setTimeout(() => {
+        const progressBars = document.querySelectorAll('.projection-bar');
+        progressBars.forEach(bar => {
+          bar.style.width = bar.getAttribute('data-target-width');
+        });
+      }, 300);
+    }
+    
+    function generateTimeline(timeframe) {
+      const timelineContainer = document.getElementById('timeline-container');
+      timelineContainer.innerHTML = '';
+      timelineContainer.style.display = 'flex';
+      
+      // Define fixed milestone points for the horizontal timeline
+      const milestones = [
+        {
+          title: "Today",
+          content: "You begin your journey with consistent daily actions that will compound over time."
+        },
+        {
+          title: "30 Days",
+          content: "Small changes become noticeable in your energy, focus, and daily routine."
+        },
+        {
+          title: "60 Days",
+          content: "Your habits feel natural. The positive effects are compounding in your life."
+        },
+        {
+          title: "90 Days",
+          content: "Your new lifestyle is generating significant improvements across all areas."
+        }
+      ];
+      
+      // Calculate dates for each milestone
+      const today = new Date();
+      const dateOptions = { month: 'short', day: 'numeric' };
+      
+      // For timeframes longer than 90 days, add an additional milestone
+      if (timeframe > 90) {
+        milestones.push({
+          title: `${timeframe} Days`,
+          content: "You've become the person you envisioned through consistent daily practice."
+        });
+      }
+      
+      // Limit milestones based on timeframe
+      const filteredMilestones = milestones.filter(m => {
+        if (m.title === "Today") return true;
+        const days = parseInt(m.title);
+        return !isNaN(days) && days <= timeframe;
+      });
+
+      // Add futuristic avatar to projections container
+      const projectionsContainer = document.getElementById('projections-container');
+      projectionsContainer.innerHTML = '';
+      
+      const avatarContainer = document.createElement('div');
+      avatarContainer.className = 'future-avatar-container';
+      avatarContainer.style.opacity = '0';
+      avatarContainer.style.transform = 'scale(0.9)';
+      
+      avatarContainer.innerHTML = `
+        <div class="future-avatar">
+          <div class="avatar-silhouette"></div>
+          <div class="avatar-glow"></div>
+        </div>
+        <div class="avatar-label">Future You</div>
+      `;
+      
+      projectionsContainer.appendChild(avatarContainer);
+      
+      // Animate avatar appearance
+      setTimeout(() => {
+        avatarContainer.style.transition = 'all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        avatarContainer.style.opacity = '1';
+        avatarContainer.style.transform = 'scale(1)';
+      }, 300);
+      
+      // Create milestone elements with staggered animations
+      filteredMilestones.forEach((milestone, index) => {
+        const milestoneElement = document.createElement('div');
+        milestoneElement.className = 'timeline-milestone';
+        milestoneElement.style.opacity = '0';
+        milestoneElement.style.transform = 'translateY(20px)';
+        
+        // Calculate date for this milestone
+        const milestoneDate = new Date(today);
+        const days = milestone.title === "Today" ? 0 : parseInt(milestone.title);
+        if (!isNaN(days)) {
+          milestoneDate.setDate(today.getDate() + days);
+        }
+        const formattedDate = milestoneDate.toLocaleDateString('en-US', dateOptions);
+        
+        milestoneElement.innerHTML = `
+          <div class="timeline-content">
+            <h4>${milestone.title === "Today" ? "Starting Point" : milestone.title}</h4>
+            <p>${milestone.content}</p>
+          </div>
+          <div class="timeline-date">${formattedDate}</div>
+        `;
+        
+        timelineContainer.appendChild(milestoneElement);
+        
+        // Animate each milestone with a staggered delay
+        setTimeout(() => {
+          milestoneElement.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+          milestoneElement.style.opacity = '1';
+          milestoneElement.style.transform = 'translateY(0)';
+        }, 500 + (index * 200));
+      });
+    }
+    
+    function generateImpactMetrics(timeframe) {
+      const impactMetricsContainer = document.getElementById('impact-metrics').querySelector('.stats-container');
+      impactMetricsContainer.innerHTML = '';
+      
+      // Scale values based on timeframe
+      const scaleFactor = timeframe / 90;
+      
+      // Health & Wellness impact
+      const waterConsumed = Math.round(480 * scaleFactor); // 64oz * days with adjustment
+      const qualitySleepHours = Math.round(630 * scaleFactor); // 7hrs * days with adjustment
+      
+      // Physical Fitness impact
+      const stepsWalked = Math.round(750000 * scaleFactor); // ~8,333 steps/day average
+      const workoutMinutes = Math.round(1350 * scaleFactor); // 45min * 3days/week * weeks
+      
+      // Mental & Emotional Wellness impact
+      const gratitudeEntries = Math.round(270 * scaleFactor); // 3 entries * days
+      const stressReduction = Math.round(28 * scaleFactor); // percentage
+      
+      // Social Connection impact
+      const meaningfulInteractions = Math.round(45 * scaleFactor); // ~3-4 per week with adjustment
+      
+      // Spiritual Growth impact
+      const reflectionHours = Math.round(45 * scaleFactor); // 30min * days
+      
+      // Financial impact
+      const potentialSavings = Math.round((350 + (250 * (scaleFactor - 1))) * 10) / 10;
+      
+      const metrics = [
+        {
+          title: 'Water Consumed',
+          value: `${waterConsumed.toLocaleString()} oz`,
+          numericValue: waterConsumed,
+          category: 'health',
+          icon: '💧',
+          prefix: '',
+          suffix: ' oz'
+        },
+        {
+          title: 'Steps Walked',
+          value: `${(stepsWalked/1000).toFixed(1)}K`,
+          numericValue: stepsWalked,
+          category: 'health',
+          icon: '👟',
+          prefix: '',
+          suffix: 'K'
+        },
+        {
+          title: 'Quality Sleep',
+          value: `${qualitySleepHours.toLocaleString()} hrs`,
+          numericValue: qualitySleepHours,
+          category: 'health',
+          icon: '😴',
+          prefix: '',
+          suffix: ' hrs'
+        },
+        {
+          title: 'Gratitude Entries',
+          value: `${gratitudeEntries}`,
+          numericValue: gratitudeEntries,
+          category: 'mindfulness',
+          icon: '🙏',
+          prefix: '',
+          suffix: ''
+        },
+        {
+          title: 'Stress Reduction',
+          value: `${stressReduction}%`,
+          numericValue: stressReduction,
+          category: 'mindfulness',
+          icon: '🧘',
+          prefix: '',
+          suffix: '%'
+        },
+        {
+          title: 'Potential Savings',
+          value: `$${potentialSavings.toLocaleString()}`,
+          numericValue: potentialSavings,
+          category: 'finance',
+          icon: '💰',
+          prefix: '$',
+          suffix: ''
+        }
+      ];
+      
+      metrics.forEach((metric, index) => {
+        const card = document.createElement('div');
+        card.className = 'impact-card';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        const valueDisplay = document.createElement('div');
+        valueDisplay.className = 'impact-value';
+        valueDisplay.textContent = metric.prefix + '0' + metric.suffix;
+        
+        card.innerHTML = `
+          <div class="impact-header">
+            <div class="impact-icon ${metric.category}">${metric.icon}</div>
+            <div class="impact-title">${metric.title}</div>
+          </div>
+        `;
+        
+        card.appendChild(valueDisplay);
+        
+        const description = document.createElement('div');
+        description.className = 'impact-description';
+        description.textContent = `In ${timeframe} days`;
+        description.style.color = 'var(--text-secondary)';
+        description.style.fontSize = '0.9rem';
+        
+        card.appendChild(description);
+        impactMetricsContainer.appendChild(card);
+        
+        // Animate card appearance with staggered delay
+        setTimeout(() => {
+          card.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+          
+          // Animate value counter
+          setTimeout(() => {
+            let startValue = 0;
+            const duration = 2000; // ms
+            const frameDuration = 1000 / 60; // 60fps
+            const totalFrames = Math.round(duration / frameDuration);
+            const increment = metric.numericValue / totalFrames;
+            
+            let currentFrame = 0;
+            
+            const counter = setInterval(() => {
+              currentFrame++;
+              startValue += increment;
+              
+              if (currentFrame === totalFrames) {
+                clearInterval(counter);
+                valueDisplay.textContent = metric.value;
+              } else {
+                if (metric.prefix === '$') {
+                  valueDisplay.textContent = metric.prefix + Math.floor(startValue).toLocaleString() + metric.suffix;
+                } else {
+                  valueDisplay.textContent = metric.prefix + Math.floor(startValue) + metric.suffix;
+                }
+              }
+            }, frameDuration);
+          }, 400);
+        }, 700 + (index * 150));
+      });
+    }
+    
+    function generateProgressBars(timeframe) {
+      const progressChartsContainer = document.getElementById('progress-charts');
+      progressChartsContainer.innerHTML = `
+        <h3 style="margin: 2rem 0 1rem; text-align: center; color: var(--primary);">Progress Projections</h3>
+      `;
+      
+      // Scale percentages based on timeframe
+      const scaleFactor = timeframe / 90;
+      const maxScaleFactor = Math.min(scaleFactor, 1.5); // Cap at 150%
+      
+      const progressMetrics = [
+        {
+          label: 'Nutrition Quality',
+          start: 0,
+          end: Math.min(Math.round(18 * scaleFactor), 55), // Cap at 55%
+          color: 'var(--health)',
+          category: 'health'
+        },
+        {
+          label: 'Sleep Quality',
+          start: 0,
+          end: Math.min(Math.round(22 * scaleFactor), 65), // Cap at 65%
+          color: 'var(--health)',
+          category: 'health'
+        },
+        {
+          label: 'Physical Fitness',
+          start: 0,
+          end: Math.min(Math.round(16 * scaleFactor), 50), // Cap at 50%
+          color: 'var(--health)',
+          category: 'health'
+        },
+        {
+          label: 'Mental Clarity',
+          start: 0,
+          end: Math.min(Math.round(20 * scaleFactor), 60), // Cap at 60%
+          color: 'var(--mindfulness)',
+          category: 'mindfulness'
+        },
+        {
+          label: 'Emotional Balance',
+          start: 0,
+          end: Math.min(Math.round(15 * scaleFactor), 45), // Cap at 45%
+          color: 'var(--mindfulness)',
+          category: 'mindfulness'
+        },
+        {
+          label: 'Meaningful Connections',
+          start: 0,
+          end: Math.min(Math.round(22 * scaleFactor), 60), // Cap at 60%
+          color: 'var(--relationships)',
+          category: 'relationships'
+        },
+        {
+          label: 'Spiritual Growth',
+          start: 0,
+          end: Math.min(Math.round(17 * scaleFactor), 50), // Cap at 50%
+          color: 'var(--mindfulness)',
+          category: 'mindfulness'
+        },
+        {
+          label: 'Financial Wellness',
+          start: 0,
+          end: Math.min(Math.round(19 * scaleFactor), 55), // Cap at 55%
+          color: 'var(--finance)',
+          category: 'finance'
+        }
+      ];
+      
+      progressMetrics.forEach((metric, index) => {
+        const progressBar = document.createElement('div');
+        progressBar.className = 'projection-progress';
+        progressBar.style.opacity = '0';
+        progressBar.style.transform = 'translateX(-10px)';
+        
+        const labelDisplay = document.createElement('div');
+        labelDisplay.className = 'projection-label';
+        
+        const labelText = document.createElement('span');
+        labelText.textContent = metric.label;
+        
+        const labelValue = document.createElement('span');
+        labelValue.textContent = '0%';
+        
+        labelDisplay.appendChild(labelText);
+        labelDisplay.appendChild(labelValue);
+        
+        const barContainer = document.createElement('div');
+        barContainer.className = 'projection-bar-container';
+        
+        const bar = document.createElement('div');
+        bar.className = `projection-bar ${metric.category}`;
+        bar.style.width = '0%';
+        
+        barContainer.appendChild(bar);
+        progressBar.appendChild(labelDisplay);
+        progressBar.appendChild(barContainer);
+        
+        progressChartsContainer.appendChild(progressBar);
+        
+        // Animate the progress element appearance with staggered delay
+        setTimeout(() => {
+          progressBar.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+          progressBar.style.opacity = '1';
+          progressBar.style.transform = 'translateX(0)';
+          
+          // Animate the bar after the card appears
+          setTimeout(() => {
+            bar.style.transition = 'width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            bar.style.width = `${metric.end}%`;
+            
+            // Animate the percentage counter
+            let currentValue = 0;
+            const duration = 1500;
+            const frameDuration = 1000 / 60; // 60fps
+            const totalFrames = Math.round(duration / frameDuration);
+            const increment = metric.end / totalFrames;
+            
+            let frame = 0;
+            const counter = setInterval(() => {
+              frame++;
+              currentValue += increment;
+              
+              if (frame === totalFrames) {
+                clearInterval(counter);
+                labelValue.textContent = `+${metric.end}%`;
+              } else {
+                labelValue.textContent = `+${Math.round(currentValue)}%`;
+              }
+            }, frameDuration);
+          }, 300);
+        }, 1000 + (index * 150));
+      });
+    }
+    
+    function generateProjectionChart(timeframe) {
+      const chartContainer = document.getElementById('chart-lines-container');
+      chartContainer.innerHTML = '';
+      
+      // Create lines for different habit categories
+      const categories = [
+        { name: 'health', color: 'var(--health)', initialImpact: 10, growthRate: 1.6 },
+        { name: 'productivity', color: 'var(--productivity)', initialImpact: 8, growthRate: 1.8 },
+        { name: 'mindfulness', color: 'var(--mindfulness)', initialImpact: 5, growthRate: 2.2 },
+        { name: 'relationships', color: 'var(--relationships)', initialImpact: 7, growthRate: 1.5 },
+        { name: 'finance', color: 'var(--finance)', initialImpact: 3, growthRate: 1.9 }
+      ];
+      
+      const maxDays = timeframe;
+      const chartWidth = 100; // percentage width
+      
+      categories.forEach(category => {
+        const line = document.createElement('div');
+        line.className = 'chart-line';
+        line.style.color = category.color;
+        
+        // Calculate growth curve 
+        // Using a compounding growth formula: initialImpact * (1 + growthRate)^(t/30)
+        const points = [];
+        const numPoints = 20; // number of points to plot
+        
+        for (let i = 0; i <= numPoints; i++) {
+          const day = (i / numPoints) * maxDays;
+          const monthFraction = day / 30;
+          const impact = category.initialImpact * Math.pow(1 + (category.growthRate / 100), monthFraction);
+          const normalizedImpact = impact / 50; // normalize to 0-1 range, assuming 50 is max
+          points.push({
+            x: (day / maxDays) * chartWidth,
+            y: normalizedImpact * 100
+          });
+        }
+        
+        // Create markers at key points
+        const markers = [0, 0.33, 0.66, 1].map(t => {
+          const index = Math.floor(t * numPoints);
+          return points[index];
+        });
+        
+        // Create line style based on points
+        let pathStyle = '';
+        for (let i = 0; i < points.length - 1; i++) {
+          const point = points[i];
+          const nextPoint = points[i + 1];
+          pathStyle += `${i===0 ? 'M' : 'L'}${point.x},${point.y} `;
+        }
+        
+        line.style.height = `${points[points.length-1].y}%`;
+        
+        // Add markers
+        markers.forEach(marker => {
+          const markerElem = document.createElement('div');
+          markerElem.className = 'chart-marker';
+          markerElem.style.left = `${marker.x}%`;
+          markerElem.style.bottom = `${marker.y}%`;
+          line.appendChild(markerElem);
+        });
+        
+        chartContainer.appendChild(line);
+      });
+      
+      // Update x-axis labels based on timeframe
+      const chartLabels = document.querySelector('.chart-labels');
+      const labelInterval = timeframe / 3;
+      
+      chartLabels.innerHTML = `
+        <span>Today</span>
+        <span>Day ${Math.round(labelInterval)}</span>
+        <span>Day ${Math.round(labelInterval * 2)}</span>
+        <span>Day ${timeframe}</span>
+      `;
+    }
+
+    // Firebase integration functions
+    
+    // Update Auth UI based on login state
+    function updateAuthUI(user) {
+      const authButtons = document.querySelector('.auth-buttons');
+      
+      if (user) {
+        // User is logged in, show welcome and logout button
+        authButtons.innerHTML = `
+          <span style="color: white; margin-right: 10px;">Welcome, ${user.displayName || user.email}</span>
+          <button class="button button-small button-outline" onclick="logout()">Logout</button>
+        `;
+      } else {
+        // User is logged out, show login/signup buttons
+        authButtons.innerHTML = `
+          <button class="button button-small button-outline" onclick="openAuthModal('login')">Login</button>
+          <button class="button button-small" onclick="openAuthModal('signup')">Sign Up</button>
+        `;
+      }
+    }
+    
+    // Load sample habits for demonstration
+    function loadSampleHabits() {
+      loadHabits(); // This uses the sample data
+    }
+    
+    // Load user habits from Firebase
+    async function loadUserHabits(userId) {
+      try {
+        // Clear containers
+        document.getElementById('daily-habits-container').innerHTML = '';
+        document.getElementById('all-habits-container').innerHTML = '';
+        
+        // Show loading state
+        document.getElementById('daily-habits-container').innerHTML = 
+          '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">Loading your habits...</p>';
+        document.getElementById('all-habits-container').innerHTML =
+          '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">Loading your habits...</p>';
+        
+        // Get habits from Firebase
+        const habits = await getAllHabits(userId);
+        
+        if (habits.length === 0) {
+          // No habits found
+          document.getElementById('daily-habits-container').innerHTML = 
+            '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">No habits scheduled for today.</p>';
+          document.getElementById('all-habits-container').innerHTML =
+            '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">You haven\'t created any habits yet. Click "Add New Habit" to get started.</p>';
+          return;
+        }
+        
+        // Clear containers again
+        document.getElementById('daily-habits-container').innerHTML = '';
+        document.getElementById('all-habits-container').innerHTML = '';
+        
+        // Get today's day of week
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        
+        // Filter habits for today
+        const todaysHabits = habits.filter(habit => 
+          habit.frequency && habit.frequency.includes(dayOfWeek)
+        );
+        
+        // Display today's habits
+        if (todaysHabits.length === 0) {
+          document.getElementById('daily-habits-container').innerHTML = 
+            '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">No habits scheduled for today.</p>';
+        } else {
+          todaysHabits.forEach(habit => {
+            document.getElementById('daily-habits-container').appendChild(
+              createHabitCard(habit, true)
+            );
+          });
+        }
+        
+        // Display all habits
+        habits.forEach(habit => {
+          document.getElementById('all-habits-container').appendChild(
+            createHabitCard(habit, false)
+          );
+        });
+        
+        // Update stats
+        updateStats(habits);
+        
+      } catch (error) {
+        console.error("Error loading habits:", error);
+        showNotification("Failed to load habits. Please try again later.", "error");
+        
+        // Fallback to sample data
+        loadSampleHabits();
+      }
+    }
+    
+    // Update stats from habits data
+    function updateStats(habits) {
+      // Calculate stats
+      const activeHabits = habits.length;
+      
+      // Find best streak
+      let bestStreak = 0;
+      habits.forEach(habit => {
+        if (habit.streak > bestStreak) {
+          bestStreak = habit.streak;
+        }
+      });
+      
+      // Calculate average completion rate
+      let totalCompletionRate = 0;
+      habits.forEach(habit => {
+        totalCompletionRate += (habit.completionRate || 0);
+      });
+      const avgCompletionRate = habits.length > 0 ? Math.round(totalCompletionRate / habits.length) : 0;
+      
+      // Update the UI
+      const statsContainer = document.querySelector('.stats-container');
+      if (statsContainer) {
+        statsContainer.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-label">Active Habits</div>
+            <div class="stat-value">${activeHabits}</div>
+            <div class="stat-label">Currently tracking</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Best Streak</div>
+            <div class="stat-value">${bestStreak}</div>
+            <div class="stat-label">Days in a row</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Completion Rate</div>
+            <div class="stat-value">${avgCompletionRate}%</div>
+            <div class="stat-label">Last 30 days</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Habits Created</div>
+            <div class="stat-value">${habits.length}</div>
+            <div class="stat-label">Total habits</div>
+          </div>
+        `;
+      }
+    }
+    
+    // Login with email and password
+    async function loginUser(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      
+      // Validate input
+      if (!email || !password) {
+        document.getElementById('login-notification').textContent = 'Please enter both email and password';
+        document.getElementById('login-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      try {
+        // Show loading state
+        document.getElementById('login-notification').textContent = 'Logging in...';
+        document.getElementById('login-notification').className = 'notification notification-success';
+        
+        // Try Firebase login
+        if (checkFirebaseConfig()) {
+          const user = await loginWithEmailAndPassword(email, password);
+          
+          // Login successful - Firebase auth state listener will handle UI updates
+          closeAuthModal();
+          showNotification('Successfully logged in!', 'success');
+        } else {
+          // Firebase not configured, use simulated auth
+          simulateSuccessfulAuth({
+            uid: '123456',
+            email: email,
+            displayName: email.split('@')[0]
+          });
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        document.getElementById('login-notification').textContent = error.message || 'Login failed. Please check your credentials.';
+        document.getElementById('login-notification').className = 'notification notification-error';
+      }
+      
+      return false;
+    }
+    
+    // Register new user
+    async function registerUser(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      
+      // Validate input
+      if (!name || !email || !password) {
+        document.getElementById('signup-notification').textContent = 'Please fill in all fields';
+        document.getElementById('signup-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      if (password.length < 8) {
+        document.getElementById('signup-notification').textContent = 'Password must be at least 8 characters';
+        document.getElementById('signup-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      try {
+        // Show loading state
+        document.getElementById('signup-notification').textContent = 'Creating your account...';
+        document.getElementById('signup-notification').className = 'notification notification-success';
+        
+        // Try Firebase registration
+        if (checkFirebaseConfig()) {
+          const user = await registerWithEmailAndPassword(email, password, name);
+          
+          // Registration successful - Firebase auth state listener will handle UI updates
+          closeAuthModal();
+          showNotification('Account created successfully!', 'success');
+        } else {
+          // Firebase not configured, use simulated auth
+          simulateSuccessfulAuth({
+            uid: '123456',
+            email: email,
+            displayName: name
+          });
+        }
+      } catch (error) {
+        console.error("Registration error:", error);
+        document.getElementById('signup-notification').textContent = error.message || 'Registration failed. Please try again.';
+        document.getElementById('signup-notification').className = 'notification notification-error';
+      }
+      
+      return false;
+    }
+    
+    // Google sign-in
+    async function loginWithGoogleAuth() {
+      try {
+        // Show loading notification
+        showNotification('Connecting to Google...', 'success');
+        
+        // Try Firebase Google auth
+        if (checkFirebaseConfig()) {
+          await loginWithGoogle();
+          // Auth state listener will handle UI updates
+        } else {
+          // Firebase not configured, use simulated auth
+          simulateSuccessfulAuth({
+            uid: '789012',
+            email: 'user@gmail.com',
+            displayName: 'Google User'
+          });
+        }
+      } catch (error) {
+        console.error("Google sign-in error:", error);
+        showNotification(error.message || 'Google sign-in failed. Please try again.', 'error');
+      }
+    }
+    
+    // Logout user
+    async function logout() {
+      try {
+        if (checkFirebaseConfig()) {
+          await logoutUser();
+          // Auth state listener will handle UI updates
+        } else {
+          // Firebase not configured, use simulated logout
+          currentUser = null;
+          userLoggedIn = false;
+          updateAuthUI(null);
+          loadSampleHabits();
+        }
+        
+        showNotification('Successfully logged out', 'success');
+      } catch (error) {
+        console.error("Logout error:", error);
+        showNotification(error.message || 'Logout failed. Please try again.', 'error');
+      }
+    }
+    
+    // Add a new habit
+    async function saveHabit(event) {
+      event.preventDefault();
+      
+      // Validate form
+      const title = document.getElementById('habit-title').value.trim();
+      const description = document.getElementById('habit-description').value.trim();
+      const category = document.getElementById('habit-category').value;
+      const reminder = document.getElementById('habit-reminder').value;
+      
+      if (!title || !category) {
+        document.getElementById('habit-form-notification').textContent = 'Please fill in all required fields';
+        document.getElementById('habit-form-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      if (selectedDays.length === 0) {
+        document.getElementById('habit-form-notification').textContent = 'Please select at least one day for your habit';
+        document.getElementById('habit-form-notification').className = 'notification notification-error';
+        return false;
+      }
+      
+      // Show loading state
+      document.getElementById('habit-form-notification').textContent = 'Saving your habit...';
+      document.getElementById('habit-form-notification').className = 'notification notification-success';
+      
+      // Get form mode (add or edit)
+      const mode = document.getElementById('habit-form').dataset.mode || 'add';
+      
+      try {
+        if (userLoggedIn && checkFirebaseConfig()) {
+          // User is logged in and Firebase is configured
+          if (mode === 'edit') {
+            // Update existing habit
+            const habitId = document.getElementById('habit-form').dataset.habitId;
+            
+            await updateHabit(currentUser.uid, habitId, {
+              title,
+              description,
+              category,
+              frequency: selectedDays,
+              reminder
+            });
+            
+            // Reload habits
+            await loadUserHabits(currentUser.uid);
+          } else {
+            // Add new habit
+            const habitData = {
+              title,
+              description,
+              category,
+              frequency: selectedDays,
+              reminder
+            };
+            
+            await addHabit(currentUser.uid, habitData);
+            
+            // Reload habits
+            await loadUserHabits(currentUser.uid);
+          }
+        } else {
+          // User not logged in or Firebase not configured, use local sample data
+          if (mode === 'edit') {
+            // Update existing habit
+            const habitId = parseInt(document.getElementById('habit-form').dataset.habitId);
+            const index = sampleHabits.findIndex(h => h.id === habitId);
+            
+            if (index !== -1) {
+              sampleHabits[index] = {
+                ...sampleHabits[index],
+                title,
+                description,
+                category,
+                frequency: selectedDays,
+                reminder
+              };
+            }
+          } else {
+            // Add new habit
+            const newHabit = {
+              id: sampleHabits.length + 1,
+              title,
+              description,
+              category,
+              frequency: selectedDays,
+              streak: 0,
+              completionRate: 0,
+              reminder,
+              createdAt: new Date()
+            };
+            
+            sampleHabits.push(newHabit);
+          }
+          
+          // Reload habits from local data
+          loadHabits();
+        }
+        
+        showNotification(mode === 'edit' ? 'Habit updated successfully!' : 'New habit added successfully!', 'success');
+        
+        // Close modal
+        closeHabitModal();
+      } catch (error) {
+        console.error("Error saving habit:", error);
+        document.getElementById('habit-form-notification').textContent = error.message || 'Failed to save habit. Please try again.';
+        document.getElementById('habit-form-notification').className = 'notification notification-error';
+      }
+      
+      return false;
+    }
+    
+    // Complete a habit for today
+    async function completeHabit(habitId) {
+      try {
+        if (userLoggedIn && checkFirebaseConfig()) {
+          // User is logged in and Firebase is configured
+          await completeHabitForToday(currentUser.uid, habitId);
+          
+          // Get habit data for the encouraging message
+          const habits = await getAllHabits(currentUser.uid);
+          const habit = habits.find(h => h.id === habitId);
+          
+          // Show encouraging message if habit found
+          if (habit) {
+            showEncouragingMessage(habit.title);
+          }
+          
+          // Reload habits to update UI
+          await loadUserHabits(currentUser.uid);
+        } else {
+          // User not logged in or Firebase not configured
+          // Update sample data
+          const habitIndex = sampleHabits.findIndex(h => h.id === habitId);
+          
+          if (habitIndex !== -1) {
+            // Update streak
+            sampleHabits[habitIndex].streak += 1;
+            
+            // Update completion rate (simulate)
+            sampleHabits[habitIndex].completionRate = Math.min(100, sampleHabits[habitIndex].completionRate + 5);
+            
+            // Show encouraging message
+            showEncouragingMessage(sampleHabits[habitIndex].title);
+            
+            // Update UI
+            const card = document.querySelector(`.habit-card[data-id="${habitId}"]`);
+            if (card) {
+              card.style.opacity = '0.6';
+              
+              const completeBtn = card.querySelector('.button');
+              if (completeBtn) {
+                completeBtn.textContent = 'Completed';
+                completeBtn.disabled = true;
+                completeBtn.style.backgroundColor = 'var(--success)';
+              }
+              
+              // Update stats display
+              const statsElement = card.querySelector('.habit-stats');
+              if (statsElement) {
+                statsElement.innerHTML = 
+                  `<span>Streak: ${sampleHabits[habitIndex].streak} days</span>` +
+                  `<span>Completion: ${sampleHabits[habitIndex].completionRate}%</span>`;
+              }
+              
+              // Update progress bar
+              const progressBar = card.querySelector('.progress-bar');
+              if (progressBar) {
+                progressBar.style.width = `${sampleHabits[habitIndex].completionRate}%`;
+              }
+            }
+          }
+        }
+        
+        showNotification('Habit completed! Great job!', 'success');
+      } catch (error) {
+        console.error("Error completing habit:", error);
+        showNotification(error.message || 'Failed to complete habit. Please try again.', 'error');
+      }
+    }
+    
+    // Delete a habit
+    async function deleteHabit(habitId) {
+      if (!confirm('Are you sure you want to delete this habit?')) {
+        return;
+      }
+      
+      try {
+        if (userLoggedIn && checkFirebaseConfig()) {
+          // User is logged in and Firebase is configured
+          await deleteHabit(currentUser.uid, habitId);
+          
+          // Reload habits to update UI
+          await loadUserHabits(currentUser.uid);
+        } else {
+          // User not logged in or Firebase not configured
+          // Update sample data
+          const habitIndex = sampleHabits.findIndex(h => h.id === habitId);
+          
+          if (habitIndex !== -1) {
+            // Remove from array
+            sampleHabits.splice(habitIndex, 1);
+            
+            // Remove from UI
+            const card = document.querySelector(`.habit-card[data-id="${habitId}"]`);
+            if (card) {
+              card.remove();
+            }
+          }
+        }
+        
+        showNotification('Habit deleted successfully', 'success');
+      } catch (error) {
+        console.error("Error deleting habit:", error);
+        showNotification(error.message || 'Failed to delete habit. Please try again.', 'error');
+      }
+    }
+    
+    // Simulate successful authentication (for demo without Firebase)
+    function simulateSuccessfulAuth(user) {
+      // Set current user
+      currentUser = user;
+      userLoggedIn = true;
+      
+      // Update UI
+      updateAuthUI(user);
+      
+      // Close auth modal
+      closeAuthModal();
+      
+      // Show success message
+      showNotification('Successfully logged in!', 'success');
+      
+      // Use sample data
+      loadSampleHabits();
+    }
+  </script>
+</body>
+</html>

@@ -13,10 +13,6 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Simple HTML Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Clean React Native Test"
 
 [[workflows.workflow.tasks]]
@@ -35,20 +31,9 @@ args = "Simple HTML React"
 task = "workflow.run"
 args = "Main Server"
 
-[[workflows.workflow]]
-name = "Simple HTML Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
 [[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd simple-test && python -m http.server 5000"
-waitForPort = 5000
+task = "workflow.run"
+args = "Simple HTML Server"
 
 [[workflows.workflow]]
 name = "Clean React Native Test"
@@ -124,6 +109,21 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "python -m http.server 5000"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Simple HTML Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd simple-test && python -m http.server 5001"
+waitForPort = 5001
 
 [deployment]
 deploymentTarget = "static"
