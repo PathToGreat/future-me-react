@@ -59,10 +59,6 @@ args = "Simple HTML React"
 task = "workflow.run"
 args = "Simple HTML Demo"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "HTML Avatar Demo"
-
 [[workflows.workflow]]
 name = "Basic Test Server"
 author = "agent"
@@ -240,22 +236,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -m http.server 5000"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "HTML Avatar Demo"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python -m http.server 5003"
+args = "cd . && python -m http.server 5003"
 waitForPort = 5003
 
 [deployment]
