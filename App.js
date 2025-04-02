@@ -9,24 +9,24 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 export default function App() {
   const [count, setCount] = React.useState(0);
   
-  console.log('Ultra minimal app rendering with count:', count);
+  console.log('Ultra minimal app rendering with updated header text:', count);
   
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Future Me</Text>
+      <Text style={styles.header}>React Native Future Me</Text>
       
       <View style={styles.card}>
-        <Text style={styles.title}>Basic Test App</Text>
+        <Text style={styles.title}>React Native Test App</Text>
         <Text style={styles.paragraph}>
-          This is a minimal version of the Future Me app to test rendering.
+          This is the REACT NATIVE version of the Future Me app - it should look different from the HTML version!
         </Text>
         
         <View style={styles.counterContainer}>
-          <Text style={styles.counterText}>You clicked: {count} times</Text>
+          <Text style={styles.counterText}>React Native Counter: {count} times</Text>
           <Button
-            title="Click Me"
+            title="Click React Native Button"
             onPress={() => setCount(count + 1)}
-            color="#6200EE"
+            color="#FF4500"
           />
         </View>
       </View>
