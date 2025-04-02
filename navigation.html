@@ -3,51 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Future Me - Navigation</title>
+    <title>Future Me - Demo Navigation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --primary: #5B21B6;
+            --primary-light: #7C3AED;
+            --primary-dark: #4C1D95;
+            --surface: #F8FAFC;
+            --bg: #F1F5F9;
+            --border: #E2E8F0;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+            --radius-lg: 12px;
+            --header-height: 70px;
+            
+            /* Category colors */
+            --health: #10B981;
+            --productivity: #3B82F6;
+            --mindfulness: #8B5CF6;
+            --relationships: #EC4899;
+            --finance: #F59E0B;
+        }
+        
+        * {
             margin: 0;
-            padding: 20px;
-            text-align: center;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding-bottom: 40px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .header-subtitle {
+            font-weight: 400;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
         
         h1 {
-            color: #6200EE;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary-dark);
+            text-align: center;
         }
         
-        .links {
-            margin-top: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 300px;
+        p.intro {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--text-secondary);
+            max-width: 700px;
             margin-left: auto;
             margin-right: auto;
         }
         
-        a {
-            display: block;
-            padding: 10px;
-            background-color: #6200EE;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
         }
         
-        a:hover {
-            background-color: #3700B3;
+        .demo-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .card-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .card-body {
+            padding: 16px;
+        }
+        
+        .card-description {
+            margin-bottom: 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .feature-list {
+            margin-bottom: 24px;
+            padding-left: 20px;
+            font-size: 14px;
+        }
+        
+        .feature-list li {
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+        
+        .feature-list li::marker {
+            color: var(--primary-light);
+        }
+        
+        .card-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .view-demo-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .view-demo-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .deploy-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-top: 40px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .deploy-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--primary-dark);
+        }
+        
+        .deploy-description {
+            margin-bottom: 24px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .deploy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 16px;
+        }
+        
+        .deploy-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 60px;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 6px;
+        }
+        
+        .tag-featured {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--primary);
+        }
+        
+        .tag-new {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--health);
+        }
+        
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            
+            header {
+                height: auto;
+                padding: 12px 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Future Me Navigation</h1>
-    <p>Choose which version you'd like to view:</p>
+    <header>
+        <div class="header-content">
+            <div class="header-logo">Future Me</div>
+            <div class="header-subtitle">Investor & Demo Navigation</div>
+        </div>
+    </header>
     
-    <div class="links">
-        <a href="full-app.html">Core Prototype</a>
-        <a href="investor-demo.html">Investor Demo</a>
-        <a href="future-avatar-demo.html">Future Avatar Demo</a>
-    </div>
+    <main>
+        <h1>Future Me Demo Navigation</h1>
+        <p class="intro">
+            Welcome to Future Me — the habit tracking app that helps you visualize your future self based on your daily habits. 
+            This navigation page provides access to various demo versions for investor presentations and development testing.
+        </p>
+        
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="card-header">
+                    <div class="card-icon">📱</div>
+                    <div>
+                        <div class="card-title">Core Prototype</div>
+                        <div class="card-subtitle">
+                            <span class="tag tag-featured">Featured</span>
+                            <span class="tag tag-new">Updated</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Our comprehensive prototype demonstrating the full user experience with all core features integrated.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Complete habit tracking system with analytics</li>
+                        <li>Future projection timeline with visual transformation</li>
+                        <li>Wearable device integration (Apple Watch, Fitbit, etc.)</li>
+                        <li>Category-based habit organization</li>
+                        <li>Progress visualizations with encouragement messages</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="full-app.html" class="view-demo-btn">
+                        View Demo →
+                    </a>
+                </div>
+            </div>
+            
+            <div class="demo-card">
+                <div class="card-header">
+                    <div class="card-icon">💼</div>
+                    <div>
+                        <div class="card-title">Investor Demo</div>
+                        <div class="card-subtitle">Focused pitch version</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Streamlined version optimized for investor presentations highlighting key business differentiators and market potential.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Quick overview of core value proposition</li>
+                        <li>Market analysis and competitive differentiators</li>
+                        <li>Business model and monetization strategy</li>
+                        <li>Key metrics and growth projections</li>
+                        <li>Interactive product demonstration</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="investor-demo.html" class="view-demo-btn">
+                        View Demo →
+                    </a>
+                </div>
+            </div>
+            
+            <div class="demo-card">
+                <div class="card-header">
+                    <div class="card-icon">🔮</div>
+                    <div>
+                        <div class="card-title">Future Avatar Demo</div>
+                        <div class="card-subtitle">AI transformation showcase</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Focused demo showcasing our proprietary avatar transformation technology that visualizes how habits shape your future self.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Side-by-side comparison of current vs future self</li>
+                        <li>Multiple timeframe projections (1-5 years)</li>
+                        <li>Category-specific physical transformations</li>
+                        <li>Personalized metrics and health scoring</li>
+                        <li>Habit impact visualization</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="future-avatar-demo.html" class="view-demo-btn">
+                        View Demo →
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="deploy-section">
+            <div class="deploy-title">Ready to Deploy?</div>
+            <p class="deploy-description">
+                When you're ready to deploy the Future Me application to a public URL, click the button below.
+                This will provide you with a shareable link perfect for investor presentations.
+            </p>
+            <button onclick="alert('Click the blue Deploy button at the top of the Replit interface to deploy this project.')" class="deploy-btn">Deploy Project</button>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 Future Me. All rights reserved.</p>
+    </footer>
 </body>
 </html>
