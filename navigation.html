@@ -9,26 +9,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #5B21B6;
-            --primary-light: #7C3AED;
-            --primary-dark: #4C1D95;
-            --surface: #F8FAFC;
-            --bg: #F1F5F9;
-            --border: #E2E8F0;
-            --text-primary: #1E293B;
-            --text-secondary: #64748B;
+            /* Primary palette - Deep Blue/Purple - Matched with Core Prototype */
+            --primary: #4a00e0;
+            --primary-light: #f0e7ff;
+            --primary-dark: #3700b3;
+            --secondary: #00d4ad;
+            --secondary-dark: #00a187;
+            
+            /* Background and surface colors */
+            --surface: #ffffff;
+            --bg: #f8faff;
+            --border: #e2e8f0;
+            
+            /* Text colors */
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            
+            /* Shadows and radii */
             --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --radius: 8px;
             --radius-lg: 12px;
             --header-height: 70px;
             
-            /* Category colors */
-            --health: #10B981;
-            --productivity: #3B82F6;
-            --mindfulness: #8B5CF6;
-            --relationships: #EC4899;
-            --finance: #F59E0B;
+            /* Category colors - Matched with Core Prototype */
+            --health: #00c07f;
+            --productivity: #0089ff;
+            --mindfulness: #7c3aed;
+            --relationships: #f06595;
+            --finance: #ffa800;
+            
+            /* Status colors */
+            --success: #10b981;
+            --error: #e53e3e;
         }
         
         * {
@@ -46,7 +59,7 @@
         }
         
         header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             height: var(--header-height);
             display: flex;
@@ -134,7 +147,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -271,12 +284,12 @@
         }
         
         .tag-featured {
-            background: rgba(124, 58, 237, 0.1);
+            background: rgba(74, 0, 224, 0.1);
             color: var(--primary);
         }
         
         .tag-new {
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(0, 192, 127, 0.1);
             color: var(--health);
         }
         
