@@ -16,7 +16,7 @@ export const preloadedHabits = [
   // Health & Wellness
   {
     title: 'Daily Hydration',
-    description: 'Drink at least 64 oz of water',
+    description: 'Drink at least 64 oz of water each day',
     category: CATEGORIES.HEALTH,
     frequency: [0, 1, 2, 3, 4, 5, 6], // every day
     reminder: null,
@@ -150,7 +150,7 @@ export const preloadedHabits = [
   // Mental & Emotional Wellness
   {
     title: 'Morning Gratitude',
-    description: "Write down three things you're grateful for",
+    description: 'Write down three things you are grateful for',
     category: CATEGORIES.MENTAL,
     frequency: [0, 1, 2, 3, 4, 5, 6], // every day
     reminder: null,
