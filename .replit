@@ -35,6 +35,10 @@ args = "Expo Web"
 task = "workflow.run"
 args = "Clean React Native Test"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "React Native Web"
+
 [[workflows.workflow]]
 name = "Basic Test Server"
 author = "agent"
@@ -125,6 +129,21 @@ task = "shell.exec"
 args = "cd clean-react-native-test && npx expo start --web --port=5003"
 waitForPort = 5003
 
+[[workflows.workflow]]
+name = "React Native Web"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx expo start --web --port=5004"
+waitForPort = 5004
+
 [deployment]
 deploymentTarget = "static"
 publicDir = "simple-test"
@@ -145,6 +164,10 @@ externalPort = 3001
 [[ports]]
 localPort = 5003
 externalPort = 3002
+
+[[ports]]
+localPort = 5004
+externalPort = 3003
 
 [[ports]]
 localPort = 8080
