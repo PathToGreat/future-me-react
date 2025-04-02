@@ -33,7 +33,7 @@ args = "Simple HTML React"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Investor Demo Server"
+args = "Main Server"
 
 [[workflows.workflow]]
 name = "Simple HTML Server"
@@ -111,7 +111,7 @@ args = "python -m http.server 5000"
 waitForPort = 5000
 
 [[workflows.workflow]]
-name = "Investor Demo Server"
+name = "Main Server"
 author = "agent"
 
 [workflows.workflow.metadata]
