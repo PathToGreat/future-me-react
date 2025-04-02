@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, Alert } from 'react-native';
 import { 
   Text, 
   Title, 
@@ -9,14 +9,24 @@ import {
   useTheme,
   Button,
   Divider,
-  Surface
+  Surface,
+  Portal,
+  Modal
 } from 'react-native-paper';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { getAllHabits } from '../services/habitService';
 import { getCompletionRate } from '../utils/habitUtils';
 import { getProjectedImpact, categorizeHabits } from '../utils/projectionUtils';
+import { 
+  calculatePhysicalChanges, 
+  getPhysicalChangeDescriptions, 
+  getAvatarGlowColor,
+  calculateOverallHealthScore 
+} from '../utils/avatarUtils';
 import ProjectionChart from '../components/ProjectionChart';
+import FutureAvatar from '../components/FutureAvatar';
+import AvatarUploader from '../components/AvatarUploader';
 
 const { width } = Dimensions.get('window');
 
@@ -28,6 +38,10 @@ const FutureProjectionScreen = () => {
   const [categorizedHabits, setCategorizedHabits] = useState({});
   const [overallScore, setOverallScore] = useState(0);
   const [timeFrame, setTimeFrame] = useState('3months'); // '3months', '6months', '1year'
+  const [userImage, setUserImage] = useState(null);
+  const [physicalChanges, setPhysicalChanges] = useState({});
+  const [showUploader, setShowUploader] = useState(false);
+  const [categoryCompletionRates, setCategoryCompletionRates] = useState({});
   
   // Load all habits
   useEffect(() => {
@@ -42,6 +56,31 @@ const FutureProjectionScreen = () => {
           const completionRates = habitsData.map(habit => getCompletionRate(habit));
           const avgCompletionRate = completionRates.reduce((sum, rate) => sum + rate, 0) / completionRates.length;
           setOverallScore(avgCompletionRate * 100);
+          
+          // Calculate physical changes based on habits
+          const changes = calculatePhysicalChanges(habitsData, getTimeFrameDays());
+          setPhysicalChanges(changes);
+          
+          // Calculate category completion rates
+          const categoryRates = {};
+          
+          // Group habits by category
+          const habitsByCategory = habitsData.reduce((acc, habit) => {
+            const category = habit.category || 'other';
+            if (!acc[category]) acc[category] = [];
+            acc[category].push(habit);
+            return acc;
+          }, {});
+          
+          // Calculate completion rate for each category
+          Object.keys(habitsByCategory).forEach(category => {
+            const categoryHabits = habitsByCategory[category];
+            const rates = categoryHabits.map(habit => getCompletionRate(habit));
+            const avgRate = rates.reduce((sum, rate) => sum + rate, 0) / rates.length;
+            categoryRates[category] = avgRate;
+          });
+          
+          setCategoryCompletionRates(categoryRates);
         }
         
         // Categorize habits by their impact areas
@@ -55,7 +94,7 @@ const FutureProjectionScreen = () => {
     };
     
     loadData();
-  }, [user.uid]);
+  }, [user.uid, timeFrame]);
   
   // Function to get time frame in days
   const getTimeFrameDays = () => {
@@ -179,6 +218,82 @@ const FutureProjectionScreen = () => {
           />
         </Card.Content>
       </Card>
+      
+      {/* Future Avatar Card */}
+      <Card style={styles.avatarCard}>
+        <Card.Content>
+          <Title style={styles.sectionTitle}>
+            See Your Future Self
+          </Title>
+          <Paragraph style={styles.projectionIntro}>
+            Visualize how your habits will transform you over time.
+          </Paragraph>
+          
+          {!userImage ? (
+            <View style={styles.noAvatarContainer}>
+              <Feather name="user" size={60} color={theme.colors.disabled} />
+              <Text style={styles.noAvatarText}>Upload a photo to see your future self</Text>
+              <Button
+                mode="contained"
+                onPress={() => setShowUploader(true)}
+                style={styles.uploadButton}
+              >
+                Upload Photo
+              </Button>
+            </View>
+          ) : (
+            <>
+              <FutureAvatar 
+                userImage={userImage}
+                timeFrameDays={getTimeFrameDays()}
+                habits={habits}
+                completionRate={overallScore / 100}
+                categoryImpacts={categoryCompletionRates}
+              />
+              
+              <View style={styles.avatarChangeDetails}>
+                <Title style={styles.detailsTitle}>Physical Changes</Title>
+                {getPhysicalChangeDescriptions(physicalChanges).map((desc, index) => (
+                  <View key={index} style={styles.changeItem}>
+                    <Feather name="check" size={16} color={theme.colors.success} />
+                    <Text style={styles.changeText}>{desc}</Text>
+                  </View>
+                ))}
+                
+                <Button
+                  mode="outlined"
+                  onPress={() => setShowUploader(true)}
+                  style={styles.changePhotoButton}
+                >
+                  Change Photo
+                </Button>
+              </View>
+            </>
+          )}
+        </Card.Content>
+      </Card>
+      
+      {/* Modal for Avatar Upload */}
+      <Portal>
+        <Modal
+          visible={showUploader}
+          onDismiss={() => setShowUploader(false)}
+          contentContainerStyle={styles.modalContainer}
+        >
+          <AvatarUploader 
+            onImageUploaded={(imageUrl) => {
+              setUserImage(imageUrl);
+              setShowUploader(false);
+            }} 
+          />
+          <Button 
+            onPress={() => setShowUploader(false)}
+            style={styles.closeButton}
+          >
+            Close
+          </Button>
+        </Modal>
+      </Portal>
       
       {/* Category Impact Sections */}
       {Object.keys(categorizedHabits).length > 0 && Object.keys(categorizedHabits).map(category => {
@@ -348,6 +463,55 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingBottom: 40,
+  },
+  avatarCard: {
+    marginBottom: 16,
+    borderRadius: 12,
+  },
+  noAvatarContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  noAvatarText: {
+    marginTop: 16,
+    marginBottom: 24,
+    color: '#666',
+    textAlign: 'center',
+  },
+  uploadButton: {
+    marginTop: 8,
+  },
+  avatarChangeDetails: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+  },
+  detailsTitle: {
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  changeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  changeText: {
+    marginLeft: 8,
+  },
+  changePhotoButton: {
+    marginTop: 16,
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    margin: 20,
+    borderRadius: 12,
+    maxHeight: '80%',
+  },
+  closeButton: {
+    marginTop: 16,
   },
   loadingContainer: {
     flex: 1,

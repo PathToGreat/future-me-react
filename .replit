@@ -55,6 +55,10 @@ args = "HTML Habits Server"
 task = "workflow.run"
 args = "Simple HTML React"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Future Me Demo"
+
 [[workflows.workflow]]
 name = "Basic Test Server"
 author = "agent"
@@ -219,6 +223,21 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "python -m http.server 5000"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Future Me Demo"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m http.server 5001"
+waitForPort = 5001
 
 [deployment]
 deploymentTarget = "static"
