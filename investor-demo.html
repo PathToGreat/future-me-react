@@ -190,6 +190,12 @@
             align-self: center;
         }
         
+        /* Avatar colors */
+        --current-avatar-fill: #b8c2d2;
+        --current-avatar-stroke: #94969c;
+        --future-avatar-fill: #9de5cf;
+        --future-avatar-stroke: #00c07f;
+        
         /* Avatar Transformation */
         .avatar-container {
             margin: 20px 0;
@@ -242,20 +248,48 @@
             border-radius: 10px;
             overflow: hidden;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .avatar-now {
             border: 3px solid #999;
+            background-color: #f5f5f5;
         }
         
         .avatar-future {
             border: 3px solid var(--primary-color);
+            background-color: #f5f5f5;
+        }
+        
+        /* Base avatar silhouette */
+        .avatar-silhouette {
+            position: absolute;
+            width: 140px;
+            height: 220px;
+            opacity: 0.9;
+        }
+        
+        /* Current avatar silhouette - overweight person with poor posture */
+        .current-silhouette {
+            background-color: var(--current-avatar-fill);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C95,15 105,25 110,38 C115,51 114,65 114,70 L114,78 C118,78 120,82 120,85 C120,88 118,90 116,92 C116,92 126,97 126,109 C126,114 124,120 117,125 L117,130 C117,135 110,147 110,147 L115,155 C115,175 115,185 115,195 L115,210 C114,212 112,215 110,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,155 L70,147 C70,147 60,135 60,130 L60,125 C53,120 52,114 52,109 C52,97 60,92 60,92 C58,90 57,88 57,85 C57,82 59,78 62,78 L62,70 C62,65 60,51 65,38 C70,25 80,15 80,15 Z' stroke='%2394969c' stroke-width='2' fill='%23b8c2d2'/%3E%3C/svg%3E") no-repeat center center;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C95,15 105,25 110,38 C115,51 114,65 114,70 L114,78 C118,78 120,82 120,85 C120,88 118,90 116,92 C116,92 126,97 126,109 C126,114 124,120 117,125 L117,130 C117,135 110,147 110,147 L115,155 C115,175 115,185 115,195 L115,210 C114,212 112,215 110,215 L70,215 C68,215 66,212 65,210 L65,195 C65,180 65,170 65,155 L70,147 C70,147 60,135 60,130 L60,125 C53,120 52,114 52,109 C52,97 60,92 60,92 C58,90 57,88 57,85 C57,82 59,78 62,78 L62,70 C62,65 60,51 65,38 C70,25 80,15 80,15 Z' stroke='%2394969c' stroke-width='2' fill='%23b8c2d2'/%3E%3C/svg%3E") no-repeat center center;
+        }
+        
+        /* Future avatar silhouette - athletic person with good posture */
+        .future-silhouette {
+            background-color: var(--future-avatar-fill);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C90,15 98,24 98,37 C98,46 96,55 96,60 L96,70 C99,70 101,73 101,76 C101,79 99,82 97,84 C97,84 106,88 106,100 C106,105 104,110 97,115 L97,120 C97,125 87,137 87,137 L92,145 C92,165 92,175 92,190 L92,210 C91,212 89,215 87,215 L73,215 C71,215 69,212 68,210 L68,190 C68,175 68,165 68,145 L73,137 C73,137 63,125 63,120 L63,115 C56,110 54,105 54,100 C54,88 63,84 63,84 C61,82 59,79 59,76 C59,73 61,70 64,70 L64,60 C64,55 62,46 62,37 C62,24 70,15 80,15 Z' stroke='%2300c07f' stroke-width='2' fill='%239de5cf'/%3E%3C/svg%3E") no-repeat center center;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 220'%3E%3Cpath d='M80,15 C90,15 98,24 98,37 C98,46 96,55 96,60 L96,70 C99,70 101,73 101,76 C101,79 99,82 97,84 C97,84 106,88 106,100 C106,105 104,110 97,115 L97,120 C97,125 87,137 87,137 L92,145 C92,165 92,175 92,190 L92,210 C91,212 89,215 87,215 L73,215 C71,215 69,212 68,210 L68,190 C68,175 68,165 68,145 L73,137 C73,137 63,125 63,120 L63,115 C56,110 54,105 54,100 C54,88 63,84 63,84 C61,82 59,79 59,76 C59,73 61,70 64,70 L64,60 C64,55 62,46 62,37 C62,24 70,15 80,15 Z' stroke='%2300c07f' stroke-width='2' fill='%239de5cf'/%3E%3C/svg%3E") no-repeat center center;
         }
         
         .avatar-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: none; /* Hide real images in favor of our SVG silhouettes */
         }
         
         .avatar-glow {
@@ -266,6 +300,29 @@
             height: 100%;
             background-color: rgba(98, 0, 238, 0.3);
             animation: pulse 2s infinite ease-in-out;
+        }
+        
+        .avatar-silhouette {
+            position: absolute;
+            top: 5%;
+            left: 15%;
+            width: 70%;
+            height: 90%;
+            pointer-events: none;
+            z-index: 2;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        
+        .current-silhouette {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' fill='rgba(255,255,255,0.25)'%3E%3Cpath d='M50,30 C60,30 65,25 65,15 C65,5 55,0 50,0 C45,0 35,5 35,15 C35,25 40,30 50,30 Z M30,60 C30,50 40,35 50,35 C60,35 70,50 70,60 L75,145 C75,160 72,170 65,180 C67,185 70,190 70,195 C70,197 68,200 65,200 L55,200 L55,190 L45,190 L45,200 L35,200 C32,200 30,197 30,195 C30,190 33,185 35,180 C28,170 25,160 25,145 Z' /%3E%3C/svg%3E");
+            opacity: 0.4;
+        }
+        
+        .future-silhouette {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' fill='rgba(255,255,255,0.35)'%3E%3Cpath d='M50,30 C60,30 65,25 65,15 C65,5 55,0 50,0 C45,0 35,5 35,15 C35,25 40,30 50,30 Z M30,55 C30,45 40,35 50,35 C60,35 70,45 70,55 L70,140 C70,145 68,150 65,155 C68,160 70,165 70,170 C70,172 68,175 65,175 L55,175 L55,165 L45,165 L45,175 L35,175 C32,175 30,172 30,170 C30,165 32,160 35,155 C32,150 30,145 30,140 Z' /%3E%3C/svg%3E");
+            opacity: 0.5;
         }
         
         @keyframes pulse {
@@ -681,6 +738,7 @@
                                 <div class="avatar-label">Current You</div>
                                 <div class="avatar-image-container avatar-now">
                                     <img class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=720" alt="Current You">
+                                    <div class="avatar-silhouette current-silhouette"></div>
                                 </div>
                             </div>
                             
@@ -688,6 +746,7 @@
                                 <div class="avatar-label">Future You (3 Months)</div>
                                 <div class="avatar-image-container avatar-future">
                                     <img class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=690" alt="Future You">
+                                    <div class="avatar-silhouette future-silhouette"></div>
                                     <div class="avatar-glow"></div>
                                 </div>
                             </div>
@@ -947,6 +1006,7 @@
                             <div class="avatar-label">Current You</div>
                             <div class="avatar-image-container avatar-now">
                                 <img class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=720" alt="Current You">
+                                <div class="avatar-silhouette current-silhouette"></div>
                             </div>
                         </div>
                         
@@ -954,6 +1014,7 @@
                             <div class="avatar-label">Future You (3 Months)</div>
                             <div class="avatar-image-container avatar-future">
                                 <img class="avatar-image" src="https://images.unsplash.com/photo-1615544983151-5fea32cb8584?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8cGVyc29ufHx8fHx8MTcxMzc1MjIyNg&ixlib=rb-4.0.3&q=80&w=690" alt="Future You">
+                                <div class="avatar-silhouette future-silhouette"></div>
                                 <div class="avatar-glow"></div>
                             </div>
                         </div>
