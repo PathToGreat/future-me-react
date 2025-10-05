@@ -55,9 +55,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUserProfile = async (data) => {
-    if (!user) return;
-    await setDoc(doc(db, 'users', user.uid), data, { merge: true });
-    setUserProfile(prev => ({ ...prev, ...data }));
+    console.log('🔵 AuthContext: updateUserProfile called');
+    if (!user) {
+      console.error('❌ No user logged in!');
+      throw new Error('No user is currently logged in');
+    }
+    console.log('👤 User ID:', user.uid);
+    console.log('📝 Data to save:', data);
+    
+    try {
+      console.log('🔥 Writing to Firestore...');
+      await setDoc(doc(db, 'users', user.uid), data, { merge: true });
+      console.log('✅ Firestore write successful!');
+      
+      setUserProfile(prev => ({ ...prev, ...data }));
+      console.log('✅ Local profile state updated');
+    } catch (error) {
+      console.error('❌ Firestore write failed:', error);
+      throw error;
+    }
   };
 
   const value = {

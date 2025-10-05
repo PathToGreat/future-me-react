@@ -18,24 +18,35 @@ export default function Onboarding() {
   });
 
   const handleSubmit = async () => {
+    console.log('🚀 Starting onboarding submission...');
     setLoading(true);
+    
     try {
+      console.log('📊 Calculating lifestyle score...');
       const lifestyleScore = (formData.activity + formData.nutrition + formData.sleep + (5 - formData.stress)) / 16 * 100;
+      console.log('✅ Lifestyle score calculated:', lifestyleScore);
       
       const avatarState = lifestyleScore >= 75 ? 'vibrant' : lifestyleScore >= 50 ? 'stable' : 'weary';
+      console.log('🎨 Avatar state:', avatarState);
       
-      await updateUserProfile({
+      const dataToSave = {
         ...formData,
         lifestyleScore,
         avatarState,
         onboardingCompleted: true,
         completedAt: new Date().toISOString(),
-      });
+      };
       
+      console.log('💾 Attempting to save user profile...', dataToSave);
+      await updateUserProfile(dataToSave);
+      console.log('✅ User profile saved successfully!');
+      
+      console.log('🔄 Navigating to dashboard...');
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error saving data:', error);
-      alert('There was an error saving your data. Please try again.');
+      console.error('❌ Error in handleSubmit:', error);
+      console.error('Error details:', error.message, error.code);
+      alert(`Error: ${error.message || 'There was an error saving your data. Please try again.'}`);
       setLoading(false);
     }
   };
