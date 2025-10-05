@@ -1,0 +1,53 @@
+# Old HTML prototypes (no longer used)
+*.html
+!future-me-app/**/*.html
+
+# Old test directories
+simple-test/
+react-test/
+test-app/
+basic-html-app/
+pure-html/
+investor/
+clean-react-native-test/
+
+# Node modules
+node_modules/
+.npm/
+
+# Build outputs
+dist/
+build/
+.expo/
+.expo-shared/
+
+# Environment variables
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Misc
+.replit
+replit.nix
