@@ -134,7 +134,7 @@ export default function Dashboard() {
             </div>
             <div className="text-center p-4">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl">✨</span>
+                <span className="text-2xl">🔭</span>
               </div>
               <h3 className="font-semibold text-gray-800 mb-2">Energy & Vitality</h3>
               <p className="text-sm text-gray-600">
