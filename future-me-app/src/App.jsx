@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import LandingPage from './components/LandingPage';
 import AuthScreen from './components/AuthScreen';
 import Onboarding from './components/Onboarding';
 import Dashboard from './components/Dashboard';
@@ -15,11 +16,11 @@ function PrivateRoute({ children }) {
     );
   }
 
-  return user ? children : <Navigate to="/" />;
+  return user ? children : <Navigate to="/auth" />;
 }
 
 function AppRoutes() {
-  const { user, loading } = useAuth();
+  const { user, userProfile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -31,7 +32,15 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to="/dashboard" /> : <AuthScreen />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route 
+        path="/auth" 
+        element={user ? (
+          userProfile?.onboardingCompleted ? <Navigate to="/dashboard" /> : <Navigate to="/onboarding" />
+        ) : (
+          <AuthScreen />
+        )} 
+      />
       <Route
         path="/onboarding"
         element={

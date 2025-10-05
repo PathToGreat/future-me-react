@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { doc, setDoc, collection } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 export default function Onboarding() {
-  const { updateUserProfile } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     activity: 3,
     nutrition: 3,
@@ -17,16 +20,38 @@ export default function Onboarding() {
   });
 
   const handleSubmit = async () => {
-    const lifestyleScore = (formData.activity + formData.nutrition + formData.sleep + (5 - formData.stress)) / 16 * 100;
-    
-    await updateUserProfile({
-      ...formData,
-      lifestyleScore,
-      onboardingCompleted: true,
-      completedAt: new Date().toISOString(),
-    });
-    
-    navigate('/dashboard');
+    setLoading(true);
+    try {
+      const lifestyleScore = (formData.activity + formData.nutrition + formData.sleep + (5 - formData.stress)) / 16 * 100;
+      
+      const avatarState = lifestyleScore >= 75 ? 'vibrant' : lifestyleScore >= 50 ? 'stable' : 'weary';
+      
+      const projectionData = {
+        ...formData,
+        lifestyleScore,
+        avatarState,
+        timestamp: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      };
+
+      await updateUserProfile({
+        ...formData,
+        lifestyleScore,
+        avatarState,
+        onboardingCompleted: true,
+        completedAt: new Date().toISOString(),
+      });
+
+      const projectionRef = doc(collection(db, 'users', user.uid, 'projections'));
+      await setDoc(projectionRef, projectionData);
+      
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error saving projection:', error);
+      alert('There was an error saving your data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateField = (field, value) => {
@@ -188,16 +213,16 @@ export default function Onboarding() {
 
           <div className="flex gap-4 mt-8">
             {step > 1 && (
-              <button onClick={() => setStep(step - 1)} className="btn-secondary flex-1">
+              <button onClick={() => setStep(step - 1)} className="btn-secondary flex-1" disabled={loading}>
                 Back
               </button>
             )}
             <button
               onClick={() => step < 3 ? setStep(step + 1) : handleSubmit()}
               className="btn-primary flex-1"
-              disabled={step === 1 && !formData.age}
+              disabled={(step === 1 && !formData.age) || loading}
             >
-              {step === 3 ? 'See My Future' : 'Next'}
+              {loading ? 'Generating...' : step === 3 ? 'See My Future' : 'Next'}
             </button>
           </div>
         </div>

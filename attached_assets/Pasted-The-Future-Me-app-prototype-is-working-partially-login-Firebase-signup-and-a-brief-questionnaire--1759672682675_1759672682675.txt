@@ -1,0 +1,42 @@
+The Future Me app prototype is working partially: login, Firebase signup, and a brief questionnaire exist, but the “See My Future” button doesn’t advance, and there’s no public-facing landing page for visitors.
+I need you to do the following:
+
+1. Fix the “See My Future” button
+* Connect the button to read the questionnaire inputs (age, health, habits, etc.).
+* Compute a simple Future Me score and determine the avatar state (vibrant, stable, weary).
+* Render the avatar visualization on a new screen/component after the button is clicked.
+* Make sure the visualization is saved to Firebase under users/{uid}/projections with a timestamp.
+
+2. Add a public landing page
+* Create a home page (/) that anyone can access without logging in.
+* Include:
+    * App name and tagline
+    * Short description of what Future Me does
+    * Motivational/value proposition
+    * Call-to-action button: “Sign Up / Log In” that links to the Firebase login page
+* Keep it visually engaging and mobile-responsive, consistent with the existing React/Tailwind/Framer Motion design.
+
+3. Smooth navigation and flow
+* Public landing page → Login/Sign-up → Questionnaire → Future Me visualization
+* Update routes using React Router or similar so the app starts on the landing page.
+* Ensure that logged-in users can also revisit the generator and see saved projections.
+
+4. Styling & UX
+* Use modern, uplifting, motivational style
+* Keep smooth transitions and animations (Framer Motion)
+* Mobile-friendly, responsive design
+
+5. Firebase
+* Make sure:
+    * User questionnaire inputs are saved to Firestore
+    * Generated Future Me avatars/results are saved under each user’s document
+    * Firebase Auth continues to handle email sign-up/login
+
+6. Testing
+* After implementing, confirm:
+    1. Landing page loads without login
+    2. Sign-up/login works and creates a Firebase Auth user
+    3. Questionnaire inputs are saved
+    4. “See My Future” generates an avatar and saves to Firestore
+
+When finished, summarize all changes, confirm that the app is now fully navigable for both visitors and logged-in users, and show me the URLs/routes I can test.
