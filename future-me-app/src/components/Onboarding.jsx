@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { doc, setDoc, collection } from 'firebase/firestore';
-import { db } from '../config/firebase';
 
 export default function Onboarding() {
   const { user, updateUserProfile } = useAuth();
@@ -26,14 +24,6 @@ export default function Onboarding() {
       
       const avatarState = lifestyleScore >= 75 ? 'vibrant' : lifestyleScore >= 50 ? 'stable' : 'weary';
       
-      const projectionData = {
-        ...formData,
-        lifestyleScore,
-        avatarState,
-        timestamp: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      };
-
       await updateUserProfile({
         ...formData,
         lifestyleScore,
@@ -41,15 +31,11 @@ export default function Onboarding() {
         onboardingCompleted: true,
         completedAt: new Date().toISOString(),
       });
-
-      const projectionRef = doc(collection(db, 'users', user.uid, 'projections'));
-      await setDoc(projectionRef, projectionData);
       
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error saving projection:', error);
+      console.error('Error saving data:', error);
       alert('There was an error saving your data. Please try again.');
-    } finally {
       setLoading(false);
     }
   };

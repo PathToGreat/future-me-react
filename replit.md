@@ -243,6 +243,8 @@ Used in app as:
 - **Moved authentication to `/auth` with "Back to Home" navigation** (Oct 5, 2025)
 - **Removed all legacy HTML files from root directory** (Oct 5, 2025)
 - **App now defaults to landing page at `/` instead of old navigation.html** (Oct 5, 2025)
+- **Fixed "See My Future" button freeze by removing problematic subcollection writes** (Oct 5, 2025)
+- **All user data now saves correctly to single document at users/{uid}** (Oct 5, 2025)
 
 ## Legacy Components
 
