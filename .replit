@@ -28,9 +28,10 @@ waitForPort = 5000
 outputType = "webview"
 
 [deployment]
-deploymentTarget = "static"
+deploymentTarget = "autoscale"
 publicDir = "simple-test"
-run = ["sh", "-c", "npx expo start --web --port=5000"]
+run = ["sh", "-c", "npx serve -s simple-test -l 5000"]
+build = ["sh", "-c", "cd future-me-app && npm run build && cp -r dist/* ../simple-test/"]
 
 [[ports]]
 localPort = 5000
