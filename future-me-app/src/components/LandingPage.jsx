@@ -55,7 +55,7 @@ export default function LandingPage() {
                 className="text-center"
               >
                 <div className="w-16 h-16 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">✨</span>
+                  <span className="text-3xl">🔭</span>
                 </div>
                 <h3 className="text-lg font-bold text-gray-800 mb-2">See Your Future</h3>
                 <p className="text-gray-600">
