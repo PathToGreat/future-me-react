@@ -41,10 +41,11 @@ Preferred communication style: Simple, everyday language.
 
 **Routing & Navigation:**
 - React Router with protected routes
-- Three main routes:
-  - `/` - Authentication screen (login/signup)
-  - `/onboarding` - 3-step lifestyle questionnaire
-  - `/dashboard` - Future Me visualization and metrics
+- Four main routes:
+  - `/` - Public landing page (accessible to all visitors)
+  - `/auth` - Authentication screen (login/signup)
+  - `/onboarding` - 3-step lifestyle questionnaire (private)
+  - `/dashboard` - Future Me visualization and metrics (private)
 
 **State Management:**
 - React Context API for authentication (`AuthContext`)
@@ -238,12 +239,18 @@ Used in app as:
 - **Configured for Vercel deployment**
 - **Simplified data structure (single user document instead of subcollections)**
 - **Created comprehensive deployment and Firebase data viewing guides**
+- **Added public landing page at root route (`/`)** (Oct 5, 2025)
+- **Moved authentication to `/auth` with "Back to Home" navigation** (Oct 5, 2025)
+- **Removed all legacy HTML files from root directory** (Oct 5, 2025)
+- **App now defaults to landing page at `/` instead of old navigation.html** (Oct 5, 2025)
 
 ## Legacy Components
 
 The following older components are kept for reference but not actively used:
 - React Native Expo app (multiple directories)
-- Static HTML prototypes (full-app.html, navigation.html, etc.)
+- Old test directories (simple-test, react-test, basic-html-app, etc.)
 - Webpack configurations for React Native Web
+
+**Note:** Legacy HTML files (navigation.html, full-app.html, etc.) have been removed from root directory as of Oct 5, 2025.
 
 Current active app: `future-me-app/` (React + Vite SPA)
