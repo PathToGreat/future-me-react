@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -9,6 +10,7 @@ export default function AuthScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signup, login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,6 +40,13 @@ export default function AuthScreen() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md w-full"
       >
+        <button
+          onClick={() => navigate('/')}
+          className="mb-4 text-primary-600 hover:text-primary-700 flex items-center gap-2 transition-colors"
+        >
+          <span>←</span> Back to Home
+        </button>
+
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent mb-2">
             Future Me
