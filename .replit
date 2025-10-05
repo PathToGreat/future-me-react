@@ -30,8 +30,8 @@ outputType = "webview"
 [deployment]
 deploymentTarget = "autoscale"
 publicDir = "simple-test"
-run = ["sh", "-c", "npx serve -s simple-test -l 5000"]
-build = ["sh", "-c", "cd future-me-app && npm run build && cp -r dist/* ../simple-test/"]
+run = ["sh", "-c", "npx serve -s future-me-app/dist -l 5000"]
+build = ["sh", "-c", "cd future-me-app && npm run build"]
 
 [[ports]]
 localPort = 5000
@@ -72,6 +72,10 @@ externalPort = 6000
 [[ports]]
 localPort = 19007
 externalPort = 6800
+
+[[ports]]
+localPort = 34863
+externalPort = 3000
 
 [agent]
 expertMode = true
