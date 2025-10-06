@@ -105,11 +105,23 @@ export default function Dashboard() {
                 <span className="text-2xl mb-2">/100</span>
               </div>
               <p className="text-blue-100 mt-2">
-                {userProfile.lifestyleScore >= 75
-                  ? "You're on an excellent path! Keep up the great work."
-                  : userProfile.lifestyleScore >= 50
-                  ? "You're making progress. Small changes can lead to big improvements!"
-                  : "There's room for improvement. Start with one healthy habit today!"}
+                {(() => {
+                  const score = userProfile.lifestyleScore || 50;
+                  let summary = '';
+                  
+                  if (score >= 80) {
+                    summary = "You're on an excellent path! Keep up the great work.";
+                  } else if (score >= 60) {
+                    summary = "Good progress! Some areas can improve.";
+                  } else {
+                    summary = "Let's focus on building healthier habits.";
+                  }
+                  
+                  console.log('💯 Wellness Score:', score);
+                  console.log('📋 Summary:', summary);
+                  
+                  return summary;
+                })()}
               </p>
             </div>
           </motion.div>
