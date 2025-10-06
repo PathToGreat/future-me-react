@@ -7,14 +7,28 @@ import ImageUpload from "./ImageUpload";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { predictFutureState, getMotivationalMessage } from "../utils/predictFutureState";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [liveProfile, setLiveProfile] = useState(null);
+  const [predictions, setPredictions] = useState(null);
 
   const { trendAnalysis } = useHistoryData(user?.uid, liveProfile);
+
+  // Calculate predictions when trend analysis is available
+  useEffect(() => {
+    if (trendAnalysis && liveProfile?.lifestyleScore) {
+      const futureProjections = predictFutureState(
+        liveProfile.lifestyleScore,
+        trendAnalysis.trendSlope
+      );
+      setPredictions(futureProjections);
+      console.log('🔮 Predictive Model Run:', futureProjections);
+    }
+  }, [trendAnalysis, liveProfile?.lifestyleScore]);
 
   // Real-time listener for user profile updates
   useEffect(() => {
@@ -267,6 +281,64 @@ export default function Dashboard() {
                 <p className="text-white/90 mt-2 capitalize">
                   {trendAnalysis.description} ({trendAnalysis.dataPoints} days
                   of data)
+                </p>
+              </motion.div>
+            )}
+
+            {predictions && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="card bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold">Future Path</h2>
+                  <span className="text-3xl">🔮</span>
+                </div>
+                
+                <div className="space-y-4 mb-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>30 Days</span>
+                      <span className="font-semibold">{predictions[30].score}</span>
+                    </div>
+                    <div className="w-full bg-white/20 rounded-full h-2">
+                      <div 
+                        className="bg-white rounded-full h-2 transition-all duration-500"
+                        style={{ width: `${predictions[30].score}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>90 Days</span>
+                      <span className="font-semibold">{predictions[90].score}</span>
+                    </div>
+                    <div className="w-full bg-white/20 rounded-full h-2">
+                      <div 
+                        className="bg-white rounded-full h-2 transition-all duration-500"
+                        style={{ width: `${predictions[90].score}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>180 Days</span>
+                      <span className="font-semibold">{predictions[180].score}</span>
+                    </div>
+                    <div className="w-full bg-white/20 rounded-full h-2">
+                      <div 
+                        className="bg-white rounded-full h-2 transition-all duration-500"
+                        style={{ width: `${predictions[180].score}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-white/90 text-sm">
+                  {getMotivationalMessage(predictions)}
                 </p>
               </motion.div>
             )}
