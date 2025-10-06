@@ -169,6 +169,7 @@ export default function Dashboard() {
               stress={liveProfile.stress || 3}
               images={liveProfile.images || []}
               trendAnalysis={trendAnalysis}
+              predictions={predictions}
             />
           </motion.div>
 

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
-export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sleep, stress, images, trendAnalysis }) {
+export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sleep, stress, images, trendAnalysis, predictions }) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
   
   console.log('🎨 FutureMeAvatar rendered with data:');
@@ -24,6 +24,15 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
       console.log(`  - Trend Score: ${trendAnalysis.trendScore.toFixed(2)}`);
     }
   }, [trendAnalysis]);
+
+  useEffect(() => {
+    if (predictions) {
+      console.log('🌅 Avatar showing future projections:');
+      console.log(`  - 30-day: ${predictions[30].score} (${predictions[30].status})`);
+      console.log(`  - 90-day: ${predictions[90].score} (${predictions[90].status})`);
+      console.log(`  - 180-day: ${predictions[180].score} (${predictions[180].status})`);
+    }
+  }, [predictions]);
 
   const getAvatarColor = () => {
     if (lifestyleScore >= 75) return { body: '#10b981', glow: '#34d399' };
@@ -90,15 +99,67 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
     return 1;
   };
 
+  const getPredictionAnimation = () => {
+    if (!predictions) return {};
+
+    const day180 = predictions[180];
+    
+    if (day180.direction === 'improving') {
+      if (day180.score >= 80) {
+        return {
+          y: [0, -5, 0],
+          duration: 2.5
+        };
+      } else {
+        return {
+          y: [0, -2, 0],
+          duration: 3
+        };
+      }
+    } else if (day180.direction === 'declining') {
+      return {
+        y: [0, 2, 0],
+        duration: 3.5
+      };
+    }
+    
+    return {};
+  };
+
+  const getPredictionGlowColor = () => {
+    if (!predictions) return colors.glow;
+
+    const day30 = predictions[30];
+    
+    if (day30.direction === 'improving') {
+      return '#10b981';
+    }
+    
+    return colors.glow;
+  };
+
   const glowEffect = getTrendGlowEffect();
   const brightnessFilter = getTrendBrightnessFilter();
+  const predictionAnimation = getPredictionAnimation();
+  const predictionGlowColor = getPredictionGlowColor();
 
   return (
     <div className="flex flex-col items-center justify-center">
       <motion.div
         initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', duration: 0.8 }}
+        animate={{ 
+          scale: 1,
+          ...predictionAnimation
+        }}
+        transition={{ 
+          type: 'spring', 
+          duration: 0.8,
+          y: {
+            duration: predictionAnimation.duration || 0,
+            repeat: predictionAnimation.duration ? Infinity : 0,
+            ease: 'easeInOut'
+          }
+        }}
         className="relative"
       >
         <motion.div
@@ -113,7 +174,7 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
           }}
           className="absolute inset-0 rounded-full blur-2xl"
           style={{
-            background: `radial-gradient(circle, ${colors.glow} 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${predictionGlowColor} 0%, transparent 70%)`,
             transform: 'scale(1.5)',
           }}
         />
