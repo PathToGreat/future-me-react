@@ -1,0 +1,41 @@
+Please review the entire Future Me project and apply the following Faith-Aligned Brand Emoji + Phrasing Guide across all code, comments, and console logs.
+Faith-Aligned Brand Emoji + Phrasing Guide for Path to Great / Future Me
+Overall Brand Tone:
+Rooted in truth, discipline, hope, and growth.
+Language should inspire responsibility, motivation, and transformation — never mysticism or superstition.
+All imagery should connect to life, light, and forward movement.
+✅ Approved Imagery and Meanings
+Theme	Example Emojis	Meaning / When to Use
+Growth & Progress	🌱🌿🌻🌳	Natural development, steady progress, new beginnings
+Hope & Future	🌅🌞🌤️🌟	Optimism, clear vision, future potential
+Strength & Resilience	💪🔥⚡	Energy, discipline, overcoming challenges
+Joy & Encouragement	🙂😊😃✨	Positivity, confidence, encouragement
+Wisdom & Reflection	📖🕊️💭🧭	Learning, insight, clarity of direction
+Achievement & Milestones	🏆🎯🚀	Success, hitting goals, transformation
+🚫 Avoided Imagery and Meanings
+Symbol / Theme	Avoid	Reason
+Sorcery / Divination	🔮🪄🧙‍♂️🧿🔯	Associated with mystical or occult practices
+Fortune Telling	Tarot, spells, magic, “fate”	Contradicts faith-based foundation
+Supernatural Powers	Enchantments, magical energy, “aura”	Not consistent with biblical worldview
+Astrological / Zodiac	♈♉♊♋ etc.	Not faith-aligned or data-based
+✅ Preferred Language Replacements
+Old / Avoided Term	Replace With	Example Use
+“Predictive magic”	“Future insight”	“Your 90-day future insight shows continued growth.”
+“Mystical visualization”	“Transformational projection”	“Here’s your transformational projection based on current habits.”
+“Energy aura”	“Vitality indicator”	“Your vitality indicator is rising — consistency is paying off.”
+“Enchanted glow”	“Healthy radiance”	“Your avatar reflects a healthy radiance.”
+“Crystal ball forecast”	“Future growth outlook”	“Your future growth outlook is strong — stay steady.”
+“Divine spark”	“Purpose-driven strength”	“Your purpose-driven strength is increasing.”
+🧭 Implementation Instructions
+Scan all files in the project for mystical, occult, or sorcery-related terms or emojis.
+Replace them with the approved words or imagery listed above.
+Preserve positivity and motivational tone throughout — no negative replacements.
+Keep all current animations and visuals (glow, movement, brightness), just rename labels, variables, or log messages as needed to align with this guide.
+Review console logs, UI text, and comments to ensure language reflects biblical values: discipline, hope, responsibility, and growth.
+Do not remove sunrise or light imagery, as those represent hope and clarity.
+✅ When Complete, Please:
+Summarize all replaced emojis and terms.
+List the files where updates were made.
+Confirm that the build compiles successfully with no visual or functional regressions.
+End your report with:
+“Faith-aligned language and imagery audit complete. All mystical symbolism removed, positive motivational tone preserved.

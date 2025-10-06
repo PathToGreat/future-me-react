@@ -1,6 +1,6 @@
 export function predictFutureState(currentScore, trendSlope) {
   if (!currentScore || trendSlope === undefined || trendSlope === null) {
-    console.log('⚠️ Insufficient data for predictions');
+    console.log('⚠️ Insufficient data for future growth outlook');
     return null;
   }
 
@@ -28,11 +28,11 @@ export function predictFutureState(currentScore, trendSlope) {
       direction: change > 0 ? 'improving' : change < 0 ? 'declining' : 'stable'
     };
 
-    console.log(`🔮 ${days}-day projection: ${predictions[days].score} (${predictions[days].status})`);
+    console.log(`🌅 ${days}-day projection: ${predictions[days].score} (${predictions[days].status})`);
   });
 
   const overallTrend = predictions[180].direction;
-  console.log(`🌅 Overall trajectory: ${overallTrend} (180-day score: ${predictions[180].score})`);
+  console.log(`🌟 Overall trajectory: ${overallTrend} (180-day score: ${predictions[180].score})`);
 
   return predictions;
 }

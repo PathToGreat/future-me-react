@@ -18,7 +18,7 @@ export default function Dashboard() {
 
   const { trendAnalysis } = useHistoryData(user?.uid, liveProfile);
 
-  // Calculate predictions when trend analysis is available
+  // Calculate future growth outlook when trend analysis is available
   useEffect(() => {
     if (trendAnalysis && liveProfile?.lifestyleScore) {
       const futureProjections = predictFutureState(
@@ -26,7 +26,7 @@ export default function Dashboard() {
         trendAnalysis.trendSlope
       );
       setPredictions(futureProjections);
-      console.log('🔮 Predictive Model Run:', futureProjections);
+      console.log('🌅 Future Growth Model Run:', futureProjections);
     }
   }, [trendAnalysis, liveProfile?.lifestyleScore]);
 
@@ -294,7 +294,7 @@ export default function Dashboard() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold">Future Path</h2>
-                  <span className="text-3xl">🔮</span>
+                  <span className="text-3xl">🌅</span>
                 </div>
                 
                 <div className="space-y-4 mb-4">
