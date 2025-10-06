@@ -5,7 +5,7 @@ import {
   signOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
 const AuthContext = createContext({});
@@ -18,22 +18,49 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    let unsubscribeProfile = null;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       
       if (currentUser) {
-        const profileDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        if (profileDoc.exists()) {
-          setUserProfile(profileDoc.data());
-        }
+        console.log('🔄 Setting up real-time listener for user:', currentUser.uid);
+        
+        // Set up real-time listener for user profile
+        unsubscribeProfile = onSnapshot(
+          doc(db, 'users', currentUser.uid),
+          (snapshot) => {
+            if (snapshot.exists()) {
+              const data = snapshot.data();
+              console.log('💡 Metrics Updated - LifestyleScore:', data.lifestyleScore, 
+                         'Activity:', data.activity, 
+                         'Nutrition:', data.nutrition, 
+                         'Sleep:', data.sleep, 
+                         'Stress:', data.stress);
+              setUserProfile(data);
+            }
+          },
+          (error) => {
+            console.error('❌ Firebase listener error:', error);
+          }
+        );
       } else {
         setUserProfile(null);
+        if (unsubscribeProfile) {
+          unsubscribeProfile();
+          unsubscribeProfile = null;
+        }
       }
       
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) {
+        unsubscribeProfile();
+      }
+    };
   }, []);
 
   const signup = async (email, password) => {

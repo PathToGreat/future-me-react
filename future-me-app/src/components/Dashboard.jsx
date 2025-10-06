@@ -15,6 +15,18 @@ export default function Dashboard() {
     }
   }, [userProfile, navigate]);
 
+  useEffect(() => {
+    if (userProfile) {
+      console.log('📊 Dashboard Updated with new metrics:');
+      console.log('  - Lifestyle Score:', userProfile.lifestyleScore);
+      console.log('  - Activity:', userProfile.activity);
+      console.log('  - Nutrition:', userProfile.nutrition);
+      console.log('  - Sleep:', userProfile.sleep);
+      console.log('  - Stress:', userProfile.stress);
+      console.log('  - Goals:', userProfile.goals);
+    }
+  }, [userProfile]);
+
   if (!userProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
