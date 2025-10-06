@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import FutureMeAvatar from './FutureMeAvatar';
+import ImageUpload from './ImageUpload';
 
 export default function Dashboard() {
   const { user, userProfile, logout } = useAuth();
@@ -61,6 +62,18 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card mb-8"
+        >
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Personalize Your Avatar</h2>
+          <p className="text-gray-600 text-sm mb-4">
+            Upload a full-body image to help your avatar reflect your physical appearance. Your avatar will adapt based on the uploaded image.
+          </p>
+          <ImageUpload onUploadSuccess={() => console.log('🎨 Dashboard: Image upload successful, avatar will update automatically')} />
+        </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-8">
           <motion.div
