@@ -46,7 +46,7 @@ export function getMotivationalMessage(predictions) {
   
   if (day180.direction === 'improving') {
     if (day180.score >= 80) {
-      return "Stay consistent — your glow is strengthening! 🌟";
+      return "Stay consistent — your health is strengthening! 🌟";
     } else if (day180.score >= 70) {
       return "Excellent progress — you're on the path to peak vitality! 💪";
     } else {
@@ -54,9 +54,9 @@ export function getMotivationalMessage(predictions) {
     }
   } else if (day180.direction === 'declining') {
     if (day180.score < 50) {
-      return "Time to refocus — small changes can reverse this trend! 🔄";
+      return "Time to refocus — small changes can reverse this path! 🔄";
     } else {
-      return "Let's adjust your habits to brighten your future path! 💡";
+      return "Let's adjust your habits to brighten your future! 💡";
     }
   } else {
     return "Consistency is key — maintain your current habits! ⚖️";
