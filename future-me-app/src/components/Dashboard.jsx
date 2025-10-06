@@ -166,6 +166,35 @@ export default function Dashboard() {
                 })()}
               </p>
             </div>
+
+            {trendAnalysis && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className={`card ${
+                  trendAnalysis.direction === 'improving' 
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+                    : trendAnalysis.direction === 'declining'
+                    ? 'bg-gradient-to-r from-orange-500 to-red-500'
+                    : 'bg-gradient-to-r from-gray-400 to-gray-500'
+                } text-white`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-xl font-bold">7-Day Trend</h2>
+                  <span className="text-3xl">
+                    {trendAnalysis.direction === 'improving' ? '📈' : trendAnalysis.direction === 'declining' ? '📉' : '⚖️'}
+                  </span>
+                </div>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-bold">
+                    {trendAnalysis.changePercentage > 0 ? '+' : ''}{trendAnalysis.changePercentage}%
+                  </span>
+                </div>
+                <p className="text-white/90 mt-2 capitalize">
+                  {trendAnalysis.description} ({trendAnalysis.dataPoints} days of data)
+                </p>
+              </motion.div>
+            )}
           </motion.div>
         </div>
 
