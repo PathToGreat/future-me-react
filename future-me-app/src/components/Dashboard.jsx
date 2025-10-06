@@ -1,53 +1,87 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import FutureMeAvatar from "./FutureMeAvatar";
 import ImageUpload from "./ImageUpload";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../config/firebase";
 
 export default function Dashboard() {
   const { user, userProfile, logout } = useAuth();
   const navigate = useNavigate();
-  const [showStats, setShowStats] = useState(false);
-  const {
-    historyData,
-    trendAnalysis,
-    loading: historyLoading,
-  } = useHistoryData(user?.uid, userProfile);
+  const location = useLocation();
+  const [liveProfile, setLiveProfile] = useState(userProfile);
 
+  const { trendAnalysis } = useHistoryData(user?.uid, userProfile);
+
+  // Real-time listener for user profile updates
   useEffect(() => {
-    if (userProfile && !userProfile.onboardingCompleted) {
+    if (!user) return;
+
+    const userDocRef = doc(db, "users", user.uid);
+
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+          setLiveProfile(data);
+          console.log("🔄 Real-time update received:", data);
+        }
+      },
+      (error) => {
+        console.error("❌ Firebase listener error:", error);
+      },
+    );
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Refresh dashboard if user navigates back here
+  useEffect(() => {
+    if (location.pathname === "/dashboard" && userProfile) {
+      setLiveProfile(userProfile);
+      console.log("🔁 Dashboard refreshed on navigation");
+    }
+  }, [location.pathname, userProfile]);
+
+  // Redirect if onboarding not completed
+  useEffect(() => {
+    if (liveProfile && !liveProfile.onboardingCompleted) {
       navigate("/onboarding");
     }
-  }, [userProfile, navigate]);
+  }, [liveProfile, navigate]);
 
+  // Log dashboard metrics
   useEffect(() => {
-    if (userProfile) {
+    if (liveProfile) {
       console.log("📊 Dashboard Updated with new metrics:");
-      console.log("  - Lifestyle Score:", userProfile.lifestyleScore);
-      console.log("  - Activity:", userProfile.activity);
-      console.log("  - Nutrition:", userProfile.nutrition);
-      console.log("  - Sleep:", userProfile.sleep);
-      console.log("  - Stress:", userProfile.stress);
-      console.log("  - Goals:", userProfile.goals);
+      console.log("  - Lifestyle Score:", liveProfile.lifestyleScore);
+      console.log("  - Activity:", liveProfile.activity);
+      console.log("  - Nutrition:", liveProfile.nutrition);
+      console.log("  - Sleep:", liveProfile.sleep);
+      console.log("  - Stress:", liveProfile.stress);
+      console.log("  - Goals:", liveProfile.goals);
     }
-  }, [userProfile]);
+  }, [liveProfile]);
 
+  // Save daily snapshot once per day
   useEffect(() => {
-    if (user && userProfile && userProfile.onboardingCompleted) {
+    if (user && liveProfile && liveProfile.onboardingCompleted) {
       const lastSaved = localStorage.getItem(`lastSnapshot_${user.uid}`);
       const today = new Date().toISOString().split("T")[0];
 
       if (lastSaved !== today) {
         console.log("📅 New day detected - saving daily snapshot");
-        saveDailySnapshot(user.uid, userProfile);
+        saveDailySnapshot(user.uid, liveProfile);
         localStorage.setItem(`lastSnapshot_${user.uid}`, today);
       }
     }
-  }, [user, userProfile]);
+  }, [user, liveProfile]);
 
-  if (!userProfile) {
+  if (!liveProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
@@ -114,12 +148,12 @@ export default function Dashboard() {
             className="card flex items-center justify-center p-12 bg-gradient-to-br from-blue-50 to-purple-50"
           >
             <FutureMeAvatar
-              lifestyleScore={userProfile.lifestyleScore || 50}
-              activity={userProfile.activity || 3}
-              nutrition={userProfile.nutrition || 3}
-              sleep={userProfile.sleep || 3}
-              stress={userProfile.stress || 3}
-              images={userProfile.images || []}
+              lifestyleScore={liveProfile.lifestyleScore || 50}
+              activity={liveProfile.activity || 3}
+              nutrition={liveProfile.nutrition || 3}
+              sleep={liveProfile.sleep || 3}
+              stress={liveProfile.stress || 3}
+              images={liveProfile.images || []}
               trendAnalysis={trendAnalysis}
             />
           </motion.div>
@@ -136,25 +170,25 @@ export default function Dashboard() {
               <div className="space-y-4">
                 <MetricBar
                   label="Physical Activity"
-                  value={userProfile.activity}
+                  value={liveProfile.activity}
                   max={5}
                   color="blue"
                 />
                 <MetricBar
                   label="Nutrition Quality"
-                  value={userProfile.nutrition}
+                  value={liveProfile.nutrition}
                   max={5}
                   color="green"
                 />
                 <MetricBar
                   label="Sleep Quality"
-                  value={userProfile.sleep}
+                  value={liveProfile.sleep}
                   max={5}
                   color="purple"
                 />
                 <MetricBar
                   label="Stress Level"
-                  value={userProfile.stress}
+                  value={liveProfile.stress}
                   max={5}
                   color="red"
                   reverse
@@ -167,8 +201,8 @@ export default function Dashboard() {
                 Your Goals
               </h2>
               <div className="flex flex-wrap gap-2">
-                {userProfile.goals && userProfile.goals.length > 0 ? (
-                  userProfile.goals.map((goal, idx) => (
+                {liveProfile.goals && liveProfile.goals.length > 0 ? (
+                  liveProfile.goals.map((goal, idx) => (
                     <span
                       key={idx}
                       className="px-4 py-2 bg-primary-50 text-primary-700 rounded-full text-sm font-medium"
@@ -186,28 +220,18 @@ export default function Dashboard() {
               <h2 className="text-xl font-bold mb-2">Your Wellness Score</h2>
               <div className="flex items-end gap-2">
                 <span className="text-5xl font-bold">
-                  {Math.round(userProfile.lifestyleScore || 50)}
+                  {Math.round(liveProfile.lifestyleScore || 50)}
                 </span>
                 <span className="text-2xl mb-2">/100</span>
               </div>
               <p className="text-blue-100 mt-2">
                 {(() => {
-                  const score = userProfile.lifestyleScore || 50;
-                  let summary = "";
-
-                  if (score >= 80) {
-                    summary =
-                      "You're on an excellent path! Keep up the great work.";
-                  } else if (score >= 60) {
-                    summary = "Good progress! Some areas can improve.";
-                  } else {
-                    summary = "Let's focus on building healthier habits.";
-                  }
-
-                  console.log("💯 Wellness Score:", score);
-                  console.log("📋 Summary:", summary);
-
-                  return summary;
+                  const score = liveProfile.lifestyleScore || 50;
+                  if (score >= 80)
+                    return "You're on an excellent path! Keep up the great work.";
+                  if (score >= 60)
+                    return "Good progress! Some areas can improve.";
+                  return "Let's focus on building healthier habits.";
                 })()}
               </p>
             </div>
@@ -259,76 +283,21 @@ export default function Dashboard() {
             Understanding Your Future Self
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center p-4">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl">💪</span>
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">
-                Body Composition
-              </h3>
-              <p className="text-sm text-gray-600">
-                {(() => {
-                  const nutrition = userProfile.nutrition || 3;
-                  const activity = userProfile.activity || 3;
-                  console.log(
-                    "💪 Body Composition - Nutrition:",
-                    nutrition,
-                    "Activity:",
-                    activity,
-                  );
-                  return `Your avatar's body width reflects nutrition (${nutrition}/5) and posture shows activity level (${activity}/5)`;
-                })()}
-              </p>
-            </div>
-            <div className="text-center p-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl">🔭</span>
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">
-                Energy & Vitality
-              </h3>
-              <p className="text-sm text-gray-600">
-                {(() => {
-                  const score = userProfile.lifestyleScore || 50;
-                  const energyLevel = (
-                    ((userProfile.activity +
-                      userProfile.nutrition +
-                      userProfile.sleep +
-                      (5 - userProfile.stress)) /
-                      16) *
-                    100
-                  ).toFixed(0);
-                  console.log(
-                    "✨ Energy & Vitality - Score:",
-                    score,
-                    "Energy Level:",
-                    energyLevel,
-                  );
-                  return `Animated glow changes color based on your ${score}/100 wellness score, showing your overall energy`;
-                })()}
-              </p>
-            </div>
-            <div className="text-center p-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl">😊</span>
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">
-                Mental Wellness
-              </h3>
-              <p className="text-sm text-gray-600">
-                {(() => {
-                  const stress = userProfile.stress || 3;
-                  const sleep = userProfile.sleep || 3;
-                  console.log(
-                    "😊 Mental Wellness - Stress:",
-                    stress,
-                    "Sleep:",
-                    sleep,
-                  );
-                  return `Avatar expression reflects stress (${stress}/5) and posture shows sleep quality (${sleep}/5)`;
-                })()}
-              </p>
-            </div>
+            <ProfileMetric
+              icon="💪"
+              title="Body Composition"
+              description={`Your avatar's body width reflects nutrition (${liveProfile.nutrition || 3}/5) and posture shows activity level (${liveProfile.activity || 3}/5)`}
+            />
+            <ProfileMetric
+              icon="🔭"
+              title="Energy & Vitality"
+              description={`Animated glow changes color based on your ${liveProfile.lifestyleScore || 50}/100 wellness score, showing your overall energy`}
+            />
+            <ProfileMetric
+              icon="😊"
+              title="Mental Wellness"
+              description={`Avatar expression reflects stress (${liveProfile.stress || 3}/5) and posture shows sleep quality (${liveProfile.sleep || 3}/5)`}
+            />
           </div>
         </motion.div>
       </div>
@@ -362,6 +331,18 @@ function MetricBar({ label, value, max, color, reverse = false }) {
           className={`h-full ${colors[color]} rounded-full`}
         />
       </div>
+    </div>
+  );
+}
+
+function ProfileMetric({ icon, title, description }) {
+  return (
+    <div className="text-center p-4">
+      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+        <span className="text-2xl">{icon}</span>
+      </div>
+      <h3 className="font-semibold text-gray-800 mb-2">{title}</h3>
+      <p className="text-sm text-gray-600">{description}</p>
     </div>
   );
 }
