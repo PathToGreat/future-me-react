@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion';
 
 export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sleep, stress }) {
+  console.log('🎨 FutureMeAvatar rendered with data:');
+  console.log('  📊 Lifestyle Score:', lifestyleScore);
+  console.log('  🏃 Activity:', activity);
+  console.log('  🥗 Nutrition:', nutrition);
+  console.log('  😴 Sleep:', sleep);
+  console.log('  😰 Stress:', stress);
+
   const getAvatarColor = () => {
     if (lifestyleScore >= 75) return { body: '#10b981', glow: '#34d399' };
     if (lifestyleScore >= 50) return { body: '#f59e0b', glow: '#fbbf24' };
