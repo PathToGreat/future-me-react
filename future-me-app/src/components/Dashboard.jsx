@@ -141,7 +141,12 @@ export default function Dashboard() {
               </div>
               <h3 className="font-semibold text-gray-800 mb-2">Body Composition</h3>
               <p className="text-sm text-gray-600">
-                Your avatar's shape reflects your nutrition and activity levels
+                {(() => {
+                  const nutrition = userProfile.nutrition || 3;
+                  const activity = userProfile.activity || 3;
+                  console.log('💪 Body Composition - Nutrition:', nutrition, 'Activity:', activity);
+                  return `Your avatar's body width reflects nutrition (${nutrition}/5) and posture shows activity level (${activity}/5)`;
+                })()}
               </p>
             </div>
             <div className="text-center p-4">
@@ -150,7 +155,12 @@ export default function Dashboard() {
               </div>
               <h3 className="font-semibold text-gray-800 mb-2">Energy & Vitality</h3>
               <p className="text-sm text-gray-600">
-                The glow and animation show your overall energy levels
+                {(() => {
+                  const score = userProfile.lifestyleScore || 50;
+                  const energyLevel = ((userProfile.activity + userProfile.nutrition + userProfile.sleep + (5 - userProfile.stress)) / 16 * 100).toFixed(0);
+                  console.log('✨ Energy & Vitality - Score:', score, 'Energy Level:', energyLevel);
+                  return `Animated glow changes color based on your ${score}/100 wellness score, showing your overall energy`;
+                })()}
               </p>
             </div>
             <div className="text-center p-4">
@@ -159,7 +169,12 @@ export default function Dashboard() {
               </div>
               <h3 className="font-semibold text-gray-800 mb-2">Mental Wellness</h3>
               <p className="text-sm text-gray-600">
-                Expression and posture indicate stress and sleep quality
+                {(() => {
+                  const stress = userProfile.stress || 3;
+                  const sleep = userProfile.sleep || 3;
+                  console.log('😊 Mental Wellness - Stress:', stress, 'Sleep:', sleep);
+                  return `Avatar expression reflects stress (${stress}/5) and posture shows sleep quality (${sleep}/5)`;
+                })()}
               </p>
             </div>
           </div>
