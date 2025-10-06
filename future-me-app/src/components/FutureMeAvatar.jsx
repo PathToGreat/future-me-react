@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sleep, stress, images }) {
+export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sleep, stress, images, trendAnalysis }) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
   
   console.log('🎨 FutureMeAvatar rendered with data:');
@@ -15,6 +15,15 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
   if (images && images.length > 0) {
     console.log('🎨 Avatar updated from uploaded image');
   }
+
+  useEffect(() => {
+    if (trendAnalysis) {
+      console.log('🔮 Avatar adapting to trend analysis:');
+      console.log(`  - Direction: ${trendAnalysis.direction}`);
+      console.log(`  - Change: ${trendAnalysis.changePercentage}%`);
+      console.log(`  - Trend Score: ${trendAnalysis.trendScore.toFixed(2)}`);
+    }
+  }, [trendAnalysis]);
 
   const getAvatarColor = () => {
     if (lifestyleScore >= 75) return { body: '#10b981', glow: '#34d399' };
@@ -40,6 +49,50 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
   const bodyWidth = getBodyWidth();
   const energyLevel = getEnergyLevel();
 
+  const getTrendGlowEffect = () => {
+    if (!trendAnalysis) {
+      return {
+        scale: [1, 1.1, 1],
+        opacity: [0.3, 0.5, 0.3],
+        duration: 2
+      };
+    }
+
+    if (trendAnalysis.direction === 'improving') {
+      return {
+        scale: [1, 1.2, 1],
+        opacity: [0.4, 0.7, 0.4],
+        duration: 1.5
+      };
+    } else if (trendAnalysis.direction === 'declining') {
+      return {
+        scale: [1, 1.05, 1],
+        opacity: [0.2, 0.3, 0.2],
+        duration: 3
+      };
+    } else {
+      return {
+        scale: [1, 1.1, 1],
+        opacity: [0.3, 0.5, 0.3],
+        duration: 2
+      };
+    }
+  };
+
+  const getTrendBrightnessFilter = () => {
+    if (!trendAnalysis) return 1;
+    
+    if (trendAnalysis.direction === 'improving') {
+      return 1.1;
+    } else if (trendAnalysis.direction === 'declining') {
+      return 0.85;
+    }
+    return 1;
+  };
+
+  const glowEffect = getTrendGlowEffect();
+  const brightnessFilter = getTrendBrightnessFilter();
+
   return (
     <div className="flex flex-col items-center justify-center">
       <motion.div
@@ -50,11 +103,11 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
       >
         <motion.div
           animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3],
+            scale: glowEffect.scale,
+            opacity: glowEffect.opacity,
           }}
           transition={{
-            duration: 2,
+            duration: glowEffect.duration,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
@@ -74,7 +127,7 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
               alt="Your uploaded image"
               className="w-[200px] h-[300px] object-cover rounded-2xl shadow-2xl"
               style={{
-                filter: `brightness(${energyLevel > 0.7 ? 1.1 : energyLevel > 0.5 ? 1 : 0.9}) saturate(${energyLevel > 0.7 ? 1.2 : energyLevel > 0.5 ? 1 : 0.8})`,
+                filter: `brightness(${(energyLevel > 0.7 ? 1.1 : energyLevel > 0.5 ? 1 : 0.9) * brightnessFilter}) saturate(${energyLevel > 0.7 ? 1.2 : energyLevel > 0.5 ? 1 : 0.8})`,
               }}
             />
             <div 
@@ -91,6 +144,9 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
             height="300"
             viewBox="0 0 200 300"
             className="relative z-10"
+            style={{
+              filter: `brightness(${brightnessFilter})`
+            }}
           >
           <motion.ellipse
             cx="100"

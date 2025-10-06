@@ -4,11 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import FutureMeAvatar from './FutureMeAvatar';
 import ImageUpload from './ImageUpload';
+import { useHistoryData, saveDailySnapshot } from '../hooks/useHistoryData';
 
 export default function Dashboard() {
   const { user, userProfile, logout } = useAuth();
   const navigate = useNavigate();
   const [showStats, setShowStats] = useState(false);
+  const { historyData, trendAnalysis, loading: historyLoading } = useHistoryData(user?.uid, userProfile);
 
   useEffect(() => {
     if (userProfile && !userProfile.onboardingCompleted) {
@@ -27,6 +29,19 @@ export default function Dashboard() {
       console.log('  - Goals:', userProfile.goals);
     }
   }, [userProfile]);
+
+  useEffect(() => {
+    if (user && userProfile && userProfile.onboardingCompleted) {
+      const lastSaved = localStorage.getItem(`lastSnapshot_${user.uid}`);
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (lastSaved !== today) {
+        console.log('📅 New day detected - saving daily snapshot');
+        saveDailySnapshot(user.uid, userProfile);
+        localStorage.setItem(`lastSnapshot_${user.uid}`, today);
+      }
+    }
+  }, [user, userProfile]);
 
   if (!userProfile) {
     return (
@@ -88,6 +103,7 @@ export default function Dashboard() {
               sleep={userProfile.sleep || 3}
               stress={userProfile.stress || 3}
               images={userProfile.images || []}
+              trendAnalysis={trendAnalysis}
             />
           </motion.div>
 
