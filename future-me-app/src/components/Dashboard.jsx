@@ -9,12 +9,12 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
 
 export default function Dashboard() {
-  const { user, userProfile, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [liveProfile, setLiveProfile] = useState(userProfile);
+  const [liveProfile, setLiveProfile] = useState(null);
 
-  const { trendAnalysis } = useHistoryData(user?.uid, userProfile);
+  const { trendAnalysis } = useHistoryData(user?.uid, liveProfile);
 
   // Real-time listener for user profile updates
   useEffect(() => {
@@ -41,11 +41,11 @@ export default function Dashboard() {
 
   // Refresh dashboard if user navigates back here
   useEffect(() => {
-    if (location.pathname === "/dashboard" && userProfile) {
-      setLiveProfile(userProfile);
+    if (location.pathname === "/dashboard" && liveProfile) {
+      setLiveProfile(liveProfile);
       console.log("🔁 Dashboard refreshed on navigation");
     }
-  }, [location.pathname, userProfile]);
+  }, [location.pathname, liveProfile]);
 
   // Redirect if onboarding not completed
   useEffect(() => {
