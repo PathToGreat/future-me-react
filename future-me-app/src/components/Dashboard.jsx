@@ -87,6 +87,7 @@ export default function Dashboard() {
               nutrition={userProfile.nutrition || 3}
               sleep={userProfile.sleep || 3}
               stress={userProfile.stress || 3}
+              images={userProfile.images || []}
             />
           </motion.div>
 

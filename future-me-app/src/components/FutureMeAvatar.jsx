@@ -1,12 +1,20 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 
-export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sleep, stress }) {
+export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sleep, stress, images }) {
+  const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
+  
   console.log('🎨 FutureMeAvatar rendered with data:');
   console.log('  📊 Lifestyle Score:', lifestyleScore);
   console.log('  🏃 Activity:', activity);
   console.log('  🥗 Nutrition:', nutrition);
   console.log('  😴 Sleep:', sleep);
   console.log('  😰 Stress:', stress);
+  console.log('  📸 Images:', images ? images.length : 0);
+  
+  if (images && images.length > 0) {
+    console.log('🎨 Avatar updated from uploaded image');
+  }
 
   const getAvatarColor = () => {
     if (lifestyleScore >= 75) return { body: '#10b981', glow: '#34d399' };
@@ -57,12 +65,33 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
           }}
         />
 
-        <svg
-          width="200"
-          height="300"
-          viewBox="0 0 200 300"
-          className="relative z-10"
-        >
+        {!showSvgAvatar && images && images.length > 0 ? (
+          <div className="relative z-10">
+            <motion.img
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              src={images[images.length - 1]}
+              alt="Your uploaded image"
+              className="w-[200px] h-[300px] object-cover rounded-2xl shadow-2xl"
+              style={{
+                filter: `brightness(${energyLevel > 0.7 ? 1.1 : energyLevel > 0.5 ? 1 : 0.9}) saturate(${energyLevel > 0.7 ? 1.2 : energyLevel > 0.5 ? 1 : 0.8})`,
+              }}
+            />
+            <div 
+              className="absolute inset-0 rounded-2xl pointer-events-none"
+              style={{
+                background: `linear-gradient(180deg, ${colors.glow}20 0%, transparent 50%, ${colors.glow}10 100%)`,
+                mixBlendMode: 'overlay'
+              }}
+            />
+          </div>
+        ) : (
+          <svg
+            width="200"
+            height="300"
+            viewBox="0 0 200 300"
+            className="relative z-10"
+          >
           <motion.ellipse
             cx="100"
             cy="70"
@@ -191,13 +220,14 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
             </>
           )}
         </svg>
+        )}
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="mt-6 text-center"
+        className="mt-6 text-center space-y-3"
       >
         <div className="inline-flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-lg">
           <div
@@ -209,6 +239,15 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
           </span>
           <span className="text-primary-600 font-bold">{Math.round(lifestyleScore)}%</span>
         </div>
+
+        {images && images.length > 0 && (
+          <button
+            onClick={() => setShowSvgAvatar(!showSvgAvatar)}
+            className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+          >
+            {showSvgAvatar ? '📸 Show My Photo' : '🎨 Show Avatar'}
+          </button>
+        )}
       </motion.div>
     </div>
   );
