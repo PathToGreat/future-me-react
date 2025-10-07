@@ -72,6 +72,14 @@ const firebaseConfig = {
   appId,
 };
 
+console.log("🔥 Firebase config being used:", {
+  apiKey: firebaseConfig.apiKey ? "***" : undefined,
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  storageBucket: firebaseConfig.storageBucket,
+  appId: firebaseConfig.appId ? "***" : undefined,
+});
+
 console.log("Firebase config (with masked keys):", {
   ...firebaseConfig,
   apiKey: firebaseConfig.apiKey ? "***" : undefined,
