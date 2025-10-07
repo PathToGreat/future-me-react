@@ -15,7 +15,7 @@ function setFirebaseConfig(apiKey, projectId, appId) {
   firebaseConfig.apiKey = apiKey;
   firebaseConfig.projectId = projectId;
   firebaseConfig.authDomain = `${projectId}.firebaseapp.com`;
-  firebaseConfig.storageBucket = "future-me-app-5d754.firebasestorage.app";
+  firebaseConfig.storageBucket = "future-me-app-5d754.appspot.com";
   firebaseConfig.appId = appId;
 }
 
@@ -27,6 +27,9 @@ function initializeFirebase() {
   }
   return firebase;
 }
+
+const testApp = initializeFirebase();
+console.log("Firebase Initialized:", testApp.apps.length > 0);
 
 // Authentication functions
 async function loginWithEmailAndPassword(email, password) {

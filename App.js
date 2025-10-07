@@ -430,7 +430,10 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => auth.signOut().then(() => setIsLoggedIn(false))}
+        >
           <Text style={styles.logoutButtonText}>Log Out</Text>
         </TouchableOpacity>
       </View>

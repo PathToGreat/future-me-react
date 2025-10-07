@@ -67,7 +67,7 @@ const firebaseConfig = {
   apiKey,
   authDomain: projectId ? `${projectId}.firebaseapp.com` : undefined,
   projectId,
-  storageBucket: projectId ? `${projectId}.firebasestorage.app` : undefined,
+  storageBucket: projectId ? `${projectId}.appspot.com` : undefined,
   appId,
 };
 
