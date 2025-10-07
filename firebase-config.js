@@ -7,7 +7,7 @@ const firebaseConfig = {
   projectId: "", // Will be provided by the user
   storageBucket: "", // Will be constructed from projectId
   messagingSenderId: "", // Optional
-  appId: "" // Will be provided by the user
+  appId: "", // Will be provided by the user
 };
 
 // Function to set Firebase configuration values
@@ -15,7 +15,7 @@ function setFirebaseConfig(apiKey, projectId, appId) {
   firebaseConfig.apiKey = apiKey;
   firebaseConfig.projectId = projectId;
   firebaseConfig.authDomain = `${projectId}.firebaseapp.com`;
-  firebaseConfig.storageBucket = `${projectId}.appspot.com`;
+  firebaseConfig.storageBucket = "future-me-app-5d754.firebasestorage.app";
   firebaseConfig.appId = appId;
 }
 
@@ -32,7 +32,10 @@ function initializeFirebase() {
 async function loginWithEmailAndPassword(email, password) {
   try {
     const auth = firebase.auth();
-    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+    const userCredential = await auth.signInWithEmailAndPassword(
+      email,
+      password,
+    );
     return userCredential.user;
   } catch (error) {
     console.error("Login error:", error);
@@ -43,20 +46,23 @@ async function loginWithEmailAndPassword(email, password) {
 async function registerWithEmailAndPassword(email, password, displayName) {
   try {
     const auth = firebase.auth();
-    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-    
+    const userCredential = await auth.createUserWithEmailAndPassword(
+      email,
+      password,
+    );
+
     // Update profile with display name
     await userCredential.user.updateProfile({
-      displayName: displayName
+      displayName: displayName,
     });
-    
+
     // Create user document in Firestore
     await createUserProfile(userCredential.user.uid, {
       displayName,
       email,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
-    
+
     return userCredential.user;
   } catch (error) {
     console.error("Registration error:", error);
@@ -69,20 +75,20 @@ async function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     const auth = firebase.auth();
     const userCredential = await auth.signInWithPopup(provider);
-    
+
     // Check if this is a new user (first time sign in)
     const isNewUser = userCredential.additionalUserInfo.isNewUser;
-    
+
     if (isNewUser) {
       // Create user profile for new Google sign-ins
       await createUserProfile(userCredential.user.uid, {
         displayName: userCredential.user.displayName,
         email: userCredential.user.email,
         photoURL: userCredential.user.photoURL,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
     }
-    
+
     return userCredential.user;
   } catch (error) {
     console.error("Google sign-in error:", error);
@@ -104,7 +110,7 @@ async function logoutUser() {
 async function createUserProfile(userId, userData) {
   try {
     const db = firebase.firestore();
-    await db.collection('users').doc(userId).set(userData);
+    await db.collection("users").doc(userId).set(userData);
     return userData;
   } catch (error) {
     console.error("Error creating user profile:", error);
@@ -115,7 +121,7 @@ async function createUserProfile(userId, userData) {
 async function getUserProfile(userId) {
   try {
     const db = firebase.firestore();
-    const doc = await db.collection('users').doc(userId).get();
+    const doc = await db.collection("users").doc(userId).get();
     if (doc.exists) {
       return doc.data();
     } else {
@@ -131,12 +137,16 @@ async function getUserProfile(userId) {
 async function getAllHabits(userId) {
   try {
     const db = firebase.firestore();
-    const snapshot = await db.collection('users').doc(userId)
-      .collection('habits').orderBy('createdAt', 'desc').get();
-    
-    return snapshot.docs.map(doc => ({
+    const snapshot = await db
+      .collection("users")
+      .doc(userId)
+      .collection("habits")
+      .orderBy("createdAt", "desc")
+      .get();
+
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
   } catch (error) {
     console.error("Error getting habits:", error);
@@ -152,15 +162,18 @@ async function addHabit(userId, habitData) {
       streak: 0,
       completionRate: 0,
       logs: [],
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
-    
-    const docRef = await db.collection('users').doc(userId)
-      .collection('habits').add(habit);
-    
+
+    const docRef = await db
+      .collection("users")
+      .doc(userId)
+      .collection("habits")
+      .add(habit);
+
     return {
       id: docRef.id,
-      ...habit
+      ...habit,
     };
   } catch (error) {
     console.error("Error adding habit:", error);
@@ -171,16 +184,19 @@ async function addHabit(userId, habitData) {
 async function updateHabit(userId, habitId, habitData) {
   try {
     const db = firebase.firestore();
-    await db.collection('users').doc(userId)
-      .collection('habits').doc(habitId)
+    await db
+      .collection("users")
+      .doc(userId)
+      .collection("habits")
+      .doc(habitId)
       .update({
         ...habitData,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
-    
+
     return {
       id: habitId,
-      ...habitData
+      ...habitData,
     };
   } catch (error) {
     console.error("Error updating habit:", error);
@@ -191,9 +207,13 @@ async function updateHabit(userId, habitId, habitData) {
 async function deleteHabit(userId, habitId) {
   try {
     const db = firebase.firestore();
-    await db.collection('users').doc(userId)
-      .collection('habits').doc(habitId).delete();
-    
+    await db
+      .collection("users")
+      .doc(userId)
+      .collection("habits")
+      .doc(habitId)
+      .delete();
+
     return true;
   } catch (error) {
     console.error("Error deleting habit:", error);
@@ -206,58 +226,63 @@ async function completeHabitForToday(userId, habitId) {
     const db = firebase.firestore();
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of day
-    
+
     // Check if habit already completed today
-    const habitRef = db.collection('users').doc(userId)
-      .collection('habits').doc(habitId);
-    
+    const habitRef = db
+      .collection("users")
+      .doc(userId)
+      .collection("habits")
+      .doc(habitId);
+
     const habitDoc = await habitRef.get();
     const habit = habitDoc.data();
-    
+
     if (!habit) {
       throw new Error("Habit not found");
     }
-    
+
     // Create logs array if it doesn't exist
     const logs = habit.logs || [];
-    
+
     // Check if already logged today
-    const todayLog = logs.find(log => {
-      const logDate = log.date instanceof firebase.firestore.Timestamp 
-        ? log.date.toDate() 
-        : new Date(log.date);
-      
+    const todayLog = logs.find((log) => {
+      const logDate =
+        log.date instanceof firebase.firestore.Timestamp
+          ? log.date.toDate()
+          : new Date(log.date);
+
       logDate.setHours(0, 0, 0, 0);
       return logDate.getTime() === today.getTime();
     });
-    
+
     if (todayLog) {
       // Already completed today
       return habit;
     }
-    
+
     // Add today's log
     logs.push({
       date: firebase.firestore.Timestamp.fromDate(today),
-      completed: true
+      completed: true,
     });
-    
+
     // Update streak
     let streak = habit.streak || 0;
-    
+
     // Check if yesterday was logged (for continuing streak)
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
-    const yesterdayLog = logs.find(log => {
-      const logDate = log.date instanceof firebase.firestore.Timestamp 
-        ? log.date.toDate() 
-        : new Date(log.date);
-      
+
+    const yesterdayLog = logs.find((log) => {
+      const logDate =
+        log.date instanceof firebase.firestore.Timestamp
+          ? log.date.toDate()
+          : new Date(log.date);
+
       logDate.setHours(0, 0, 0, 0);
       return logDate.getTime() === yesterday.getTime();
     });
-    
+
     // If there's a yesterday log or streak is 0, increment streak
     // If streak > 0 but no yesterday log, reset streak to 1
     if (yesterdayLog || streak === 0) {
@@ -265,49 +290,51 @@ async function completeHabitForToday(userId, habitId) {
     } else {
       streak = 1;
     }
-    
+
     // Calculate completion rate (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
-    const recentLogs = logs.filter(log => {
-      const logDate = log.date instanceof firebase.firestore.Timestamp 
-        ? log.date.toDate() 
-        : new Date(log.date);
-      
+
+    const recentLogs = logs.filter((log) => {
+      const logDate =
+        log.date instanceof firebase.firestore.Timestamp
+          ? log.date.toDate()
+          : new Date(log.date);
+
       return logDate >= thirtyDaysAgo;
     });
-    
+
     // Calculate applicable days (based on frequency)
     const frequency = habit.frequency || [0, 1, 2, 3, 4, 5, 6]; // Default all days
     let applicableDays = 0;
-    
+
     for (let d = 0; d < 30; d++) {
       const checkDate = new Date();
       checkDate.setDate(checkDate.getDate() - d);
-      
+
       if (frequency.includes(checkDate.getDay())) {
         applicableDays++;
       }
     }
-    
-    const completionRate = applicableDays > 0 
-      ? Math.round((recentLogs.length / applicableDays) * 100) 
-      : 0;
-    
+
+    const completionRate =
+      applicableDays > 0
+        ? Math.round((recentLogs.length / applicableDays) * 100)
+        : 0;
+
     // Update habit with new logs, streak, completion rate
     await habitRef.update({
       logs,
       streak,
       completionRate,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
-    
+
     return {
       ...habit,
       logs,
       streak,
-      completionRate
+      completionRate,
     };
   } catch (error) {
     console.error("Error completing habit:", error);
@@ -318,15 +345,15 @@ async function completeHabitForToday(userId, habitId) {
 // Check Firebase environment
 function checkFirebaseConfig() {
   const missing = [];
-  
+
   if (!firebaseConfig.apiKey) missing.push("API Key");
   if (!firebaseConfig.projectId) missing.push("Project ID");
   if (!firebaseConfig.appId) missing.push("App ID");
-  
+
   if (missing.length > 0) {
     console.warn("Missing Firebase configuration: " + missing.join(", "));
     return false;
   }
-  
+
   return true;
 }
