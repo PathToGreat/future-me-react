@@ -63,6 +63,7 @@ if (!hasValidConfig) {
 }
 
 // Firebase configuration
+console.log("projectId being used:", projectId);
 const firebaseConfig = {
   apiKey,
   authDomain: projectId ? `${projectId}.firebaseapp.com` : undefined,
