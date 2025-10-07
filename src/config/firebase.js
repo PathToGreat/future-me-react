@@ -81,6 +81,8 @@ console.log("Firebase config (with masked keys):", {
 // Initialize Firebase with fallback for testing if needed
 let app, auth, db;
 
+console.log("projectId being used:", projectId);
+
 try {
   // Only attempt to initialize Firebase with a valid configuration
   if (hasValidConfig) {
