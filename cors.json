@@ -1,0 +1,12 @@
+[
+  {
+    "origin": [
+      "http://localhost:3000",
+      "https://replit.com",
+      "https://future-me.vercel.app"
+    ],
+    "method": ["GET", "POST", "PUT", "DELETE"],
+    "maxAgeSeconds": 3600,
+    "responseHeader": ["Content-Type", "x-goog-meta-foo"]
+  }
+]
