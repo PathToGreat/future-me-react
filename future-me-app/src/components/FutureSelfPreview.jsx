@@ -11,6 +11,16 @@ export default function FutureSelfPreview({ lifestyleScore }) {
     }
   };
 
+  const getSubtitle = (score) => {
+    if (score >= 80) {
+      return "Your direction is strong and consistent.";
+    } else if (score >= 60) {
+      return "You're improving and building momentum.";
+    } else {
+      return "Your current patterns may be limiting your future potential.";
+    }
+  };
+
   const getScoreColor = (score) => {
     if (score >= 80) return "from-green-500 to-emerald-500";
     if (score >= 60) return "from-blue-500 to-indigo-500";
@@ -54,6 +64,9 @@ export default function FutureSelfPreview({ lifestyleScore }) {
             </span>
             <span className="text-lg text-gray-500">/100</span>
           </div>
+          <p className="text-sm text-gray-500 italic mb-2">
+            {getSubtitle(lifestyleScore)}
+          </p>
           <p className="text-gray-700 text-base">
             {getMessage(lifestyleScore)}
           </p>

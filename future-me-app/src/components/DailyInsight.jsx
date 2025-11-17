@@ -2,37 +2,91 @@ import { motion } from 'framer-motion';
 
 export default function DailyInsight({ activity, nutrition, sleep, stress }) {
   const getInsight = () => {
+    // Priority 1: Address critical issues (high stress or very poor sleep)
+    if (stress >= 4) {
+      return {
+        icon: "🧘",
+        message: "High stress can undermine your progress. Consider adding stress-relief practices to your routine.",
+        color: "from-red-500 to-orange-500"
+      };
+    }
+    
+    if (sleep <= 2 && stress >= 3) {
+      return {
+        icon: "😴",
+        message: "Poor sleep combined with stress may be draining your potential. Rest is essential for growth.",
+        color: "from-purple-500 to-pink-500"
+      };
+    }
+
+    // Priority 2: Celebrate strengths (low stress)
     if (stress <= 2) {
       return {
         icon: "😌",
-        message: "Lower stress is strengthening your future self.",
+        message: "Your low stress levels are strengthening your foundation for a healthier future.",
         color: "from-green-500 to-emerald-500"
       };
-    } else if (sleep <= 2) {
+    }
+
+    // Priority 3: Address sleep issues
+    if (sleep <= 2) {
       return {
-        icon: "😴",
-        message: "Improving sleep will significantly boost your long-term vitality.",
-        color: "from-purple-500 to-indigo-500"
-      };
-    } else if (activity >= 4) {
-      return {
-        icon: "💪",
-        message: "Your activity levels are contributing to long-term health.",
-        color: "from-blue-500 to-cyan-500"
-      };
-    } else if (nutrition >= 4) {
-      return {
-        icon: "🥗",
-        message: "Your nutrition choices are building a healthier future.",
-        color: "from-green-500 to-lime-500"
-      };
-    } else {
-      return {
-        icon: "🌟",
-        message: "Small daily improvements create lasting change.",
-        color: "from-amber-500 to-orange-500"
+        icon: "🌙",
+        message: "Better sleep will significantly boost your energy, focus, and long-term vitality.",
+        color: "from-indigo-500 to-purple-500"
       };
     }
+
+    if (sleep >= 4 && activity >= 4) {
+      return {
+        icon: "⚡",
+        message: "Great sleep and activity levels are creating powerful momentum toward your goals.",
+        color: "from-blue-500 to-cyan-500"
+      };
+    }
+
+    // Priority 4: Celebrate high activity
+    if (activity >= 4) {
+      return {
+        icon: "💪",
+        message: "Your consistent physical activity is building strength and resilience for the long run.",
+        color: "from-blue-500 to-teal-500"
+      };
+    }
+
+    // Priority 5: Celebrate good nutrition
+    if (nutrition >= 4) {
+      return {
+        icon: "🥗",
+        message: "Your nutrition choices are fueling your body and supporting lasting health.",
+        color: "from-green-500 to-lime-500"
+      };
+    }
+
+    // Priority 6: Address low activity
+    if (activity <= 2) {
+      return {
+        icon: "🚶",
+        message: "Even small increases in movement can create noticeable improvements in your well-being.",
+        color: "from-amber-500 to-yellow-500"
+      };
+    }
+
+    // Priority 7: Address poor nutrition
+    if (nutrition <= 2) {
+      return {
+        icon: "🍎",
+        message: "Better nutrition choices will give you more energy and support your long-term health goals.",
+        color: "from-orange-500 to-red-500"
+      };
+    }
+
+    // Default: General encouragement
+    return {
+      icon: "🌟",
+      message: "Small daily improvements create lasting change. Keep building your future self.",
+      color: "from-amber-500 to-orange-500"
+    };
   };
 
   const insight = getInsight();
