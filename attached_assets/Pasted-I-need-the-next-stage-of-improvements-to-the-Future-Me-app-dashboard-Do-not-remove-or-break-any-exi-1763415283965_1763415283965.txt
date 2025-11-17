@@ -1,0 +1,58 @@
+I need the next stage of improvements to the Future Me app dashboard.
+Do not remove or break any existing functionality.
+Only expand and refine the current system.
+Here is what I need you to do:
+Fix the avatar nutrition mapping.
+Right now the avatar becomes wider when the nutrition score is high.
+This is incorrect.
+Change the logic so that:
+Poor nutrition increases avatar width.
+Good nutrition decreases or normalizes width.
+Preserve the feel of the current avatar engine, just reverse the nutrition mapping so it produces healthy visuals at higher nutrition scores.
+Add a more intelligent Body Composition Model.
+Replace the simple “nutrition equals body width” approach with a composite model that uses:
+Activity level
+Nutrition
+Sleep
+Stress
+These should combine into a single “Body Composition Score” that influences the avatar shape.
+Use simple weighted logic for now.
+Example of concept: high activity + good nutrition + adequate sleep + low stress should produce a healthier, more toned avatar shape.
+Make sure the model is clean, readable, and easy to expand later.
+Update the dashboard text.
+Anywhere the dashboard currently displays “Your avatar’s body width reflects nutrition” or similar descriptions, rewrite the text to reflect the new composite model.
+Replace it with something like “Your avatar’s body shape reflects your current lifestyle inputs.”
+The wording can be yours, but it must not imply that high nutrition makes someone overweight.
+Add backend-safe placeholder values for zones that currently have no real inputs.
+For Wealth, Faith, Family, and Community:
+Insert a safe placeholder score between 40 and 60 so the cards don’t look empty.
+Add small text on each card saying “Full tracking coming soon”.
+Do not hardcode future logic.
+Just placeholders so the UI looks alive.
+Enhance the FutureSelfPreview component.
+Add a small subtitle under the Future Self Score that reacts to the overall lifestyle score:
+80 or above: “Your direction is strong and consistent.”
+60 to 79: “You’re improving and building momentum.”
+Below 60: “Your current patterns may be limiting your future potential.”
+Keep it simple and motivational.
+Refine the Daily Insight system.
+Add 5 to 7 new variations of insights that rotate based on different combinations of:
+Low stress
+High stress
+Low sleep
+High sleep
+High activity
+Low nutrition
+High nutrition
+Make sure it never outputs contradictory statements.
+Keep the insights short and emotionally motivating.
+Ensure all new components match the existing visual system.
+Same card style, same spacing, same grid behavior, same color system.
+Everything must look native to the dashboard.
+When you finish:
+Show the updated folder structure
+Show each updated file
+Explain how the new body composition system works
+Confirm that all existing features still work and were not changed or removed.
+Do not change or remove any Firebase logic, authentication flows, Firestore listeners, or existing metrics calculations.
+Only expand and refine the dashboard and avatar logic as described.
