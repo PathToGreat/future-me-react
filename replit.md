@@ -229,7 +229,44 @@ Used in app as:
 3. Add Vercel domain to Firebase authorized domains
 4. Ensure Firebase security rules allow authenticated user data access
 
-## Recent Changes (October 2025)
+## Recent Changes
+
+### November 17, 2025 - Dashboard Expansion & Body Composition Model
+
+- **Intelligent Body Composition Model** (NEW)
+  - Created `bodyCompositionModel.js` utility with weighted scoring algorithm
+  - Composite score from activity (35%), nutrition (30%), sleep (20%), stress (15%)
+  - Fixed nutrition mapping: poor nutrition now increases avatar width, good nutrition normalizes it
+  - Avatar body shape now reflects combined lifestyle inputs, not just nutrition
+  
+- **Expanded Dashboard Components** (NEW)
+  - `FutureSelfPreview.jsx`: Top banner showing Future Self Score with reactive messaging and subtitle
+  - `ZoneCard.jsx`: Life zone cards for Health, Wealth, Faith, Family, Community, Social Emotional
+  - `DailyInsight.jsx`: Enhanced with 9 prioritized insight variations based on metric combinations
+  - `JourneyMeter.jsx`: Progress bar showing assessment completion and profile status
+  
+- **Zone System** (NEW)
+  - Health zone: Calculated from existing lifestyle metrics
+  - Social Emotional zone: Calculated from stress inverse
+  - Placeholder zones (Wealth, Faith, Family, Community): Set to 48-55 with "Full tracking coming soon"
+  - Trend arrows and color-coded scoring for all zones
+  
+- **Enhanced Daily Insights**
+  - 9 different insight variations prioritized by metric severity
+  - Combinations: high stress, poor sleep + stress, low stress, good sleep + activity, high activity, good nutrition, low activity, poor nutrition
+  - No contradictory messaging, emotionally motivating language
+  
+- **FutureSelfPreview Enhancements**
+  - Added reactive subtitle based on lifestyle score ranges
+  - 80+: "Your direction is strong and consistent"
+  - 60-79: "You're improving and building momentum"
+  - <60: "Your current patterns may be limiting your future potential"
+  
+- **Updated Dashboard Text**
+  - Body Composition description now reads: "Your avatar's body shape reflects your combined lifestyle inputs"
+  - Removed misleading "nutrition = body width" language
+
+### October 2025
 
 - **Upgraded from static HTML to React + Vite SPA**
 - **Replaced blob avatars with SVG-based human-like avatars**
