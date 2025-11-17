@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { calculateBodyComposition, getAvatarBodyWidth } from '../utils/bodyCompositionModel';
 
 export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sleep, stress, images, trendAnalysis, predictions }) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
@@ -11,6 +12,10 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
   console.log('  😴 Sleep:', sleep);
   console.log('  😰 Stress:', stress);
   console.log('  📸 Images:', images ? images.length : 0);
+  
+  // Calculate body composition score
+  const bodyCompositionScore = calculateBodyComposition(activity, nutrition, sleep, stress);
+  console.log('  💪 Body Composition Score:', bodyCompositionScore);
   
   if (images && images.length > 0) {
     console.log('🎨 Avatar updated from uploaded image');
@@ -44,18 +49,12 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
     return activity >= 4 ? 'translateY(-10px)' : activity >= 2 ? 'translateY(0px)' : 'translateY(10px)';
   };
 
-  const getBodyWidth = () => {
-    const base = 120;
-    const nutritionFactor = (nutrition - 3) * 10;
-    return base + nutritionFactor;
-  };
-
   const getEnergyLevel = () => {
     return (activity + nutrition + sleep + (5 - stress)) / 16;
   };
 
   const colors = getAvatarColor();
-  const bodyWidth = getBodyWidth();
+  const bodyWidth = getAvatarBodyWidth(bodyCompositionScore);
   const energyLevel = getEnergyLevel();
 
   const getTrendGlowEffect = () => {
