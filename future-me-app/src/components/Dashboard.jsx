@@ -120,32 +120,38 @@ export default function Dashboard() {
     {
       title: "Health",
       score: Math.round(((liveProfile.activity + liveProfile.nutrition + liveProfile.sleep + (5 - liveProfile.stress)) / 16) * 100),
-      icon: "💪"
+      icon: "💪",
+      isPlaceholder: false
     },
     {
       title: "Wealth",
-      score: liveProfile.wealth || 0,
-      icon: "💰"
+      score: liveProfile.wealth || 52,
+      icon: "💰",
+      isPlaceholder: !liveProfile.wealth
     },
     {
       title: "Faith",
-      score: liveProfile.faith || 0,
-      icon: "✨"
+      score: liveProfile.faith || 48,
+      icon: "✨",
+      isPlaceholder: !liveProfile.faith
     },
     {
       title: "Family",
-      score: liveProfile.family || 0,
-      icon: "👨‍👩‍👧‍👦"
+      score: liveProfile.family || 55,
+      icon: "👨‍👩‍👧‍👦",
+      isPlaceholder: !liveProfile.family
     },
     {
       title: "Community",
-      score: liveProfile.community || 0,
-      icon: "🤝"
+      score: liveProfile.community || 50,
+      icon: "🤝",
+      isPlaceholder: !liveProfile.community
     },
     {
       title: "Social Emotional",
       score: Math.round(((5 - liveProfile.stress) / 5) * 100),
-      icon: "😊"
+      icon: "😊",
+      isPlaceholder: false
     }
   ];
 
@@ -193,6 +199,7 @@ export default function Dashboard() {
                 score={zone.score}
                 icon={zone.icon}
                 index={index}
+                isPlaceholder={zone.isPlaceholder}
               />
             ))}
           </div>
@@ -423,7 +430,7 @@ export default function Dashboard() {
             <ProfileMetric
               icon="💪"
               title="Body Composition"
-              description={`Your avatar's body width reflects nutrition (${liveProfile.nutrition || 3}/5) and posture shows activity level (${liveProfile.activity || 3}/5)`}
+              description="Your avatar's body shape reflects your combined lifestyle inputs: activity, nutrition, sleep, and stress all influence your physical form"
             />
             <ProfileMetric
               icon="🔭"

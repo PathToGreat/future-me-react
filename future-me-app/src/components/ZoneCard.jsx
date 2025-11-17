@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export default function ZoneCard({ title, score, icon, index }) {
+export default function ZoneCard({ title, score, icon, index, isPlaceholder }) {
   const getScoreColor = (score) => {
     if (score >= 70) return "text-green-600 bg-green-50";
     if (score >= 40) return "text-blue-600 bg-blue-50";
@@ -39,6 +39,9 @@ export default function ZoneCard({ title, score, icon, index }) {
                 {getTrendArrow(score)}
               </span>
             </div>
+            {isPlaceholder && (
+              <p className="text-xs text-gray-500 mt-1">Full tracking coming soon</p>
+            )}
           </div>
         </div>
       </div>
