@@ -1,0 +1,50 @@
+I need you to expand the existing dashboard into a more complete “Future Me” experience while keeping all existing authentication, user loading, and Firestore functionality intact.
+Do not break or rewrite anything that already works.
+Only expand the dashboard by adding new UI components and placeholder logic.
+Here is what I need added:
+Future Self Preview Panel
+Place this at the top of the dashboard.
+It should show:
+A circular placeholder image or silhouette.
+A “Future Self Score” number based on the combined lifestyle metrics (use the existing LifestyleScore).
+A short sentence that reacts to the score:
+If 80 or above: “You are trending toward a strong future self.”
+If 60 to 79: “You are making progress but have opportunities for improvement.”
+If below 60: “Your current habits may be impacting your future self.”
+Zone Breakdown Section
+Create six cards in a grid layout for:
+Health
+Wealth
+Faith
+Family
+Community
+Social Emotional Wellness
+Each card should display:
+Title
+A score from the user’s lifestyle metrics. If a metric does not exist yet, use a placeholder number like 0 or “Not Set”.
+A trend arrow based on the score (if score is above average show ↑, if below show ↓).
+A “View Details” button (not functional yet).
+Daily Insight / Future Forecast Tile
+Add a box that displays one sentence based on the user’s lifestyle metrics:
+If stress score is low: “Lower stress is strengthening your future self.”
+If sleep score is weak: “Improving sleep will significantly boost your long term vitality.”
+If activity score is strong: “Your activity levels are contributing to long term health.”
+(Use simple if/else logic for now.)
+Journey Meter
+Add a progress bar that shows:
+Percentage of onboarding completed
+We already know when the user completes their assessment, so use that as a binary 50 percent.
+Add another 50 percent that automatically fills for now so the bar reads 100 percent. This is temporary and will be refined later.
+Clean Component Structure
+Create subcomponent files for:
+FutureSelfPreview.jsx
+ZoneCard.jsx
+DailyInsight.jsx
+JourneyMeter.jsx
+Import and assemble them in Dashboard.jsx.
+Styling
+Match the existing look and feel you already created in the app, using simple clean cards and a consistent layout.
+Do not change any backend logic.
+Keep all imports, Firebase calls, and current functions exactly as they are.
+Only add new UI components and safe derived logic.
+When finished, show me the updated folder structure and each new component file so we can review.
