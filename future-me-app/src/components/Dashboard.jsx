@@ -4,6 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import FutureMeAvatar from "./FutureMeAvatar";
 import ImageUpload from "./ImageUpload";
+import FutureSelfPreview from "./FutureSelfPreview";
+import ZoneCard from "./ZoneCard";
+import DailyInsight from "./DailyInsight";
+import JourneyMeter from "./JourneyMeter";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -112,6 +116,39 @@ export default function Dashboard() {
     navigate("/onboarding");
   };
 
+  const zones = [
+    {
+      title: "Health",
+      score: Math.round(((liveProfile.activity + liveProfile.nutrition + liveProfile.sleep + (5 - liveProfile.stress)) / 16) * 100),
+      icon: "💪"
+    },
+    {
+      title: "Wealth",
+      score: liveProfile.wealth || 0,
+      icon: "💰"
+    },
+    {
+      title: "Faith",
+      score: liveProfile.faith || 0,
+      icon: "✨"
+    },
+    {
+      title: "Family",
+      score: liveProfile.family || 0,
+      icon: "👨‍👩‍👧‍👦"
+    },
+    {
+      title: "Community",
+      score: liveProfile.community || 0,
+      icon: "🤝"
+    },
+    {
+      title: "Social Emotional",
+      score: Math.round(((5 - liveProfile.stress) / 5) * 100),
+      icon: "😊"
+    }
+  ];
+
   return (
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -131,6 +168,33 @@ export default function Dashboard() {
             <button onClick={handleLogout} className="btn-secondary text-sm">
               Logout
             </button>
+          </div>
+        </div>
+
+        <FutureSelfPreview lifestyleScore={liveProfile.lifestyleScore || 50} />
+
+        <div className="grid md:grid-cols-2 gap-6 mt-8">
+          <DailyInsight
+            activity={liveProfile.activity}
+            nutrition={liveProfile.nutrition}
+            sleep={liveProfile.sleep}
+            stress={liveProfile.stress}
+          />
+          <JourneyMeter onboardingCompleted={liveProfile.onboardingCompleted} />
+        </div>
+
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Life Zones</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {zones.map((zone, index) => (
+              <ZoneCard
+                key={zone.title}
+                title={zone.title}
+                score={zone.score}
+                icon={zone.icon}
+                index={index}
+              />
+            ))}
           </div>
         </div>
 
