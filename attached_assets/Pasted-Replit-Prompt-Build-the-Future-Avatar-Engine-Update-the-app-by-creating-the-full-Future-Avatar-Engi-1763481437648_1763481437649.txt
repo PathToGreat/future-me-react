@@ -1,0 +1,63 @@
+Replit Prompt: Build the Future Avatar Engine
+Update the app by creating the full Future Avatar Engine. This will generate a second avatar state that reflects predicted lifestyle outcomes over 30, 90, and 180 days. Implement everything below without removing any existing features or visual designs.
+1. Create a Future Avatar Model
+Use the existing body composition system, but calculate a projected score using the current 30, 90, and 180 day trend data that already exists in the app.
+Projected inputs should use the existing trend functions:
+• activityTrend
+• nutritionTrend
+• sleepTrend
+• stressTrend
+Compute projected values for each period and produce:
+• futureBodyCompositionScore
+• futureAvatarWidth
+• futureAvatarGlow
+• futureAvatarPosture
+• futureAvatarFace (expression intensity based on stress+sleep trends)
+2. Build Future Avatar Rendering
+Create a second avatar component called FutureAvatar:
+• Same style and shape system as the current avatar
+• Uses projected metrics
+• Width driven by futureAvatarWidth
+• Glow driven by lifestyle score projection
+• Expression driven by stress and sleep trend projections
+• Posture driven by activity projection
+Do not replace the current avatar. This is a second state.
+3. Add a Toggle UI
+Add a simple UI switch above the avatar section:
+Options:
+• “Current You”
+• “Future You”
+Default to “Current You”.
+Switching should immediately swap the avatar, the glow effect, the descriptive text, and the small metric labels.
+4. Dashboard Integration
+Place the toggle + future avatar immediately above the current avatar section.
+Order should be:
+• ImageUpload (existing)
+• Toggle: Current You / Future You
+• AvatarContainer (shows one avatar at a time)
+• AvatarMetrics (update dynamically when switched)
+Keep all styling consistent with your card and gradient system.
+5. Add Dynamic Description Text
+Below the avatar, include dynamic explanations:
+For future avatar:
+• “This is your predicted physical trajectory based on your current patterns.”
+• If the future score increases: “You are on track for a stronger, healthier future self.”
+• If the score decreases: “Your current patterns may reduce your future potential.”
+• If the score is flat: “Your future self will reflect your consistency.”
+Use simple conditional logic tied to the 90 day projection.
+6. Do Not Break Existing Systems
+Preserve all current functionality:
+• Authentication
+• Firestore listeners
+• Trends
+• Current avatar logic
+• Daily Insight
+• Journey Meter
+• Zones
+• Wellness score
+Add the future avatar engine as a layer on top of everything.
+7. Final Goal
+When completed, the user should be able to switch between:
+• A real-time avatar based on current habits
+• A projected avatar based on lifestyle trends
+Both avatars should look visually distinct in a realistic, motivating way.
