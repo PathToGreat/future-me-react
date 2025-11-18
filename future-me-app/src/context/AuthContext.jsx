@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
+import { getDefaultLifeZones } from '../utils/lifeZoneEngine';
 
 const AuthContext = createContext({});
 
@@ -65,11 +66,15 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (email, password) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const defaultZones = getDefaultLifeZones();
+    
     await setDoc(doc(db, 'users', userCredential.user.uid), {
       email: userCredential.user.email,
       createdAt: new Date().toISOString(),
       onboardingCompleted: false,
+      lifeZones: defaultZones,
     });
+    console.log('✅ User created with default Life Zones');
     return userCredential;
   };
 

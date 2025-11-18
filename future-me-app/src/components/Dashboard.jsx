@@ -131,42 +131,51 @@ export default function Dashboard() {
     navigate("/onboarding");
   };
 
+  // Get Life Zones from profile data
+  const lifeZones = liveProfile.lifeZones || {};
+  
   const zones = [
     {
       title: "Health",
-      score: Math.round(((liveProfile.activity + liveProfile.nutrition + liveProfile.sleep + (5 - liveProfile.stress)) / 16) * 100),
+      score: lifeZones.health?.score || 50,
       icon: "💪",
-      isPlaceholder: false
+      details: lifeZones.health?.details,
+      isPlaceholder: !lifeZones.health
     },
     {
       title: "Wealth",
-      score: liveProfile.wealth || 52,
+      score: lifeZones.wealth?.score || 50,
       icon: "💰",
-      isPlaceholder: !liveProfile.wealth
+      details: lifeZones.wealth?.details,
+      isPlaceholder: !lifeZones.wealth
     },
     {
       title: "Faith",
-      score: liveProfile.faith || 48,
+      score: lifeZones.faith?.score || 50,
       icon: "✨",
-      isPlaceholder: !liveProfile.faith
+      details: lifeZones.faith?.details,
+      isPlaceholder: !lifeZones.faith
     },
     {
       title: "Family",
-      score: liveProfile.family || 55,
+      score: lifeZones.family?.score || 50,
       icon: "👨‍👩‍👧‍👦",
-      isPlaceholder: !liveProfile.family
+      details: lifeZones.family?.details,
+      isPlaceholder: !lifeZones.family
     },
     {
       title: "Community",
-      score: liveProfile.community || 50,
+      score: lifeZones.community?.score || 50,
       icon: "🤝",
-      isPlaceholder: !liveProfile.community
+      details: lifeZones.community?.details,
+      isPlaceholder: !lifeZones.community
     },
     {
       title: "Social Emotional",
-      score: Math.round(((5 - liveProfile.stress) / 5) * 100),
+      score: lifeZones.socialEmotional?.score || 50,
       icon: "😊",
-      isPlaceholder: false
+      details: lifeZones.socialEmotional?.details,
+      isPlaceholder: !lifeZones.socialEmotional
     }
   ];
 
@@ -192,7 +201,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <FutureSelfPreview lifestyleScore={liveProfile.lifestyleScore || 50} />
+        <FutureSelfPreview 
+          lifestyleScore={liveProfile.lifestyleScore || 50} 
+          lifeZones={liveProfile.lifeZones}
+        />
 
         {/* Log Today's Metrics Button */}
         <motion.div

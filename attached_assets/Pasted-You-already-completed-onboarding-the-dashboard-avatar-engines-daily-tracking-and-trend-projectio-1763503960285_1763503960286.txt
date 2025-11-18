@@ -1,0 +1,40 @@
+You already completed onboarding, the dashboard, avatar engines, daily tracking, and trend projections.
+Now expand the system by implementing full Life Zone Tracking and Scoring across all six categories. At the moment only Health and Social Emotional use real data. All six must now become dynamic, data driven, and recalculated daily.
+Goal
+Create a complete Life Zone scoring system covering:
+Health
+Wealth
+Faith
+Family
+Community
+Social Emotional Wellness
+These scores must be stored, update automatically, power the dashboard display, and influence future avatar logic.
+Required Capabilities
+Life Zone Data Storage
+Each user needs a persistent data structure that stores:
+• A numeric score for each of the six zones
+• A details object for each zone that can store submetrics
+• Initial default values for new accounts should be balanced starting points
+Life Zone Calculation Engine
+Build a calculation system that produces updated scores and detail objects for all six zones. The engine should take into account the user’s existing daily data, trends, and consistency.
+Use these starting rules for scoring logic:
+Health: Existing wellness score plus sleep, activity, and nutrition trend direction
+Social Emotional: Stress values, logging consistency, and stress trend slope
+Wealth: Logging consistency multiplied by a fixed factor, capped at a maximum
+Faith: Daily consistency with bonus for streaks
+Family: Combinations of stress and sleep trend directions
+Community: Consistency and average stress values
+All scores must fall between 0 and 100
+All zones must output both a score and a details object
+Daily Recalculation
+Every time the user logs daily data, the system should recalculate all six zones and update the user’s stored Life Zone values.
+Dashboard Integration
+The Life Zones section of the dashboard must switch from placeholders to live values from the user’s stored Life Zone data.
+Display score, the zone name, and a simple interpretation tier such as strong, developing, or needs attention.
+Include smooth updates when values change.
+Future Avatar Integration
+Future avatar preview text should respond to zone trends with simple descriptive statements based on whether zones are improving or worsening.
+System Stability
+Do not change onboarding, the avatar engine, daily tracking flows, or any existing dashboard structure. All new functionality must extend the system without breaking what already works.
+Output Requirement
+After completing the above, produce a clear summary of what was added, how the system now behaves, and anything the user needs to be aware of for future expansion.

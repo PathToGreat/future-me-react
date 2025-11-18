@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAuth } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
+import { getMetricTrend } from '../utils/analyzeTrends';
 
 const DailyTracking = ({ onClose, onSave }) => {
   const [metrics, setMetrics] = useState({
@@ -81,27 +83,58 @@ const DailyTracking = ({ onClose, onSave }) => {
       // Calculate lifestyle score from metrics
       const lifestyleScore = ((metrics.activity + metrics.nutrition + metrics.sleep + (5 - metrics.stress)) / 16) * 100;
 
-      // Save to dailyData collection
+      // Save to dailyData collection with server timestamp
       const dailyDataRef = doc(db, 'users', user.uid, 'dailyData', today);
       await setDoc(dailyDataRef, {
         sleep: metrics.sleep,
         activity: metrics.activity,
         nutrition: metrics.nutrition,
         stress: metrics.stress,
+        date: today,
         timestamp: serverTimestamp(),
       });
 
-      // Also update main user profile so Dashboard refreshes immediately
-      const userProfileRef = doc(db, 'users', user.uid);
-      await setDoc(userProfileRef, {
+      // IMPORTANT: Re-fetch history AFTER the write completes to get proper timestamps
+      // This ensures data is sorted correctly and avoids NaN trend calculations
+      const historyRef = collection(db, 'users', user.uid, 'dailyData');
+      const historyQuery = query(historyRef, orderBy('date', 'desc'), limit(30));
+      const historySnapshot = await getDocs(historyQuery);
+      
+      const historyData = historySnapshot.docs.map(doc => ({
+        date: doc.id,
+        ...doc.data()
+      })).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      // Calculate trend analysis for each metric (only if we have enough history)
+      const trendAnalysis = historyData.length >= 2 ? {
+        sleepTrend: getMetricTrend(historyData, 'sleep').change,
+        activityTrend: getMetricTrend(historyData, 'activity').change,
+        nutritionTrend: getMetricTrend(historyData, 'nutrition').change,
+        stressTrend: getMetricTrend(historyData, 'stress').change,
+        trendSlope: 0 // Overall trend slope can be calculated if needed
+      } : null;
+
+      // Create updated profile with new metrics
+      const updatedProfile = {
         sleep: metrics.sleep,
         activity: metrics.activity,
         nutrition: metrics.nutrition,
         stress: metrics.stress,
         lifestyleScore: lifestyleScore,
+      };
+
+      // Calculate all Life Zones with updated data
+      const lifeZones = calculateAllLifeZones(updatedProfile, trendAnalysis, historyData);
+
+      // Update main user profile with metrics and Life Zones
+      const userProfileRef = doc(db, 'users', user.uid);
+      await setDoc(userProfileRef, {
+        ...updatedProfile,
+        lifeZones: lifeZones,
       }, { merge: true });
 
       console.log('✅ Saved daily metrics and updated profile - lifestyleScore:', lifestyleScore.toFixed(1));
+      console.log('🎯 Life Zones recalculated and saved');
 
       setShowSuccess(true);
       setTimeout(() => {

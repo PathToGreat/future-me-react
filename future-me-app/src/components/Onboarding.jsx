@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
 
 export default function Onboarding() {
   const { user, updateUserProfile } = useAuth();
@@ -29,12 +30,22 @@ export default function Onboarding() {
       const avatarState = lifestyleScore >= 75 ? 'vibrant' : lifestyleScore >= 50 ? 'stable' : 'weary';
       console.log('🎨 Avatar state:', avatarState);
       
+      // Calculate initial Life Zones based on onboarding data
+      const profileForZones = {
+        ...formData,
+        lifestyleScore,
+      };
+      
+      const initialZones = calculateAllLifeZones(profileForZones, null, []);
+      console.log('🎯 Initial Life Zones calculated:', initialZones);
+      
       const dataToSave = {
         ...formData,
         lifestyleScore,
         avatarState,
         onboardingCompleted: true,
         completedAt: new Date().toISOString(),
+        lifeZones: initialZones,
       };
       
       console.log('💾 Attempting to save user profile...', dataToSave);

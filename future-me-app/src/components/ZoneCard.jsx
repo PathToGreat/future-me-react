@@ -1,23 +1,31 @@
 import { motion } from 'framer-motion';
 
-export default function ZoneCard({ title, score, icon, index, isPlaceholder }) {
+export default function ZoneCard({ title, score, icon, index, details }) {
   const getScoreColor = (score) => {
-    if (score >= 70) return "text-green-600 bg-green-50";
-    if (score >= 40) return "text-blue-600 bg-blue-50";
+    if (score >= 75) return "text-green-600 bg-green-50";
+    if (score >= 50) return "text-blue-600 bg-blue-50";
     return "text-orange-600 bg-orange-50";
   };
 
   const getTrendArrow = (score) => {
-    if (score >= 70) return "↑";
-    if (score <= 40) return "↓";
+    if (score >= 75) return "↑";
+    if (score <= 50) return "↓";
     return "→";
   };
 
   const getTrendColor = (score) => {
-    if (score >= 70) return "text-green-600";
-    if (score <= 40) return "text-red-600";
-    return "text-gray-600";
+    if (score >= 75) return "text-green-600";
+    if (score <= 50) return "text-orange-600";
+    return "text-blue-600";
   };
+
+  const getInterpretationColor = (interpretation) => {
+    if (interpretation === 'strong') return "text-green-600 bg-green-50";
+    if (interpretation === 'developing') return "text-blue-600 bg-blue-50";
+    return "text-orange-600 bg-orange-50";
+  };
+
+  const interpretation = details?.interpretation || 'developing';
 
   return (
     <motion.div
@@ -39,9 +47,9 @@ export default function ZoneCard({ title, score, icon, index, isPlaceholder }) {
                 {getTrendArrow(score)}
               </span>
             </div>
-            {isPlaceholder && (
-              <p className="text-xs text-gray-500 mt-1">Full tracking coming soon</p>
-            )}
+            <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mt-1 ${getInterpretationColor(interpretation)}`}>
+              {interpretation}
+            </span>
           </div>
         </div>
       </div>

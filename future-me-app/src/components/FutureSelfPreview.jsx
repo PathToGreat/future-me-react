@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export default function FutureSelfPreview({ lifestyleScore }) {
+export default function FutureSelfPreview({ lifestyleScore, lifeZones }) {
   const getMessage = (score) => {
     if (score >= 80) {
       return "You are trending toward a strong future self.";
@@ -19,6 +19,41 @@ export default function FutureSelfPreview({ lifestyleScore }) {
     } else {
       return "Your current patterns may be limiting your future potential.";
     }
+  };
+
+  const getZoneTrendMessage = () => {
+    if (!lifeZones) return null;
+    
+    const zoneNames = {
+      health: 'Health',
+      socialEmotional: 'Social Emotional',
+      wealth: 'Wealth',
+      faith: 'Faith',
+      family: 'Family',
+      community: 'Community'
+    };
+    
+    const strongZones = [];
+    const developingZones = [];
+    
+    Object.keys(zoneNames).forEach(key => {
+      const zone = lifeZones[key];
+      if (zone) {
+        if (zone.score >= 75) {
+          strongZones.push(zoneNames[key]);
+        } else if (zone.score < 50) {
+          developingZones.push(zoneNames[key]);
+        }
+      }
+    });
+    
+    if (strongZones.length > 0) {
+      return `Your ${strongZones.join(', ')} ${strongZones.length === 1 ? 'zone is' : 'zones are'} flourishing.`;
+    } else if (developingZones.length > 0) {
+      return `Focus on strengthening your ${developingZones.join(', ')} ${developingZones.length === 1 ? 'zone' : 'zones'}.`;
+    }
+    
+    return "All zones show balanced progress.";
   };
 
   const getScoreColor = (score) => {
@@ -67,9 +102,14 @@ export default function FutureSelfPreview({ lifestyleScore }) {
           <p className="text-sm text-gray-500 italic mb-2">
             {getSubtitle(lifestyleScore)}
           </p>
-          <p className="text-gray-700 text-base">
+          <p className="text-gray-700 text-base mb-2">
             {getMessage(lifestyleScore)}
           </p>
+          {lifeZones && (
+            <p className="text-sm text-blue-600 font-medium">
+              {getZoneTrendMessage()}
+            </p>
+          )}
         </div>
       </div>
     </motion.div>
