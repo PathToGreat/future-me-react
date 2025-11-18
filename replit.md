@@ -29,7 +29,7 @@ The frontend is built with **React 18.3** and **Vite 7.1.9**, utilizing **Tailwi
 - **Future Avatar Engine:** Projects lifestyle metrics and avatar appearance 90 days into the future based on user trends, displayed via a toggleable second avatar state.
 - **Daily Tracking System:** Allows users to log daily metrics (sleep, activity, nutrition, stress) with real-time dashboard updates.
 - **Dashboard Visualization:** Displays the current and future avatar, metric bars, wellness score, health goals, and educational insights.
-- **Life Zone System:** Tracks and displays progress in various life zones (Health, Social Emotional, with placeholders for Wealth, Faith, Family, Community).
+- **Life Zone System:** Comprehensive scoring across 6 life categories (Health, Wealth, Faith, Family, Community, Social Emotional) with real-time calculation and dynamic status feedback. Each zone has custom scoring algorithms and updates automatically when metrics are logged.
 
 ### Backend & Data Architecture
 
@@ -38,6 +38,7 @@ The frontend is built with **React 18.3** and **Vite 7.1.9**, utilizing **Tailwi
 **Data Schema Highlights:**
 - User profiles are stored at `/users/{userId}`, containing personal information, onboarding status, and current lifestyle metrics.
 - Daily tracking data is stored in a subcollection `/users/{userId}/dailyData/{yyyy-mm-dd}`, capturing daily ratings for sleep, activity, nutrition, and stress.
+- Life zone scores are stored at `/users/{userId}/lifeZones`, containing scores and details for all 6 life categories with automatic recalculation on metric updates.
 
 ### Development Environment
 
