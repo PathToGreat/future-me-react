@@ -1,0 +1,117 @@
+Now build the next major feature: Full Life Zone Tracking and Scoring for all 6 categories.
+We will upgrade the placeholder Life Zones into a full scoring and logic system. The six zones are:
+Health
+Wealth
+Faith
+Family
+Community
+Social Emotional Wellness
+At the moment only Health and Social Emotional pull from real data.
+The others are static placeholders.
+Now we want all six zones to be real, dynamic, and data driven.
+1. Create New Firestore Schema for Life Zones
+Add a new document under each user:
+/users/{uid}/lifeZones
+Fields will be:
+health: number
+wealth: number
+faith: number
+family: number
+community: number
+socialEmotional: number
+
+healthDetails: object
+wealthDetails: object
+faithDetails: object
+familyDetails: object
+communityDetails: object
+socialEmotionalDetails: object
+The details objects will store submetrics that can expand later.
+Initialize default values at account creation:
+All scores = 50
+All detail objects empty {}
+Use merge: true if doc exists.
+2. Create Zone Calculation Engine
+Create a file:
+utils/lifeZoneCalculator.js
+Inside, export a function calculateLifeZones(userMetrics, trends, dailyData) that returns:
+{
+  health: number,
+  wealth: number,
+  faith: number,
+  family: number,
+  community: number,
+  socialEmotional: number,
+  healthDetails: {...},
+  wealthDetails: {...},
+  faithDetails: {...},
+  familyDetails: {...},
+  communityDetails: {...},
+  socialEmotionalDetails: {...}
+}
+Use the following first version scoring rules:
+Health
+Use your existing wellness score.
+Also incorporate sleep + activity + nutrition trend direction.
+Return 0–100.
+Social Emotional Wellness
+Use stress, consistency of logging, and the trend slope for stress.
+Return 0–100.
+Wealth
+Use a simple placeholder formula for now:
+Trend consistency (how many days in a row the user logs) multiplied by 2, capped at 100.
+We will expand later with money inputs.
+Faith
+Use daily consistency as the base.
+If user logs metrics 4+ days in a row, increase by 10.
+Cap at 100.
+Family
+Use a simple placeholder formula:
+If stress is improving AND sleep improving, add 20.
+If stress worsening AND sleep worsening, subtract 20.
+Clamp 0–100.
+Community
+Use consistency plus average stress.
+Lower stress = higher community score.
+Higher stress = lower community score.
+Clamp 0–100.
+The key is that each zone produces real, dynamic numbers and can be expanded later.
+3. Recalculate Zones Daily
+Every time the user logs dailyData, recalc life zones.
+After saving today’s metrics:
+Call lifeZoneCalculator
+Write results to
+/users/{uid}/lifeZones
+with merge: true
+Update dashboard UI
+4. Update Dashboard UI to Display Real Zone Scores
+Open the component that renders the Life Zones grid (previously placeholders).
+Replace static numbers with live values:
+Pull from /users/{uid}/lifeZones.
+Display:
+• Zone name
+• Score out of 100
+• Color coded feedback
+• Subtitle that updates dynamically:
+80+: strong
+60–79: developing
+below 60: needs attention
+Add smooth animations when scores change.
+5. Future Avatar Integration
+Update the future avatar logic so that zone trends influence the future preview text.
+Example:
+If health increasing → future avatar text adds: “Your health trajectory is improving.”
+If social emotional declining → add: “Your emotional stress trend is holding you back.”
+Keep this simple for now with if/else logic.
+6. No breaking changes
+Do not modify the existing onboarding, avatar engines, daily tracking, or dashboard structure.
+Only extend functionality by adding the life zone score system.
+Deliverables
+lifeZoneCalculator.js (full logic)
+New Firestore document for life zones
+Updates to daily logging write logic
+Updated dashboard Life Zone components
+Future avatar text enhancements
+Updated replit.md documentation
+Confirm that everything builds with no LSP errors.
+When finished, return a summary of exactly what was built.
