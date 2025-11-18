@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -157,6 +157,16 @@ export default function Dashboard() {
   const handleRetake = () => {
     navigate("/onboarding");
   };
+
+  // Compute future avatar description once and reuse
+  const futureAvatarDesc = useMemo(() => {
+    if (!futureMetrics || !liveProfile) return null;
+    return getFutureAvatarDescription(
+      liveProfile.lifestyleScore,
+      futureMetrics.lifestyleScore,
+      lifeZones
+    );
+  }, [liveProfile?.lifestyleScore, futureMetrics?.lifestyleScore, lifeZones]);
 
   const zones = [
     {
@@ -389,19 +399,19 @@ export default function Dashboard() {
                     Your avatar reflects your activity, nutrition, sleep, and stress levels in real-time.
                   </p>
                 </div>
-              ) : futureMetrics ? (
+              ) : futureAvatarDesc ? (
                 <div>
                   <p className="text-sm text-gray-700 font-medium mb-2">
-                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore, lifeZones).primary}
+                    {futureAvatarDesc.primary}
                   </p>
                   <p className={`text-xs ${
-                    getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore, lifeZones).tone === 'positive'
+                    futureAvatarDesc.tone === 'positive'
                       ? 'text-green-600 font-semibold'
-                      : getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore, lifeZones).tone === 'warning'
+                      : futureAvatarDesc.tone === 'warning'
                       ? 'text-orange-600 font-semibold'
                       : 'text-gray-600'
                   }`}>
-                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore, lifeZones).secondary}
+                    {futureAvatarDesc.secondary}
                   </p>
                 </div>
               ) : (
