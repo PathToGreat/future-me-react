@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAuth } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp, collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { calculateLifeZones } from '../utils/lifeZoneCalculator';
-import { analyzeTrends } from '../utils/analyzeTrends';
 
 const DailyTracking = ({ onClose, onSave }) => {
   const [metrics, setMetrics] = useState({
@@ -105,9 +103,6 @@ const DailyTracking = ({ onClose, onSave }) => {
 
       console.log('✅ Saved daily metrics and updated profile - lifestyleScore:', lifestyleScore.toFixed(1));
 
-      // Recalculate and save life zones
-      await recalculateLifeZones(user.uid, metrics, lifestyleScore);
-
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
@@ -119,55 +114,6 @@ const DailyTracking = ({ onClose, onSave }) => {
       alert('Failed to save data. Please try again.');
     } finally {
       setSaving(false);
-    }
-  };
-
-  const recalculateLifeZones = async (userId, currentMetrics, lifestyleScore) => {
-    try {
-      // Fetch recent daily data for trend analysis
-      const dailyDataRef = collection(db, 'users', userId, 'dailyData');
-      const dailyDataQuery = query(dailyDataRef, orderBy('timestamp', 'desc'), limit(30));
-      const snapshot = await getDocs(dailyDataQuery);
-      
-      const dailyData = [];
-      snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        dailyData.push({
-          id: docSnap.id,
-          date: docSnap.id,
-          activity: data.activity,
-          nutrition: data.nutrition,
-          sleep: data.sleep,
-          stress: data.stress,
-          lifestyleScore: ((data.activity + data.nutrition + data.sleep + (5 - data.stress)) / 16) * 100
-        });
-      });
-
-      // Analyze trends
-      const trends = analyzeTrends(dailyData);
-
-      // Calculate life zones
-      const userMetrics = {
-        activity: currentMetrics.activity,
-        nutrition: currentMetrics.nutrition,
-        sleep: currentMetrics.sleep,
-        stress: currentMetrics.stress,
-        lifestyleScore: lifestyleScore
-      };
-
-      const lifeZones = calculateLifeZones(userMetrics, trends, dailyData);
-
-      // Save to lifeZones document
-      const lifeZonesRef = doc(db, 'users', userId, 'lifeZones', 'current');
-      await setDoc(lifeZonesRef, {
-        ...lifeZones,
-        lastUpdated: new Date().toISOString()
-      }, { merge: true });
-
-      console.log('🎯 Life zones recalculated and saved:', lifeZones);
-    } catch (error) {
-      console.error('Error recalculating life zones:', error);
-      // Don't throw - life zones are supplementary data
     }
   };
 

@@ -65,32 +65,11 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (email, password) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    
-    // Create main user document
     await setDoc(doc(db, 'users', userCredential.user.uid), {
       email: userCredential.user.email,
       createdAt: new Date().toISOString(),
       onboardingCompleted: false,
     });
-    
-    // Initialize life zones document with default values
-    await setDoc(doc(db, 'users', userCredential.user.uid, 'lifeZones', 'current'), {
-      health: 50,
-      wealth: 50,
-      faith: 50,
-      family: 50,
-      community: 50,
-      socialEmotional: 50,
-      healthDetails: {},
-      wealthDetails: {},
-      faithDetails: {},
-      familyDetails: {},
-      communityDetails: {},
-      socialEmotionalDetails: {},
-      lastUpdated: new Date().toISOString()
-    });
-    
-    console.log('✅ User account created with default life zones');
     return userCredential;
   };
 

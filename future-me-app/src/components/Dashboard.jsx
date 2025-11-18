@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -25,7 +25,6 @@ export default function Dashboard() {
   const [showFutureAvatar, setShowFutureAvatar] = useState(false);
   const [futureMetrics, setFutureMetrics] = useState(null);
   const [showDailyTracking, setShowDailyTracking] = useState(false);
-  const [lifeZones, setLifeZones] = useState(null);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -67,32 +66,6 @@ export default function Dashboard() {
       },
       (error) => {
         console.error("❌ Firebase listener error:", error);
-      },
-    );
-
-    return () => unsubscribe();
-  }, [user]);
-
-  // Real-time listener for life zones
-  useEffect(() => {
-    if (!user) return;
-
-    const lifeZonesRef = doc(db, "users", user.uid, "lifeZones", "current");
-
-    const unsubscribe = onSnapshot(
-      lifeZonesRef,
-      (docSnapshot) => {
-        if (docSnapshot.exists()) {
-          const data = docSnapshot.data();
-          setLifeZones(data);
-          console.log("🎯 Life zones updated:", data);
-        } else {
-          console.log("⚠️ No life zones document found - using defaults");
-          setLifeZones(null);
-        }
-      },
-      (error) => {
-        console.error("❌ Life zones listener error:", error);
       },
     );
 
@@ -158,58 +131,42 @@ export default function Dashboard() {
     navigate("/onboarding");
   };
 
-  // Compute future avatar description once and reuse
-  const futureAvatarDesc = useMemo(() => {
-    if (!futureMetrics || !liveProfile) return null;
-    return getFutureAvatarDescription(
-      liveProfile.lifestyleScore,
-      futureMetrics.lifestyleScore,
-      lifeZones
-    );
-  }, [liveProfile?.lifestyleScore, futureMetrics?.lifestyleScore, lifeZones]);
-
   const zones = [
     {
       title: "Health",
-      score: lifeZones?.health || Math.round(((liveProfile.activity + liveProfile.nutrition + liveProfile.sleep + (5 - liveProfile.stress)) / 16) * 100),
+      score: Math.round(((liveProfile.activity + liveProfile.nutrition + liveProfile.sleep + (5 - liveProfile.stress)) / 16) * 100),
       icon: "💪",
-      isPlaceholder: false,
-      details: lifeZones?.healthDetails || {}
+      isPlaceholder: false
     },
     {
       title: "Wealth",
-      score: lifeZones?.wealth || 50,
+      score: liveProfile.wealth || 52,
       icon: "💰",
-      isPlaceholder: !lifeZones?.wealth,
-      details: lifeZones?.wealthDetails || {}
+      isPlaceholder: !liveProfile.wealth
     },
     {
       title: "Faith",
-      score: lifeZones?.faith || 50,
+      score: liveProfile.faith || 48,
       icon: "✨",
-      isPlaceholder: !lifeZones?.faith,
-      details: lifeZones?.faithDetails || {}
+      isPlaceholder: !liveProfile.faith
     },
     {
       title: "Family",
-      score: lifeZones?.family || 50,
+      score: liveProfile.family || 55,
       icon: "👨‍👩‍👧‍👦",
-      isPlaceholder: !lifeZones?.family,
-      details: lifeZones?.familyDetails || {}
+      isPlaceholder: !liveProfile.family
     },
     {
       title: "Community",
-      score: lifeZones?.community || 50,
+      score: liveProfile.community || 50,
       icon: "🤝",
-      isPlaceholder: !lifeZones?.community,
-      details: lifeZones?.communityDetails || {}
+      isPlaceholder: !liveProfile.community
     },
     {
       title: "Social Emotional",
-      score: lifeZones?.socialEmotional || Math.round(((5 - liveProfile.stress) / 5) * 100),
+      score: Math.round(((5 - liveProfile.stress) / 5) * 100),
       icon: "😊",
-      isPlaceholder: false,
-      details: lifeZones?.socialEmotionalDetails || {}
+      isPlaceholder: false
     }
   ];
 
@@ -295,7 +252,6 @@ export default function Dashboard() {
                 icon={zone.icon}
                 index={index}
                 isPlaceholder={zone.isPlaceholder}
-                details={zone.details}
               />
             ))}
           </div>
@@ -399,19 +355,19 @@ export default function Dashboard() {
                     Your avatar reflects your activity, nutrition, sleep, and stress levels in real-time.
                   </p>
                 </div>
-              ) : futureAvatarDesc ? (
+              ) : futureMetrics ? (
                 <div>
                   <p className="text-sm text-gray-700 font-medium mb-2">
-                    {futureAvatarDesc.primary}
+                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).primary}
                   </p>
                   <p className={`text-xs ${
-                    futureAvatarDesc.tone === 'positive'
+                    getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).tone === 'positive'
                       ? 'text-green-600 font-semibold'
-                      : futureAvatarDesc.tone === 'warning'
+                      : getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).tone === 'warning'
                       ? 'text-orange-600 font-semibold'
                       : 'text-gray-600'
                   }`}>
-                    {futureAvatarDesc.secondary}
+                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).secondary}
                   </p>
                 </div>
               ) : (

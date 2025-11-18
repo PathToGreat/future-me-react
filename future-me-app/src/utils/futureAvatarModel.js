@@ -67,63 +67,30 @@ export function projectFutureMetrics(currentProfile, historyData, predictions, t
 }
 
 /**
- * Get dynamic description for future avatar based on trajectory and life zones
+ * Get dynamic description for future avatar based on trajectory
  */
-export function getFutureAvatarDescription(currentScore, futureScore, lifeZones = null) {
+export function getFutureAvatarDescription(currentScore, futureScore) {
   const scoreDiff = futureScore - currentScore;
   
-  // Base description
-  let primary = "This is your predicted physical trajectory based on your current patterns.";
-  let secondary = "";
-  let tone = "neutral";
-  
-  // Determine base trajectory
   if (scoreDiff > 5) {
-    secondary = "You are on track for a stronger, healthier future self.";
-    tone = "positive";
+    return {
+      primary: "This is your predicted physical trajectory based on your current patterns.",
+      secondary: "You are on track for a stronger, healthier future self.",
+      tone: "positive"
+    };
   } else if (scoreDiff < -5) {
-    secondary = "Your current patterns may reduce your future potential.";
-    tone = "warning";
+    return {
+      primary: "This is your predicted physical trajectory based on your current patterns.",
+      secondary: "Your current patterns may reduce your future potential.",
+      tone: "warning"
+    };
   } else {
-    secondary = "Your future self will reflect your consistency.";
-    tone = "neutral";
+    return {
+      primary: "This is your predicted physical trajectory based on your current patterns.",
+      secondary: "Your future self will reflect your consistency.",
+      tone: "neutral"
+    };
   }
-  
-  // Enhance with life zone insights if available
-  if (lifeZones) {
-    const zoneInsights = [];
-    
-    // Health zone insight
-    if (lifeZones.health >= 80) {
-      zoneInsights.push("Your health trajectory is improving.");
-    } else if (lifeZones.health < 60) {
-      zoneInsights.push("Consider strengthening your health habits.");
-    }
-    
-    // Social emotional insight
-    if (lifeZones.socialEmotional < 60) {
-      zoneInsights.push("Your emotional stress trend is holding you back.");
-    } else if (lifeZones.socialEmotional >= 80) {
-      zoneInsights.push("Your emotional wellness supports your growth.");
-    }
-    
-    // Faith zone insight (consistency-driven)
-    if (lifeZones.faithDetails?.consecutiveDays >= 7) {
-      zoneInsights.push("Your consistency builds a strong foundation.");
-    }
-    
-    // Family zone insight
-    if (lifeZones.familyDetails?.balance === 'strong') {
-      zoneInsights.push("Your work-life balance strengthens your future.");
-    }
-    
-    // Add zone insights to secondary message if any exist
-    if (zoneInsights.length > 0) {
-      secondary += " " + zoneInsights[0]; // Add most relevant insight
-    }
-  }
-  
-  return { primary, secondary, tone };
 }
 
 /**
