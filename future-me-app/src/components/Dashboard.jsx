@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [showFutureAvatar, setShowFutureAvatar] = useState(false);
   const [futureMetrics, setFutureMetrics] = useState(null);
   const [showDailyTracking, setShowDailyTracking] = useState(false);
+  const [lifeZones, setLifeZones] = useState(null);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -66,6 +67,32 @@ export default function Dashboard() {
       },
       (error) => {
         console.error("❌ Firebase listener error:", error);
+      },
+    );
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Real-time listener for life zones
+  useEffect(() => {
+    if (!user) return;
+
+    const lifeZonesRef = doc(db, "users", user.uid, "lifeZones", "current");
+
+    const unsubscribe = onSnapshot(
+      lifeZonesRef,
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+          setLifeZones(data);
+          console.log("🎯 Life zones updated:", data);
+        } else {
+          console.log("⚠️ No life zones document found - using defaults");
+          setLifeZones(null);
+        }
+      },
+      (error) => {
+        console.error("❌ Life zones listener error:", error);
       },
     );
 
@@ -134,39 +161,45 @@ export default function Dashboard() {
   const zones = [
     {
       title: "Health",
-      score: Math.round(((liveProfile.activity + liveProfile.nutrition + liveProfile.sleep + (5 - liveProfile.stress)) / 16) * 100),
+      score: lifeZones?.health || Math.round(((liveProfile.activity + liveProfile.nutrition + liveProfile.sleep + (5 - liveProfile.stress)) / 16) * 100),
       icon: "💪",
-      isPlaceholder: false
+      isPlaceholder: false,
+      details: lifeZones?.healthDetails || {}
     },
     {
       title: "Wealth",
-      score: liveProfile.wealth || 52,
+      score: lifeZones?.wealth || 50,
       icon: "💰",
-      isPlaceholder: !liveProfile.wealth
+      isPlaceholder: !lifeZones?.wealth,
+      details: lifeZones?.wealthDetails || {}
     },
     {
       title: "Faith",
-      score: liveProfile.faith || 48,
+      score: lifeZones?.faith || 50,
       icon: "✨",
-      isPlaceholder: !liveProfile.faith
+      isPlaceholder: !lifeZones?.faith,
+      details: lifeZones?.faithDetails || {}
     },
     {
       title: "Family",
-      score: liveProfile.family || 55,
+      score: lifeZones?.family || 50,
       icon: "👨‍👩‍👧‍👦",
-      isPlaceholder: !liveProfile.family
+      isPlaceholder: !lifeZones?.family,
+      details: lifeZones?.familyDetails || {}
     },
     {
       title: "Community",
-      score: liveProfile.community || 50,
+      score: lifeZones?.community || 50,
       icon: "🤝",
-      isPlaceholder: !liveProfile.community
+      isPlaceholder: !lifeZones?.community,
+      details: lifeZones?.communityDetails || {}
     },
     {
       title: "Social Emotional",
-      score: Math.round(((5 - liveProfile.stress) / 5) * 100),
+      score: lifeZones?.socialEmotional || Math.round(((5 - liveProfile.stress) / 5) * 100),
       icon: "😊",
-      isPlaceholder: false
+      isPlaceholder: false,
+      details: lifeZones?.socialEmotionalDetails || {}
     }
   ];
 
@@ -252,6 +285,7 @@ export default function Dashboard() {
                 icon={zone.icon}
                 index={index}
                 isPlaceholder={zone.isPlaceholder}
+                details={zone.details}
               />
             ))}
           </div>
@@ -358,16 +392,16 @@ export default function Dashboard() {
               ) : futureMetrics ? (
                 <div>
                   <p className="text-sm text-gray-700 font-medium mb-2">
-                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).primary}
+                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore, lifeZones).primary}
                   </p>
                   <p className={`text-xs ${
-                    getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).tone === 'positive'
+                    getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore, lifeZones).tone === 'positive'
                       ? 'text-green-600 font-semibold'
-                      : getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).tone === 'warning'
+                      : getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore, lifeZones).tone === 'warning'
                       ? 'text-orange-600 font-semibold'
                       : 'text-gray-600'
                   }`}>
-                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).secondary}
+                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore, lifeZones).secondary}
                   </p>
                 </div>
               ) : (
