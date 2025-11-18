@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import FutureMeAvatar from "./FutureMeAvatar";
@@ -9,6 +9,7 @@ import FutureSelfPreview from "./FutureSelfPreview";
 import ZoneCard from "./ZoneCard";
 import DailyInsight from "./DailyInsight";
 import JourneyMeter from "./JourneyMeter";
+import DailyTracking from "./DailyTracking";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const [predictions, setPredictions] = useState(null);
   const [showFutureAvatar, setShowFutureAvatar] = useState(false);
   const [futureMetrics, setFutureMetrics] = useState(null);
+  const [showDailyTracking, setShowDailyTracking] = useState(false);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -191,6 +193,43 @@ export default function Dashboard() {
         </div>
 
         <FutureSelfPreview lifestyleScore={liveProfile.lifestyleScore || 50} />
+
+        {/* Log Today's Metrics Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mt-6"
+        >
+          {!showDailyTracking && (
+            <button
+              onClick={() => setShowDailyTracking(true)}
+              className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2"
+            >
+              <span className="text-2xl">📊</span>
+              <span>Log Today's Metrics</span>
+            </button>
+          )}
+        </motion.div>
+
+        {/* Daily Tracking Modal/Card */}
+        <AnimatePresence>
+          {showDailyTracking && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="mt-6"
+            >
+              <DailyTracking
+                onClose={() => setShowDailyTracking(false)}
+                onSave={() => {
+                  console.log("✅ Daily metrics saved, dashboard will auto-refresh via Firebase listeners");
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="grid md:grid-cols-2 gap-6 mt-8">
           <DailyInsight

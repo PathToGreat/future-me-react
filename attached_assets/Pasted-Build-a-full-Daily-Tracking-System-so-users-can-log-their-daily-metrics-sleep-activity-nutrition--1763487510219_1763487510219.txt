@@ -1,0 +1,85 @@
+Build a full Daily Tracking System so users can log their daily metrics (sleep, activity, nutrition, stress) after onboarding. This must work exactly like login/auth does, storing data in Firebase under the user’s UID.
+1. Firestore Data Structure
+Implement the following structure:
+/users/{uid}/dailyData/{yyyy-mm-dd}
+{
+  sleep: 1-5,
+  activity: 1-5,
+  nutrition: 1-5,
+  stress: 1-5,
+  timestamp: serverTimestamp()
+}
+Each day creates or updates a document named with the date in ISO format.
+If a user updates the same day, overwrite the fields.
+2. Create DailyTracking.jsx Component
+Build a card that shows four metric rows:
+Sleep
+Activity
+Nutrition
+Stress
+Each row has 5 selectable buttons (1-5).
+Selected state should highlight the chosen value.
+Include a Save button at the bottom.
+When Save is pressed:
+• Writes data to /users/{uid}/dailyData/{today}
+• Shows a small “Saved” confirmation
+• Triggers dashboard to refresh trends, insights, and future avatar
+If data for today already exists, pre-fill the values.
+3. Add Button on Dashboard: "Log Today’s Metrics"
+Place directly under the FutureSelfPreview component.
+Button opens the DailyTracking component in a modal or inline card.
+4. Auto-Refresh System
+After saving data:
+• Refresh DailyInsight
+• Refresh JourneyMeter
+• Refresh Future Avatar projections
+• Refresh Wellness Score
+• Refresh Trends
+• Refresh Life Zones
+Use existing Firestore listeners for real-time updates.
+5. Firestore Integration
+Use the same Firebase config and methods already used for authentication and onboarding storage.
+Follow the same pattern:
+• getAuth() for UID
+• setDoc() for daily entry
+• getDoc() to pre-load existing values
+• onSnapshot() for updates
+6. Update Trends Engine
+Make sure trends are computed from dailyData collection:
+Use the last 7 entries for:
+• Activity trend
+• Nutrition trend
+• Sleep trend
+• Stress trend
+If fewer than 2 days exist, Future Avatar stays in “Coming Soon” state.
+7. Dashboard Integration
+Modify the dashboard layout so the flow becomes:
+Header
+FutureSelfPreview
+“Log Today’s Metrics” button
+DailyInsight + JourneyMeter
+Life Zones
+Avatar Toggle + Avatar
+Metrics (current or projected)
+Wellness Score
+Trends
+Future Path
+Education cards
+8. Save to Firebase on Every Log
+The Save button must:
+Detect uid from auth
+Generate today’s date with new Date().toISOString().slice(0,10)
+Write metrics to Firestore under dailyData
+Trigger UI update
+No additional authentication logic is needed since Firebase already handles user sessions.
+9. Styling
+Match the existing card and gradient designs.
+Use the same typography, rounded corners, glow effects, and animations used throughout the dashboard.
+10. Testing Requirements
+Verify in console:
+• No LSP errors
+• Firebase writes are successful
+• Dashboard values update in real time
+• DailyInsights shift as metrics shift
+• Future avatar unlocks after 2 recorded days
+• Trends card responds to new entries
