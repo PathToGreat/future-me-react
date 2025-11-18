@@ -77,15 +77,31 @@ const DailyTracking = ({ onClose, onSave }) => {
     setSaving(true);
     try {
       const today = new Date().toISOString().slice(0, 10);
-      const docRef = doc(db, 'users', user.uid, 'dailyData', today);
+      
+      // Calculate lifestyle score from metrics
+      const lifestyleScore = ((metrics.activity + metrics.nutrition + metrics.sleep + (5 - metrics.stress)) / 16) * 100;
 
-      await setDoc(docRef, {
+      // Save to dailyData collection
+      const dailyDataRef = doc(db, 'users', user.uid, 'dailyData', today);
+      await setDoc(dailyDataRef, {
         sleep: metrics.sleep,
         activity: metrics.activity,
         nutrition: metrics.nutrition,
         stress: metrics.stress,
         timestamp: serverTimestamp(),
       });
+
+      // Also update main user profile so Dashboard refreshes immediately
+      const userProfileRef = doc(db, 'users', user.uid);
+      await setDoc(userProfileRef, {
+        sleep: metrics.sleep,
+        activity: metrics.activity,
+        nutrition: metrics.nutrition,
+        stress: metrics.stress,
+        lifestyleScore: lifestyleScore,
+      }, { merge: true });
+
+      console.log('✅ Saved daily metrics and updated profile - lifestyleScore:', lifestyleScore.toFixed(1));
 
       setShowSuccess(true);
       setTimeout(() => {
