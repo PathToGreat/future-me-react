@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import FutureMeAvatar from "./FutureMeAvatar";
+import FutureAvatar from "./FutureAvatar";
 import ImageUpload from "./ImageUpload";
 import FutureSelfPreview from "./FutureSelfPreview";
 import ZoneCard from "./ZoneCard";
@@ -12,6 +13,7 @@ import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { predictFutureState, getMotivationalMessage } from "../utils/predictFutureState";
+import { projectFutureMetrics, getFutureAvatarDescription } from "../utils/futureAvatarModel";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -19,8 +21,10 @@ export default function Dashboard() {
   const location = useLocation();
   const [liveProfile, setLiveProfile] = useState(null);
   const [predictions, setPredictions] = useState(null);
+  const [showFutureAvatar, setShowFutureAvatar] = useState(false);
+  const [futureMetrics, setFutureMetrics] = useState(null);
 
-  const { trendAnalysis } = useHistoryData(user?.uid, liveProfile);
+  const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
   // Calculate future growth outlook when trend analysis is available
   useEffect(() => {
@@ -33,6 +37,15 @@ export default function Dashboard() {
       console.log('🌅 Future Growth Model Run:', futureProjections);
     }
   }, [trendAnalysis, liveProfile?.lifestyleScore]);
+
+  // Calculate future avatar metrics when predictions and history are available
+  useEffect(() => {
+    if (liveProfile && historyData && predictions && historyData.length >= 2) {
+      const projected = projectFutureMetrics(liveProfile, historyData, predictions, 90);
+      setFutureMetrics(projected);
+      console.log('🔮 Future Avatar Metrics calculated');
+    }
+  }, [liveProfile, historyData, predictions]);
 
   // Real-time listener for user profile updates
   useEffect(() => {
@@ -226,22 +239,104 @@ export default function Dashboard() {
           />
         </motion.div>
 
+        {/* Avatar Toggle UI */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="card mb-6"
+        >
+          <div className="flex items-center justify-center gap-4">
+            <span className="text-sm font-medium text-gray-600">View:</span>
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setShowFutureAvatar(false)}
+                className={`px-6 py-2 rounded-md text-sm font-semibold transition-all ${
+                  !showFutureAvatar
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Current You
+              </button>
+              <button
+                onClick={() => setShowFutureAvatar(true)}
+                disabled={!futureMetrics}
+                className={`px-6 py-2 rounded-md text-sm font-semibold transition-all ${
+                  showFutureAvatar
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
+                    : futureMetrics
+                    ? 'text-gray-600 hover:text-gray-800'
+                    : 'text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Future You {!futureMetrics && '(Coming Soon)'}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="grid lg:grid-cols-2 gap-8">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="card flex items-center justify-center p-12 bg-gradient-to-br from-blue-50 to-purple-50"
+            className="card flex flex-col items-center justify-center p-12 bg-gradient-to-br from-blue-50 to-purple-50"
           >
-            <FutureMeAvatar
-              lifestyleScore={liveProfile.lifestyleScore || 50}
-              activity={liveProfile.activity || 3}
-              nutrition={liveProfile.nutrition || 3}
-              sleep={liveProfile.sleep || 3}
-              stress={liveProfile.stress || 3}
-              images={liveProfile.images || []}
-              trendAnalysis={trendAnalysis}
-              predictions={predictions}
-            />
+            {!showFutureAvatar ? (
+              <FutureMeAvatar
+                lifestyleScore={liveProfile.lifestyleScore || 50}
+                activity={liveProfile.activity || 3}
+                nutrition={liveProfile.nutrition || 3}
+                sleep={liveProfile.sleep || 3}
+                stress={liveProfile.stress || 3}
+                images={liveProfile.images || []}
+                trendAnalysis={trendAnalysis}
+                predictions={predictions}
+              />
+            ) : (
+              <FutureAvatar
+                futureMetrics={futureMetrics}
+                images={liveProfile.images || []}
+              />
+            )}
+            
+            {/* Dynamic Description */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="mt-6 text-center max-w-md"
+            >
+              {!showFutureAvatar ? (
+                <div>
+                  <p className="text-sm text-gray-700 font-medium mb-2">
+                    This is your current self based on today's lifestyle habits.
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Your avatar reflects your activity, nutrition, sleep, and stress levels in real-time.
+                  </p>
+                </div>
+              ) : futureMetrics ? (
+                <div>
+                  <p className="text-sm text-gray-700 font-medium mb-2">
+                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).primary}
+                  </p>
+                  <p className={`text-xs ${
+                    getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).tone === 'positive'
+                      ? 'text-green-600 font-semibold'
+                      : getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).tone === 'warning'
+                      ? 'text-orange-600 font-semibold'
+                      : 'text-gray-600'
+                  }`}>
+                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).secondary}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  Track your habits for a few more days to unlock your future projection.
+                </p>
+              )}
+            </motion.div>
           </motion.div>
 
           <motion.div
@@ -251,30 +346,30 @@ export default function Dashboard() {
           >
             <div className="card">
               <h2 className="text-xl font-bold text-gray-800 mb-4">
-                Your Lifestyle Metrics
+                {!showFutureAvatar ? 'Your Lifestyle Metrics' : 'Projected Metrics (90 Days)'}
               </h2>
               <div className="space-y-4">
                 <MetricBar
                   label="Physical Activity"
-                  value={liveProfile.activity}
+                  value={!showFutureAvatar ? liveProfile.activity : futureMetrics?.activity || liveProfile.activity}
                   max={5}
                   color="blue"
                 />
                 <MetricBar
                   label="Nutrition Quality"
-                  value={liveProfile.nutrition}
+                  value={!showFutureAvatar ? liveProfile.nutrition : futureMetrics?.nutrition || liveProfile.nutrition}
                   max={5}
                   color="green"
                 />
                 <MetricBar
                   label="Sleep Quality"
-                  value={liveProfile.sleep}
+                  value={!showFutureAvatar ? liveProfile.sleep : futureMetrics?.sleep || liveProfile.sleep}
                   max={5}
                   color="purple"
                 />
                 <MetricBar
                   label="Stress Level"
-                  value={liveProfile.stress}
+                  value={!showFutureAvatar ? liveProfile.stress : futureMetrics?.stress || liveProfile.stress}
                   max={5}
                   color="red"
                   reverse
