@@ -266,6 +266,48 @@ Used in app as:
   - Body Composition description now reads: "Your avatar's body shape reflects your combined lifestyle inputs"
   - Removed misleading "nutrition = body width" language
 
+### November 18, 2025 - Future Avatar Engine
+
+- **Future Avatar Model** (NEW)
+  - Created `futureAvatarModel.js` utility to project lifestyle metrics based on trends
+  - Uses existing trend data to calculate 90-day projections for activity, nutrition, sleep, stress
+  - Projects future body composition score and avatar properties (width, glow, posture, expression)
+  - Dynamic description generation based on trajectory (improving, declining, stable)
+  
+- **FutureAvatar Component** (NEW)
+  - `FutureAvatar.jsx`: Second avatar state showing projected appearance
+  - Same visual style as current avatar but uses projected metrics
+  - Displays "🔮 90-Day Projection" badge to distinguish from current state
+  - Energy particles and glow effects respond to projected lifestyle score
+  
+- **Avatar Toggle System** (NEW)
+  - Toggle UI switch: "Current You" ↔ "Future You"
+  - Gradient buttons (blue for current, purple/pink for future)
+  - Disabled state when insufficient history data (shows "Coming Soon")
+  - Smooth transitions between avatar states
+  
+- **Dashboard Integration**
+  - Toggle placed between ImageUpload and avatar display
+  - Metrics panel updates dynamically: "Your Lifestyle Metrics" → "Projected Metrics (90 Days)"
+  - Dynamic descriptions below avatar:
+    - Current: "This is your current self based on today's lifestyle habits"
+    - Future (positive): "You are on track for a stronger, healthier future self"
+    - Future (warning): "Your current patterns may reduce your future potential"
+    - Future (neutral): "Your future self will reflect your consistency"
+  
+- **Future Metrics Projection Logic**
+  - Requires 2+ days of history data to unlock
+  - Uses `getMetricTrend()` from analyzeTrends.js for individual metric slopes
+  - Projects each metric forward while clamping values to 1-5 range
+  - Recalculates body composition score using projected values
+  - Displays as 90-day outlook (configurable timeframe)
+  
+- **Preserved Functionality**
+  - All existing features remain intact
+  - Current avatar rendering unchanged
+  - Firebase listeners, trends, predictions continue working
+  - Daily Insight, Journey Meter, Zones all functional
+
 ### October 2025
 
 - **Upgraded from static HTML to React + Vite SPA**
