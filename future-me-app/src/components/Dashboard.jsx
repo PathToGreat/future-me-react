@@ -10,14 +10,11 @@ import ZoneCard from "./ZoneCard";
 import DailyInsight from "./DailyInsight";
 import JourneyMeter from "./JourneyMeter";
 import DailyTracking from "./DailyTracking";
-import HabitCreationModal from "./HabitCreationModal";
-import HabitCard from "./HabitCard";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { predictFutureState, getMotivationalMessage } from "../utils/predictFutureState";
 import { projectFutureMetrics, getFutureAvatarDescription } from "../utils/futureAvatarModel";
-import { getUserHabits, createHabit, completeHabit, MAX_ACTIVE_HABITS, applyHabitBonusToZone } from "../utils/habitUtils";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -28,9 +25,6 @@ export default function Dashboard() {
   const [showFutureAvatar, setShowFutureAvatar] = useState(false);
   const [futureMetrics, setFutureMetrics] = useState(null);
   const [showDailyTracking, setShowDailyTracking] = useState(false);
-  const [habits, setHabits] = useState([]);
-  const [showHabitModal, setShowHabitModal] = useState(false);
-  const [completingHabitId, setCompletingHabitId] = useState(null);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -119,63 +113,6 @@ export default function Dashboard() {
       }
     }
   }, [user, liveProfile]);
-
-  // Load user habits
-  useEffect(() => {
-    if (user) {
-      loadHabits();
-    }
-  }, [user]);
-
-  const loadHabits = async () => {
-    if (!user) return;
-    const userHabits = await getUserHabits(user.uid);
-    setHabits(userHabits);
-  };
-
-  const handleCreateHabit = async (habitData) => {
-    try {
-      await createHabit(user.uid, habitData);
-      await loadHabits();
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const handleCompleteHabit = async (habitId, habitData) => {
-    try {
-      setCompletingHabitId(habitId);
-      const result = await completeHabit(user.uid, habitId, habitData);
-      
-      // Apply habit bonus to the linked Life Zone
-      const currentZones = liveProfile.lifeZones || {};
-      const linkedZone = result.linkedZone;
-      const currentZoneScore = currentZones[linkedZone]?.score || 50;
-      const newZoneScore = applyHabitBonusToZone(currentZoneScore);
-      
-      // Update the zone score in Firestore
-      const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, {
-        lifeZones: {
-          ...currentZones,
-          [linkedZone]: {
-            ...currentZones[linkedZone],
-            score: newZoneScore,
-            lastUpdated: new Date().toISOString()
-          }
-        }
-      }, { merge: true });
-      
-      console.log(`✅ Habit completed! ${linkedZone} zone boosted: ${currentZoneScore} → ${newZoneScore}`);
-      
-      await loadHabits();
-    } catch (error) {
-      console.error('Error completing habit:', error);
-      alert(error.message || 'Failed to complete habit');
-    } finally {
-      setCompletingHabitId(null);
-    }
-  };
 
   if (!liveProfile) {
     return (
@@ -267,7 +204,6 @@ export default function Dashboard() {
         <FutureSelfPreview 
           lifestyleScore={liveProfile.lifestyleScore || 50} 
           lifeZones={liveProfile.lifeZones}
-          habits={habits}
         />
 
         {/* Log Today's Metrics Button */}
@@ -306,78 +242,6 @@ export default function Dashboard() {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Habit Builder Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-8"
-        >
-          <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-purple-100">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">Your Habits</h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  Build consistency and boost your Life Zones
-                </p>
-              </div>
-              <button
-                onClick={() => setShowHabitModal(true)}
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all font-medium shadow-md hover:scale-105 flex items-center gap-2"
-              >
-                <span className="text-xl">+</span>
-                <span>Add Habit</span>
-              </button>
-            </div>
-
-            {habits.filter(h => h.active).length === 0 ? (
-              <div className="text-center py-12 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-dashed border-purple-200">
-                <div className="text-6xl mb-4">🎯</div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  No habits yet
-                </h3>
-                <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  Create up to {MAX_ACTIVE_HABITS} habits to build consistency and boost your Life Zones. Each completed habit adds +3 points to its linked zone!
-                </p>
-                <button
-                  onClick={() => setShowHabitModal(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all font-medium shadow-md inline-flex items-center gap-2"
-                >
-                  <span className="text-xl">+</span>
-                  <span>Create Your First Habit</span>
-                </button>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 gap-4">
-                {habits
-                  .filter(h => h.active)
-                  .map(habit => (
-                    <HabitCard
-                      key={habit.id}
-                      habit={habit}
-                      onComplete={handleCompleteHabit}
-                      isCompleting={completingHabitId === habit.id}
-                    />
-                  ))}
-              </div>
-            )}
-
-            {habits.filter(h => h.active).length > 0 && habits.filter(h => h.active).length < MAX_ACTIVE_HABITS && (
-              <div className="mt-4 text-center text-sm text-gray-500">
-                You can add {MAX_ACTIVE_HABITS - habits.filter(h => h.active).length} more habit{MAX_ACTIVE_HABITS - habits.filter(h => h.active).length !== 1 ? 's' : ''}
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        <HabitCreationModal
-          isOpen={showHabitModal}
-          onClose={() => setShowHabitModal(false)}
-          onCreateHabit={handleCreateHabit}
-          activeCount={habits.filter(h => h.active).length}
-          maxHabits={MAX_ACTIVE_HABITS}
-        />
 
         <div className="grid md:grid-cols-2 gap-6 mt-8">
           <DailyInsight

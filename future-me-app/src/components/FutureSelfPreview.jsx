@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = [] }) {
+export default function FutureSelfPreview({ lifestyleScore, lifeZones }) {
   const getMessage = (score) => {
     if (score >= 80) {
       return "You are trending toward a strong future self.";
@@ -19,34 +19,6 @@ export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = 
     } else {
       return "Your current patterns may be limiting your future potential.";
     }
-  };
-
-  const getHabitConsistencyMessage = () => {
-    const activeHabits = habits.filter(h => h.active);
-    
-    if (activeHabits.length === 0) return null;
-    
-    const today = new Date().toISOString().split('T')[0];
-    const completedToday = activeHabits.filter(h => h.lastCompletedDate === today).length;
-    
-    const totalStreak = activeHabits.reduce((sum, h) => sum + (h.streak || 0), 0);
-    const avgStreak = activeHabits.length > 0 ? totalStreak / activeHabits.length : 0;
-    
-    if (completedToday === activeHabits.length && activeHabits.length > 0) {
-      if (avgStreak >= 7) {
-        return "Your habit consistency is shaping a powerful future! All habits completed today with strong streaks.";
-      }
-      return "Excellent! You've completed all your habits today.";
-    } else if (completedToday > 0) {
-      if (avgStreak >= 5) {
-        return `Good progress - ${completedToday}/${activeHabits.length} habits completed. Your consistency is building momentum.`;
-      }
-      return `${completedToday}/${activeHabits.length} habits completed today.`;
-    } else if (avgStreak >= 7) {
-      return "Strong habit foundation established! Complete today's habits to continue your momentum.";
-    }
-    
-    return null;
   };
 
   const getZoneTrendMessage = () => {
@@ -133,12 +105,6 @@ export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = 
           <p className="text-gray-700 text-base mb-2">
             {getMessage(lifestyleScore)}
           </p>
-          {getHabitConsistencyMessage() && (
-            <p className="text-sm text-purple-600 font-medium mb-1 flex items-center gap-1">
-              <span>🎯</span>
-              <span>{getHabitConsistencyMessage()}</span>
-            </p>
-          )}
           {lifeZones && (
             <p className="text-sm text-blue-600 font-medium">
               {getZoneTrendMessage()}
