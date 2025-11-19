@@ -12,12 +12,15 @@ import JourneyMeter from "./JourneyMeter";
 import DailyTracking from "./DailyTracking";
 import HabitCreationModal from "./HabitCreationModal";
 import HabitCard from "./HabitCard";
+import AchievementsSection from "./AchievementsSection";
+import AchievementNotification from "./AchievementNotification";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { predictFutureState, getMotivationalMessage } from "../utils/predictFutureState";
 import { projectFutureMetrics, getFutureAvatarDescription } from "../utils/futureAvatarModel";
 import { getUserHabits, calculateHabitZoneBonuses } from "../utils/habitHelpers";
+import { getUserAchievements } from "../utils/achievementEngine";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -31,6 +34,8 @@ export default function Dashboard() {
   const [habits, setHabits] = useState([]);
   const [showHabitModal, setShowHabitModal] = useState(false);
   const [habitBonuses, setHabitBonuses] = useState(null);
+  const [achievements, setAchievements] = useState([]);
+  const [newAchievementNotification, setNewAchievementNotification] = useState(null);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -127,6 +132,13 @@ export default function Dashboard() {
     }
   }, [user?.uid]);
 
+  // Fetch user achievements
+  useEffect(() => {
+    if (user?.uid) {
+      loadAchievements();
+    }
+  }, [user?.uid]);
+
   // Calculate habit bonuses when habits change
   useEffect(() => {
     if (habits.length > 0) {
@@ -148,6 +160,16 @@ export default function Dashboard() {
     }
   };
 
+  const loadAchievements = async () => {
+    try {
+      const userAchievements = await getUserAchievements(user.uid);
+      setAchievements(userAchievements);
+      console.log('🏆 Achievements loaded:', userAchievements);
+    } catch (error) {
+      console.error('Error loading achievements:', error);
+    }
+  };
+
   const handleHabitCreated = () => {
     loadHabits();
   };
@@ -155,6 +177,22 @@ export default function Dashboard() {
   const handleHabitCompletion = (zoneId) => {
     console.log(`🎉 Habit completed for zone: ${zoneId}`);
     loadHabits();
+  };
+
+  const handleAchievementsEarned = (newAchievements) => {
+    if (newAchievements && newAchievements.length > 0) {
+      console.log('🎉 New achievements earned!', newAchievements);
+      
+      // Show notification for the first newly earned achievement
+      setNewAchievementNotification(newAchievements[0]);
+      
+      // Reload all achievements to update the display
+      loadAchievements();
+    }
+  };
+
+  const handleCloseNotification = () => {
+    setNewAchievementNotification(null);
   };
 
   if (!liveProfile) {
@@ -224,6 +262,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen py-8 px-4">
+      {/* Achievement Notification */}
+      <AchievementNotification 
+        achievement={newAchievementNotification}
+        onClose={handleCloseNotification}
+      />
+      
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -282,6 +326,7 @@ export default function Dashboard() {
                 onSave={() => {
                   console.log("✅ Daily metrics saved, dashboard will auto-refresh via Firebase listeners");
                 }}
+                onAchievementsEarned={handleAchievementsEarned}
               />
             </motion.div>
           )}
@@ -352,6 +397,7 @@ export default function Dashboard() {
                   habit={habit}
                   userId={user.uid}
                   onCompletion={handleHabitCompletion}
+                  onAchievementsEarned={handleAchievementsEarned}
                 />
               ))}
             </div>
@@ -371,6 +417,9 @@ export default function Dashboard() {
           userId={user.uid}
           onHabitCreated={handleHabitCreated}
         />
+
+        {/* Achievements Section */}
+        <AchievementsSection achievements={achievements} />
 
         <motion.div
           initial={{ opacity: 0, y: -20 }}
