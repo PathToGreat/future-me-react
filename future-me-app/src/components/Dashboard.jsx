@@ -247,6 +247,7 @@ export default function Dashboard() {
         <FutureSelfPreview 
           lifestyleScore={liveProfile.lifestyleScore || 50} 
           lifeZones={liveProfile.lifeZones}
+          habits={habits}
         />
 
         {/* Log Today's Metrics Button */}

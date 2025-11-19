@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
+import { getTodayDate } from '../utils/habitHelpers';
 
-export default function FutureSelfPreview({ lifestyleScore, lifeZones }) {
+export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = [] }) {
   const getMessage = (score) => {
     if (score >= 80) {
       return "You are trending toward a strong future self.";
@@ -18,6 +19,28 @@ export default function FutureSelfPreview({ lifestyleScore, lifeZones }) {
       return "You're improving and building momentum.";
     } else {
       return "Your current patterns may be limiting your future potential.";
+    }
+  };
+
+  const getHabitInsight = () => {
+    if (!habits || habits.length === 0) return null;
+
+    const today = getTodayDate();
+    const activeHabits = habits.filter(h => h.lastCompletedDate === today);
+    const totalStreaks = habits.reduce((sum, h) => sum + (h.streak || 0), 0);
+    const avgStreak = habits.length > 0 ? Math.round(totalStreaks / habits.length) : 0;
+    const strongHabits = habits.filter(h => h.streak >= 7);
+
+    if (strongHabits.length > 0) {
+      return `🔥 ${strongHabits.length} ${strongHabits.length === 1 ? 'habit has' : 'habits have'} streaks of 7+ days. Excellent consistency!`;
+    } else if (activeHabits.length === habits.length) {
+      return `✓ All habits completed today. Building strong patterns!`;
+    } else if (activeHabits.length > 0) {
+      return `${activeHabits.length} of ${habits.length} ${activeHabits.length === 1 ? 'habit' : 'habits'} completed today. Keep going!`;
+    } else if (avgStreak >= 3) {
+      return `Your habits have an average streak of ${avgStreak} days. Don't break the chain!`;
+    } else {
+      return `Stay consistent with your habits to strengthen your Life Zones.`;
     }
   };
 
@@ -106,8 +129,13 @@ export default function FutureSelfPreview({ lifestyleScore, lifeZones }) {
             {getMessage(lifestyleScore)}
           </p>
           {lifeZones && (
-            <p className="text-sm text-blue-600 font-medium">
+            <p className="text-sm text-blue-600 font-medium mb-2">
               {getZoneTrendMessage()}
+            </p>
+          )}
+          {getHabitInsight() && (
+            <p className="text-sm text-purple-600 font-medium">
+              {getHabitInsight()}
             </p>
           )}
         </div>
