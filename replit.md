@@ -9,6 +9,8 @@ Future Me is a web application that visualizes a user's future self based on cur
 - Dynamic avatar visualization that changes based on wellness scores and trends.
 - Real-time wellness score calculation and daily metric tracking.
 - Future self projection based on lifestyle trends.
+- Habit Builder system for creating and tracking daily habits with Life Zone integration.
+- Full 6-zone Life Zone tracking with dynamic scoring algorithms.
 - User authentication and data persistence.
 - Responsive design for various devices.
 
@@ -29,15 +31,29 @@ The frontend is built with **React 18.3** and **Vite 7.1.9**, utilizing **Tailwi
 - **Future Avatar Engine:** Projects lifestyle metrics and avatar appearance 90 days into the future based on user trends, displayed via a toggleable second avatar state.
 - **Daily Tracking System:** Allows users to log daily metrics (sleep, activity, nutrition, stress) with real-time dashboard updates.
 - **Dashboard Visualization:** Displays the current and future avatar, metric bars, wellness score, health goals, and educational insights.
-- **Life Zone System:** Tracks and displays progress in various life zones (Health, Social Emotional, with placeholders for Wealth, Faith, Family, Community).
+- **Life Zone System:** Tracks and displays progress in all 6 life zones (Health, Social Emotional, Wealth, Faith, Family, Community) with real-time scoring algorithms based on wellness metrics, consistency, and trend analysis.
+- **Habit Builder System:** Allows users to create up to 3 active habits, track daily completion, build streaks, and receive Life Zone bonuses for consistency. Habits are linked to specific zones and provide +3 point boosts upon completion.
 
 ### Backend & Data Architecture
 
 **Firebase Authentication v11** is used for email/password sign-up and login, ensuring secure session persistence. **Cloud Firestore** serves as the primary database for user data storage.
 
 **Data Schema Highlights:**
-- User profiles are stored at `/users/{userId}`, containing personal information, onboarding status, and current lifestyle metrics.
+- User profiles are stored at `/users/{userId}`, containing personal information, onboarding status, current lifestyle metrics, and Life Zone scores.
 - Daily tracking data is stored in a subcollection `/users/{userId}/dailyData/{yyyy-mm-dd}`, capturing daily ratings for sleep, activity, nutrition, and stress.
+- Habits are stored in a subcollection `/users/{userId}/habits/{habitId}`, with each habit containing:
+  - `title`: The habit name (max 50 characters)
+  - `linkedZone`: The Life Zone this habit boosts (health, wealth, faith, family, community, or socialEmotional)
+  - `active`: Boolean indicating if the habit is currently active
+  - `streak`: Current consecutive days completed
+  - `lastCompletedDate`: ISO date string of last completion (YYYY-MM-DD format)
+  - `createdAt`: Server timestamp of habit creation
+
+**Life Zone Integration:**
+- When a habit is completed, the linked Life Zone receives a +3 point bonus
+- Zone bonuses are capped at 100 maximum score
+- Habit completion updates are immediately reflected in dashboard visualizations
+- Future Self Preview displays habit consistency messages based on streaks and daily completion rates
 
 ### Development Environment
 

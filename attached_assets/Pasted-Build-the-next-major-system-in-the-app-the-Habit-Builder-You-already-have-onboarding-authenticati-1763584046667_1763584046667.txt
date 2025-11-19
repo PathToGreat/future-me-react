@@ -1,0 +1,45 @@
+Build the next major system in the app: the Habit Builder.
+You already have onboarding, authentication, the dashboard, daily tracking, avatar updates, trend calculations, and full Life Zone scoring. Now extend the app by adding a simple, lightweight habit system that integrates with the Life Zones.
+Here is what to build:
+Create the Habit Data Structure
+Add a new Firestore location under each user:
+/users/{uid}/habits
+Each habit should include:
+• title
+• linkedZone (health, wealth, faith, family, community, or socialEmotional)
+• active (boolean)
+• createdAt
+• streak
+• lastCompletedDate
+Habit Creation
+Allow users to create up to three active habits.
+Each habit requires:
+• a short title
+• selecting the Life Zone it belongs to
+Daily Habit Completion
+On the dashboard, show today’s habits with a simple “complete” button for each.
+When a user completes a habit for the day:
+• update streak
+• update lastCompletedDate
+• update the corresponding Life Zone by a small positive amount
+Use the same Life Zone document you are already maintaining.
+Dashboard UI
+Add a Habit Builder section to the dashboard with:
+• list of active habits
+• button to add new habit
+• daily completion buttons
+• streak display
+Life Zone Integration
+Each completed habit should give a small bonus to its linked zone.
+The bonus should be modest and stack with existing scoring.
+This creates a real connection between habits and long-term progress.
+Future Self Integration
+Update the future preview text to reference habit consistency.
+Example: if streaks are strong, mention that consistency is shaping their future.
+Keep this simple for now.
+No breaking changes
+Do not modify onboarding, daily tracking, avatar systems, or existing trends.
+Only extend the app by adding the Habit Builder with clean, minimal integration.
+Update documentation
+Add a section to replit.md describing the new habit system, Firestore structure, dashboard changes, and how the Life Zones receive habit bonuses.
+When complete, run architect review and provide a full implementation summary.
