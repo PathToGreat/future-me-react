@@ -31,6 +31,7 @@ The frontend is built with **React 18.3** and **Vite 7.1.9**, utilizing **Tailwi
 - **Dashboard Visualization:** Displays the current and future avatar, metric bars, wellness score, health goals, and educational insights.
 - **Life Zone System:** Tracks and displays progress across 6 life zones (Health, Social Emotional, Wealth, Faith, Family, Community) with real-time scoring based on daily metrics and habit bonuses. All zones initialize at 50 points for new users; onboarding calculates first real scores.
 - **Habit Builder System:** Allows users to create up to 3 custom habits linked to Life Zones. Each habit tracks daily completions, builds streaks, and provides bonuses to its linked zone based on streak length (1 base + 0.2 per day, capped at +5 per habit). Features include habit creation modal, completion tracking, streak counters, and integration with Future Self insights.
+- **Milestone and Achievement Rewards System:** Automatically tracks user accomplishments across 14 achievements in 4 categories (habit mastery, Life Zone excellence, consistency tracking, general progress). Achievements trigger when users reach specific thresholds such as completing habit streaks (7-day, 30-day, 50-day), achieving high Life Zone scores (80+, 90+, all zones 60+), logging daily data consistently (7-day, 30-day, 100-day), and onboarding completion. Features include visual achievement badges with earned dates, category-grouped dashboard display, toast-style notifications for newly earned achievements, empty state with motivational messaging, and achievement-based insights in Future Self preview.
 
 ### Backend & Data Architecture
 
@@ -40,6 +41,7 @@ The frontend is built with **React 18.3** and **Vite 7.1.9**, utilizing **Tailwi
 - User profiles are stored at `/users/{userId}`, containing personal information, onboarding status, current lifestyle metrics, and Life Zone scores.
 - Daily tracking data is stored in a subcollection `/users/{userId}/dailyData/{yyyy-mm-dd}`, capturing daily ratings for sleep, activity, nutrition, and stress.
 - User habits are stored in a subcollection `/users/{userId}/habits/{habitId}`, containing title, zoneId, streak, lastCompletedDate, completionHistory (array of dates), and createdAt timestamp.
+- User achievements are stored in a subcollection `/users/{userId}/achievements/{achievementId}`, containing id, name, description, category, iconEmoji, and earnedAt timestamp. Achievements are awarded automatically when specific conditions are met and duplicate awards are prevented through idempotent Firestore writes.
 
 ### Development Environment
 
