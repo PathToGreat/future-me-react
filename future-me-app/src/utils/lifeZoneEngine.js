@@ -10,9 +10,9 @@
 
 /**
  * Calculate Health Zone score
- * Based on: wellness score + sleep, activity, nutrition trend direction
+ * Based on: wellness score + sleep, activity, nutrition trend direction + habit bonuses
  */
-function calculateHealthZone(profile, trendAnalysis) {
+function calculateHealthZone(profile, trendAnalysis, habitBonus = 0) {
   const baseScore = Number(profile.lifestyleScore) || 50;
   
   // Get trend bonuses (only if trends exist)
@@ -27,12 +27,16 @@ function calculateHealthZone(profile, trendAnalysis) {
     trendBonus = isNaN(bonus) ? 0 : bonus;
   }
   
-  const rawScore = baseScore + trendBonus;
+  // Apply habit bonus
+  const habitBonusValue = Number(habitBonus) || 0;
+  
+  const rawScore = baseScore + trendBonus + habitBonusValue;
   const score = Math.max(0, Math.min(100, rawScore));
   
   const details = {
     baseWellness: Math.round(baseScore),
     trendBonus: Math.round(trendBonus),
+    habitBonus: Math.round(habitBonusValue),
     sleep: Number(profile.sleep) || 3,
     activity: Number(profile.activity) || 3,
     nutrition: Number(profile.nutrition) || 3,
@@ -44,9 +48,9 @@ function calculateHealthZone(profile, trendAnalysis) {
 
 /**
  * Calculate Social Emotional Zone score
- * Based on: stress values, logging consistency, stress trend slope
+ * Based on: stress values, logging consistency, stress trend slope + habit bonuses
  */
-function calculateSocialEmotionalZone(profile, trendAnalysis, historyData) {
+function calculateSocialEmotionalZone(profile, trendAnalysis, historyData, habitBonus = 0) {
   const currentStress = Number(profile.stress) || 3;
   const stressScore = ((5 - currentStress) / 4) * 100; // Inverted: lower stress = higher score
   
@@ -61,7 +65,10 @@ function calculateSocialEmotionalZone(profile, trendAnalysis, historyData) {
     trendBonus = isNaN(bonus) ? 0 : bonus;
   }
   
-  const rawScore = stressScore + consistencyBonus + trendBonus;
+  // Apply habit bonus
+  const habitBonusValue = Number(habitBonus) || 0;
+  
+  const rawScore = stressScore + consistencyBonus + trendBonus + habitBonusValue;
   const score = Math.max(0, Math.min(100, rawScore));
   
   const details = {
@@ -70,6 +77,7 @@ function calculateSocialEmotionalZone(profile, trendAnalysis, historyData) {
     consistencyDays: daysLogged,
     consistencyBonus: Math.round(consistencyBonus),
     trendBonus: Math.round(trendBonus),
+    habitBonus: Math.round(habitBonusValue),
     interpretation: score >= 75 ? 'strong' : score >= 50 ? 'developing' : 'needs attention'
   };
   
@@ -78,9 +86,9 @@ function calculateSocialEmotionalZone(profile, trendAnalysis, historyData) {
 
 /**
  * Calculate Wealth Zone score
- * Based on: logging consistency multiplied by fixed factor, capped at maximum
+ * Based on: logging consistency multiplied by fixed factor + habit bonuses, capped at maximum
  */
-function calculateWealthZone(profile, historyData) {
+function calculateWealthZone(profile, historyData, habitBonus = 0) {
   const daysLogged = historyData ? historyData.length : 0;
   const consistencyFactor = 3.5; // Each day logged adds 3.5 points
   
@@ -88,8 +96,11 @@ function calculateWealthZone(profile, historyData) {
   const baseScore = daysLogged === 0 ? 50 : 0;
   const consistencyScore = baseScore + (daysLogged * consistencyFactor);
   
+  // Apply habit bonus
+  const habitBonusValue = Number(habitBonus) || 0;
+  
   // Cap at 100
-  const score = Math.min(100, consistencyScore);
+  const score = Math.min(100, consistencyScore + habitBonusValue);
   
   // Additional metric: consistency streak
   const currentStreak = calculateStreak(historyData);
@@ -97,8 +108,9 @@ function calculateWealthZone(profile, historyData) {
   const details = {
     daysLogged,
     consistencyScore: Math.round(consistencyScore),
+    habitBonus: Math.round(habitBonusValue),
     currentStreak,
-    formula: 'daysLogged × 3.5',
+    formula: 'daysLogged × 3.5 + habits',
     interpretation: score >= 75 ? 'strong' : score >= 50 ? 'developing' : 'needs attention'
   };
   
@@ -107,9 +119,9 @@ function calculateWealthZone(profile, historyData) {
 
 /**
  * Calculate Faith Zone score
- * Based on: daily consistency with bonus for streaks
+ * Based on: daily consistency with bonus for streaks + habit bonuses
  */
-function calculateFaithZone(profile, historyData) {
+function calculateFaithZone(profile, historyData, habitBonus = 0) {
   const daysLogged = historyData ? historyData.length : 0;
   const currentStreak = calculateStreak(historyData);
   
@@ -119,7 +131,10 @@ function calculateFaithZone(profile, historyData) {
   // Streak bonus: longer streaks = higher commitment
   const streakBonus = Math.min(currentStreak * 4, 40); // Up to 40 points from streaks
   
-  const rawScore = consistencyScore + streakBonus;
+  // Apply habit bonus
+  const habitBonusValue = Number(habitBonus) || 0;
+  
+  const rawScore = consistencyScore + streakBonus + habitBonusValue;
   const score = Math.max(0, Math.min(100, rawScore));
   
   const details = {
@@ -127,6 +142,7 @@ function calculateFaithZone(profile, historyData) {
     currentStreak,
     baseScore: Math.round(consistencyScore),
     streakBonus: Math.round(streakBonus),
+    habitBonus: Math.round(habitBonusValue),
     commitment: currentStreak >= 7 ? 'excellent' : currentStreak >= 3 ? 'good' : 'building',
     interpretation: score >= 75 ? 'strong' : score >= 50 ? 'developing' : 'needs attention'
   };
@@ -136,9 +152,9 @@ function calculateFaithZone(profile, historyData) {
 
 /**
  * Calculate Family Zone score
- * Based on: combinations of stress and sleep trend directions
+ * Based on: combinations of stress and sleep trend directions + habit bonuses
  */
-function calculateFamilyZone(profile, trendAnalysis, historyData) {
+function calculateFamilyZone(profile, trendAnalysis, historyData, habitBonus = 0) {
   const currentStress = Number(profile.stress) || 3;
   const currentSleep = Number(profile.sleep) || 3;
   
@@ -161,7 +177,10 @@ function calculateFamilyZone(profile, trendAnalysis, historyData) {
   const daysLogged = historyData ? historyData.length : 0;
   const consistencyBonus = daysLogged === 0 ? 0 : Math.min(daysLogged * 1, 10); // Up to 10 points
   
-  const rawScore = stressComponent + sleepComponent + trendBonus + consistencyBonus;
+  // Apply habit bonus
+  const habitBonusValue = Number(habitBonus) || 0;
+  
+  const rawScore = stressComponent + sleepComponent + trendBonus + consistencyBonus + habitBonusValue;
   const score = Math.max(0, Math.min(100, rawScore));
   
   const details = {
@@ -170,6 +189,7 @@ function calculateFamilyZone(profile, trendAnalysis, historyData) {
     stressComponent: Math.round(stressComponent),
     sleepComponent: Math.round(sleepComponent),
     trendBonus: Math.round(trendBonus),
+    habitBonus: Math.round(habitBonusValue),
     balance: score >= 70 ? 'harmonious' : score >= 50 ? 'balanced' : 'strained',
     interpretation: score >= 75 ? 'strong' : score >= 50 ? 'developing' : 'needs attention'
   };
@@ -179,9 +199,9 @@ function calculateFamilyZone(profile, trendAnalysis, historyData) {
 
 /**
  * Calculate Community Zone score
- * Based on: consistency and average stress values
+ * Based on: consistency and average stress values + habit bonuses
  */
-function calculateCommunityZone(profile, historyData) {
+function calculateCommunityZone(profile, historyData, habitBonus = 0) {
   const daysLogged = historyData ? historyData.length : 0;
   const currentStress = Number(profile.stress) || 3;
   
@@ -201,7 +221,10 @@ function calculateCommunityZone(profile, historyData) {
   
   const stressScore = daysLogged === 0 ? 0 : ((5 - avgStress) / 4) * 40; // Up to 40 points
   
-  const rawScore = consistencyScore + stressScore;
+  // Apply habit bonus
+  const habitBonusValue = Number(habitBonus) || 0;
+  
+  const rawScore = consistencyScore + stressScore + habitBonusValue;
   const score = Math.max(0, Math.min(100, rawScore));
   
   const details = {
@@ -209,6 +232,7 @@ function calculateCommunityZone(profile, historyData) {
     consistencyScore: Math.round(consistencyScore),
     avgStress: Math.round(avgStress * 10) / 10,
     stressScore: Math.round(stressScore),
+    habitBonus: Math.round(habitBonusValue),
     engagement: daysLogged >= 14 ? 'active' : daysLogged >= 7 ? 'growing' : 'starting',
     interpretation: score >= 75 ? 'strong' : score >= 50 ? 'developing' : 'needs attention'
   };
@@ -251,17 +275,29 @@ function calculateStreak(historyData) {
  * Calculate all 6 Life Zones
  * Returns object with scores and details for each zone
  */
-export function calculateAllLifeZones(profile, trendAnalysis, historyData) {
+export function calculateAllLifeZones(profile, trendAnalysis, historyData, habitBonuses = null) {
   console.log('🎯 Life Zone Engine: Calculating all zones...');
   console.log('  Profile:', profile?.lifestyleScore, 'Trends:', !!trendAnalysis, 'History:', historyData?.length || 0);
   
+  // Default habit bonuses to zero if not provided
+  const bonuses = habitBonuses || {
+    health: 0,
+    socialEmotional: 0,
+    wealth: 0,
+    faith: 0,
+    family: 0,
+    community: 0
+  };
+  
+  console.log('  Habit Bonuses:', bonuses);
+  
   const zones = {
-    health: calculateHealthZone(profile, trendAnalysis),
-    socialEmotional: calculateSocialEmotionalZone(profile, trendAnalysis, historyData),
-    wealth: calculateWealthZone(profile, historyData),
-    faith: calculateFaithZone(profile, historyData),
-    family: calculateFamilyZone(profile, trendAnalysis, historyData),
-    community: calculateCommunityZone(profile, historyData)
+    health: calculateHealthZone(profile, trendAnalysis, bonuses.health),
+    socialEmotional: calculateSocialEmotionalZone(profile, trendAnalysis, historyData, bonuses.socialEmotional),
+    wealth: calculateWealthZone(profile, historyData, bonuses.wealth),
+    faith: calculateFaithZone(profile, historyData, bonuses.faith),
+    family: calculateFamilyZone(profile, trendAnalysis, historyData, bonuses.family),
+    community: calculateCommunityZone(profile, historyData, bonuses.community)
   };
   
   console.log('✅ Life Zone Scores:', {
