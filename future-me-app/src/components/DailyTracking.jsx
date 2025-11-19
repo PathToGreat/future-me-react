@@ -6,8 +6,9 @@ import { db } from '../config/firebase';
 import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
 import { getMetricTrend } from '../utils/analyzeTrends';
 import { getUserHabits, calculateHabitZoneBonuses } from '../utils/habitHelpers';
+import { calculateAchievementData, checkAndAwardAchievements } from '../utils/achievementEngine';
 
-const DailyTracking = ({ onClose, onSave }) => {
+const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
   const [metrics, setMetrics] = useState({
     sleep: null,
     activity: null,
@@ -148,6 +149,31 @@ const DailyTracking = ({ onClose, onSave }) => {
 
       console.log('✅ Saved daily metrics and updated profile - lifestyleScore:', lifestyleScore.toFixed(1));
       console.log('🎯 Life Zones recalculated and saved');
+
+      // Check for newly earned achievements
+      try {
+        const userProfileSnap = await getDoc(userProfileRef);
+        const fullProfile = userProfileSnap.data();
+        
+        const userHabits = await getUserHabits(user.uid);
+        const achievementData = await calculateAchievementData(
+          user.uid,
+          userHabits,
+          historyData,
+          { ...fullProfile, lifeZones }
+        );
+        
+        const newAchievements = await checkAndAwardAchievements(user.uid, achievementData);
+        
+        if (newAchievements.length > 0) {
+          console.log('🏆 New achievements earned:', newAchievements);
+          if (onAchievementsEarned) {
+            onAchievementsEarned(newAchievements);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking achievements:', error);
+      }
 
       setShowSuccess(true);
       setTimeout(() => {
