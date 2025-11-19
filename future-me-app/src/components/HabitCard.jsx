@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { completeHabit, isCompletedToday } from '../utils/habitHelpers';
+import { completeHabit, isCompletedToday, getUserHabits } from '../utils/habitHelpers';
+import { calculateAchievementData, checkAndAwardAchievements } from '../utils/achievementEngine';
+import { getAuth } from 'firebase/auth';
+import { doc, getDoc, collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const ZONE_CONFIG = {
   health: { name: 'Health', icon: '💪', color: 'from-green-400 to-emerald-500' },
@@ -11,7 +15,7 @@ const ZONE_CONFIG = {
   community: { name: 'Community', icon: '🤝', color: 'from-orange-400 to-red-500' }
 };
 
-export default function HabitCard({ habit, userId, onCompletion }) {
+export default function HabitCard({ habit, userId, onCompletion, onAchievementsEarned }) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [localCompleted, setLocalCompleted] = useState(
     isCompletedToday(habit.lastCompletedDate)
@@ -42,6 +46,38 @@ export default function HabitCard({ habit, userId, onCompletion }) {
       if (result.success) {
         setLocalCompleted(true);
         setLocalStreak(result.newStreak);
+        
+        // Check for newly earned achievements
+        try {
+          const userProfileRef = doc(db, 'users', userId);
+          const userProfileSnap = await getDoc(userProfileRef);
+          const fullProfile = userProfileSnap.data();
+          
+          const userHabits = await getUserHabits(userId);
+          
+          const dailyLogsRef = collection(db, 'users', userId, 'dailyData');
+          const dailyLogsQuery = query(dailyLogsRef, orderBy('date', 'desc'));
+          const dailyLogsSnap = await getDocs(dailyLogsQuery);
+          const dailyLogs = dailyLogsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          
+          const achievementData = await calculateAchievementData(
+            userId,
+            userHabits,
+            dailyLogs,
+            fullProfile
+          );
+          
+          const newAchievements = await checkAndAwardAchievements(userId, achievementData);
+          
+          if (newAchievements.length > 0) {
+            console.log('🏆 New achievements earned from habit completion:', newAchievements);
+            if (onAchievementsEarned) {
+              onAchievementsEarned(newAchievements);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking achievements:', error);
+        }
         
         // Notify parent to refresh habits and recalculate Life Zones
         if (onCompletion) {
