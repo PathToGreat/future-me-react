@@ -1,4 +1,4 @@
-import { collection, addDoc, updateDoc, doc, getDocs, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc, getDocs, query, orderBy, limit, serverTimestamp, arrayUnion } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 /**
@@ -114,10 +114,11 @@ export const completeHabit = async (userId, habitId, currentStreak, lastComplete
 
   const habitRef = doc(db, 'users', userId, 'habits', habitId);
   
+  // Use arrayUnion to append today's date to completionHistory without overwriting
   await updateDoc(habitRef, {
     streak: newStreak,
     lastCompletedDate: today,
-    completionHistory: [...(currentStreak > 0 ? [today] : [today])] // Track last completion
+    completionHistory: arrayUnion(today) // Appends today to existing array
   });
 
   return { 
