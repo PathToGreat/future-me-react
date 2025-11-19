@@ -29,15 +29,17 @@ The frontend is built with **React 18.3** and **Vite 7.1.9**, utilizing **Tailwi
 - **Future Avatar Engine:** Projects lifestyle metrics and avatar appearance 90 days into the future based on user trends, displayed via a toggleable second avatar state.
 - **Daily Tracking System:** Allows users to log daily metrics (sleep, activity, nutrition, stress) with real-time dashboard updates.
 - **Dashboard Visualization:** Displays the current and future avatar, metric bars, wellness score, health goals, and educational insights.
-- **Life Zone System:** Tracks and displays progress in various life zones (Health, Social Emotional, with placeholders for Wealth, Faith, Family, Community).
+- **Life Zone System:** Tracks and displays progress across 6 life zones (Health, Social Emotional, Wealth, Faith, Family, Community) with real-time scoring based on daily metrics and habit bonuses. All zones initialize at 50 points for new users; onboarding calculates first real scores.
+- **Habit Builder System:** Allows users to create up to 3 custom habits linked to Life Zones. Each habit tracks daily completions, builds streaks, and provides bonuses to its linked zone based on streak length (1 base + 0.2 per day, capped at +5 per habit). Features include habit creation modal, completion tracking, streak counters, and integration with Future Self insights.
 
 ### Backend & Data Architecture
 
 **Firebase Authentication v11** is used for email/password sign-up and login, ensuring secure session persistence. **Cloud Firestore** serves as the primary database for user data storage.
 
 **Data Schema Highlights:**
-- User profiles are stored at `/users/{userId}`, containing personal information, onboarding status, and current lifestyle metrics.
+- User profiles are stored at `/users/{userId}`, containing personal information, onboarding status, current lifestyle metrics, and Life Zone scores.
 - Daily tracking data is stored in a subcollection `/users/{userId}/dailyData/{yyyy-mm-dd}`, capturing daily ratings for sleep, activity, nutrition, and stress.
+- User habits are stored in a subcollection `/users/{userId}/habits/{habitId}`, containing title, zoneId, streak, lastCompletedDate, completionHistory (array of dates), and createdAt timestamp.
 
 ### Development Environment
 
