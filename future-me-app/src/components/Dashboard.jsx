@@ -10,11 +10,14 @@ import ZoneCard from "./ZoneCard";
 import DailyInsight from "./DailyInsight";
 import JourneyMeter from "./JourneyMeter";
 import DailyTracking from "./DailyTracking";
+import HabitCreationModal from "./HabitCreationModal";
+import HabitCard from "./HabitCard";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { predictFutureState, getMotivationalMessage } from "../utils/predictFutureState";
 import { projectFutureMetrics, getFutureAvatarDescription } from "../utils/futureAvatarModel";
+import { getUserHabits, calculateHabitZoneBonuses } from "../utils/habitHelpers";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -25,6 +28,9 @@ export default function Dashboard() {
   const [showFutureAvatar, setShowFutureAvatar] = useState(false);
   const [futureMetrics, setFutureMetrics] = useState(null);
   const [showDailyTracking, setShowDailyTracking] = useState(false);
+  const [habits, setHabits] = useState([]);
+  const [showHabitModal, setShowHabitModal] = useState(false);
+  const [habitBonuses, setHabitBonuses] = useState(null);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -113,6 +119,43 @@ export default function Dashboard() {
       }
     }
   }, [user, liveProfile]);
+
+  // Fetch user habits
+  useEffect(() => {
+    if (user?.uid) {
+      loadHabits();
+    }
+  }, [user?.uid]);
+
+  // Calculate habit bonuses when habits change
+  useEffect(() => {
+    if (habits.length > 0) {
+      const bonuses = calculateHabitZoneBonuses(habits);
+      setHabitBonuses(bonuses);
+      console.log('🎯 Habit Bonuses Calculated:', bonuses);
+    } else {
+      setHabitBonuses(null);
+    }
+  }, [habits]);
+
+  const loadHabits = async () => {
+    try {
+      const userHabits = await getUserHabits(user.uid);
+      setHabits(userHabits);
+      console.log('✅ Habits loaded:', userHabits);
+    } catch (error) {
+      console.error('Error loading habits:', error);
+    }
+  };
+
+  const handleHabitCreated = () => {
+    loadHabits();
+  };
+
+  const handleHabitCompletion = (zoneId) => {
+    console.log(`🎉 Habit completed for zone: ${zoneId}`);
+    loadHabits();
+  };
 
   if (!liveProfile) {
     return (
@@ -268,6 +311,65 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+
+        {/* Habit Builder Section */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Your Habits</h2>
+            {habits.length < 3 && (
+              <button
+                onClick={() => setShowHabitModal(true)}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all font-medium flex items-center gap-2"
+              >
+                <span className="text-xl">+</span>
+                Create Habit
+              </button>
+            )}
+          </div>
+
+          {habits.length === 0 ? (
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 text-center border-2 border-dashed border-blue-200">
+              <p className="text-3xl mb-3">🎯</p>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                Build Your First Habit
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Create simple habits to strengthen your Life Zones and track your daily progress
+              </p>
+              <button
+                onClick={() => setShowHabitModal(true)}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+              >
+                Get Started
+              </button>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {habits.map((habit) => (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  userId={user.uid}
+                  onCompletion={handleHabitCompletion}
+                />
+              ))}
+            </div>
+          )}
+
+          {habits.length > 0 && habits.length < 3 && (
+            <p className="text-sm text-gray-500 mt-4 text-center">
+              You can create up to {3 - habits.length} more {habits.length === 2 ? 'habit' : 'habits'}
+            </p>
+          )}
+        </div>
+
+        {/* Habit Creation Modal */}
+        <HabitCreationModal
+          isOpen={showHabitModal}
+          onClose={() => setShowHabitModal(false)}
+          userId={user.uid}
+          onHabitCreated={handleHabitCreated}
+        />
 
         <motion.div
           initial={{ opacity: 0, y: -20 }}

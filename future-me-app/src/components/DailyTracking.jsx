@@ -5,6 +5,7 @@ import { doc, setDoc, getDoc, serverTimestamp, collection, getDocs, query, order
 import { db } from '../config/firebase';
 import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
 import { getMetricTrend } from '../utils/analyzeTrends';
+import { getUserHabits, calculateHabitZoneBonuses } from '../utils/habitHelpers';
 
 const DailyTracking = ({ onClose, onSave }) => {
   const [metrics, setMetrics] = useState({
@@ -123,8 +124,20 @@ const DailyTracking = ({ onClose, onSave }) => {
         lifestyleScore: lifestyleScore,
       };
 
-      // Calculate all Life Zones with updated data
-      const lifeZones = calculateAllLifeZones(updatedProfile, trendAnalysis, historyData);
+      // Fetch user habits and calculate bonuses
+      let habitBonuses = null;
+      try {
+        const userHabits = await getUserHabits(user.uid);
+        if (userHabits.length > 0) {
+          habitBonuses = calculateHabitZoneBonuses(userHabits);
+          console.log('🎯 Habit bonuses applied to Life Zones:', habitBonuses);
+        }
+      } catch (error) {
+        console.error('Error fetching habits for zone calculation:', error);
+      }
+
+      // Calculate all Life Zones with updated data and habit bonuses
+      const lifeZones = calculateAllLifeZones(updatedProfile, trendAnalysis, historyData, habitBonuses);
 
       // Update main user profile with metrics and Life Zones
       const userProfileRef = doc(db, 'users', user.uid);
