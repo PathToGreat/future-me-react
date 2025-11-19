@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { getTodayDate } from '../utils/habitHelpers';
 
-export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = [] }) {
+export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = [], achievements = [] }) {
   const getMessage = (score) => {
     if (score >= 80) {
       return "You are trending toward a strong future self.";
@@ -79,6 +79,43 @@ export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = 
     return "All zones show balanced progress.";
   };
 
+  const getAchievementInsight = () => {
+    if (!achievements || achievements.length === 0) return null;
+
+    const recentAchievement = achievements[0];
+    const habitAchievements = achievements.filter(a => a.category === 'habit');
+    const zoneAchievements = achievements.filter(a => a.category === 'zone');
+    const trackingAchievements = achievements.filter(a => a.category === 'tracking');
+
+    const hasMonthStreak = achievements.some(a => a.id === 'month_streak');
+    const hasWeekStreak = achievements.some(a => a.id === 'week_streak');
+    const hasBalancedLife = achievements.some(a => a.id === 'balanced_life');
+    const hasConsistentLogger = achievements.some(a => a.id === 'consistent_logger');
+    const hasExcellence = achievements.some(a => a.id === 'excellence_seeker');
+
+    if (hasMonthStreak) {
+      return `🏆 Month Master unlocked! Your 30-day streak shows exceptional discipline and consistency.`;
+    } else if (hasExcellence) {
+      return `⭐ Excellence Seeker achieved! Your dedication to growth is shaping a remarkable future.`;
+    } else if (hasBalancedLife) {
+      return `⚖️ Balanced Life earned! All 6 zones above 60 - you're building a well-rounded life.`;
+    } else if (hasWeekStreak) {
+      return `🔥 Week Strong! Your 7-day streak demonstrates commitment to lasting change.`;
+    } else if (hasConsistentLogger) {
+      return `📊 Consistent Logger! 7 consecutive days of tracking shows dedication to self-awareness.`;
+    } else if (habitAchievements.length > 0) {
+      return `🌱 ${habitAchievements.length} habit ${habitAchievements.length === 1 ? 'milestone' : 'milestones'} achieved! Building strong foundations.`;
+    } else if (zoneAchievements.length > 0) {
+      return `🏆 ${zoneAchievements.length} Life Zone ${zoneAchievements.length === 1 ? 'achievement' : 'achievements'} unlocked! Excellence across multiple areas.`;
+    } else if (trackingAchievements.length > 0) {
+      return `📈 ${trackingAchievements.length} tracking ${trackingAchievements.length === 1 ? 'milestone' : 'milestones'} reached! Consistency builds futures.`;
+    } else if (achievements.length > 0) {
+      return `🎯 ${achievements.length} ${achievements.length === 1 ? 'achievement' : 'achievements'} earned! Every milestone strengthens your journey.`;
+    }
+
+    return null;
+  };
+
   const getScoreColor = (score) => {
     if (score >= 80) return "from-green-500 to-emerald-500";
     if (score >= 60) return "from-blue-500 to-indigo-500";
@@ -136,6 +173,11 @@ export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = 
           {getHabitInsight() && (
             <p className="text-sm text-purple-600 font-medium">
               {getHabitInsight()}
+            </p>
+          )}
+          {getAchievementInsight() && (
+            <p className="text-sm text-amber-600 font-medium mt-2">
+              {getAchievementInsight()}
             </p>
           )}
         </div>

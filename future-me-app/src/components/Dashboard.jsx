@@ -292,6 +292,7 @@ export default function Dashboard() {
           lifestyleScore={liveProfile.lifestyleScore || 50} 
           lifeZones={liveProfile.lifeZones}
           habits={habits}
+          achievements={achievements}
         />
 
         {/* Log Today's Metrics Button */}
