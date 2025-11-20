@@ -47,7 +47,7 @@ export default function Dashboard() {
         trendAnalysis.trendSlope
       );
       setPredictions(futureProjections);
-      console.log('🌅 Future Growth Model Run:', futureProjections);
+      console.log('➡️ Future Growth Model Run:', futureProjections);
     }
   }, [trendAnalysis, liveProfile?.lifestyleScore]);
 
@@ -56,7 +56,7 @@ export default function Dashboard() {
     if (liveProfile && historyData && predictions && historyData.length >= 2) {
       const projected = projectFutureMetrics(liveProfile, historyData, predictions, 90);
       setFutureMetrics(projected);
-      console.log('🔮 Future Avatar Metrics calculated');
+      console.log('📊 Future Avatar Metrics calculated');
     }
   }, [liveProfile, historyData, predictions]);
 
@@ -233,7 +233,7 @@ export default function Dashboard() {
     {
       title: "Faith",
       score: lifeZones.faith?.score || 50,
-      icon: "✨",
+      icon: "📖",
       details: lifeZones.faith?.details,
       isPlaceholder: !lifeZones.faith
     },
@@ -664,7 +664,7 @@ export default function Dashboard() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold">Future Path</h2>
-                  <span className="text-3xl">🌅</span>
+                  <span className="text-3xl">➡️</span>
                 </div>
                 
                 <div className="space-y-4 mb-4">

@@ -23,7 +23,7 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
 
   useEffect(() => {
     if (trendAnalysis) {
-      console.log('🌟 Avatar adapting to trend analysis:');
+      console.log('📊 Avatar adapting to trend analysis:');
       console.log(`  - Direction: ${trendAnalysis.direction}`);
       console.log(`  - Change: ${trendAnalysis.changePercentage}%`);
       console.log(`  - Trend Score: ${trendAnalysis.trendScore.toFixed(2)}`);
@@ -32,7 +32,7 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
 
   useEffect(() => {
     if (predictions) {
-      console.log('🌅 Avatar showing future growth outlook:');
+      console.log('➡️ Avatar showing future growth outlook:');
       console.log(`  - 30-day: ${predictions[30].score} (${predictions[30].status})`);
       console.log(`  - 90-day: ${predictions[90].score} (${predictions[90].status})`);
       console.log(`  - 180-day: ${predictions[180].score} (${predictions[180].status})`);

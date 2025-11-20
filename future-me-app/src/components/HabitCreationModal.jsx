@@ -6,7 +6,7 @@ const LIFE_ZONES = [
   { id: 'health', name: 'Health', icon: '💪', color: 'from-green-400 to-emerald-500' },
   { id: 'socialEmotional', name: 'Social Emotional', icon: '❤️', color: 'from-pink-400 to-rose-500' },
   { id: 'wealth', name: 'Wealth', icon: '💰', color: 'from-yellow-400 to-amber-500' },
-  { id: 'faith', name: 'Faith', icon: '✨', color: 'from-purple-400 to-violet-500' },
+  { id: 'faith', name: 'Faith', icon: '📖', color: 'from-purple-400 to-violet-500' },
   { id: 'family', name: 'Family', icon: '👨‍👩‍👧‍👦', color: 'from-blue-400 to-cyan-500' },
   { id: 'community', name: 'Community', icon: '🤝', color: 'from-orange-400 to-red-500' }
 ];

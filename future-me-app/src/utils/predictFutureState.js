@@ -28,11 +28,11 @@ export function predictFutureState(currentScore, trendSlope) {
       direction: change > 0 ? 'improving' : change < 0 ? 'declining' : 'stable'
     };
 
-    console.log(`🌅 ${days}-day projection: ${predictions[days].score} (${predictions[days].status})`);
+    console.log(`➡️ ${days}-day projection: ${predictions[days].score} (${predictions[days].status})`);
   });
 
   const overallTrend = predictions[180].direction;
-  console.log(`🌟 Overall trajectory: ${overallTrend} (180-day score: ${predictions[180].score})`);
+  console.log(`⭐ Overall trajectory: ${overallTrend} (180-day score: ${predictions[180].score})`);
 
   return predictions;
 }
@@ -46,7 +46,7 @@ export function getMotivationalMessage(predictions) {
   
   if (day180.direction === 'improving') {
     if (day180.score >= 80) {
-      return "Stay consistent — your health is strengthening! 🌟";
+      return "Stay consistent — your health is strengthening! ⭐";
     } else if (day180.score >= 70) {
       return "Excellent progress — you're on the path to peak vitality! 💪";
     } else {

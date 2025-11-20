@@ -45,7 +45,7 @@ export default function FutureAvatar({ futureMetrics, images }) {
   const posture = getPosture();
   const mouthPath = getFaceExpression();
 
-  console.log('🔮 FutureAvatar rendered with projected data:');
+  console.log('📊 FutureAvatar rendered with projected data:');
   console.log('  - Lifestyle Score:', futureMetrics.lifestyleScore);
   console.log('  - Body Width:', bodyWidth);
   console.log('  - Activity:', futureMetrics.activity);
@@ -209,7 +209,7 @@ export default function FutureAvatar({ futureMetrics, images }) {
         transition={{ delay: 0.5 }}
         className="mt-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-full shadow-lg"
       >
-        🔮 90-Day Projection
+        ➡️ 90-Day Projection
       </motion.div>
     </div>
   );

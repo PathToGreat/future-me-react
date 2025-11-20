@@ -55,9 +55,9 @@ const AchievementNotification = ({ achievement, onClose }) => {
             </button>
           </div>
 
-          {/* Celebration sparkles */}
+          {/* Celebration symbols */}
           <div className="absolute -top-2 -right-2 text-2xl animate-bounce">
-            ✨
+            ⭐
           </div>
           <div className="absolute -bottom-2 -left-2 text-2xl animate-bounce delay-100">
             🎉

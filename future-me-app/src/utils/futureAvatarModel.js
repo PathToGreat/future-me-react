@@ -39,7 +39,7 @@ export function projectFutureMetrics(currentProfile, historyData, predictions, t
   const futureAvatarWidth = getAvatarBodyWidth(futureBodyCompositionScore);
   const futureLifestyleScore = predictions[timeframe].score;
 
-  console.log('🔮 Future Avatar Metrics Projected:');
+  console.log('📊 Future Avatar Metrics Projected:');
   console.log(`  - Timeframe: ${timeframe} days`);
   console.log(`  - Activity: ${currentProfile.activity} → ${projectedActivity.toFixed(1)}`);
   console.log(`  - Nutrition: ${currentProfile.nutrition} → ${projectedNutrition.toFixed(1)}`);

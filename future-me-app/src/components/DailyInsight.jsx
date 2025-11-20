@@ -5,7 +5,7 @@ export default function DailyInsight({ activity, nutrition, sleep, stress }) {
     // Priority 1: Address critical issues (high stress or very poor sleep)
     if (stress >= 4) {
       return {
-        icon: "🧘",
+        icon: "🤲",
         message: "High stress can undermine your progress. Consider adding stress-relief practices to your routine.",
         color: "from-red-500 to-orange-500"
       };
@@ -31,7 +31,7 @@ export default function DailyInsight({ activity, nutrition, sleep, stress }) {
     // Priority 3: Address sleep issues
     if (sleep <= 2) {
       return {
-        icon: "🌙",
+        icon: "💤",
         message: "Better sleep will significantly boost your energy, focus, and long-term vitality.",
         color: "from-indigo-500 to-purple-500"
       };
@@ -83,7 +83,7 @@ export default function DailyInsight({ activity, nutrition, sleep, stress }) {
 
     // Default: General encouragement
     return {
-      icon: "🌟",
+      icon: "⭐",
       message: "Small daily improvements create lasting change. Keep building your future self.",
       color: "from-amber-500 to-orange-500"
     };

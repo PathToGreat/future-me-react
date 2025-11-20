@@ -10,7 +10,7 @@ const ZONE_CONFIG = {
   health: { name: 'Health', icon: '💪', color: 'from-green-400 to-emerald-500' },
   socialEmotional: { name: 'Social Emotional', icon: '❤️', color: 'from-pink-400 to-rose-500' },
   wealth: { name: 'Wealth', icon: '💰', color: 'from-yellow-400 to-amber-500' },
-  faith: { name: 'Faith', icon: '✨', color: 'from-purple-400 to-violet-500' },
+  faith: { name: 'Faith', icon: '📖', color: 'from-purple-400 to-violet-500' },
   family: { name: 'Family', icon: '👨‍👩‍👧‍👦', color: 'from-blue-400 to-cyan-500' },
   community: { name: 'Community', icon: '🤝', color: 'from-orange-400 to-red-500' }
 };
