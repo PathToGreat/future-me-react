@@ -1,0 +1,34 @@
+Build the next feature: Avatar Trait Map Engine.
+This will define how the avatar’s visual traits respond to user data. The avatar is currently a simple placeholder figure. Do not change the avatar graphics, only create the logic that will control how its appearance changes based on inputs.
+Requirements:
+Trait Map Definition
+Create a system that converts user metrics, habits, Life Zone scores, streaks, achievements, and wellness scores into avatar traits. Each trait should have a numeric score and a descriptive label. Traits should include:
+Posture – affected by activity, sleep, stress
+Body Shape – affected by wellness score, nutrition, activity
+Facial Expression – affected by stress and emotional wellness
+Glow/Energy – affected by wellness, habits, Life Zones
+Movement/Animation Level – affected by activity and streaks
+Aura/Presence – affected by Life Zone balance and achievements
+Inputs for the Engine
+Use only existing app data:
+Daily metrics (sleep, activity, nutrition, stress)
+Habit streaks
+Life Zone scores
+Achievements earned
+Overall wellness score
+No external images or uploads should be required.
+Outputs
+Return a structured object containing all avatar traits with numeric scores and descriptive labels (e.g., “upright posture”, “relaxed expression”, “medium energy”). Ensure the system can later feed into the current avatar rendering logic.
+Logic Rules
+Higher Life Zone scores increase positive traits
+Habit streaks improve posture, movement, and energy
+High stress reduces glow and calmness of facial expression
+Wellness score drives body shape and energy level
+Achievements add bonus effects to aura and expression
+All trait scores should be bounded between low and high extremes to prevent unrealistic values
+Integration Ready
+The output should be ready to feed into the current avatar system without changing the graphics. The system must be modular and allow future expansions, such as adding skin tone, clothing, or facial detail layers.
+Documentation
+Provide a summary describing each trait, which data influences it, and how scores are determined. Include a few descriptive examples of how different user data combinations affect traits.
+Constraints
+Do not touch full body image uploads, existing dashboard, habits, daily tracking, Life Zones, or achievements systems. Only build the trait mapping engine for avatar visuals.
