@@ -64,6 +64,7 @@ export function analyzeTrends(snapshots) {
 
   return {
     trendScore,
+    trendSlope,
     direction,
     description,
     changePercentage: parseFloat(changePercentage.toFixed(1)),
