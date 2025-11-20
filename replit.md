@@ -16,6 +16,16 @@ Future Me is a web application that visualizes a user's future self based on cur
 
 Preferred communication style: Simple, everyday language.
 
+**Branding Guidelines:**
+- Language and symbolism rooted in Hebrew Scripture (Tanakh) values
+- Strictly excludes mystical, new age, and occult imagery
+- Uses grounded, practical symbols focused on personal development, growth, and discipline
+- Acceptable emojis: ⭐📊📈✓💪❤️🎯📖🌱⚖️💤🤲➡️
+- Forbidden emojis: 🔮✨🧘🌙🌟🌅🕉☯ (crystal balls, sparkles, meditation poses, moon, glowing stars, sunrises, mystical symbols)
+- Faith zone represented by 📖 (open book) across all components
+- Future projections use ➡️ (forward arrow) instead of mystical imagery
+- All console logs and UI elements use practical, human-centered language
+
 ## System Architecture
 
 ### Frontend Architecture
