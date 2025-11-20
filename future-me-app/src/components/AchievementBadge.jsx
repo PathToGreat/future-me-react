@@ -15,10 +15,10 @@ const AchievementBadge = ({ achievement }) => {
 
   // Category-based gradient colors
   const categoryColors = {
-    habit: 'from-purple-500/20 to-indigo-500/20 border-purple-400/30',
-    zone: 'from-blue-500/20 to-cyan-500/20 border-blue-400/30',
-    tracking: 'from-green-500/20 to-emerald-500/20 border-green-400/30',
-    general: 'from-amber-500/20 to-orange-500/20 border-amber-400/30'
+    habit: 'from-purple-500/40 to-indigo-500/40 border-purple-400/50',
+    zone: 'from-blue-500/40 to-cyan-500/40 border-blue-400/50',
+    tracking: 'from-green-500/40 to-emerald-500/40 border-green-400/50',
+    general: 'from-amber-500/40 to-orange-500/40 border-amber-400/50'
   };
 
   const gradientClass = categoryColors[category] || categoryColors.general;
