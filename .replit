@@ -99,7 +99,3 @@ externalPort = 8008
 
 [agent]
 expertMode = true
-
-[userenv]
-
-[userenv.shared]
