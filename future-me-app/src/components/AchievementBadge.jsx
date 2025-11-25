@@ -15,13 +15,20 @@ const AchievementBadge = ({ achievement }) => {
 
   // Category-based gradient colors
   const categoryColors = {
-    habit: 'from-purple-500/40 to-indigo-500/40 border-purple-400/50',
-    zone: 'from-blue-500/40 to-cyan-500/40 border-blue-400/50',
-    tracking: 'from-green-500/40 to-emerald-500/40 border-green-400/50',
-    general: 'from-amber-500/40 to-orange-500/40 border-amber-400/50'
+    habit: 'from-purple-500/80 to-indigo-500/80 border-purple-400/70',
+    zone: 'from-blue-500/80 to-cyan-500/80 border-blue-400/70',
+    tracking: 'from-green-500/80 to-emerald-500/80 border-green-400/70',
+    general: 'from-amber-500/80 to-orange-500/80 border-amber-400/70'
   };
 
   const gradientClass = categoryColors[category] || categoryColors.general;
+  
+  // Use dark text for bright backgrounds (amber/orange), white text for darker backgrounds
+  // Handle both undefined categories and explicit 'general' category
+  const isGeneralCategory = !category || category === 'general';
+  const textColorClass = isGeneralCategory ? 'text-gray-900' : 'text-white';
+  const dateColorClass = isGeneralCategory ? 'text-gray-700' : 'text-gray-100';
+  const descColorClass = isGeneralCategory ? 'text-gray-800' : 'text-gray-100';
 
   return (
     <motion.div
@@ -35,18 +42,18 @@ const AchievementBadge = ({ achievement }) => {
         <div className="text-4xl mb-2">
           {iconEmoji}
         </div>
-        <div className="text-xs text-gray-400">
+        <div className={`text-xs ${dateColorClass}`}>
           {formatDate(earnedAt)}
         </div>
       </div>
 
       {/* Name */}
-      <h3 className="text-lg font-semibold text-white mb-1">
+      <h3 className={`text-lg font-semibold ${textColorClass} mb-1`}>
         {name}
       </h3>
 
       {/* Description */}
-      <p className="text-sm text-gray-300">
+      <p className={`text-sm ${descColorClass}`}>
         {description}
       </p>
 

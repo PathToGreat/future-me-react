@@ -26,7 +26,7 @@ const AchievementsSection = ({ achievements = [] }) => {
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-1">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
             Your Achievements
           </h2>
           <p className="text-gray-400 text-sm">
@@ -79,7 +79,7 @@ const AchievementsSection = ({ achievements = [] }) => {
         <div className="space-y-6">
           {Object.entries(groupedAchievements).map(([category, categoryAchievements]) => (
             <div key={category}>
-              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
                 {categoryNames[category] || category}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
