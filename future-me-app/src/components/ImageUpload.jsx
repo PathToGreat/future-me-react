@@ -38,21 +38,37 @@ export default function ImageUpload({ onUploadSuccess }) {
     setError(null);
     setUploading(true);
     console.log('📸 Starting image upload:', file.name, 'Size:', (file.size / 1024).toFixed(2), 'KB');
+    console.log('👤 User ID:', user.uid);
 
     try {
       const timestamp = Date.now();
-      const storageRef = ref(storage, `users/${user.uid}/images/${timestamp}_${file.name}`);
+      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const filePath = `users/${user.uid}/images/${timestamp}_${sanitizedFileName}`;
+      const storageRef = ref(storage, filePath);
       
+      console.log('☁️ Upload path:', filePath);
+      console.log('☁️ Storage bucket:', storage.app.options.storageBucket);
       console.log('☁️ Uploading to Firebase Storage...');
-      const snapshot = await uploadBytes(storageRef, file);
-      console.log('✅ Upload successful! Getting download URL...');
+      
+      const metadata = {
+        contentType: file.type,
+        customMetadata: {
+          uploadedBy: user.uid,
+          uploadedAt: new Date().toISOString()
+        }
+      };
+
+      const snapshot = await uploadBytes(storageRef, file, metadata);
+      console.log('✅ Upload successful! Snapshot:', snapshot);
+      console.log('✅ Getting download URL...');
       
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log('📸 User uploaded image:', downloadURL);
+      console.log('📸 Download URL obtained:', downloadURL);
 
       const currentImages = userProfile?.images || [];
       const updatedImages = [...currentImages, downloadURL];
 
+      console.log('💾 Saving to Firestore...');
       await updateUserProfile({
         images: updatedImages,
         lastImageUploadedAt: new Date().toISOString()
@@ -68,8 +84,35 @@ export default function ImageUpload({ onUploadSuccess }) {
       setUploading(false);
       e.target.value = '';
     } catch (err) {
-      console.error('❌ Image upload failed:', err);
-      setError('Failed to upload image. Please try again.');
+      console.error('❌ Image upload failed with error:', err);
+      console.error('❌ Error code:', err.code);
+      console.error('❌ Error message:', err.message);
+      console.error('❌ Error details:', {
+        name: err.name,
+        stack: err.stack
+      });
+      
+      let errorMessage = 'Failed to upload image. ';
+      
+      if (err.code === 'storage/unauthorized') {
+        errorMessage += 'Permission denied. Please check Firebase Storage rules.';
+      } else if (err.code === 'storage/canceled') {
+        errorMessage += 'Upload was canceled.';
+      } else if (err.code === 'storage/unknown') {
+        errorMessage += 'Unknown error occurred. Check console for details.';
+      } else if (err.code === 'storage/object-not-found') {
+        errorMessage += 'Storage bucket not found.';
+      } else if (err.code === 'storage/bucket-not-found') {
+        errorMessage += 'Storage bucket configuration error.';
+      } else if (err.code === 'storage/quota-exceeded') {
+        errorMessage += 'Storage quota exceeded.';
+      } else if (err.message) {
+        errorMessage += err.message;
+      } else {
+        errorMessage += 'Please try again.';
+      }
+      
+      setError(errorMessage);
       setUploading(false);
     }
   };

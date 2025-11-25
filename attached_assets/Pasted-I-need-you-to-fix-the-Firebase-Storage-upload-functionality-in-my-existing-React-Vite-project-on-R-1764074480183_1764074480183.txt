@@ -1,0 +1,49 @@
+I need you to fix the Firebase Storage upload functionality in my existing React + Vite project on Replit. The app is already connected to Firebase Auth and Firestore, which are working correctly. Only Storage uploads are failing with a continuous loading spinner and preflight / 404 errors. Do not change Auth or Firestore.
+Here are the requirements:
+Firebase Storage Rules (use exactly as written below):
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Allow each user to access only their own profilePictures folder
+    match /profilePictures/{fileName} {
+      allow read, write: if request.auth != null
+                         && fileName.matches('^' + request.auth.uid + '_.*');
+    }
+
+    // Allow each user to upload images inside users/{uid}/images/*
+    match /users/{userId}/images/{fileName} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // Allow each user to upload their avatar at users/{uid}/avatar.jpg
+    match /users/{userId}/avatar.jpg {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // Block everything else
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+What to do in the code:
+Ensure all image uploads use getStorage() from the same Firebase app instance used for Auth and Firestore.
+Make sure uploaded file paths exactly match the rules above. For example:
+Profile pictures → profilePictures/{uid}_{timestamp}.jpg
+User images → users/{uid}/images/{timestamp}_{filename}
+Avatar → users/{uid}/avatar.jpg
+Validate file type (JPG/PNG) and size (max 10MB).
+Handle errors properly and ensure the upload promise resolves or rejects so the UI spinner stops.
+Return the download URL after upload and store it in Firestore as currently implemented.
+Ensure this works in both local Replit development and the deployed build.
+Do not:
+Change Auth or Firestore functionality.
+Change Firebase rules.
+Add new environment variables.
+Output expected:
+List of files modified with exact changes.
+Clean, working upload function that follows the rules above.
+Confirmation that the infinite spinner issue is resolved.
