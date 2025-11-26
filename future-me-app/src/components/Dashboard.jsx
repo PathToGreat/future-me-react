@@ -7,6 +7,7 @@ import FutureAvatar from "./FutureAvatar";
 import ImageUpload from "./ImageUpload";
 import FutureSelfPreview from "./FutureSelfPreview";
 import ZoneCard from "./ZoneCard";
+import LifeZoneDetailsModal from "./LifeZoneDetailsModal";
 import DailyInsight from "./DailyInsight";
 import JourneyMeter from "./JourneyMeter";
 import DailyTracking from "./DailyTracking";
@@ -36,6 +37,8 @@ export default function Dashboard() {
   const [habitBonuses, setHabitBonuses] = useState(null);
   const [achievements, setAchievements] = useState([]);
   const [newAchievementNotification, setNewAchievementNotification] = useState(null);
+  const [showZoneDetailsModal, setShowZoneDetailsModal] = useState(false);
+  const [selectedZone, setSelectedZone] = useState(null);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -195,6 +198,17 @@ export default function Dashboard() {
     setNewAchievementNotification(null);
   };
 
+  const handleViewZoneDetails = (zone) => {
+    setSelectedZone(zone);
+    setShowZoneDetailsModal(true);
+    console.log('📊 Opening zone details for:', zone.title);
+  };
+
+  const handleCloseZoneModal = () => {
+    setShowZoneDetailsModal(false);
+    setSelectedZone(null);
+  };
+
   if (!liveProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -218,6 +232,7 @@ export default function Dashboard() {
   const zones = [
     {
       title: "Health",
+      zoneId: "health",
       score: lifeZones.health?.score || 50,
       icon: "💪",
       details: lifeZones.health?.details,
@@ -225,6 +240,7 @@ export default function Dashboard() {
     },
     {
       title: "Wealth",
+      zoneId: "wealth",
       score: lifeZones.wealth?.score || 50,
       icon: "💰",
       details: lifeZones.wealth?.details,
@@ -232,6 +248,7 @@ export default function Dashboard() {
     },
     {
       title: "Faith",
+      zoneId: "faith",
       score: lifeZones.faith?.score || 50,
       icon: "📖",
       details: lifeZones.faith?.details,
@@ -239,6 +256,7 @@ export default function Dashboard() {
     },
     {
       title: "Family",
+      zoneId: "family",
       score: lifeZones.family?.score || 50,
       icon: "👨‍👩‍👧‍👦",
       details: lifeZones.family?.details,
@@ -246,6 +264,7 @@ export default function Dashboard() {
     },
     {
       title: "Community",
+      zoneId: "community",
       score: lifeZones.community?.score || 50,
       icon: "🤝",
       details: lifeZones.community?.details,
@@ -253,6 +272,7 @@ export default function Dashboard() {
     },
     {
       title: "Social Emotional",
+      zoneId: "socialEmotional",
       score: lifeZones.socialEmotional?.score || 50,
       icon: "😊",
       details: lifeZones.socialEmotional?.details,
@@ -350,14 +370,25 @@ export default function Dashboard() {
               <ZoneCard
                 key={zone.title}
                 title={zone.title}
+                zoneId={zone.zoneId}
                 score={zone.score}
                 icon={zone.icon}
                 index={index}
+                details={zone.details}
                 isPlaceholder={zone.isPlaceholder}
+                onViewDetails={handleViewZoneDetails}
               />
             ))}
           </div>
         </div>
+
+        {/* Life Zone Details Modal */}
+        <LifeZoneDetailsModal
+          isOpen={showZoneDetailsModal}
+          onClose={handleCloseZoneModal}
+          zone={selectedZone}
+          zoneId={selectedZone?.zoneId}
+        />
 
         {/* Habit Builder Section */}
         <div className="mt-8">

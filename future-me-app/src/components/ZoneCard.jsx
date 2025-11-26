@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export default function ZoneCard({ title, score, icon, index, details }) {
+export default function ZoneCard({ title, score, icon, index, details, onViewDetails, zoneId }) {
   const getScoreColor = (score) => {
     if (score >= 75) return "text-green-600 bg-green-50";
     if (score >= 50) return "text-blue-600 bg-blue-50";
@@ -54,7 +54,10 @@ export default function ZoneCard({ title, score, icon, index, details }) {
         </div>
       </div>
 
-      <button className="w-full btn-secondary text-sm mt-4">
+      <button 
+        onClick={() => onViewDetails && onViewDetails({ title, score, icon, details, zoneId })}
+        className="w-full btn-secondary text-sm mt-4 hover:bg-blue-600 hover:text-white transition-colors"
+      >
         View Details
       </button>
     </motion.div>
