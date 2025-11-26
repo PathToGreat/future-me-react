@@ -98,17 +98,49 @@ users/{userId}/
 
 ### Set Up Cloud Firestore Rules (Security)
 1. Go to **Firestore Database** > **Rules** tab
-2. Current rules should allow authenticated users to read/write their own data:
+2. Replace the existing rules with the complete rules below that cover all data paths:
 
 ```
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // User profile document
     match /users/{userId} {
+      // Allow users to read and write their own profile
       allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Zone-specific daily logs: /users/{uid}/zoneLogs/{zoneId}/daily/{date}
+      match /zoneLogs/{zoneId}/daily/{date} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Legacy daily tracking data: /users/{uid}/dailyData/{date}
+      match /dailyData/{date} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // User habits: /users/{uid}/habits/{habitId}
+      match /habits/{habitId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // User achievements: /users/{uid}/achievements/{achievementId}
+      match /achievements/{achievementId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
 }
+```
+
+### Quick Deploy via Firebase CLI
+If you have the Firebase CLI installed, you can deploy these rules from the terminal:
+```bash
+cd future-me-app
+firebase login
+firebase deploy --only firestore:rules
 ```
 
 ### Monitor Database Activity
