@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,7 +9,12 @@ export default function AuthScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signup, login } = useAuth();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
+  const [resetError, setResetError] = useState('');
+  const { signup, login, resetPassword } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -31,6 +36,54 @@ export default function AuthScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setResetError('');
+    setResetMessage('');
+    setResetLoading(true);
+
+    try {
+      if (!resetEmail || !resetEmail.includes('@')) {
+        throw new Error('Please enter a valid email address');
+      }
+      await resetPassword(resetEmail);
+      setResetMessage('Check your inbox to reset your password.');
+      setTimeout(() => {
+        setShowForgotPassword(false);
+        setResetEmail('');
+        setResetMessage('');
+      }, 3000);
+    } catch (err) {
+      let errorMessage = 'Failed to send reset email. Please try again.';
+      if (err.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email address.';
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (err.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please wait a moment and try again.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      setResetError(errorMessage);
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const openForgotPassword = () => {
+    setResetEmail(email);
+    setResetError('');
+    setResetMessage('');
+    setShowForgotPassword(true);
+  };
+
+  const closeForgotPassword = () => {
+    setShowForgotPassword(false);
+    setResetEmail('');
+    setResetError('');
+    setResetMessage('');
   };
 
   return (
@@ -97,6 +150,18 @@ export default function AuthScreen() {
               />
             </div>
 
+            {isLogin && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={openForgotPassword}
+                  className="text-sm text-primary-600 hover:text-primary-700 hover:underline transition-colors"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+            )}
+
             {error && (
               <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
                 {error}
@@ -109,6 +174,87 @@ export default function AuthScreen() {
           </form>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {showForgotPassword && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center px-4 z-50"
+            onClick={closeForgotPassword}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">Reset Password</h2>
+                <button
+                  onClick={closeForgotPassword}
+                  className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                >
+                  &times;
+                </button>
+              </div>
+
+              <p className="text-gray-600 text-sm mb-4">
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
+
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    className="input-field"
+                    placeholder="Enter your email"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                {resetError && (
+                  <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                    {resetError}
+                  </div>
+                )}
+
+                {resetMessage && (
+                  <div className="bg-green-50 text-green-600 p-3 rounded-lg text-sm">
+                    {resetMessage}
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={closeForgotPassword}
+                    className="btn-secondary flex-1"
+                    disabled={resetLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-primary flex-1"
+                    disabled={resetLoading || resetMessage}
+                  >
+                    {resetLoading ? 'Sending...' : 'Send Reset Link'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

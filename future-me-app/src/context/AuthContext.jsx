@@ -3,7 +3,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  sendPasswordResetEmail 
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
@@ -86,6 +87,10 @@ export const AuthProvider = ({ children }) => {
     return signOut(auth);
   };
 
+  const resetPassword = async (email) => {
+    return sendPasswordResetEmail(auth, email);
+  };
+
   const updateUserProfile = async (data) => {
     console.log('🔵 AuthContext: updateUserProfile called');
     if (!user) {
@@ -115,6 +120,7 @@ export const AuthProvider = ({ children }) => {
     signup,
     login,
     logout,
+    resetPassword,
     updateUserProfile,
   };
 
