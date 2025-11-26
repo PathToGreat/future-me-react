@@ -162,6 +162,12 @@ export const calculateHabitZoneBonuses = (habits) => {
 
   habits.forEach(habit => {
     const { zoneId, streak, lastCompletedDate } = habit;
+    
+    // Skip habits without a Life Zone link
+    if (!zoneId) {
+      return;
+    }
+    
     const today = getTodayDate();
     
     // Only count active streaks (completed today or yesterday)
