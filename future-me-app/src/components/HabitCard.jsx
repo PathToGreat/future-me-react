@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { completeHabit, isCompletedToday, getUserHabits } from '../utils/habitHelpers';
+import { completeHabit, isCompletedToday, getUserHabits, deleteHabit } from '../utils/habitHelpers';
 import { calculateAchievementData, checkAndAwardAchievements } from '../utils/achievementEngine';
 import { getAuth } from 'firebase/auth';
 import { doc, getDoc, collection, getDocs, query, orderBy } from 'firebase/firestore';
@@ -12,17 +12,19 @@ const ZONE_CONFIG = {
   wealth: { name: 'Wealth', icon: '💰', color: 'from-yellow-400 to-amber-500' },
   faith: { name: 'Faith', icon: '📖', color: 'from-purple-400 to-violet-500' },
   family: { name: 'Family', icon: '👨‍👩‍👧‍👦', color: 'from-blue-400 to-cyan-500' },
-  community: { name: 'Community', icon: '🤝', color: 'from-orange-400 to-red-500' }
+  community: { name: 'Community', icon: '🤝', color: 'from-orange-400 to-red-500' },
+  none: { name: 'Personal Habit', icon: '⭐', color: 'from-gray-400 to-gray-500' }
 };
 
-export default function HabitCard({ habit, userId, onCompletion, onAchievementsEarned }) {
+export default function HabitCard({ habit, userId, onCompletion, onAchievementsEarned, onDelete }) {
   const [isCompleting, setIsCompleting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [localCompleted, setLocalCompleted] = useState(
     isCompletedToday(habit.lastCompletedDate)
   );
   const [localStreak, setLocalStreak] = useState(habit.streak);
 
-  const zone = ZONE_CONFIG[habit.zoneId] || ZONE_CONFIG.health;
+  const zone = habit.zoneId ? (ZONE_CONFIG[habit.zoneId] || ZONE_CONFIG.health) : ZONE_CONFIG.none;
   const completedToday = localCompleted;
 
   const handleComplete = async () => {
@@ -91,13 +93,54 @@ export default function HabitCard({ habit, userId, onCompletion, onAchievementsE
     }
   };
 
+  const handleDelete = async () => {
+    if (isDeleting) return;
+    
+    const confirmed = window.confirm(`Are you sure you want to delete "${habit.title}"? This cannot be undone.`);
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deleteHabit(userId, habit.id);
+      console.log('✅ Habit deleted successfully');
+      
+      // Notify parent component to refresh habit list
+      if (onDelete) {
+        onDelete();
+      }
+    } catch (error) {
+      console.error('❌ Error deleting habit:', error);
+      alert('Failed to delete habit. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl shadow-md p-4 border-2 border-gray-100 hover:shadow-lg transition-shadow"
+      exit={{ opacity: 0, scale: 0.9 }}
+      className="bg-white rounded-xl shadow-md p-4 border-2 border-gray-100 hover:shadow-lg transition-shadow relative"
     >
-      <div className="flex items-start justify-between mb-3">
+      {/* Delete button */}
+      <button
+        onClick={handleDelete}
+        disabled={isDeleting}
+        className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+        title="Delete habit"
+      >
+        {isDeleting ? (
+          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        )}
+      </button>
+
+      <div className="flex items-start justify-between mb-3 pr-6">
         <div className="flex-1">
           <h3 className="font-semibold text-gray-800 mb-1">{habit.title}</h3>
           <div className="flex items-center space-x-2">

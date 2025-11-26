@@ -1,17 +1,17 @@
-import { collection, addDoc, updateDoc, doc, getDocs, query, orderBy, limit, serverTimestamp, arrayUnion } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, orderBy, limit, serverTimestamp, arrayUnion } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 /**
  * Habit Data Schema:
  * - title: string
- * - zoneId: string (health, socialEmotional, wealth, faith, family, community)
+ * - zoneId: string | null (health, socialEmotional, wealth, faith, family, community, or null for no zone)
  * - streak: number (current consecutive days completed)
  * - lastCompletedDate: string (YYYY-MM-DD format)
  * - createdAt: timestamp
  * - completionHistory: array of date strings
  */
 
-const MAX_HABITS = 3;
+const MAX_HABITS = 15;
 
 /**
  * Get today's date in YYYY-MM-DD format
@@ -53,7 +53,7 @@ export const createHabit = async (userId, habitData) => {
   
   const newHabit = {
     title: habitData.title.trim(),
-    zoneId: habitData.zoneId,
+    zoneId: habitData.zoneId || null, // Allow null for habits without a Life Zone
     streak: 0,
     lastCompletedDate: null,
     createdAt: serverTimestamp(),
@@ -186,4 +186,18 @@ export const calculateHabitZoneBonuses = (habits) => {
  */
 export const isCompletedToday = (lastCompletedDate) => {
   return lastCompletedDate === getTodayDate();
+};
+
+/**
+ * Delete a habit
+ */
+export const deleteHabit = async (userId, habitId) => {
+  try {
+    const habitRef = doc(db, 'users', userId, 'habits', habitId);
+    await deleteDoc(habitRef);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting habit:', error);
+    throw error;
+  }
 };

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createHabit } from '../utils/habitHelpers';
 
 const LIFE_ZONES = [
+  { id: null, name: 'None', icon: '⭐', color: 'from-gray-400 to-gray-500' },
   { id: 'health', name: 'Health', icon: '💪', color: 'from-green-400 to-emerald-500' },
   { id: 'socialEmotional', name: 'Social Emotional', icon: '❤️', color: 'from-pink-400 to-rose-500' },
   { id: 'wealth', name: 'Wealth', icon: '💰', color: 'from-yellow-400 to-amber-500' },
@@ -13,7 +14,7 @@ const LIFE_ZONES = [
 
 export default function HabitCreationModal({ isOpen, onClose, userId, onHabitCreated }) {
   const [title, setTitle] = useState('');
-  const [selectedZone, setSelectedZone] = useState('');
+  const [selectedZone, setSelectedZone] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,11 +24,6 @@ export default function HabitCreationModal({ isOpen, onClose, userId, onHabitCre
 
     if (!title.trim()) {
       setError('Please enter a habit title');
-      return;
-    }
-
-    if (!selectedZone) {
-      setError('Please select a Life Zone');
       return;
     }
 
@@ -46,7 +42,7 @@ export default function HabitCreationModal({ isOpen, onClose, userId, onHabitCre
 
       // Reset form
       setTitle('');
-      setSelectedZone('');
+      setSelectedZone(null);
       
       // Notify parent component
       if (onHabitCreated) {
@@ -65,7 +61,7 @@ export default function HabitCreationModal({ isOpen, onClose, userId, onHabitCre
 
   const handleClose = () => {
     setTitle('');
-    setSelectedZone('');
+    setSelectedZone(null);
     setError('');
     onClose();
   };
@@ -98,7 +94,7 @@ export default function HabitCreationModal({ isOpen, onClose, userId, onHabitCre
               Create New Habit
             </h2>
             <p className="text-gray-600 text-sm mb-6">
-              Build a simple habit to strengthen your Life Zones
+              Build simple habits to strengthen your Life Zones (up to 15 habits)
             </p>
 
             <form onSubmit={handleSubmit}>
@@ -120,13 +116,16 @@ export default function HabitCreationModal({ isOpen, onClose, userId, onHabitCre
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  Life Zone
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Life Zone (Optional)
                 </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  Link this habit to a Life Zone for bonus points
+                </p>
                 <div className="grid grid-cols-2 gap-3">
-                  {LIFE_ZONES.map(zone => (
+                  {LIFE_ZONES.map((zone, index) => (
                     <button
-                      key={zone.id}
+                      key={index}
                       type="button"
                       onClick={() => setSelectedZone(zone.id)}
                       className={`p-3 rounded-lg border-2 transition-all ${
@@ -163,9 +162,9 @@ export default function HabitCreationModal({ isOpen, onClose, userId, onHabitCre
                 </button>
                 <button
                   type="submit"
-                  disabled={isCreating || !title.trim() || !selectedZone}
+                  disabled={isCreating || !title.trim()}
                   className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${
-                    isCreating || !title.trim() || !selectedZone
+                    isCreating || !title.trim()
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg'
                   }`}

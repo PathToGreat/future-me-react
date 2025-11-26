@@ -182,6 +182,11 @@ export default function Dashboard() {
     loadHabits();
   };
 
+  const handleHabitDelete = () => {
+    console.log('🗑️ Habit deleted, refreshing list');
+    loadHabits();
+  };
+
   const handleAchievementsEarned = (newAchievements) => {
     if (newAchievements && newAchievements.length > 0) {
       console.log('🎉 New achievements earned!', newAchievements);
@@ -394,7 +399,7 @@ export default function Dashboard() {
         <div className="mt-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Your Habits</h2>
-            {habits.length < 3 && (
+            {habits.length < 15 && (
               <button
                 onClick={() => setShowHabitModal(true)}
                 className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all font-medium flex items-center gap-2"
@@ -430,14 +435,15 @@ export default function Dashboard() {
                   userId={user.uid}
                   onCompletion={handleHabitCompletion}
                   onAchievementsEarned={handleAchievementsEarned}
+                  onDelete={handleHabitDelete}
                 />
               ))}
             </div>
           )}
 
-          {habits.length > 0 && habits.length < 3 && (
+          {habits.length > 0 && habits.length < 15 && (
             <p className="text-sm text-gray-500 mt-4 text-center">
-              You can create up to {3 - habits.length} more {habits.length === 2 ? 'habit' : 'habits'}
+              You have {habits.length} {habits.length === 1 ? 'habit' : 'habits'} (up to 15 allowed)
             </p>
           )}
         </div>
