@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { collection, query, orderBy, limit, onSnapshot, doc, setDoc, getDoc, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
+import { calculateZoneScore, calculateAllLifeZones } from '../utils/lifeZoneEngine';
 import { calculateHabitZoneBonuses } from '../utils/habitHelpers';
+import { getZoneConfig, getZoneInputDefaults, getZoneColor } from '../utils/zoneConfig';
 import { useAuth } from '../context/AuthContext';
+import { fetchAllZoneHistories } from '../hooks/useZoneHistoryData';
 
 export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) {
   const { user } = useAuth();
@@ -12,22 +14,27 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   
-  const [newLog, setNewLog] = useState({
-    sleep: 3,
-    activity: 3,
-    nutrition: 3,
-    stress: 3
-  });
+  const zoneConfig = getZoneConfig(zoneId);
+  const zoneColors = getZoneColor(zoneId);
+  
+  const [newLog, setNewLog] = useState(() => getZoneInputDefaults(zoneId));
 
   useEffect(() => {
-    if (!isOpen || !user?.uid) return;
+    if (zoneId) {
+      setNewLog(getZoneInputDefaults(zoneId));
+    }
+  }, [zoneId]);
+
+  useEffect(() => {
+    if (!isOpen || !user?.uid || !zoneId) return;
 
     setLoading(true);
-    const dailyDataRef = collection(db, 'users', user.uid, 'dailyData');
-    const dailyQuery = query(dailyDataRef, orderBy('timestamp', 'desc'), limit(10));
+    
+    const zoneLogsRef = collection(db, 'users', user.uid, 'zoneLogs', zoneId, 'daily');
+    const zoneQuery = query(zoneLogsRef, orderBy('timestamp', 'desc'), limit(10));
 
     const unsubscribe = onSnapshot(
-      dailyQuery,
+      zoneQuery,
       (snapshot) => {
         const logs = [];
         snapshot.forEach((docSnap) => {
@@ -40,10 +47,10 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
         });
         setDailyLogs(logs);
         setLoading(false);
-        console.log(`📊 Loaded ${logs.length} daily logs for ${zoneId}`);
+        console.log(`📊 Loaded ${logs.length} zone-specific logs for ${zoneId}`);
       },
       (error) => {
-        console.error('Error loading daily logs:', error);
+        console.error('Error loading zone logs:', error);
         setLoading(false);
       }
     );
@@ -51,56 +58,49 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
     return () => unsubscribe();
   }, [isOpen, user?.uid, zoneId]);
 
-  const handleSliderChange = (metric, value) => {
-    setNewLog(prev => ({ ...prev, [metric]: value }));
+  const handleSliderChange = (key, value) => {
+    setNewLog(prev => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = async () => {
-    if (!user?.uid) return;
+    if (!user?.uid || !zoneId || !zoneConfig) return;
 
     setSubmitting(true);
     const today = new Date().toISOString().split('T')[0];
 
     try {
-      const lifestyleScore = ((newLog.activity + newLog.nutrition + newLog.sleep + (5 - newLog.stress)) / 16) * 100;
-
       const logData = {
         date: today,
         timestamp: new Date().toISOString(),
-        activity: newLog.activity,
-        nutrition: newLog.nutrition,
-        sleep: newLog.sleep,
-        stress: newLog.stress,
-        lifestyleScore: Math.round(lifestyleScore)
+        ...newLog
       };
 
-      const dailyDataRef = doc(db, 'users', user.uid, 'dailyData', today);
-      await setDoc(dailyDataRef, logData, { merge: true });
+      const zoneLogRef = doc(db, 'users', user.uid, 'zoneLogs', zoneId, 'daily', today);
+      await setDoc(zoneLogRef, logData, { merge: true });
 
-      console.log('✅ Daily log saved to dailyData collection:', logData);
+      console.log(`✅ ${zoneId} zone log saved:`, logData);
 
       const userDocRef = doc(db, 'users', user.uid);
-      
       const userDoc = await getDoc(userDocRef);
+      
       if (!userDoc.exists()) {
         throw new Error('User document not found');
       }
-      
+
       const currentUserData = userDoc.data();
 
-      const historyRef = collection(db, 'users', user.uid, 'dailyData');
-      const historyQuery = query(historyRef, orderBy('timestamp', 'desc'), limit(30));
-      const historySnapshot = await getDocs(historyQuery);
+      const zoneHistories = await fetchAllZoneHistories(user.uid, 30);
       
-      const historyData = [];
-      historySnapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        historyData.push({ 
-          id: docSnap.id,
-          date: docSnap.id,
-          ...data
-        });
-      });
+      if (!zoneHistories[zoneId]) {
+        zoneHistories[zoneId] = [];
+      }
+      
+      const existingIndex = zoneHistories[zoneId].findIndex(l => l.date === today);
+      if (existingIndex >= 0) {
+        zoneHistories[zoneId][existingIndex] = { ...logData, id: today };
+      } else {
+        zoneHistories[zoneId].unshift({ ...logData, id: today });
+      }
 
       const habitsRef = collection(db, 'users', user.uid, 'habits');
       const habitsSnapshot = await getDocs(habitsRef);
@@ -111,97 +111,63 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
 
       const habitBonuses = calculateHabitZoneBonuses(habits);
 
-      const trendAnalysis = calculateTrendAnalysis(historyData);
+      const updatedZones = calculateAllLifeZones(zoneHistories, habitBonuses);
 
-      const updatedUserData = {
+      let updatedUserData = { 
         ...currentUserData,
-        activity: newLog.activity,
-        nutrition: newLog.nutrition,
-        sleep: newLog.sleep,
-        stress: newLog.stress,
-        lifestyleScore: Math.round(lifestyleScore)
+        lifeZones: updatedZones 
       };
+      
+      if (zoneId === 'health') {
+        updatedUserData.activity = newLog.activity || 3;
+        updatedUserData.nutrition = newLog.nutrition || 3;
+        updatedUserData.sleep = newLog.sleep || 3;
+        updatedUserData.stress = newLog.stress || 3;
+        
+        const lifestyleScore = ((newLog.activity + newLog.nutrition + newLog.sleep + (5 - newLog.stress)) / 16) * 100;
+        updatedUserData.lifestyleScore = Math.round(lifestyleScore);
+      }
 
-      const updatedZones = calculateAllLifeZones(
-        updatedUserData,
-        trendAnalysis,
-        historyData,
-        habitBonuses
-      );
+      await setDoc(userDocRef, updatedUserData, { merge: true });
 
-      await setDoc(userDocRef, {
-        ...currentUserData,
-        activity: newLog.activity,
-        nutrition: newLog.nutrition,
-        sleep: newLog.sleep,
-        stress: newLog.stress,
-        lifestyleScore: Math.round(lifestyleScore),
-        lifeZones: updatedZones
-      }, { merge: true });
-
-      console.log('✅ User profile and Life Zones updated atomically');
+      console.log('✅ User profile and Life Zones updated');
       console.log(`📊 Updated ${zoneId} zone score:`, updatedZones[zoneId]?.score);
 
-      alert(`✅ Daily log saved successfully!\n\n${zone?.title} Zone updated to ${updatedZones[zoneId]?.score || 50} points.`);
+      alert(`✅ ${zoneConfig.title} log saved!\n\nNew score: ${updatedZones[zoneId]?.score || 50} points`);
 
-      setNewLog({ sleep: 3, activity: 3, nutrition: 3, stress: 3 });
+      setNewLog(getZoneInputDefaults(zoneId));
       
       setTimeout(() => {
         onClose();
-      }, 1500);
+      }, 1000);
 
     } catch (error) {
-      console.error('❌ Error submitting daily log:', error);
-      alert('Failed to save daily log. Please try again.');
+      console.error('❌ Error submitting zone log:', error);
+      alert('Failed to save. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const calculateTrendAnalysis = (historyData) => {
-    if (!historyData || historyData.length < 2) return null;
-
-    const sorted = [...historyData].sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    const calculateSlope = (metric) => {
-      const values = sorted.map(d => d[metric] || 3);
-      const n = values.length;
-      const xMean = (n - 1) / 2;
-      const yMean = values.reduce((sum, v) => sum + v, 0) / n;
-      
-      let numerator = 0;
-      let denominator = 0;
-      
-      for (let i = 0; i < n; i++) {
-        numerator += (i - xMean) * (values[i] - yMean);
-        denominator += (i - xMean) ** 2;
-      }
-      
-      return denominator === 0 ? 0 : numerator / denominator;
+  const getInputColor = (colorName) => {
+    const colors = {
+      blue: { slider: 'accent-blue-600', text: 'text-blue-600', bg: 'bg-blue-200' },
+      green: { slider: 'accent-green-600', text: 'text-green-600', bg: 'bg-green-200' },
+      purple: { slider: 'accent-purple-600', text: 'text-purple-600', bg: 'bg-purple-200' },
+      red: { slider: 'accent-red-600', text: 'text-red-600', bg: 'bg-red-200' },
+      orange: { slider: 'accent-orange-600', text: 'text-orange-600', bg: 'bg-orange-200' },
+      pink: { slider: 'accent-pink-600', text: 'text-pink-600', bg: 'bg-pink-200' },
+      indigo: { slider: 'accent-indigo-600', text: 'text-indigo-600', bg: 'bg-indigo-200' },
+      teal: { slider: 'accent-teal-600', text: 'text-teal-600', bg: 'bg-teal-200' },
+      amber: { slider: 'accent-amber-600', text: 'text-amber-600', bg: 'bg-amber-200' },
+      cyan: { slider: 'accent-cyan-600', text: 'text-cyan-600', bg: 'bg-cyan-200' },
+      emerald: { slider: 'accent-emerald-600', text: 'text-emerald-600', bg: 'bg-emerald-200' },
+      violet: { slider: 'accent-violet-600', text: 'text-violet-600', bg: 'bg-violet-200' }
     };
-
-    return {
-      sleepTrend: calculateSlope('sleep'),
-      activityTrend: calculateSlope('activity'),
-      nutritionTrend: calculateSlope('nutrition'),
-      stressTrend: calculateSlope('stress'),
-      trendSlope: calculateSlope('lifestyleScore') / 10
-    };
+    return colors[colorName] || colors.blue;
   };
 
-  const getZoneDescription = () => {
-    const descriptions = {
-      health: 'Track your physical wellness through activity, nutrition, and sleep quality',
-      socialEmotional: 'Monitor your emotional balance and stress management',
-      wealth: 'Build consistency in your daily tracking and personal growth',
-      faith: 'Strengthen your commitment through daily dedication and streaks',
-      family: 'Balance your energy and stress for harmonious relationships',
-      community: 'Engage consistently and maintain low stress for connection'
-    };
-    return descriptions[zoneId] || 'Track your progress in this life zone';
-  };
-
-  if (!isOpen) return null;
+  if (!isOpen || !zoneConfig) return null;
 
   return (
     <AnimatePresence>
@@ -219,13 +185,13 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
           className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="sticky top-0 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-t-2xl">
+          <div className={`sticky top-0 bg-gradient-to-r ${zoneColors.bg} text-white p-6 rounded-t-2xl`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-4xl">{zone?.icon}</span>
+                <span className="text-4xl">{zoneConfig.icon}</span>
                 <div>
-                  <h2 className="text-2xl font-bold">{zone?.title}</h2>
-                  <p className="text-blue-100 text-sm mt-1">{getZoneDescription()}</p>
+                  <h2 className="text-2xl font-bold">{zoneConfig.title}</h2>
+                  <p className="text-white/80 text-sm mt-1">{zoneConfig.description}</p>
                 </div>
               </div>
               <button
@@ -248,99 +214,45 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
 
           <div className="p-6">
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-3">Log Today's Metrics</h3>
-              <p className="text-sm text-gray-600 mb-2">
-                Rate your daily activities to update your Life Zone scores
+              <h3 className="text-lg font-bold text-gray-800 mb-3">Log Today's {zoneConfig.title} Metrics</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                These inputs are specific to your {zoneConfig.title} zone and directly affect its score.
               </p>
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4">
-                <p className="text-xs text-blue-800">
-                  ℹ️ <strong>Note:</strong> These daily metrics affect all Life Zones. Each zone uses these metrics differently in its calculations.
-                </p>
-              </div>
 
-              <div className="space-y-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-5">
-                <div>
-                  <label className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-700">Physical Activity</span>
-                    <span className="text-lg font-bold text-blue-600">{newLog.activity}</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    value={newLog.activity}
-                    onChange={(e) => handleSliderChange('activity', parseInt(e.target.value))}
-                    className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Minimal</span>
-                    <span>Excellent</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-700">Nutrition Quality</span>
-                    <span className="text-lg font-bold text-green-600">{newLog.nutrition}</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    value={newLog.nutrition}
-                    onChange={(e) => handleSliderChange('nutrition', parseInt(e.target.value))}
-                    className="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer accent-green-600"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Poor</span>
-                    <span>Excellent</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-700">Sleep Quality</span>
-                    <span className="text-lg font-bold text-purple-600">{newLog.sleep}</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    value={newLog.sleep}
-                    onChange={(e) => handleSliderChange('sleep', parseInt(e.target.value))}
-                    className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Poor</span>
-                    <span>Excellent</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-700">Stress Level</span>
-                    <span className="text-lg font-bold text-red-600">{newLog.stress}</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    value={newLog.stress}
-                    onChange={(e) => handleSliderChange('stress', parseInt(e.target.value))}
-                    className="w-full h-2 bg-red-200 rounded-lg appearance-none cursor-pointer accent-red-600"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Low</span>
-                    <span>Very High</span>
-                  </div>
-                </div>
+              <div className={`space-y-4 ${zoneColors.light} rounded-xl p-5 border ${zoneColors.border}`}>
+                {zoneConfig.inputs.map((input) => {
+                  const inputColors = getInputColor(input.color);
+                  return (
+                    <div key={input.key}>
+                      <label className="flex items-center justify-between mb-2">
+                        <div>
+                          <span className="text-sm font-semibold text-gray-700">{input.label}</span>
+                          <p className="text-xs text-gray-500">{input.description}</p>
+                        </div>
+                        <span className={`text-lg font-bold ${inputColors.text}`}>{newLog[input.key] || 3}</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="5"
+                        value={newLog[input.key] || 3}
+                        onChange={(e) => handleSliderChange(input.key, parseInt(e.target.value))}
+                        className={`w-full h-2 ${inputColors.bg} rounded-lg appearance-none cursor-pointer ${inputColors.slider}`}
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>{input.minLabel}</span>
+                        <span>{input.maxLabel}</span>
+                      </div>
+                    </div>
+                  );
+                })}
 
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="w-full mt-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`w-full mt-4 py-3 bg-gradient-to-r ${zoneColors.bg} text-white font-bold rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  {submitting ? 'Saving...' : 'Save Today\'s Log'}
+                  {submitting ? 'Saving...' : `Save ${zoneConfig.title} Log`}
                 </button>
               </div>
             </div>
@@ -348,7 +260,7 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
             <div className="mb-4">
               <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <span>📊</span>
-                Recent Daily Logs
+                Recent {zoneConfig.title} Logs
               </h3>
               
               {loading ? (
@@ -357,39 +269,29 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
                 </div>
               ) : dailyLogs.length === 0 ? (
                 <div className="bg-gray-50 rounded-lg p-6 text-center">
-                  <p className="text-gray-500">No daily logs yet</p>
-                  <p className="text-sm text-gray-400 mt-1">Start logging to track your progress</p>
+                  <p className="text-gray-500">No {zoneConfig.title.toLowerCase()} logs yet</p>
+                  <p className="text-sm text-gray-400 mt-1">Start logging to track your {zoneConfig.title.toLowerCase()} progress</p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {dailyLogs.map((log) => (
                     <div
                       key={log.id}
-                      className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-4 border border-gray-200"
+                      className={`${zoneColors.light} rounded-lg p-4 border ${zoneColors.border}`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-gray-700">{log.date}</span>
-                        <span className="text-xs text-gray-500">
-                          Score: {Math.round(log.lifestyleScore || 50)}
-                        </span>
                       </div>
-                      <div className="grid grid-cols-4 gap-2 text-xs">
-                        <div className="text-center">
-                          <div className="text-blue-600 font-bold">{log.activity || 3}</div>
-                          <div className="text-gray-500">Activity</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-green-600 font-bold">{log.nutrition || 3}</div>
-                          <div className="text-gray-500">Nutrition</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-purple-600 font-bold">{log.sleep || 3}</div>
-                          <div className="text-gray-500">Sleep</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-red-600 font-bold">{log.stress || 3}</div>
-                          <div className="text-gray-500">Stress</div>
-                        </div>
+                      <div className={`grid grid-cols-${Math.min(zoneConfig.inputs.length, 4)} gap-2 text-xs`}>
+                        {zoneConfig.inputs.map((input) => {
+                          const inputColors = getInputColor(input.color);
+                          return (
+                            <div key={input.key} className="text-center">
+                              <div className={`font-bold ${inputColors.text}`}>{log[input.key] || 3}</div>
+                              <div className="text-gray-500 truncate">{input.label.split(' ')[0]}</div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
@@ -398,18 +300,33 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
             </div>
 
             {zone?.details && (
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <h4 className="text-sm font-bold text-gray-700 mb-2">Zone Details</h4>
+              <div className={`${zoneColors.light} rounded-lg p-4 border ${zoneColors.border}`}>
+                <h4 className="text-sm font-bold text-gray-700 mb-2">{zoneConfig.title} Zone Breakdown</h4>
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  {Object.entries(zone.details).map(([key, value]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span>
-                      <span className="font-semibold text-gray-800">
-                        {typeof value === 'number' ? Math.round(value) : value}
-                      </span>
-                    </div>
-                  ))}
+                  {Object.entries(zone.details)
+                    .filter(([key]) => !['interpretation'].includes(key))
+                    .map(([key, value]) => (
+                      <div key={key} className="flex justify-between">
+                        <span className="text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span>
+                        <span className="font-semibold text-gray-800">
+                          {typeof value === 'number' ? Math.round(value) : value}
+                        </span>
+                      </div>
+                    ))}
                 </div>
+                {zone.details.interpretation && (
+                  <div className="mt-2 pt-2 border-t border-gray-200">
+                    <span className="text-xs text-gray-500">Status: </span>
+                    <span className={`text-xs font-semibold capitalize ${
+                      zone.details.interpretation === 'excellent' ? 'text-green-600' :
+                      zone.details.interpretation === 'strong' ? 'text-blue-600' :
+                      zone.details.interpretation === 'developing' ? 'text-amber-600' :
+                      'text-red-600'
+                    }`}>
+                      {zone.details.interpretation}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>
