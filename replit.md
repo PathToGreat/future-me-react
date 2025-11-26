@@ -47,7 +47,7 @@ The frontend is built with **React 18.3** and **Vite 7.1.9**, utilizing **Tailwi
 
 ### Backend & Data Architecture
 
-**Firebase Authentication v11** is used for email/password sign-up and login, ensuring secure session persistence. **Cloud Firestore** serves as the primary database for user data storage.
+**Firebase Authentication v11** is used for email/password sign-up and login, ensuring secure session persistence. Features include password reset functionality via Firebase's `sendPasswordResetEmail` with user-friendly error handling. **Cloud Firestore** serves as the primary database for user data storage.
 
 **Data Schema Highlights:**
 - User profiles are stored at `/users/{userId}`, containing personal information, onboarding status, current lifestyle metrics, and Life Zone scores.
