@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
 
 export default function Onboarding() {
@@ -19,43 +21,67 @@ export default function Onboarding() {
   });
 
   const handleSubmit = async () => {
-    console.log('🚀 Starting onboarding submission...');
+    console.log('Starting onboarding submission...');
     setLoading(true);
     
     try {
-      console.log('📊 Calculating lifestyle score...');
+      console.log('Calculating lifestyle score...');
       const lifestyleScore = (formData.activity + formData.nutrition + formData.sleep + (5 - formData.stress)) / 16 * 100;
-      console.log('✅ Lifestyle score calculated:', lifestyleScore);
+      console.log('Lifestyle score calculated:', lifestyleScore);
       
       const avatarState = lifestyleScore >= 75 ? 'vibrant' : lifestyleScore >= 50 ? 'stable' : 'weary';
-      console.log('🎨 Avatar state:', avatarState);
+      console.log('Avatar state:', avatarState);
       
-      // Calculate initial Life Zones based on onboarding data
-      const profileForZones = {
-        ...formData,
-        lifestyleScore,
+      const today = new Date().toISOString().split('T')[0];
+      
+      const healthLogData = {
+        date: today,
+        timestamp: new Date().toISOString(),
+        activity: formData.activity,
+        nutrition: formData.nutrition,
+        sleep: formData.sleep,
+        stress: formData.stress
       };
       
-      const initialZones = calculateAllLifeZones(profileForZones, null, []);
-      console.log('🎯 Initial Life Zones calculated:', initialZones);
+      const healthLogRef = doc(db, 'users', user.uid, 'zoneLogs', 'health', 'daily', today);
+      await setDoc(healthLogRef, healthLogData, { merge: true });
+      console.log('Initial Health zone log saved');
+      
+      const dailyDataRef = doc(db, 'users', user.uid, 'dailyData', today);
+      await setDoc(dailyDataRef, {
+        ...healthLogData,
+        lifestyleScore: Math.round(lifestyleScore)
+      }, { merge: true });
+      
+      const zoneHistories = {
+        health: [healthLogData],
+        socialEmotional: [],
+        family: [],
+        community: [],
+        wealth: [],
+        faith: []
+      };
+      
+      const initialZones = calculateAllLifeZones(zoneHistories, null);
+      console.log('Initial Life Zones calculated:', initialZones);
       
       const dataToSave = {
         ...formData,
-        lifestyleScore,
+        lifestyleScore: Math.round(lifestyleScore),
         avatarState,
         onboardingCompleted: true,
         completedAt: new Date().toISOString(),
         lifeZones: initialZones,
       };
       
-      console.log('💾 Attempting to save user profile...', dataToSave);
+      console.log('Saving user profile...', dataToSave);
       await updateUserProfile(dataToSave);
-      console.log('✅ User profile saved successfully!');
+      console.log('User profile saved successfully!');
       
-      console.log('🔄 Navigating to dashboard...');
+      console.log('Navigating to dashboard...');
       navigate('/dashboard');
     } catch (error) {
-      console.error('❌ Error in handleSubmit:', error);
+      console.error('Error in handleSubmit:', error);
       console.error('Error details:', error.message, error.code);
       alert(`Error: ${error.message || 'There was an error saving your data. Please try again.'}`);
       setLoading(false);
