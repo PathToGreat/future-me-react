@@ -1,146 +1,182 @@
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { calculateBodyComposition, getAvatarBodyWidth } from '../utils/bodyCompositionModel';
+import { calculateAvatarTraits } from '../utils/avatarTraitEngine';
 
-export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sleep, stress, images, trendAnalysis, predictions }) {
+export default function FutureMeAvatar({ 
+  lifestyleScore, 
+  activity, 
+  nutrition, 
+  sleep, 
+  stress, 
+  images, 
+  trendAnalysis, 
+  predictions,
+  habits = [],
+  achievements = [],
+  lifeZones = null
+}) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
   
-  console.log('🎨 FutureMeAvatar rendered with data:');
-  console.log('  📊 Lifestyle Score:', lifestyleScore);
-  console.log('  🏃 Activity:', activity);
-  console.log('  🥗 Nutrition:', nutrition);
-  console.log('  😴 Sleep:', sleep);
-  console.log('  😰 Stress:', stress);
-  console.log('  📸 Images:', images ? images.length : 0);
+  const dailyMetrics = { activity, nutrition, sleep, stress };
+  const habitStreaks = habits.map(h => h.streak || 0);
   
-  // Calculate body composition score
-  const bodyCompositionScore = calculateBodyComposition(activity, nutrition, sleep, stress);
-  console.log('  💪 Body Composition Score:', bodyCompositionScore);
-  
-  if (images && images.length > 0) {
-    console.log('🎨 Avatar updated from uploaded image');
-  }
+  const lifeZoneScores = useMemo(() => {
+    if (!lifeZones) return {};
+    const scores = {};
+    Object.entries(lifeZones).forEach(([key, value]) => {
+      scores[key] = value?.score || 50;
+    });
+    return scores;
+  }, [lifeZones]);
+
+  const avatarTraits = useMemo(() => {
+    return calculateAvatarTraits({
+      dailyMetrics,
+      wellnessScore: lifestyleScore || 50,
+      lifeZones: lifeZoneScores,
+      habitStreaks,
+      achievements
+    });
+  }, [dailyMetrics, lifestyleScore, lifeZoneScores, habitStreaks, achievements]);
+
+  console.log('🎨 FutureMeAvatar rendered with traits:', avatarTraits.summary);
 
   useEffect(() => {
     if (trendAnalysis) {
       console.log('📊 Avatar adapting to trend analysis:');
       console.log(`  - Direction: ${trendAnalysis.direction}`);
       console.log(`  - Change: ${trendAnalysis.changePercentage}%`);
-      console.log(`  - Trend Score: ${trendAnalysis.trendScore.toFixed(2)}`);
     }
   }, [trendAnalysis]);
 
-  useEffect(() => {
-    if (predictions) {
-      console.log('➡️ Avatar showing future growth outlook:');
-      console.log(`  - 30-day: ${predictions[30].score} (${predictions[30].status})`);
-      console.log(`  - 90-day: ${predictions[90].score} (${predictions[90].status})`);
-      console.log(`  - 180-day: ${predictions[180].score} (${predictions[180].status})`);
-    }
-  }, [predictions]);
-
   const getAvatarColor = () => {
-    if (lifestyleScore >= 75) return { body: '#10b981', glow: '#34d399' };
-    if (lifestyleScore >= 50) return { body: '#f59e0b', glow: '#fbbf24' };
-    return { body: '#ef4444', glow: '#f87171' };
+    const energyScore = avatarTraits.glowEnergy.score;
+    if (energyScore >= 75) return { body: '#10b981', glow: '#34d399', accent: '#6ee7b7' };
+    if (energyScore >= 50) return { body: '#f59e0b', glow: '#fbbf24', accent: '#fcd34d' };
+    return { body: '#ef4444', glow: '#f87171', accent: '#fca5a5' };
   };
 
-  const getPosture = () => {
-    return activity >= 4 ? 'translateY(-10px)' : activity >= 2 ? 'translateY(0px)' : 'translateY(10px)';
+  const getPostureTransform = () => {
+    const postureScore = avatarTraits.posture.score;
+    if (postureScore >= 80) return { y: -12, rotate: -2 };
+    if (postureScore >= 60) return { y: -6, rotate: 0 };
+    if (postureScore >= 40) return { y: 0, rotate: 0 };
+    return { y: 8, rotate: 2 };
   };
 
-  const getEnergyLevel = () => {
-    return (activity + nutrition + sleep + (5 - stress)) / 16;
+  const getMouthPath = () => {
+    const expressionScore = avatarTraits.facialExpression.score;
+    if (expressionScore >= 80) return 'M 75 90 Q 100 105 125 90';
+    if (expressionScore >= 60) return 'M 80 88 Q 100 98 120 88';
+    if (expressionScore >= 40) return 'M 85 90 L 115 90';
+    return 'M 80 95 Q 100 85 120 95';
+  };
+
+  const getEyeShape = () => {
+    const expressionScore = avatarTraits.facialExpression.score;
+    if (expressionScore >= 70) {
+      return { happy: true, squint: false };
+    }
+    if (expressionScore >= 40) {
+      return { happy: false, squint: false };
+    }
+    return { happy: false, squint: true };
+  };
+
+  const getBodyWidth = () => {
+    const bodyScore = avatarTraits.bodyShape.score;
+    const baseWidth = 100;
+    const variance = 30;
+    const adjustment = (100 - bodyScore) / 100 * variance;
+    return Math.round(baseWidth + adjustment - 10);
+  };
+
+  const getGlowAnimation = () => {
+    const energyScore = avatarTraits.glowEnergy.score;
+    const movementScore = avatarTraits.movementLevel.score;
+    
+    if (energyScore >= 80) {
+      return {
+        scale: [1, 1.25, 1],
+        opacity: [0.5, 0.8, 0.5],
+        duration: 1.2
+      };
+    }
+    if (energyScore >= 60) {
+      return {
+        scale: [1, 1.15, 1],
+        opacity: [0.4, 0.6, 0.4],
+        duration: 1.8
+      };
+    }
+    if (energyScore >= 40) {
+      return {
+        scale: [1, 1.08, 1],
+        opacity: [0.25, 0.4, 0.25],
+        duration: 2.5
+      };
+    }
+    return {
+      scale: [1, 1.03, 1],
+      opacity: [0.15, 0.25, 0.15],
+      duration: 3.5
+    };
+  };
+
+  const getArmAnimation = () => {
+    const movementScore = avatarTraits.movementLevel.score;
+    if (movementScore >= 70) {
+      return { rotate: [-15, 15, -15], duration: 1.2 };
+    }
+    if (movementScore >= 50) {
+      return { rotate: [-8, 8, -8], duration: 1.8 };
+    }
+    return { rotate: [0, 0, 0], duration: 0 };
+  };
+
+  const getBreathingAnimation = () => {
+    const energyScore = avatarTraits.glowEnergy.score;
+    const rate = energyScore >= 70 ? 1.5 : energyScore >= 50 ? 2 : 2.8;
+    const intensity = energyScore >= 70 ? 4 : energyScore >= 50 ? 2 : 1;
+    return { rate, intensity };
+  };
+
+  const getParticleCount = () => {
+    const energyScore = avatarTraits.glowEnergy.score;
+    if (energyScore >= 80) return 8;
+    if (energyScore >= 60) return 5;
+    if (energyScore >= 40) return 3;
+    return 0;
+  };
+
+  const getAuraConfig = () => {
+    const auraScore = avatarTraits.auraPresence.score;
+    if (auraScore >= 80) {
+      return { size: 2, opacity: 0.3, rings: 3 };
+    }
+    if (auraScore >= 60) {
+      return { size: 1.5, opacity: 0.2, rings: 2 };
+    }
+    if (auraScore >= 40) {
+      return { size: 1.2, opacity: 0.1, rings: 1 };
+    }
+    return { size: 0, opacity: 0, rings: 0 };
   };
 
   const colors = getAvatarColor();
-  const bodyWidth = getAvatarBodyWidth(bodyCompositionScore);
-  const energyLevel = getEnergyLevel();
+  const posture = getPostureTransform();
+  const bodyWidth = getBodyWidth();
+  const glowAnim = getGlowAnimation();
+  const armAnim = getArmAnimation();
+  const breathing = getBreathingAnimation();
+  const particleCount = getParticleCount();
+  const aura = getAuraConfig();
+  const mouthPath = getMouthPath();
+  const eyeShape = getEyeShape();
 
-  const getTrendGlowEffect = () => {
-    if (!trendAnalysis) {
-      return {
-        scale: [1, 1.1, 1],
-        opacity: [0.3, 0.5, 0.3],
-        duration: 2
-      };
-    }
-
-    if (trendAnalysis.direction === 'improving') {
-      return {
-        scale: [1, 1.2, 1],
-        opacity: [0.4, 0.7, 0.4],
-        duration: 1.5
-      };
-    } else if (trendAnalysis.direction === 'declining') {
-      return {
-        scale: [1, 1.05, 1],
-        opacity: [0.2, 0.3, 0.2],
-        duration: 3
-      };
-    } else {
-      return {
-        scale: [1, 1.1, 1],
-        opacity: [0.3, 0.5, 0.3],
-        duration: 2
-      };
-    }
-  };
-
-  const getTrendBrightnessFilter = () => {
-    if (!trendAnalysis) return 1;
-    
-    if (trendAnalysis.direction === 'improving') {
-      return 1.1;
-    } else if (trendAnalysis.direction === 'declining') {
-      return 0.85;
-    }
-    return 1;
-  };
-
-  const getPredictionAnimation = () => {
-    if (!predictions) return {};
-
-    const day180 = predictions[180];
-    
-    if (day180.direction === 'improving') {
-      if (day180.score >= 80) {
-        return {
-          y: [0, -5, 0],
-          duration: 2.5
-        };
-      } else {
-        return {
-          y: [0, -2, 0],
-          duration: 3
-        };
-      }
-    } else if (day180.direction === 'declining') {
-      return {
-        y: [0, 2, 0],
-        duration: 3.5
-      };
-    }
-    
-    return {};
-  };
-
-  const getPredictionGlowColor = () => {
-    if (!predictions) return colors.glow;
-
-    const day30 = predictions[30];
-    
-    if (day30.direction === 'improving') {
-      return '#10b981';
-    }
-    
-    return colors.glow;
-  };
-
-  const glowEffect = getTrendGlowEffect();
-  const brightnessFilter = getTrendBrightnessFilter();
-  const predictionAnimation = getPredictionAnimation();
-  const predictionGlowColor = getPredictionGlowColor();
+  const trendBrightness = trendAnalysis?.direction === 'improving' ? 1.1 
+    : trendAnalysis?.direction === 'declining' ? 0.85 : 1;
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -148,32 +184,51 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
         initial={{ scale: 0 }}
         animate={{ 
           scale: 1,
-          ...predictionAnimation
+          y: predictions?.[180]?.direction === 'improving' ? [0, -5, 0] : [0, 0, 0]
         }}
         transition={{ 
           type: 'spring', 
           duration: 0.8,
-          y: {
-            duration: predictionAnimation.duration || 0,
-            repeat: predictionAnimation.duration ? Infinity : 0,
-            ease: 'easeInOut'
-          }
+          y: { duration: 2.5, repeat: Infinity, ease: 'easeInOut' }
         }}
         className="relative"
       >
+        {aura.rings > 0 && (
+          <>
+            {[...Array(aura.rings)].map((_, i) => (
+              <motion.div
+                key={`aura-${i}`}
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: `radial-gradient(circle, ${colors.glow}${Math.round(aura.opacity * 100 * (1 - i * 0.3)).toString(16)} 0%, transparent 70%)`,
+                  transform: `scale(${aura.size + i * 0.3})`,
+                }}
+                animate={{
+                  opacity: [aura.opacity * (1 - i * 0.2), aura.opacity * 0.5 * (1 - i * 0.2), aura.opacity * (1 - i * 0.2)],
+                }}
+                transition={{
+                  duration: 3 + i,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+              />
+            ))}
+          </>
+        )}
+
         <motion.div
           animate={{
-            scale: glowEffect.scale,
-            opacity: glowEffect.opacity,
+            scale: glowAnim.scale,
+            opacity: glowAnim.opacity,
           }}
           transition={{
-            duration: glowEffect.duration,
+            duration: glowAnim.duration,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
           className="absolute inset-0 rounded-full blur-2xl"
           style={{
-            background: `radial-gradient(circle, ${predictionGlowColor} 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.glow} 0%, transparent 70%)`,
             transform: 'scale(1.5)',
           }}
         />
@@ -187,16 +242,49 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
               alt="Your uploaded image"
               className="w-[200px] h-[300px] object-cover rounded-2xl shadow-2xl"
               style={{
-                filter: `brightness(${(energyLevel > 0.7 ? 1.1 : energyLevel > 0.5 ? 1 : 0.9) * brightnessFilter}) saturate(${energyLevel > 0.7 ? 1.2 : energyLevel > 0.5 ? 1 : 0.8})`,
+                filter: `brightness(${(avatarTraits.glowEnergy.score / 100 * 0.3 + 0.85) * trendBrightness}) saturate(${avatarTraits.glowEnergy.score / 100 * 0.4 + 0.8})`,
               }}
             />
-            <div 
+            <motion.div 
               className="absolute inset-0 rounded-2xl pointer-events-none"
+              animate={{
+                opacity: [0.1, 0.3, 0.1]
+              }}
+              transition={{
+                duration: glowAnim.duration,
+                repeat: Infinity
+              }}
               style={{
-                background: `linear-gradient(180deg, ${colors.glow}20 0%, transparent 50%, ${colors.glow}10 100%)`,
+                background: `linear-gradient(180deg, ${colors.glow}40 0%, transparent 50%, ${colors.glow}20 100%)`,
                 mixBlendMode: 'overlay'
               }}
             />
+            
+            {particleCount > 0 && (
+              <>
+                {[...Array(particleCount)].map((_, i) => (
+                  <motion.div
+                    key={`photo-particle-${i}`}
+                    className="absolute w-2 h-2 rounded-full"
+                    style={{
+                      backgroundColor: colors.accent,
+                      left: `${10 + (i * 80 / particleCount)}%`,
+                      top: '50%',
+                    }}
+                    animate={{
+                      y: [-100, -150, -100],
+                      opacity: [0, 1, 0],
+                      scale: [0.5, 1, 0.5],
+                    }}
+                    transition={{
+                      duration: 2 + (i % 3) * 0.5,
+                      repeat: Infinity,
+                      delay: i * 0.3,
+                    }}
+                  />
+                ))}
+              </>
+            )}
           </div>
         ) : (
           <svg
@@ -204,138 +292,182 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
             height="300"
             viewBox="0 0 200 300"
             className="relative z-10"
-            style={{
-              filter: `brightness(${brightnessFilter})`
-            }}
+            style={{ filter: `brightness(${trendBrightness})` }}
           >
-          <motion.ellipse
-            cx="100"
-            cy="70"
-            rx="45"
-            ry="50"
-            fill={colors.body}
-            animate={{
-              ry: [50, 52, 50],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-
-          <motion.g animate={{ y: [0, -3, 0] }} transition={{ duration: 2, repeat: Infinity }}>
-            <ellipse cx="85" cy="65" rx="8" ry="10" fill="white" />
-            <ellipse cx="115" cy="65" rx="8" ry="10" fill="white" />
-            <circle cx="85" cy="67" r="5" fill="#1f2937" />
-            <circle cx="115" cy="67" r="5" fill="#1f2937" />
-          </motion.g>
-
-          <motion.path
-            d={`M 75 85 Q 100 ${stress > 3 ? 85 : 95} 125 85`}
-            stroke={stress > 3 ? '#ef4444' : '#10b981'}
-            strokeWidth="3"
-            fill="none"
-            strokeLinecap="round"
-          />
-
-          <motion.g
-            animate={{
-              y: getPosture(),
-            }}
-            transition={{ duration: 0.5 }}
-          >
-            <motion.rect
-              x={(200 - bodyWidth) / 2}
-              y="120"
-              width={bodyWidth}
-              height="100"
-              rx="20"
-              fill={colors.body}
+            <motion.g
               animate={{
-                height: [100, 102, 100],
+                y: posture.y,
+                rotate: posture.rotate,
               }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-              }}
-            />
+              transition={{ duration: 0.5 }}
+              style={{ transformOrigin: '100px 150px' }}
+            >
+              <motion.ellipse
+                cx="100"
+                cy="70"
+                rx="45"
+                ry="50"
+                fill={colors.body}
+                animate={{
+                  ry: [50, 50 + breathing.intensity, 50],
+                }}
+                transition={{
+                  duration: breathing.rate,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+              />
 
-            <motion.rect
-              x="60"
-              y="120"
-              width="15"
-              height="80"
-              rx="10"
-              fill={colors.body}
-              animate={{
-                rotate: activity >= 4 ? [0, -10, 0] : [0, 0, 0],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-              }}
-              style={{ transformOrigin: '67px 120px' }}
-            />
+              <motion.g animate={eyeShape.happy ? { y: [0, -2, 0] } : {}} transition={{ duration: 2, repeat: Infinity }}>
+                {eyeShape.squint ? (
+                  <>
+                    <line x1="75" y1="65" x2="95" y2="68" stroke="#1f2937" strokeWidth="3" strokeLinecap="round" />
+                    <line x1="105" y1="68" x2="125" y2="65" stroke="#1f2937" strokeWidth="3" strokeLinecap="round" />
+                  </>
+                ) : (
+                  <>
+                    <ellipse cx="85" cy="65" rx="8" ry={eyeShape.happy ? 6 : 10} fill="white" />
+                    <ellipse cx="115" cy="65" rx="8" ry={eyeShape.happy ? 6 : 10} fill="white" />
+                    <motion.circle 
+                      cx="85" 
+                      cy="67" 
+                      r="5" 
+                      fill="#1f2937"
+                      animate={eyeShape.happy ? { cy: [67, 65, 67] } : {}}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    />
+                    <motion.circle 
+                      cx="115" 
+                      cy="67" 
+                      r="5" 
+                      fill="#1f2937"
+                      animate={eyeShape.happy ? { cy: [67, 65, 67] } : {}}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    />
+                    {eyeShape.happy && (
+                      <>
+                        <circle cx="87" cy="64" r="2" fill="white" />
+                        <circle cx="117" cy="64" r="2" fill="white" />
+                      </>
+                    )}
+                  </>
+                )}
+              </motion.g>
 
-            <motion.rect
-              x="125"
-              y="120"
-              width="15"
-              height="80"
-              rx="10"
-              fill={colors.body}
-              animate={{
-                rotate: activity >= 4 ? [0, 10, 0] : [0, 0, 0],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-              }}
-              style={{ transformOrigin: '132px 120px' }}
-            />
-          </motion.g>
+              <motion.path
+                d={mouthPath}
+                stroke={avatarTraits.facialExpression.score >= 60 ? '#10b981' : avatarTraits.facialExpression.score >= 40 ? '#f59e0b' : '#ef4444'}
+                strokeWidth="3"
+                fill="none"
+                strokeLinecap="round"
+              />
 
-          <motion.rect
-            x="75"
-            y="220"
-            width="20"
-            height="70"
-            rx="10"
-            fill={colors.body}
-          />
-          <motion.rect
-            x="105"
-            y="220"
-            width="20"
-            height="70"
-            rx="10"
-            fill={colors.body}
-          />
+              {avatarTraits.facialExpression.score >= 75 && (
+                <>
+                  <circle cx="65" cy="80" r="6" fill="#fca5a5" opacity="0.5" />
+                  <circle cx="135" cy="80" r="6" fill="#fca5a5" opacity="0.5" />
+                </>
+              )}
 
-          {energyLevel > 0.7 && (
-            <>
-              {[...Array(5)].map((_, i) => (
-                <motion.circle
-                  key={i}
-                  cx={100 + Math.cos(i * 72 * Math.PI / 180) * 80}
-                  cy={150 + Math.sin(i * 72 * Math.PI / 180) * 80}
-                  r="4"
-                  fill={colors.glow}
-                  animate={{
-                    scale: [0, 1, 0],
-                    opacity: [0, 1, 0],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                  }}
-                />
-              ))}
-            </>
-          )}
-        </svg>
+              <motion.rect
+                x={(200 - bodyWidth) / 2}
+                y="120"
+                width={bodyWidth}
+                height="100"
+                rx="20"
+                fill={colors.body}
+                animate={{
+                  height: [100, 100 + breathing.intensity, 100],
+                }}
+                transition={{
+                  duration: breathing.rate,
+                  repeat: Infinity,
+                }}
+              />
+
+              <motion.rect
+                x="55"
+                y="120"
+                width="18"
+                height="80"
+                rx="10"
+                fill={colors.body}
+                animate={{
+                  rotate: armAnim.rotate,
+                }}
+                transition={{
+                  duration: armAnim.duration,
+                  repeat: armAnim.duration > 0 ? Infinity : 0,
+                }}
+                style={{ transformOrigin: '64px 120px' }}
+              />
+
+              <motion.rect
+                x="127"
+                y="120"
+                width="18"
+                height="80"
+                rx="10"
+                fill={colors.body}
+                animate={{
+                  rotate: armAnim.rotate.map(r => -r),
+                }}
+                transition={{
+                  duration: armAnim.duration,
+                  repeat: armAnim.duration > 0 ? Infinity : 0,
+                }}
+                style={{ transformOrigin: '136px 120px' }}
+              />
+
+              <rect x="75" y="220" width="20" height="70" rx="10" fill={colors.body} />
+              <rect x="105" y="220" width="20" height="70" rx="10" fill={colors.body} />
+            </motion.g>
+
+            {particleCount > 0 && (
+              <>
+                {[...Array(particleCount)].map((_, i) => (
+                  <motion.circle
+                    key={`particle-${i}`}
+                    cx={100 + Math.cos((i * 360 / particleCount) * Math.PI / 180) * 90}
+                    cy={150 + Math.sin((i * 360 / particleCount) * Math.PI / 180) * 90}
+                    r={3 + (avatarTraits.glowEnergy.score / 50)}
+                    fill={colors.accent}
+                    animate={{
+                      scale: [0, 1.2, 0],
+                      opacity: [0, 0.9, 0],
+                    }}
+                    transition={{
+                      duration: 1.5 + (i % 3) * 0.3,
+                      repeat: Infinity,
+                      delay: i * (1.5 / particleCount),
+                    }}
+                  />
+                ))}
+              </>
+            )}
+
+            {avatarTraits.auraPresence.score >= 70 && (
+              <motion.ellipse
+                cx="100"
+                cy="150"
+                rx="95"
+                ry="140"
+                fill="none"
+                stroke={colors.glow}
+                strokeWidth="2"
+                strokeDasharray="10 5"
+                opacity="0.3"
+                animate={{
+                  strokeDashoffset: [0, -30, 0],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: 'linear',
+                }}
+              />
+            )}
+          </svg>
         )}
       </motion.div>
 
@@ -346,15 +478,35 @@ export default function FutureMeAvatar({ lifestyleScore, activity, nutrition, sl
         className="mt-6 text-center space-y-3"
       >
         <div className="inline-flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-lg">
-          <div
+          <motion.div
             className="w-3 h-3 rounded-full"
             style={{ backgroundColor: colors.body }}
+            animate={{
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: glowAnim.duration,
+              repeat: Infinity,
+            }}
           />
           <span className="font-semibold text-gray-700">
             {lifestyleScore >= 75 ? 'Thriving' : lifestyleScore >= 50 ? 'Improving' : 'Needs Attention'}
           </span>
           <span className="text-primary-600 font-bold">{Math.round(lifestyleScore)}%</span>
         </div>
+
+        {avatarTraits.summary.dominantTraits && avatarTraits.summary.dominantTraits.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-2 mt-2">
+            {avatarTraits.summary.dominantTraits.slice(0, 2).map((trait, index) => (
+              <span 
+                key={index}
+                className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600"
+              >
+                {trait.label}
+              </span>
+            ))}
+          </div>
+        )}
 
         {images && images.length > 0 && (
           <button

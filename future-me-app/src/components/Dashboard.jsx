@@ -18,7 +18,8 @@ import AchievementNotification from "./AchievementNotification";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { predictFutureState, getMotivationalMessage } from "../utils/predictFutureState";
+import { predictFutureState, getMotivationalMessage, getInsightMessage } from "../utils/predictFutureState";
+import { getMetricTrend } from "../utils/analyzeTrends";
 import { projectFutureMetrics, getFutureAvatarDescription } from "../utils/futureAvatarModel";
 import { getUserHabits, calculateHabitZoneBonuses } from "../utils/habitHelpers";
 import { getUserAchievements } from "../utils/achievementEngine";
@@ -45,14 +46,27 @@ export default function Dashboard() {
   // Calculate future growth outlook when trend analysis is available
   useEffect(() => {
     if (trendAnalysis && liveProfile?.lifestyleScore) {
+      const metricTrends = historyData && historyData.length >= 2 ? {
+        activity: getMetricTrend(historyData, 'activity'),
+        nutrition: getMetricTrend(historyData, 'nutrition'),
+        sleep: getMetricTrend(historyData, 'sleep'),
+        stress: getMetricTrend(historyData, 'stress')
+      } : null;
+
       const futureProjections = predictFutureState(
         liveProfile.lifestyleScore,
-        trendAnalysis.trendSlope
+        trendAnalysis.trendSlope,
+        {
+          lifeZones: liveProfile.lifeZones || null,
+          habits: habits,
+          metricTrends: metricTrends,
+          historyDays: historyData?.length || 0
+        }
       );
       setPredictions(futureProjections);
       console.log('➡️ Future Growth Model Run:', futureProjections);
     }
-  }, [trendAnalysis, liveProfile?.lifestyleScore]);
+  }, [trendAnalysis, liveProfile?.lifestyleScore, liveProfile?.lifeZones, habits, historyData]);
 
   // Calculate future avatar metrics when predictions and history are available
   useEffect(() => {
@@ -533,6 +547,9 @@ export default function Dashboard() {
                 images={liveProfile.images || []}
                 trendAnalysis={trendAnalysis}
                 predictions={predictions}
+                habits={habits}
+                achievements={achievements}
+                lifeZones={liveProfile.lifeZones || null}
               />
             ) : (
               <FutureAvatar
@@ -701,53 +718,72 @@ export default function Dashboard() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold">Future Path</h2>
-                  <span className="text-3xl">➡️</span>
+                  <div className="flex items-center gap-2">
+                    {predictions.factors?.dataStability >= 70 && (
+                      <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                        {predictions.factors.dataStability}% accurate
+                      </span>
+                    )}
+                    <span className="text-3xl">➡️</span>
+                  </div>
                 </div>
                 
                 <div className="space-y-4 mb-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>30 Days</span>
-                      <span className="font-semibold">{predictions[30].score}</span>
+                  {[30, 90, 180].map(days => (
+                    <div key={days}>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="flex items-center gap-2">
+                          {days} Days
+                          <span className="text-xs opacity-75">
+                            {predictions[days].statusEmoji} {predictions[days].statusLabel}
+                          </span>
+                        </span>
+                        <span className="font-semibold flex items-center gap-1">
+                          {predictions[days].score}
+                          {predictions[days].change > 0 && (
+                            <span className="text-xs text-green-200">+{predictions[days].change}</span>
+                          )}
+                          {predictions[days].change < 0 && (
+                            <span className="text-xs text-red-200">{predictions[days].change}</span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="w-full bg-white/20 rounded-full h-2">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${predictions[days].score}%` }}
+                          transition={{ duration: 1, delay: days / 100 }}
+                          className="bg-white rounded-full h-2"
+                        />
+                      </div>
                     </div>
-                    <div className="w-full bg-white/20 rounded-full h-2">
-                      <div 
-                        className="bg-white rounded-full h-2 transition-all duration-500"
-                        style={{ width: `${predictions[30].score}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>90 Days</span>
-                      <span className="font-semibold">{predictions[90].score}</span>
-                    </div>
-                    <div className="w-full bg-white/20 rounded-full h-2">
-                      <div 
-                        className="bg-white rounded-full h-2 transition-all duration-500"
-                        style={{ width: `${predictions[90].score}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>180 Days</span>
-                      <span className="font-semibold">{predictions[180].score}</span>
-                    </div>
-                    <div className="w-full bg-white/20 rounded-full h-2">
-                      <div 
-                        className="bg-white rounded-full h-2 transition-all duration-500"
-                        style={{ width: `${predictions[180].score}%` }}
-                      />
-                    </div>
-                  </div>
+                  ))}
                 </div>
+
+                {predictions.factors && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {predictions.factors.habitConsistency > 0 && (
+                      <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                        🔥 Habits: {predictions.factors.habitConsistency}%
+                      </span>
+                    )}
+                    {predictions.factors.lifeZoneAverage && (
+                      <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                        ⚖️ Zones: {predictions.factors.lifeZoneAverage}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <p className="text-white/90 text-sm">
                   {getMotivationalMessage(predictions)}
                 </p>
+
+                {getInsightMessage(predictions, predictions.factors)?.slice(0, 1).map((insight, index) => (
+                  <p key={index} className="text-white/70 text-xs mt-2">
+                    {insight.emoji} {insight.text}
+                  </p>
+                ))}
               </motion.div>
             )}
           </motion.div>
