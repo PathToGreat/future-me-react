@@ -30,7 +30,7 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
     sleep: ['Very Poor', 'Poor', 'Fair', 'Good', 'Excellent'],
     activity: ['Sedentary', 'Light', 'Moderate', 'Active', 'Very Active'],
     nutrition: ['Very Poor', 'Poor', 'Fair', 'Good', 'Excellent'],
-    stress: ['Overwhelming', 'High', 'Moderate', 'Low', 'Minimal'],
+    stress: ['Minimal', 'Low', 'Moderate', 'High', 'Overwhelming'],
   };
 
   useEffect(() => {

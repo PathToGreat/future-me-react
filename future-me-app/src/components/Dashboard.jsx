@@ -786,8 +786,12 @@ export default function Dashboard() {
 }
 
 function MetricBar({ label, value, max, color, reverse = false }) {
-  const percentage = (value / max) * 100;
+  // For reverse metrics (like stress), invert both display and bar width
+  // Stress: 1 (low/good) should show as 5/5 with full bar
+  // Stress: 5 (high/bad) should show as 1/5 with minimal bar
   const displayValue = reverse ? max - value + 1 : value;
+  const percentage = (displayValue / max) * 100;
+  
   const colors = {
     blue: "bg-blue-500",
     green: "bg-green-500",
