@@ -23,6 +23,7 @@ import { getMetricTrend } from "../utils/analyzeTrends";
 import { projectFutureMetrics, getFutureAvatarDescription } from "../utils/futureAvatarModel";
 import { getUserHabits, calculateHabitZoneBonuses } from "../utils/habitHelpers";
 import { getUserAchievements } from "../utils/achievementEngine";
+import { ZONE_CONFIG } from "../utils/zoneConfig";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -245,59 +246,17 @@ export default function Dashboard() {
     navigate("/onboarding");
   };
 
-  // Get Life Zones from profile data
+  // Get Life Zones from profile data using zone config
   const lifeZones = liveProfile.lifeZones || {};
   
-  const zones = [
-    {
-      title: "Health",
-      zoneId: "health",
-      score: lifeZones.health?.score || 50,
-      icon: "💪",
-      details: lifeZones.health?.details,
-      isPlaceholder: !lifeZones.health
-    },
-    {
-      title: "Wealth",
-      zoneId: "wealth",
-      score: lifeZones.wealth?.score || 50,
-      icon: "💰",
-      details: lifeZones.wealth?.details,
-      isPlaceholder: !lifeZones.wealth
-    },
-    {
-      title: "Faith",
-      zoneId: "faith",
-      score: lifeZones.faith?.score || 50,
-      icon: "📖",
-      details: lifeZones.faith?.details,
-      isPlaceholder: !lifeZones.faith
-    },
-    {
-      title: "Family",
-      zoneId: "family",
-      score: lifeZones.family?.score || 50,
-      icon: "👨‍👩‍👧‍👦",
-      details: lifeZones.family?.details,
-      isPlaceholder: !lifeZones.family
-    },
-    {
-      title: "Community",
-      zoneId: "community",
-      score: lifeZones.community?.score || 50,
-      icon: "🤝",
-      details: lifeZones.community?.details,
-      isPlaceholder: !lifeZones.community
-    },
-    {
-      title: "Social Emotional",
-      zoneId: "socialEmotional",
-      score: lifeZones.socialEmotional?.score || 50,
-      icon: "😊",
-      details: lifeZones.socialEmotional?.details,
-      isPlaceholder: !lifeZones.socialEmotional
-    }
-  ];
+  const zones = Object.keys(ZONE_CONFIG).map(zoneId => ({
+    title: ZONE_CONFIG[zoneId].title,
+    zoneId: zoneId,
+    score: lifeZones[zoneId]?.score || 50,
+    icon: ZONE_CONFIG[zoneId].icon,
+    details: lifeZones[zoneId]?.details,
+    isPlaceholder: !lifeZones[zoneId]
+  }));
 
   return (
     <div className="min-h-screen py-8 px-4">

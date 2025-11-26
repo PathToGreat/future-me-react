@@ -7,6 +7,7 @@ import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
 import { getMetricTrend } from '../utils/analyzeTrends';
 import { getUserHabits, calculateHabitZoneBonuses } from '../utils/habitHelpers';
 import { calculateAchievementData, checkAndAwardAchievements } from '../utils/achievementEngine';
+import { fetchAllZoneHistories } from '../hooks/useZoneHistoryData';
 
 const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
   const [metrics, setMetrics] = useState({
@@ -44,17 +45,31 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
       if (!user) return;
 
       const today = new Date().toISOString().slice(0, 10);
-      const docRef = doc(db, 'users', user.uid, 'dailyData', today);
-      const docSnap = await getDoc(docRef);
+      
+      const healthLogRef = doc(db, 'users', user.uid, 'zoneLogs', 'health', 'daily', today);
+      const healthLogSnap = await getDoc(healthLogRef);
 
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+      if (healthLogSnap.exists()) {
+        const data = healthLogSnap.data();
         setMetrics({
           sleep: data.sleep || null,
           activity: data.activity || null,
           nutrition: data.nutrition || null,
           stress: data.stress || null,
         });
+      } else {
+        const docRef = doc(db, 'users', user.uid, 'dailyData', today);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setMetrics({
+            sleep: data.sleep || null,
+            activity: data.activity || null,
+            nutrition: data.nutrition || null,
+            stress: data.stress || null,
+          });
+        }
       }
     } catch (error) {
       console.error('Error loading today\'s data:', error);
@@ -82,50 +97,38 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
     try {
       const today = new Date().toISOString().slice(0, 10);
       
-      // Calculate lifestyle score from metrics
       const lifestyleScore = ((metrics.activity + metrics.nutrition + metrics.sleep + (5 - metrics.stress)) / 16) * 100;
 
-      // Save to dailyData collection with server timestamp
-      const dailyDataRef = doc(db, 'users', user.uid, 'dailyData', today);
-      await setDoc(dailyDataRef, {
-        sleep: metrics.sleep,
-        activity: metrics.activity,
-        nutrition: metrics.nutrition,
-        stress: metrics.stress,
+      const healthLogData = {
         date: today,
-        timestamp: serverTimestamp(),
-      });
-
-      // IMPORTANT: Re-fetch history AFTER the write completes to get proper timestamps
-      // This ensures data is sorted correctly and avoids NaN trend calculations
-      const historyRef = collection(db, 'users', user.uid, 'dailyData');
-      const historyQuery = query(historyRef, orderBy('date', 'desc'), limit(30));
-      const historySnapshot = await getDocs(historyQuery);
-      
-      const historyData = historySnapshot.docs.map(doc => ({
-        date: doc.id,
-        ...doc.data()
-      })).sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      // Calculate trend analysis for each metric (only if we have enough history)
-      const trendAnalysis = historyData.length >= 2 ? {
-        sleepTrend: getMetricTrend(historyData, 'sleep').change,
-        activityTrend: getMetricTrend(historyData, 'activity').change,
-        nutritionTrend: getMetricTrend(historyData, 'nutrition').change,
-        stressTrend: getMetricTrend(historyData, 'stress').change,
-        trendSlope: 0 // Overall trend slope can be calculated if needed
-      } : null;
-
-      // Create updated profile with new metrics
-      const updatedProfile = {
-        sleep: metrics.sleep,
+        timestamp: new Date().toISOString(),
         activity: metrics.activity,
         nutrition: metrics.nutrition,
-        stress: metrics.stress,
-        lifestyleScore: lifestyleScore,
+        sleep: metrics.sleep,
+        stress: metrics.stress
       };
 
-      // Fetch user habits and calculate bonuses
+      const healthLogRef = doc(db, 'users', user.uid, 'zoneLogs', 'health', 'daily', today);
+      await setDoc(healthLogRef, healthLogData, { merge: true });
+      console.log('✅ Health zone log saved:', healthLogData);
+
+      const dailyDataRef = doc(db, 'users', user.uid, 'dailyData', today);
+      await setDoc(dailyDataRef, {
+        ...healthLogData,
+        lifestyleScore: Math.round(lifestyleScore),
+        timestamp: serverTimestamp()
+      }, { merge: true });
+
+      const zoneHistories = await fetchAllZoneHistories(user.uid, 30);
+      
+      const existingIndex = zoneHistories.health?.findIndex(l => l.date === today) || -1;
+      if (existingIndex >= 0) {
+        zoneHistories.health[existingIndex] = { ...healthLogData, id: today };
+      } else {
+        if (!zoneHistories.health) zoneHistories.health = [];
+        zoneHistories.health.unshift({ ...healthLogData, id: today });
+      }
+
       let habitBonuses = null;
       try {
         const userHabits = await getUserHabits(user.uid);
@@ -137,21 +140,31 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
         console.error('Error fetching habits for zone calculation:', error);
       }
 
-      // Calculate all Life Zones with updated data and habit bonuses
-      const lifeZones = calculateAllLifeZones(updatedProfile, trendAnalysis, historyData, habitBonuses);
+      const lifeZones = calculateAllLifeZones(zoneHistories, habitBonuses);
 
-      // Update main user profile with metrics and Life Zones
       const userProfileRef = doc(db, 'users', user.uid);
       await setDoc(userProfileRef, {
-        ...updatedProfile,
+        sleep: metrics.sleep,
+        activity: metrics.activity,
+        nutrition: metrics.nutrition,
+        stress: metrics.stress,
+        lifestyleScore: Math.round(lifestyleScore),
         lifeZones: lifeZones,
       }, { merge: true });
 
       console.log('✅ Saved daily metrics and updated profile - lifestyleScore:', lifestyleScore.toFixed(1));
-      console.log('🎯 Life Zones recalculated and saved');
+      console.log('🎯 Life Zones recalculated with zone-specific data');
 
-      // Check for newly earned achievements
       try {
+        const historyRef = collection(db, 'users', user.uid, 'dailyData');
+        const historyQuery = query(historyRef, orderBy('date', 'desc'), limit(30));
+        const historySnapshot = await getDocs(historyQuery);
+        
+        const historyData = historySnapshot.docs.map(doc => ({
+          date: doc.id,
+          ...doc.data()
+        })).sort((a, b) => new Date(b.date) - new Date(a.date));
+
         const userProfileSnap = await getDoc(userProfileRef);
         const fullProfile = userProfileSnap.data();
         
@@ -220,7 +233,10 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
       )}
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Log Today's Metrics</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Log Today's Health Metrics</h2>
+          <p className="text-sm text-gray-500 mt-1">These metrics update your Health Life Zone</p>
+        </div>
         {onClose && (
           <button
             onClick={onClose}
@@ -285,12 +301,12 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
               : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg hover:scale-105'
           }`}
         >
-          {saving ? 'Saving...' : 'Save Metrics'}
+          {saving ? 'Saving...' : 'Save Health Metrics'}
         </button>
       </div>
 
       <p className="text-xs text-gray-500 mt-4 text-center">
-        Your metrics are saved securely and used to track your progress over time.
+        Your metrics are saved securely and used to track your Health zone progress.
       </p>
     </motion.div>
   );
