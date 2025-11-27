@@ -2,6 +2,11 @@ import { motion } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
 import { calculateBodyComposition, getAvatarBodyWidth } from '../utils/bodyCompositionModel';
 import { calculateAvatarTraits } from '../utils/avatarTraitEngine';
+import { 
+  computeAvatarEffects, 
+  getDarknessOverlayStyle, 
+  getGlowOverlayStyle 
+} from './avatar/AvatarEffectsEngine';
 
 export default function FutureMeAvatar({ 
   lifestyleScore, 
@@ -40,7 +45,31 @@ export default function FutureMeAvatar({
     });
   }, [dailyMetrics, lifestyleScore, lifeZoneScores, habitStreaks, achievements]);
 
+  const disciplineScore = useMemo(() => {
+    const avgStreak = habitStreaks.length > 0 
+      ? habitStreaks.reduce((sum, s) => sum + s, 0) / habitStreaks.length 
+      : 0;
+    return Math.min(5, 1 + (avgStreak / 10) * 4);
+  }, [habitStreaks]);
+
+  const avatarEffects = useMemo(() => {
+    return computeAvatarEffects({
+      activityScore: activity || 3,
+      nutritionScore: nutrition || 3,
+      sleepScore: sleep || 3,
+      stressScore: stress || 3,
+      disciplineScore: disciplineScore
+    });
+  }, [activity, nutrition, sleep, stress, disciplineScore]);
+
   console.log('🎨 FutureMeAvatar rendered with traits:', avatarTraits.summary);
+  console.log('🎨 Avatar effects applied:', {
+    brightness: avatarEffects.brightnessLevel.toFixed(2),
+    contrast: avatarEffects.contrastLevel.toFixed(2),
+    saturation: avatarEffects.saturationLevel.toFixed(2),
+    glow: avatarEffects.glowIntensity.toFixed(2),
+    posture: avatarEffects.postureState
+  });
 
   useEffect(() => {
     if (trendAnalysis) {
@@ -235,6 +264,7 @@ export default function FutureMeAvatar({
 
         {!showSvgAvatar && images && images.length > 0 ? (
           <div className="relative z-10">
+            <div style={getGlowOverlayStyle(avatarEffects.glowIntensity, colors.glow)} />
             <motion.img
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -242,9 +272,10 @@ export default function FutureMeAvatar({
               alt="Your uploaded image"
               className="w-[200px] h-[300px] object-cover rounded-2xl shadow-2xl"
               style={{
-                filter: `brightness(${(avatarTraits.glowEnergy.score / 100 * 0.3 + 0.85) * trendBrightness}) saturate(${avatarTraits.glowEnergy.score / 100 * 0.4 + 0.8})`,
+                filter: `${avatarEffects.cssFilter} brightness(${trendBrightness})`,
               }}
             />
+            <div style={getDarknessOverlayStyle(avatarEffects.darknessOverlay)} className="rounded-2xl" />
             <motion.div 
               className="absolute inset-0 rounded-2xl pointer-events-none"
               animate={{
@@ -287,13 +318,14 @@ export default function FutureMeAvatar({
             )}
           </div>
         ) : (
-          <svg
-            width="200"
-            height="300"
-            viewBox="0 0 200 300"
-            className="relative z-10"
-            style={{ filter: `brightness(${trendBrightness})` }}
-          >
+          <div className="relative z-10">
+            <div style={getGlowOverlayStyle(avatarEffects.glowIntensity, colors.glow)} />
+            <svg
+              width="200"
+              height="300"
+              viewBox="0 0 200 300"
+              style={{ filter: `${avatarEffects.cssFilter} brightness(${trendBrightness})` }}
+            >
             <motion.g
               animate={{
                 y: posture.y,
@@ -468,6 +500,8 @@ export default function FutureMeAvatar({
               />
             )}
           </svg>
+            <div style={getDarknessOverlayStyle(avatarEffects.darknessOverlay)} className="absolute inset-0 rounded-2xl pointer-events-none" />
+          </div>
         )}
       </motion.div>
 

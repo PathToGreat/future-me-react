@@ -1,0 +1,30 @@
+Add a new avatar effects system to the app. Create a centralized "AvatarEffectsEngine" that takes the user’s lifestyle metrics and transforms them into visual effect states that the avatar component can apply. This will be the foundation for future avatar upgrades. Here's what to build:
+Create a new file under components/avatar called AvatarEffectsEngine.js.
+It should export a function called computeAvatarEffects(metrics) that takes an object containing lifestyle metrics including activityScore, nutritionScore, sleepScore, stressScore, and disciplineScore.
+Inside this function:
+Normalize all scores into 0–1 ranges
+From the normalized values, compute a set of visual states that the avatar will use:
+brightnessLevel
+contrastLevel
+saturationLevel
+darknessOverlay
+glowIntensity
+blurAmount
+postureState (can be “upright”, “neutral”, “slump” depending on stress and sleep)
+Return a single structured object containing all these effect values.
+Modify the main AvatarDisplay component so it imports computeAvatarEffects.
+Pull the user’s latest metrics from Firestore the same way the dashboard does.
+Pass the metrics through computeAvatarEffects.
+Apply the resulting effects to the avatar using CSS filters, layered divs, or inline styles.
+For example brightness, contrast, saturation, and blur should be applied using CSS filters.
+Glow and darkness overlays should be implemented as additional absolutely positioned div layers.
+The avatar image should remain the same for now, but visually respond to the effect states.
+Example behavior to implement:
+High stressScore decreases saturation and lowers brightness
+Low sleepScore adds a slight blur
+High disciplineScore enhances contrast and adds a subtle glow
+Make the entire system modular.
+We will later add posture overlays, facial expression layers, outlines, and cartoonization.
+This engine should be designed so those future effects can plug in easily.
+Do not rewrite other onboarding or dashboard logic.
+Only add this new effects engine and connect it to the current avatar display.
