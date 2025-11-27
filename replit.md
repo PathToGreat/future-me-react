@@ -5,11 +5,12 @@
 Future Me is a web application that visualizes a user's future self based on current lifestyle choices. It gathers lifestyle metrics through an interactive questionnaire and displays a dynamic avatar that adapts to health indicators. The project aims to provide an engaging and motivating experience for users to understand the impact of their daily habits on their long-term well-being.
 
 **Key Capabilities:**
+- Beta Agreement legal onboarding flow with privacy notice and terms acceptance.
 - Interactive 3-step onboarding for lifestyle metric collection.
 - Dynamic avatar visualization that changes based on wellness scores and trends.
 - Real-time wellness score calculation and daily metric tracking.
 - Future self projection based on lifestyle trends.
-- User authentication and data persistence.
+- User authentication with password reset functionality.
 - Responsive design for various devices.
 
 ## User Preferences
