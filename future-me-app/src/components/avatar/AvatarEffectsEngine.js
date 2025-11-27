@@ -164,38 +164,76 @@ const calculateEmotionState = (metrics) => {
 };
 
 /**
- * Calculates body composition state based on activity and nutrition
- * Used for body shape overlays (shoulder width, torso shape)
+ * Calculates Body Composition Index based on activity and nutrition ONLY
+ * Used for body shape morphing between 3 states (soft, balanced, fit)
  * @param {Object} metrics - Normalized metrics
- * @returns {Object} Body composition state and values
+ * @param {Object} options - Additional options (gender)
+ * @returns {Object} Body composition state, index, and morph values
  */
-const calculateBodyComposition = (metrics) => {
-  const { activityNorm, nutritionNorm, sleepNorm, stressNorm, disciplineNorm } = metrics;
+const calculateBodyComposition = (metrics, options = {}) => {
+  const { activityNorm, nutritionNorm } = metrics;
+  const { gender = 'male' } = options;
   
-  const fitnessScore = (
-    activityNorm * 0.4 +
-    nutritionNorm * 0.3 +
-    sleepNorm * 0.15 +
-    disciplineNorm * 0.15
+  const bodyCompositionIndex = clamp(
+    (activityNorm * 0.6 + nutritionNorm * 0.4) * 100,
+    0,
+    100
   );
   
-  const shoulderWidth = clamp(0.85 + (fitnessScore * 0.3), 0.8, 1.15);
+  let state = 'balanced';
+  let morphProgress = 0.5;
   
-  const torsoScale = clamp(0.9 + (fitnessScore * 0.2), 0.85, 1.1);
+  if (bodyCompositionIndex <= 33) {
+    state = 'soft';
+    morphProgress = bodyCompositionIndex / 33;
+  } else if (bodyCompositionIndex <= 66) {
+    state = 'balanced';
+    morphProgress = (bodyCompositionIndex - 33) / 33;
+  } else {
+    state = 'fit';
+    morphProgress = (bodyCompositionIndex - 66) / 34;
+  }
   
-  const armDefinition = clamp(fitnessScore, 0, 1);
+  const genderMultipliers = gender === 'female' 
+    ? { shoulder: 0.92, hip: 1.08, waist: 0.95 }
+    : { shoulder: 1.08, hip: 0.92, waist: 1.0 };
   
-  let state = 'average';
-  if (fitnessScore >= 0.7) state = 'athletic';
-  else if (fitnessScore >= 0.5) state = 'fit';
-  else if (fitnessScore < 0.3) state = 'sedentary';
+  let shoulderWidth, torsoScale, waistScale, hipWidth, armDefinition;
+  
+  if (state === 'soft') {
+    shoulderWidth = 0.88 + (morphProgress * 0.04);
+    torsoScale = 1.08 - (morphProgress * 0.04);
+    waistScale = 1.1 - (morphProgress * 0.05);
+    hipWidth = 1.05 - (morphProgress * 0.03);
+    armDefinition = morphProgress * 0.2;
+  } else if (state === 'balanced') {
+    shoulderWidth = 0.92 + (morphProgress * 0.06);
+    torsoScale = 1.04 - (morphProgress * 0.04);
+    waistScale = 1.05 - (morphProgress * 0.05);
+    hipWidth = 1.02 - (morphProgress * 0.02);
+    armDefinition = 0.2 + (morphProgress * 0.4);
+  } else {
+    shoulderWidth = 0.98 + (morphProgress * 0.08);
+    torsoScale = 1.0 - (morphProgress * 0.05);
+    waistScale = 1.0 - (morphProgress * 0.08);
+    hipWidth = 1.0 - (morphProgress * 0.03);
+    armDefinition = 0.6 + (morphProgress * 0.4);
+  }
+  
+  shoulderWidth *= genderMultipliers.shoulder;
+  hipWidth *= genderMultipliers.hip;
+  waistScale *= genderMultipliers.waist;
   
   return {
     state,
-    shoulderWidth,
-    torsoScale,
-    armDefinition,
-    fitnessScore
+    gender,
+    bodyCompositionIndex,
+    morphProgress,
+    shoulderWidth: clamp(shoulderWidth, 0.8, 1.15),
+    torsoScale: clamp(torsoScale, 0.85, 1.1),
+    waistScale: clamp(waistScale, 0.85, 1.15),
+    hipWidth: clamp(hipWidth, 0.85, 1.15),
+    armDefinition: clamp(armDefinition, 0, 1)
   };
 };
 
@@ -293,7 +331,8 @@ export const computeAvatarEffects = (metrics = {}) => {
     nutritionScore = 3,
     sleepScore = 3,
     stressScore = 3,
-    disciplineScore = 3
+    disciplineScore = 3,
+    gender = 'male'
   } = metrics;
   
   const normalizedMetrics = {
@@ -318,7 +357,7 @@ export const computeAvatarEffects = (metrics = {}) => {
   const postureState = calculatePostureState(normalizedMetrics);
   const emotionState = calculateEmotionState(normalizedMetrics);
   const facialOverlays = calculateFacialOverlays(normalizedMetrics);
-  const bodyComposition = calculateBodyComposition(normalizedMetrics);
+  const bodyComposition = calculateBodyComposition(normalizedMetrics, { gender });
   const energyPulse = calculateEnergyPulse(normalizedMetrics, { streakDays, consistencyScore });
   
   return {

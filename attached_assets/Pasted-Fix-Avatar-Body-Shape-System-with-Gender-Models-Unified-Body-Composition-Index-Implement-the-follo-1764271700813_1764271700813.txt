@@ -1,0 +1,59 @@
+Fix Avatar Body Shape System with Gender Models + Unified Body Composition Index
+Implement the following changes to the avatar engine. This replaces the current inconsistent body-shape logic.
+1. Add Gender Selection
+Create a simple toggle or dropdown inside the user profile:
+gender: "male" | "female"
+Default to "male" if the user hasn't picked yet.
+2. Create the BodyCompositionIndex
+Stop using posture, stress, sleep or any other metric to influence body shape width.
+Only use:
+dailyActivityScore (0 to 100)
+dailyNutritionScore (0 to 100)
+Create:
+const bodyCompositionIndex = 
+  dailyActivityScore * 0.6 + dailyNutritionScore * 0.4;
+Clamp to 0–100.
+3. Replace the Body Shape Morph Logic
+Remove all previous width/scale rules tied to multiple metrics.
+Use the new index to drive three states, with smooth interpolation:
+0 to 33: Soft / Low Tone
+Slightly wider torso
+Softer shoulders
+Minimal muscle definition
+Slight belly curve
+Rounder limb geometry
+34 to 66: Balanced / Normal
+Neutral width
+Moderate muscle tone
+Stable, natural proportions
+67 to 100: Fit / Athletic
+Slimmer waist
+More visible shoulder structure
+Defined arms
+Subtle taper
+Leaner overall geometry
+4. Base Male and Female Models
+Load the correct base SVG depending on gender.
+Male baseline
+Broader shoulders
+Narrower hips
+Slight V-shape
+More angular muscle definition
+Female baseline
+Moderately wider hips
+Slight hourglass curvature
+Softer default muscle lines
+Then apply the same BodyCompositionIndex to each gender model, but maintain original male/female proportions.
+5. Implement Morphing
+Use:
+d3.interpolatePath
+or direct SVG path interpolation
+or Framer Motion path transitions
+The morph should animate across the three defined states.
+6. Final Behavior Requirements
+Activity + Nutrition = only source of body shape changes
+Body no longer becomes wider during high fitness scores
+Body always becomes more fit with higher index
+All other overlays continue working exactly the same
+No distortion or warping of user-uploaded photos
+Body morph affects only the SVG avatar, not the photo

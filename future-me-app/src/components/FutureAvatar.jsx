@@ -17,7 +17,8 @@ export default function FutureAvatar({
   images,
   habits = [],
   achievements = [],
-  lifeZones = null
+  lifeZones = null,
+  gender = 'male'
 }) {
   const [viewMode, setViewMode] = useState(VIEW_MODES.PHOTO);
   const hasImages = images && images.length > 0;
@@ -84,9 +85,10 @@ export default function FutureAvatar({
       stressScore: dailyMetrics.stress,
       disciplineScore: disciplineScore,
       streakDays: maxStreak,
-      consistencyScore: consistencyScore
+      consistencyScore: consistencyScore,
+      gender: gender
     });
-  }, [dailyMetrics, disciplineScore, maxStreak, consistencyScore]);
+  }, [dailyMetrics, disciplineScore, maxStreak, consistencyScore, gender]);
 
   if (!futureMetrics) {
     return (

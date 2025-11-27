@@ -24,9 +24,10 @@ import { projectFutureMetrics, getFutureAvatarDescription } from "../utils/futur
 import { getUserHabits, calculateHabitZoneBonuses } from "../utils/habitHelpers";
 import { getUserAchievements } from "../utils/achievementEngine";
 import { ZONE_CONFIG } from "../utils/zoneConfig";
+import GenderSelector from "./GenderSelector";
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, userProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [liveProfile, setLiveProfile] = useState(null);
@@ -41,6 +42,8 @@ export default function Dashboard() {
   const [newAchievementNotification, setNewAchievementNotification] = useState(null);
   const [showZoneDetailsModal, setShowZoneDetailsModal] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
+  
+  const [selectedGender, setSelectedGender] = useState(null);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -115,6 +118,36 @@ export default function Dashboard() {
       navigate("/onboarding");
     }
   }, [liveProfile, navigate]);
+
+  // Hydrate gender from localStorage immediately when user becomes available
+  useEffect(() => {
+    if (user?.uid && selectedGender === null) {
+      const cached = localStorage.getItem(`gender_${user.uid}`);
+      if (cached) {
+        setSelectedGender(cached);
+      }
+    }
+  }, [user?.uid, selectedGender]);
+
+  // Initialize selectedGender from profile data when it becomes available
+  useEffect(() => {
+    const profileGender = userProfile?.gender || liveProfile?.gender;
+    if (profileGender) {
+      setSelectedGender(profileGender);
+      if (user?.uid) {
+        localStorage.setItem(`gender_${user.uid}`, profileGender);
+      }
+    } else if (liveProfile && !liveProfile.gender && selectedGender === null) {
+      setSelectedGender('male');
+    }
+  }, [userProfile?.gender, liveProfile?.gender, liveProfile, user?.uid, selectedGender]);
+
+  const handleGenderChange = (gender) => {
+    setSelectedGender(gender);
+    if (user?.uid) {
+      localStorage.setItem(`gender_${user.uid}`, gender);
+    }
+  };
 
   // Log dashboard metrics
   useEffect(() => {
@@ -496,7 +529,11 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             className="card flex flex-col items-center justify-center p-12 bg-gradient-to-br from-blue-50 to-purple-50"
           >
-            {!showFutureAvatar ? (
+            {selectedGender === null ? (
+              <div className="w-[200px] h-[300px] flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
+              </div>
+            ) : !showFutureAvatar ? (
               <FutureMeAvatar
                 lifestyleScore={liveProfile.lifestyleScore || 50}
                 activity={liveProfile.activity || 3}
@@ -509,6 +546,7 @@ export default function Dashboard() {
                 habits={habits}
                 achievements={achievements}
                 lifeZones={liveProfile.lifeZones || null}
+                gender={selectedGender}
               />
             ) : (
               <FutureAvatar
@@ -517,6 +555,7 @@ export default function Dashboard() {
                 habits={habits}
                 achievements={achievements}
                 lifeZones={liveProfile.lifeZones || null}
+                gender={selectedGender}
               />
             )}
             
@@ -557,6 +596,10 @@ export default function Dashboard() {
                 </p>
               )}
             </motion.div>
+            
+            <div className="mt-4 w-full max-w-xs">
+              <GenderSelector onGenderChange={handleGenderChange} />
+            </div>
           </motion.div>
 
           <motion.div

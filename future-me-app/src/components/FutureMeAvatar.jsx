@@ -23,7 +23,8 @@ export default function FutureMeAvatar({
   predictions,
   habits = [],
   achievements = [],
-  lifeZones = null
+  lifeZones = null,
+  gender = 'male'
 }) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
   
@@ -75,9 +76,10 @@ export default function FutureMeAvatar({
       stressScore: stress || 3,
       disciplineScore: disciplineScore,
       streakDays: maxStreak,
-      consistencyScore: consistencyScore
+      consistencyScore: consistencyScore,
+      gender: gender
     });
-  }, [activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore]);
+  }, [activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, gender]);
 
   console.log('🎨 FutureMeAvatar rendered with traits:', avatarTraits.summary);
   console.log('🎨 Avatar effects applied:', {
