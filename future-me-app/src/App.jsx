@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LandingPage from './components/LandingPage';
 import AuthScreen from './components/AuthScreen';
+import BetaAgreement from './components/BetaAgreement';
 import Onboarding from './components/Onboarding';
 import Dashboard from './components/Dashboard';
 
@@ -30,33 +31,42 @@ function AppRoutes() {
     );
   }
 
+  const getAuthRedirect = () => {
+    if (!user) return <AuthScreen />;
+    if (!userProfile?.hasAcceptedBetaTerms) return <Navigate to="/beta-agreement" />;
+    if (!userProfile?.onboardingCompleted) return <Navigate to="/onboarding" />;
+    return <Navigate to="/dashboard" />;
+  };
+
+  const getBetaAgreementElement = () => {
+    if (!user) return <Navigate to="/auth" />;
+    if (userProfile?.hasAcceptedBetaTerms) {
+      if (userProfile?.onboardingCompleted) return <Navigate to="/dashboard" />;
+      return <Navigate to="/onboarding" />;
+    }
+    return <BetaAgreement />;
+  };
+
+  const getOnboardingElement = () => {
+    if (!user) return <Navigate to="/auth" />;
+    if (!userProfile?.hasAcceptedBetaTerms) return <Navigate to="/beta-agreement" />;
+    return <Onboarding />;
+  };
+
+  const getDashboardElement = () => {
+    if (!user) return <Navigate to="/auth" />;
+    if (!userProfile?.hasAcceptedBetaTerms) return <Navigate to="/beta-agreement" />;
+    if (!userProfile?.onboardingCompleted) return <Navigate to="/onboarding" />;
+    return <Dashboard />;
+  };
+
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route 
-        path="/auth" 
-        element={user ? (
-          userProfile?.onboardingCompleted ? <Navigate to="/dashboard" /> : <Navigate to="/onboarding" />
-        ) : (
-          <AuthScreen />
-        )} 
-      />
-      <Route
-        path="/onboarding"
-        element={
-          <PrivateRoute>
-            <Onboarding />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
+      <Route path="/auth" element={getAuthRedirect()} />
+      <Route path="/beta-agreement" element={getBetaAgreementElement()} />
+      <Route path="/onboarding" element={getOnboardingElement()} />
+      <Route path="/dashboard" element={getDashboardElement()} />
     </Routes>
   );
 }
