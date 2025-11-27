@@ -514,6 +514,9 @@ export default function Dashboard() {
               <FutureAvatar
                 futureMetrics={futureMetrics}
                 images={liveProfile.images || []}
+                habits={habits}
+                achievements={achievements}
+                lifeZones={liveProfile.lifeZones || null}
               />
             )}
             
