@@ -1,32 +1,31 @@
 <svg width="200" height="300" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Upright Posture Silhouette - Confident, straight stance -->
-  <g opacity="0.8">
-    <!-- Head -->
-    <ellipse cx="100" cy="45" rx="35" ry="40" stroke="currentColor" stroke-width="2" fill="none"/>
+  <g opacity="0.85">
+    <!-- Head - filled shape -->
+    <ellipse cx="100" cy="45" rx="32" ry="36" fill="currentColor" opacity="0.25"/>
     
-    <!-- Neck - straight and tall -->
-    <path d="M85 82 L85 95 L115 95 L115 82" stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Neck - solid connection -->
+    <rect x="88" y="78" width="24" height="20" rx="4" fill="currentColor" opacity="0.2"/>
     
-    <!-- Shoulders - level and open -->
-    <path d="M45 100 Q65 95 85 95 L115 95 Q135 95 155 100" stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Shoulders - broad and level -->
+    <path d="M50 100 Q70 92 100 92 Q130 92 150 100 L145 110 Q125 105 100 105 Q75 105 55 110 Z" fill="currentColor" opacity="0.2"/>
     
-    <!-- Torso - upright alignment -->
-    <path d="M70 100 L70 180 Q70 190 80 195 L120 195 Q130 190 130 180 L130 100" stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Torso - upright, strong posture -->
+    <path d="M72 105 L72 178 Q72 190 82 195 L118 195 Q128 190 128 178 L128 105 Q115 100 100 100 Q85 100 72 105 Z" fill="currentColor" opacity="0.22"/>
     
-    <!-- Spine indicator - straight vertical line -->
-    <line x1="100" y1="95" x2="100" y2="185" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 2" opacity="0.6"/>
+    <!-- Left Arm -->
+    <path d="M72 105 Q58 108 52 125 Q48 145 50 168 L58 170 Q55 148 60 130 Q65 115 72 112 Z" fill="currentColor" opacity="0.18"/>
     
-    <!-- Arms - relaxed at sides -->
-    <path d="M70 105 Q55 110 50 130 Q48 150 50 170" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M130 105 Q145 110 150 130 Q152 150 150 170" stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Right Arm -->
+    <path d="M128 105 Q142 108 148 125 Q152 145 150 168 L142 170 Q145 148 140 130 Q135 115 128 112 Z" fill="currentColor" opacity="0.18"/>
     
-    <!-- Legs - grounded stance -->
-    <path d="M80 195 L75 260 Q73 275 70 290" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M120 195 L125 260 Q127 275 130 290" stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Left Leg -->
+    <path d="M82 195 L78 260 Q76 275 74 288 L86 290 Q85 278 86 262 L90 198 Z" fill="currentColor" opacity="0.2"/>
     
-    <!-- Upward energy indicators -->
-    <path d="M100 15 L100 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-    <path d="M90 20 L85 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
-    <path d="M110 20 L115 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+    <!-- Right Leg -->
+    <path d="M118 195 L122 260 Q124 275 126 288 L114 290 Q115 278 114 262 L110 198 Z" fill="currentColor" opacity="0.2"/>
+    
+    <!-- Upward energy glow - subtle gradient -->
+    <ellipse cx="100" cy="30" rx="20" ry="8" fill="currentColor" opacity="0.1"/>
   </g>
 </svg>

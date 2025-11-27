@@ -1,27 +1,28 @@
 <svg width="200" height="300" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Neutral Posture Silhouette - Relaxed, natural stance -->
-  <g opacity="0.8">
+  <g opacity="0.85">
     <!-- Head - slight forward tilt -->
-    <ellipse cx="102" cy="48" rx="35" ry="40" stroke="currentColor" stroke-width="2" fill="none"/>
+    <ellipse cx="102" cy="48" rx="32" ry="36" fill="currentColor" opacity="0.25"/>
     
     <!-- Neck - natural position -->
-    <path d="M87 85 L88 98 L117 96 L116 83" stroke="currentColor" stroke-width="2" fill="none"/>
+    <rect x="90" y="81" width="24" height="20" rx="4" fill="currentColor" opacity="0.2" transform="rotate(2 102 91)"/>
     
-    <!-- Shoulders - natural, slightly relaxed -->
-    <path d="M48 105 Q68 100 88 98 L117 96 Q137 98 157 103" stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Shoulders - relaxed, natural -->
+    <path d="M52 105 Q72 98 102 98 Q132 98 152 105 L147 115 Q127 108 102 108 Q77 108 57 115 Z" fill="currentColor" opacity="0.2"/>
     
-    <!-- Torso - neutral alignment -->
-    <path d="M72 105 L73 182 Q73 192 83 197 L122 195 Q132 190 131 180 L130 103" stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Torso - neutral alignment with slight curve -->
+    <path d="M74 108 L75 180 Q75 192 85 197 L120 195 Q130 190 129 180 L128 106 Q115 102 102 102 Q87 102 74 108 Z" fill="currentColor" opacity="0.22"/>
     
-    <!-- Spine indicator - natural slight curve -->
-    <path d="M102 96 Q101 140 100 185" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 2" opacity="0.5"/>
+    <!-- Left Arm - naturally at side -->
+    <path d="M74 110 Q60 115 55 132 Q52 152 55 175 L63 177 Q58 155 62 137 Q66 120 74 115 Z" fill="currentColor" opacity="0.18"/>
     
-    <!-- Arms - naturally at sides -->
-    <path d="M72 108 Q58 115 54 135 Q52 155 55 175" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M130 106 Q144 113 148 133 Q150 153 147 173" stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Right Arm - naturally at side -->
+    <path d="M128 108 Q142 113 147 130 Q150 150 147 173 L139 175 Q144 153 140 135 Q136 118 128 113 Z" fill="currentColor" opacity="0.18"/>
     
-    <!-- Legs - natural stance -->
-    <path d="M83 197 L80 262 Q78 277 76 292" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M122 195 L124 260 Q126 275 128 290" stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Left Leg - natural stance -->
+    <path d="M85 197 L82 262 Q80 277 78 290 L90 292 Q89 280 90 264 L93 200 Z" fill="currentColor" opacity="0.2"/>
+    
+    <!-- Right Leg - natural stance -->
+    <path d="M120 195 L123 260 Q125 275 127 288 L115 290 Q116 278 115 262 L112 198 Z" fill="currentColor" opacity="0.2"/>
   </g>
 </svg>

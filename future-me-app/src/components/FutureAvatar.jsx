@@ -7,6 +7,7 @@ import {
   getGlowOverlayStyle 
 } from './avatar/AvatarEffectsEngine';
 import PostureLayer from './avatar/posture/PostureLayer';
+import FacialExpressionLayer from './avatar/FacialExpressionLayer';
 import AvatarViewToggle, { VIEW_MODES } from './avatar/AvatarViewToggle';
 
 export default function FutureAvatar({ 
@@ -240,6 +241,14 @@ export default function FutureAvatar({
           postureState={avatarEffects.postureState}
           color={colors.body}
         />
+
+        {showSvgAvatar && (
+          <FacialExpressionLayer
+            emotionState={avatarEffects.emotionState}
+            facialOverlays={avatarEffects.facialOverlays}
+            color={colors.body}
+          />
+        )}
 
         <AnimatePresence mode="wait">
           {!showSvgAvatar && hasImages ? (

@@ -137,6 +137,58 @@ const calculatePostureState = (metrics) => {
 };
 
 /**
+ * Calculates emotional state based on metrics
+ * Used for facial expression overlays
+ * @param {Object} metrics - Normalized metrics
+ * @returns {string} Emotion state: 'happy', 'content', 'neutral', 'tired', 'stressed'
+ */
+const calculateEmotionState = (metrics) => {
+  const { sleepNorm, stressNorm, activityNorm, nutritionNorm, disciplineNorm } = metrics;
+  
+  const wellbeingScore = (
+    sleepNorm * 0.25 +
+    (1 - stressNorm) * 0.3 +
+    activityNorm * 0.15 +
+    nutritionNorm * 0.15 +
+    disciplineNorm * 0.15
+  );
+  
+  const stressLevel = stressNorm;
+  const fatigueLevel = 1 - sleepNorm;
+  
+  if (stressLevel >= 0.75) return 'stressed';
+  if (fatigueLevel >= 0.7 && sleepNorm < 0.35) return 'tired';
+  if (wellbeingScore >= 0.75) return 'happy';
+  if (wellbeingScore >= 0.55) return 'content';
+  return 'neutral';
+};
+
+/**
+ * Calculates facial overlay effects (stress desaturation, energy glow, sleep blur)
+ * @param {Object} metrics - Normalized metrics
+ * @returns {Object} Facial overlay effect values
+ */
+const calculateFacialOverlays = (metrics) => {
+  const { sleepNorm, stressNorm, activityNorm, nutritionNorm, disciplineNorm } = metrics;
+  
+  const stressDesaturation = clamp(stressNorm * 0.4, 0, 0.5);
+  
+  const energyLevel = (activityNorm + nutritionNorm + disciplineNorm) / 3;
+  const energyGlow = energyLevel >= 0.6 ? clamp((energyLevel - 0.5) * 1.5, 0, 0.8) : 0;
+  
+  const eyeBlur = sleepNorm < 0.4 ? clamp((0.4 - sleepNorm) * 2, 0, 0.6) : 0;
+  
+  const faceShadow = clamp((stressNorm * 0.3) + ((1 - sleepNorm) * 0.2), 0, 0.4);
+  
+  return {
+    stressDesaturation,
+    energyGlow,
+    eyeBlur,
+    faceShadow
+  };
+};
+
+/**
  * Main Effects Computation Function
  * 
  * Takes raw lifestyle metrics and transforms them into visual effect states.
@@ -175,6 +227,8 @@ export const computeAvatarEffects = (metrics = {}) => {
   const glowIntensity = calculateGlowIntensity(normalizedMetrics);
   const blurAmount = calculateBlurAmount(normalizedMetrics);
   const postureState = calculatePostureState(normalizedMetrics);
+  const emotionState = calculateEmotionState(normalizedMetrics);
+  const facialOverlays = calculateFacialOverlays(normalizedMetrics);
   
   return {
     brightnessLevel,
@@ -184,6 +238,8 @@ export const computeAvatarEffects = (metrics = {}) => {
     glowIntensity,
     blurAmount,
     postureState,
+    emotionState,
+    facialOverlays,
     
     cssFilter: buildCSSFilter({
       brightnessLevel,
@@ -270,14 +326,97 @@ export const EFFECT_TYPES = {
   BLUR: 'blur',
   POSTURE: 'posture',
   FACIAL_EXPRESSION: 'facialExpression',
+  EMOTION_STATE: 'emotionState',
+  FACIAL_OVERLAYS: 'facialOverlays',
   OUTLINE: 'outline',
-  CARTOONIZE: 'cartoonize'
+  CARTOONIZE: 'cartoonize',
+  BODY_COMPOSITION: 'bodyComposition'
 };
 
 export const POSTURE_STATES = {
   UPRIGHT: 'upright',
   NEUTRAL: 'neutral',
   SLUMP: 'slump'
+};
+
+export const EMOTION_STATES = {
+  HAPPY: 'happy',
+  CONTENT: 'content',
+  NEUTRAL: 'neutral',
+  TIRED: 'tired',
+  STRESSED: 'stressed'
+};
+
+/**
+ * Generates CSS styles for facial energy glow overlay
+ * @param {number} intensity - Glow intensity (0-1)
+ * @param {string} color - Glow color
+ * @returns {Object} React style object
+ */
+export const getFacialGlowStyle = (intensity, color = '#fbbf24') => {
+  if (intensity < 0.05) {
+    return { display: 'none' };
+  }
+  
+  return {
+    position: 'absolute',
+    top: '-10%',
+    left: '15%',
+    right: '15%',
+    height: '45%',
+    background: `radial-gradient(ellipse at center, ${color}${Math.round(intensity * 50).toString(16).padStart(2, '0')} 0%, transparent 70%)`,
+    pointerEvents: 'none',
+    filter: `blur(${8 + intensity * 8}px)`,
+    opacity: intensity * 0.7,
+    transition: 'all 0.6s ease',
+    borderRadius: '50%'
+  };
+};
+
+/**
+ * Generates CSS styles for eye tiredness blur overlay
+ * @param {number} intensity - Blur intensity (0-1)
+ * @returns {Object} React style object
+ */
+export const getEyeBlurStyle = (intensity) => {
+  if (intensity < 0.05) {
+    return { display: 'none' };
+  }
+  
+  return {
+    position: 'absolute',
+    top: '15%',
+    left: '20%',
+    right: '20%',
+    height: '25%',
+    background: 'rgba(0, 0, 0, 0.08)',
+    pointerEvents: 'none',
+    filter: `blur(${3 + intensity * 6}px)`,
+    opacity: intensity * 0.5,
+    transition: 'all 0.6s ease',
+    borderRadius: '40%'
+  };
+};
+
+/**
+ * Generates CSS styles for stress/fatigue face shadow
+ * @param {number} intensity - Shadow intensity (0-1)
+ * @returns {Object} React style object
+ */
+export const getFaceShadowStyle = (intensity) => {
+  if (intensity < 0.05) {
+    return { display: 'none' };
+  }
+  
+  return {
+    position: 'absolute',
+    inset: 0,
+    background: `linear-gradient(180deg, transparent 30%, rgba(0,0,0,${intensity * 0.15}) 100%)`,
+    pointerEvents: 'none',
+    opacity: intensity,
+    transition: 'all 0.6s ease',
+    borderRadius: 'inherit'
+  };
 };
 
 export default computeAvatarEffects;

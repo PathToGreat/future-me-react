@@ -8,6 +8,7 @@ import {
   getGlowOverlayStyle 
 } from './avatar/AvatarEffectsEngine';
 import PostureLayer from './avatar/posture/PostureLayer';
+import FacialExpressionLayer from './avatar/FacialExpressionLayer';
 
 export default function FutureMeAvatar({ 
   lifestyleScore, 
@@ -267,6 +268,14 @@ export default function FutureMeAvatar({
           postureState={avatarEffects.postureState}
           color={colors.body}
         />
+
+        {showSvgAvatar && (
+          <FacialExpressionLayer
+            emotionState={avatarEffects.emotionState}
+            facialOverlays={avatarEffects.facialOverlays}
+            color={colors.body}
+          />
+        )}
 
         {!showSvgAvatar && images && images.length > 0 ? (
           <div className="relative z-10">
