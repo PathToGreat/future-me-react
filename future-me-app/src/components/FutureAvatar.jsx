@@ -8,6 +8,8 @@ import {
 } from './avatar/AvatarEffectsEngine';
 import PostureLayer from './avatar/posture/PostureLayer';
 import FacialExpressionLayer from './avatar/FacialExpressionLayer';
+import BodyCompositionLayer from './avatar/BodyCompositionLayer';
+import EnergyGlowLayer from './avatar/EnergyGlowLayer';
 import AvatarViewToggle, { VIEW_MODES } from './avatar/AvatarViewToggle';
 
 export default function FutureAvatar({ 
@@ -63,15 +65,28 @@ export default function FutureAvatar({
     return Math.min(5, 1 + (avgStreak / 10) * 4);
   }, [habitStreaks]);
 
+  const maxStreak = useMemo(() => {
+    return habitStreaks.length > 0 ? Math.max(...habitStreaks) : 0;
+  }, [habitStreaks]);
+
+  const consistencyScore = useMemo(() => {
+    if (habitStreaks.length === 0) return 0.5;
+    const totalStreak = habitStreaks.reduce((sum, s) => sum + s, 0);
+    const avgStreak = totalStreak / habitStreaks.length;
+    return Math.min(1, avgStreak / 14);
+  }, [habitStreaks]);
+
   const avatarEffects = useMemo(() => {
     return computeAvatarEffects({
       activityScore: dailyMetrics.activity,
       nutritionScore: dailyMetrics.nutrition,
       sleepScore: dailyMetrics.sleep,
       stressScore: dailyMetrics.stress,
-      disciplineScore: disciplineScore
+      disciplineScore: disciplineScore,
+      streakDays: maxStreak,
+      consistencyScore: consistencyScore
     });
-  }, [dailyMetrics, disciplineScore]);
+  }, [dailyMetrics, disciplineScore, maxStreak, consistencyScore]);
 
   if (!futureMetrics) {
     return (
@@ -114,11 +129,9 @@ export default function FutureAvatar({
   };
 
   const getBodyWidth = () => {
-    const bodyScore = avatarTraits.bodyShape.score;
+    const { torsoScale = 1 } = avatarEffects.bodyComposition || {};
     const baseWidth = 100;
-    const variance = 30;
-    const adjustment = (100 - bodyScore) / 100 * variance;
-    return Math.round(baseWidth + adjustment - 10);
+    return Math.round(baseWidth * torsoScale);
   };
 
   const getGlowAnimation = () => {
@@ -246,6 +259,20 @@ export default function FutureAvatar({
           <FacialExpressionLayer
             emotionState={avatarEffects.emotionState}
             facialOverlays={avatarEffects.facialOverlays}
+            color={colors.body}
+          />
+        )}
+
+        {showSvgAvatar && (
+          <EnergyGlowLayer
+            energyPulse={avatarEffects.energyPulse}
+            color={colors.glow}
+          />
+        )}
+
+        {showSvgAvatar && (
+          <BodyCompositionLayer
+            bodyComposition={avatarEffects.bodyComposition}
             color={colors.body}
           />
         )}

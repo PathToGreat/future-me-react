@@ -164,6 +164,90 @@ const calculateEmotionState = (metrics) => {
 };
 
 /**
+ * Calculates body composition state based on activity and nutrition
+ * Used for body shape overlays (shoulder width, torso shape)
+ * @param {Object} metrics - Normalized metrics
+ * @returns {Object} Body composition state and values
+ */
+const calculateBodyComposition = (metrics) => {
+  const { activityNorm, nutritionNorm, sleepNorm, stressNorm, disciplineNorm } = metrics;
+  
+  const fitnessScore = (
+    activityNorm * 0.4 +
+    nutritionNorm * 0.3 +
+    sleepNorm * 0.15 +
+    disciplineNorm * 0.15
+  );
+  
+  const shoulderWidth = clamp(0.85 + (fitnessScore * 0.3), 0.8, 1.15);
+  
+  const torsoScale = clamp(0.9 + (fitnessScore * 0.2), 0.85, 1.1);
+  
+  const armDefinition = clamp(fitnessScore, 0, 1);
+  
+  let state = 'average';
+  if (fitnessScore >= 0.7) state = 'athletic';
+  else if (fitnessScore >= 0.5) state = 'fit';
+  else if (fitnessScore < 0.3) state = 'sedentary';
+  
+  return {
+    state,
+    shoulderWidth,
+    torsoScale,
+    armDefinition,
+    fitnessScore
+  };
+};
+
+/**
+ * Calculates energy pulse/glow parameters based on discipline and consistency
+ * Used for pulsing aura effects around the avatar
+ * @param {Object} metrics - Normalized metrics
+ * @param {Object} options - Additional options (streakDays, consistencyScore)
+ * @returns {Object} Energy pulse parameters
+ */
+const calculateEnergyPulse = (metrics, options = {}) => {
+  const { activityNorm, nutritionNorm, sleepNorm, stressNorm, disciplineNorm } = metrics;
+  const { streakDays = 0, consistencyScore = 0.5 } = options;
+  
+  const baseEnergy = (
+    disciplineNorm * 0.35 +
+    activityNorm * 0.25 +
+    nutritionNorm * 0.15 +
+    sleepNorm * 0.15 +
+    (1 - stressNorm) * 0.1
+  );
+  
+  const streakBonus = Math.min(streakDays / 30, 1) * 0.2;
+  const consistencyBonus = consistencyScore * 0.15;
+  
+  const totalEnergy = clamp(baseEnergy + streakBonus + consistencyBonus, 0, 1);
+  
+  const pulseSpeed = totalEnergy >= 0.6 
+    ? clamp(1 + (totalEnergy - 0.5) * 2, 1, 2.5)
+    : clamp(0.5 + totalEnergy, 0.5, 1);
+  
+  const pulseIntensity = totalEnergy >= 0.4 
+    ? clamp((totalEnergy - 0.3) * 1.5, 0, 1)
+    : 0;
+  
+  const glowRadius = clamp(10 + (totalEnergy * 30), 10, 40);
+  
+  let state = 'dormant';
+  if (totalEnergy >= 0.75) state = 'vibrant';
+  else if (totalEnergy >= 0.55) state = 'active';
+  else if (totalEnergy >= 0.35) state = 'steady';
+  
+  return {
+    state,
+    pulseSpeed,
+    pulseIntensity,
+    glowRadius,
+    totalEnergy
+  };
+};
+
+/**
  * Calculates facial overlay effects (stress desaturation, energy glow, sleep blur)
  * @param {Object} metrics - Normalized metrics
  * @returns {Object} Facial overlay effect values
@@ -220,6 +304,11 @@ export const computeAvatarEffects = (metrics = {}) => {
     disciplineNorm: normalize(disciplineScore)
   };
   
+  const {
+    streakDays = 0,
+    consistencyScore = 0.5
+  } = metrics;
+  
   const brightnessLevel = calculateBrightness(normalizedMetrics);
   const contrastLevel = calculateContrast(normalizedMetrics);
   const saturationLevel = calculateSaturation(normalizedMetrics);
@@ -229,6 +318,8 @@ export const computeAvatarEffects = (metrics = {}) => {
   const postureState = calculatePostureState(normalizedMetrics);
   const emotionState = calculateEmotionState(normalizedMetrics);
   const facialOverlays = calculateFacialOverlays(normalizedMetrics);
+  const bodyComposition = calculateBodyComposition(normalizedMetrics);
+  const energyPulse = calculateEnergyPulse(normalizedMetrics, { streakDays, consistencyScore });
   
   return {
     brightnessLevel,
@@ -240,6 +331,8 @@ export const computeAvatarEffects = (metrics = {}) => {
     postureState,
     emotionState,
     facialOverlays,
+    bodyComposition,
+    energyPulse,
     
     cssFilter: buildCSSFilter({
       brightnessLevel,
@@ -345,6 +438,20 @@ export const EMOTION_STATES = {
   NEUTRAL: 'neutral',
   TIRED: 'tired',
   STRESSED: 'stressed'
+};
+
+export const BODY_COMPOSITION_STATES = {
+  ATHLETIC: 'athletic',
+  FIT: 'fit',
+  AVERAGE: 'average',
+  SEDENTARY: 'sedentary'
+};
+
+export const ENERGY_STATES = {
+  VIBRANT: 'vibrant',
+  ACTIVE: 'active',
+  STEADY: 'steady',
+  DORMANT: 'dormant'
 };
 
 /**

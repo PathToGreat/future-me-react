@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
-import { calculateBodyComposition, getAvatarBodyWidth } from '../utils/bodyCompositionModel';
 import { calculateAvatarTraits } from '../utils/avatarTraitEngine';
 import { 
   computeAvatarEffects, 
@@ -9,6 +8,8 @@ import {
 } from './avatar/AvatarEffectsEngine';
 import PostureLayer from './avatar/posture/PostureLayer';
 import FacialExpressionLayer from './avatar/FacialExpressionLayer';
+import BodyCompositionLayer from './avatar/BodyCompositionLayer';
+import EnergyGlowLayer from './avatar/EnergyGlowLayer';
 
 export default function FutureMeAvatar({ 
   lifestyleScore, 
@@ -54,15 +55,28 @@ export default function FutureMeAvatar({
     return Math.min(5, 1 + (avgStreak / 10) * 4);
   }, [habitStreaks]);
 
+  const maxStreak = useMemo(() => {
+    return habitStreaks.length > 0 ? Math.max(...habitStreaks) : 0;
+  }, [habitStreaks]);
+
+  const consistencyScore = useMemo(() => {
+    if (habitStreaks.length === 0) return 0.5;
+    const totalStreak = habitStreaks.reduce((sum, s) => sum + s, 0);
+    const avgStreak = totalStreak / habitStreaks.length;
+    return Math.min(1, avgStreak / 14);
+  }, [habitStreaks]);
+
   const avatarEffects = useMemo(() => {
     return computeAvatarEffects({
       activityScore: activity || 3,
       nutritionScore: nutrition || 3,
       sleepScore: sleep || 3,
       stressScore: stress || 3,
-      disciplineScore: disciplineScore
+      disciplineScore: disciplineScore,
+      streakDays: maxStreak,
+      consistencyScore: consistencyScore
     });
-  }, [activity, nutrition, sleep, stress, disciplineScore]);
+  }, [activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore]);
 
   console.log('🎨 FutureMeAvatar rendered with traits:', avatarTraits.summary);
   console.log('🎨 Avatar effects applied:', {
@@ -116,11 +130,9 @@ export default function FutureMeAvatar({
   };
 
   const getBodyWidth = () => {
-    const bodyScore = avatarTraits.bodyShape.score;
+    const { torsoScale = 1 } = avatarEffects.bodyComposition || {};
     const baseWidth = 100;
-    const variance = 30;
-    const adjustment = (100 - bodyScore) / 100 * variance;
-    return Math.round(baseWidth + adjustment - 10);
+    return Math.round(baseWidth * torsoScale);
   };
 
   const getGlowAnimation = () => {
@@ -273,6 +285,20 @@ export default function FutureMeAvatar({
           <FacialExpressionLayer
             emotionState={avatarEffects.emotionState}
             facialOverlays={avatarEffects.facialOverlays}
+            color={colors.body}
+          />
+        )}
+
+        {showSvgAvatar && (
+          <EnergyGlowLayer
+            energyPulse={avatarEffects.energyPulse}
+            color={colors.glow}
+          />
+        )}
+
+        {showSvgAvatar && (
+          <BodyCompositionLayer
+            bodyComposition={avatarEffects.bodyComposition}
             color={colors.body}
           />
         )}
