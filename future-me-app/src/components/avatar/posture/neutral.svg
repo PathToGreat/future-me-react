@@ -1,0 +1,27 @@
+<svg width="200" height="300" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Neutral Posture Silhouette - Relaxed, natural stance -->
+  <g opacity="0.8">
+    <!-- Head - slight forward tilt -->
+    <ellipse cx="102" cy="48" rx="35" ry="40" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Neck - natural position -->
+    <path d="M87 85 L88 98 L117 96 L116 83" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Shoulders - natural, slightly relaxed -->
+    <path d="M48 105 Q68 100 88 98 L117 96 Q137 98 157 103" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Torso - neutral alignment -->
+    <path d="M72 105 L73 182 Q73 192 83 197 L122 195 Q132 190 131 180 L130 103" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Spine indicator - natural slight curve -->
+    <path d="M102 96 Q101 140 100 185" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 2" opacity="0.5"/>
+    
+    <!-- Arms - naturally at sides -->
+    <path d="M72 108 Q58 115 54 135 Q52 155 55 175" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M130 106 Q144 113 148 133 Q150 153 147 173" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Legs - natural stance -->
+    <path d="M83 197 L80 262 Q78 277 76 292" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M122 195 L124 260 Q126 275 128 290" stroke="currentColor" stroke-width="2" fill="none"/>
+  </g>
+</svg>

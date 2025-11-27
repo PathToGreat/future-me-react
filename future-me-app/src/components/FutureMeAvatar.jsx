@@ -7,6 +7,7 @@ import {
   getDarknessOverlayStyle, 
   getGlowOverlayStyle 
 } from './avatar/AvatarEffectsEngine';
+import PostureLayer from './avatar/posture/PostureLayer';
 
 export default function FutureMeAvatar({ 
   lifestyleScore, 
@@ -260,6 +261,11 @@ export default function FutureMeAvatar({
             background: `radial-gradient(circle, ${colors.glow} 0%, transparent 70%)`,
             transform: 'scale(1.5)',
           }}
+        />
+
+        <PostureLayer 
+          postureState={avatarEffects.postureState}
+          color={colors.body}
         />
 
         {!showSvgAvatar && images && images.length > 0 ? (

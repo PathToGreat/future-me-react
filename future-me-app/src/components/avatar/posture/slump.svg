@@ -1,0 +1,32 @@
+<svg width="200" height="300" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Slumped Posture Silhouette - Fatigued, hunched stance -->
+  <g opacity="0.8">
+    <!-- Head - forward and down -->
+    <ellipse cx="108" cy="55" rx="35" ry="40" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Neck - curved forward -->
+    <path d="M92 92 Q95 100 95 105 L120 100 Q118 92 115 85" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Shoulders - rounded forward, drooping -->
+    <path d="M55 115 Q72 108 92 105 L120 100 Q140 105 152 115" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Torso - curved spine, hunched -->
+    <path d="M75 115 Q78 145 82 180 Q82 192 90 200 L118 198 Q128 192 128 182 Q130 145 128 112" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Spine indicator - curved/hunched -->
+    <path d="M108 100 Q112 130 108 160 Q104 180 102 190" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 2" opacity="0.5"/>
+    
+    <!-- Arms - hanging forward -->
+    <path d="M75 118 Q62 128 58 150 Q56 172 60 190" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M128 115 Q142 125 146 147 Q148 170 144 188" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Legs - less grounded -->
+    <path d="M90 200 L88 263 Q86 278 84 293" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M118 198 L120 261 Q122 276 124 291" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Fatigue indicators - downward lines -->
+    <path d="M100 295 L100 300" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.3"/>
+    <path d="M85 295 L83 300" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.25"/>
+    <path d="M115 295 L117 300" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.25"/>
+  </g>
+</svg>
