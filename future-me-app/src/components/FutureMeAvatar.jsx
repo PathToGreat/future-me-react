@@ -10,6 +10,7 @@ import PostureLayer from './avatar/posture/PostureLayer';
 import FacialExpressionLayer from './avatar/FacialExpressionLayer';
 import BodyCompositionLayer from './avatar/BodyCompositionLayer';
 import EnergyGlowLayer from './avatar/EnergyGlowLayer';
+import PhotoEffectsLayer from './avatar/photo/PhotoEffectsLayer';
 
 export default function FutureMeAvatar({ 
   lifestyleScore, 
@@ -317,6 +318,9 @@ export default function FutureMeAvatar({
               }}
             />
             <div style={getDarknessOverlayStyle(avatarEffects.darknessOverlay)} className="rounded-2xl" />
+            
+            <PhotoEffectsLayer effects={avatarEffects} />
+            
             <motion.div 
               className="absolute inset-0 rounded-2xl pointer-events-none"
               animate={{

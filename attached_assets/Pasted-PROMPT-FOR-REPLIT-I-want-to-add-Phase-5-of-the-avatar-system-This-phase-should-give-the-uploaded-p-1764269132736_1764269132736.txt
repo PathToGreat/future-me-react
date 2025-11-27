@@ -1,0 +1,44 @@
+PROMPT FOR REPLIT:
+I want to add Phase 5 of the avatar system. This phase should give the uploaded photo some basic lifestyle-based visual cues but without distorting the image or modifying the user’s actual face shape. Everything needs to be overlay based, non-destructive, and subtle.
+Build a new component called PhotoEffectsLayer.jsx inside src/components/avatar/photo/.
+The goal of this component is to visually communicate emotional and health states on top of the user’s uploaded photo using only overlay graphics, gradients, subtle masks, and CSS filters.
+No image warping or pixel manipulation. Only additive layers.
+Here is the system to build:
+Base Component
+Create <PhotoEffectsLayer effects={avatarEffects} />
+This should render on top of the uploaded photo inside FutureMeAvatar, but only when the photo view is active.
+The Photo Effects
+These are purely overlays based on the avatarEffects values that already exist:
+A. Under-Eye Shadow (Tired Only)
+A soft, low-opacity curved gradient under the general eye region.
+This should be:
+• Centered horizontally
+• About 25 percent from the top of the image
+• Blurred
+• Opacity based on tiredness (0 to 0.25 max)
+B. Stress Tint
+A faint, desaturated gray-blue overlay when stress is high.
+Opacity: 0 to 0.15 max
+C. Positive Glow (High Discipline or Activity)
+A very subtle warm gradient from below the chin or shoulders that represents “energy.”
+Opacity: 0 to 0.2 max
+Very soft feathering.
+D. Clarity Filter (Good Sleep)
+A light increase in sharpness or reduction in blur via CSS filter.
+Do not sharpen the image itself. Instead apply a sharpen-like overlay using a transparent layer with backdrop-filter: contrast(1.05) brightness(1.02).
+E. Low-Light Vignette (Fatigue)
+A very soft vignette when sleep is low.
+Opacity: 0 to 0.15 max
+Integration Rules
+• These effects must never break the facial structure.
+• They must never shift, warp, or shape any part of the photo.
+• They must be fully removable when switching to the SVG avatar.
+• Include a single <div> wrapper that uses pointer-events: none so it does not affect taps.
+Add the Component
+Import and layer PhotoEffectsLayer above the user’s uploaded photo inside FutureMeAvatar.jsx.
+Make sure it respects the avatar mode (photo vs svg).
+No assumptions about image landmarks
+Everything should be positioned using percentages and responsive behavior, not actual face detection.
+Clean, modular structure
+Keep each effect as a separate internal element so they can be modified later.
+This completes Phase 5 for the photo system. All effects must be reversible, subtle, and symbolic rather than anatomically literal.
