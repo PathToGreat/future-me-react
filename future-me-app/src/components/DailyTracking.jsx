@@ -9,8 +9,8 @@ import { getUserHabits, calculateHabitZoneBonuses } from '../utils/habitHelpers'
 import { calculateAchievementData, checkAndAwardAchievements } from '../utils/achievementEngine';
 import { fetchAllZoneHistories } from '../hooks/useZoneHistoryData';
 import { generateDailyInsight, generateWeeklyInsights, generateMonthlyInsights, shouldGenerateWeeklyInsight, shouldGenerateMonthlyInsight } from '../utils/insightsEngine';
-import { interceptDailyLogData, processDailyLogForAvatar } from '../utils/avatarInputInterceptor';
-import { processDailyLogForAvatar as processForAvatarState } from '../utils/avatarStateManager';
+import { interceptDailyLogData } from '../utils/avatarInputInterceptor';
+import { processDailyLogForAvatar } from '../utils/avatarStateManager';
 
 const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
   const [metrics, setMetrics] = useState({
@@ -118,7 +118,16 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
         blocked: Object.keys(routingResult.blocked)
       });
 
-      processForAvatarState(healthLogData, 'health');
+      if (Object.keys(routingResult.futureMeUpdates).length > 0) {
+        processDailyLogForAvatar(healthLogData, 'health', {
+          skipInterception: true,
+          preRoutedData: routingResult.futureMeUpdates
+        });
+      }
+      
+      if (Object.keys(routingResult.currentMeUpdates).length > 0) {
+        console.warn('⛔ [Avatar Router] Blocked attempt to update Current Me from daily log - data routed to Future Me only');
+      }
 
       const healthLogRef = doc(db, 'users', user.uid, 'zoneLogs', 'health', 'daily', today);
       await setDoc(healthLogRef, healthLogData, { merge: true });

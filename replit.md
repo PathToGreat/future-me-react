@@ -44,6 +44,13 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
 -   **Smart Reassessment Suggestion System:** Monitors long-term trends in daily logs and suggests re-evaluating baseline metrics when significant changes are detected.
 -   **Insights Engine System:** Generates personalized suggestions and pattern recognition (Daily, Weekly, Monthly) based on user data, prioritizing insights.
 -   **Smart Device Integration Layer:** Enables passive data ingestion from external health devices like Apple Health, Google Fit, Fitbit, Garmin, and Oura Ring, with device-sourced data taking precedence over manual entries.
+-   **Avatar Input Routing Gateway:** (`src/config/avatarRoutingRules.json`, `src/utils/avatarInputInterceptor.js`, `src/utils/avatarStateManager.js`, `src/components/DeveloperInspectorPanel.jsx`) Controls exactly which inputs affect Current Me avatar vs Future Me preview.
+    -   **Routing Rules Engine:** JSON configuration defines two categories: `current_me_affects` (long-term traits: age, height, body frame, gender, ethnicity, onboardingBaseline) and `future_me_affects` (daily habits: sleep, activity, nutrition, stress, hydration, faith actions, device data).
+    -   **Input Interceptor Layer:** All user-entered and device data passes through this layer before reaching avatar calculations. Checks routing rules and routes data to correct pipeline. Blocks daily logs and device data from modifying Current Me baseline.
+    -   **Avatar State Manager:** Current Me is a "locked baseline" object that can only be updated via onboarding or reassessment. Future Me is a "dynamic projection" object recalculated when habits change. Provides lock/unlock/validate functions for baseline integrity.
+    -   **Developer Inspector Panel:** Hidden debug panel (Shift+M keyboard shortcut) showing all intercepted inputs, routing decisions (Current Me/Future Me/Blocked), blocked attempts log, real-time avatar state, and routing statistics.
+    -   **Routing Test Mode:** Toggle within inspector panel enables simulating fake inputs to verify routing behavior without affecting user data. Includes quick test buttons for daily log batch, Current Me input, device input, and blocked input scenarios.
+    -   **Integration Points:** Interceptor integrated into DailyTracking (daily log submission), Onboarding (baseline initialization), and deviceDataMerger (device data processing) without modifying existing avatar calculators.
 
 **Backend & Data Architecture:**
 

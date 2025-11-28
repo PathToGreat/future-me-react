@@ -166,14 +166,26 @@ export function getFutureMeProjection() {
   return futureMeProjection ? { ...futureMeProjection } : null;
 }
 
-export function updateFutureMeProjection(newData, source = 'daily_log') {
-  const intercepted = interceptBatchInputs(newData, source, { target: 'future_me' });
+export function updateFutureMeProjection(newData, source = 'daily_log', options = {}) {
+  const { skipInterception = false, preRoutedData = null } = options;
+  
+  let futureMeUpdates;
+  let blocked = {};
+  
+  if (skipInterception && preRoutedData) {
+    futureMeUpdates = preRoutedData;
+    console.log('➡️ [Avatar State Manager] Using pre-routed data (skip re-interception)');
+  } else {
+    const intercepted = interceptBatchInputs(newData, source, { target: 'future_me' });
+    futureMeUpdates = intercepted.futureMeUpdates;
+    blocked = intercepted.blocked;
+  }
   
   const previousProjection = futureMeProjection ? { ...futureMeProjection } : null;
   
   futureMeProjection = {
     ...futureMeProjection,
-    ...intercepted.futureMeUpdates,
+    ...futureMeUpdates,
     _meta: {
       ...(futureMeProjection?._meta || {}),
       lastUpdated: new Date().toISOString(),
@@ -189,21 +201,25 @@ export function updateFutureMeProjection(newData, source = 'daily_log') {
     previousProjection,
     newProjection: futureMeProjection,
     source,
-    updatedFields: Object.keys(intercepted.futureMeUpdates)
+    updatedFields: Object.keys(futureMeUpdates)
   });
   
   return {
     success: true,
     projection: futureMeProjection,
-    updatedFields: Object.keys(intercepted.futureMeUpdates),
-    blockedFields: Object.keys(intercepted.blocked)
+    updatedFields: Object.keys(futureMeUpdates),
+    blockedFields: Object.keys(blocked)
   };
 }
 
-export function processDailyLogForAvatar(dailyLogData, zoneId = null) {
+export function processDailyLogForAvatar(dailyLogData, zoneId = null, options = {}) {
   console.log('📊 [Avatar State Manager] Processing daily log for avatar');
   
-  const result = updateFutureMeProjection(dailyLogData, zoneId ? 'zone_log' : 'daily_log');
+  const result = updateFutureMeProjection(
+    dailyLogData, 
+    zoneId ? 'zone_log' : 'daily_log',
+    options
+  );
   
   return {
     currentMeUpdated: false,
