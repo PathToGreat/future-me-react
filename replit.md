@@ -33,6 +33,10 @@ The frontend is built with React 18.3 and Vite 7.1.9, leveraging TailwindCSS 3 f
     -   Step 6 (Faith & Purpose): Purpose alignment (aligned/searching/disconnected), faith practice rhythm (consistent/inconsistent/not practicing), motivation level (1-5)
 -   **Wellness Score Calculation:** A formula calculates a 0-100 score based on lifestyle inputs.
 -   **Future Me Avatar System:** An SVG-based avatar dynamically adjusts color, posture, body width, and facial expressions based on wellness scores and metrics.
+    -   **Current Me vs Future Me Architectural Separation:** (`src/utils/currentMeAvatarModel.js`) Critical data separation between the two avatar states:
+        -   **Current Me (Baseline-Anchored):** Uses `onboardingBaseline` metrics captured during the 6-step assessment. Represents "you today" based on your lifestyle assessment. Only changes through "slow drift" after 30+ consecutive days of consistent positive behavior (max 10% drift per metric toward daily log averages).
+        -   **Future Me (Projection-Driven):** Uses `futureMetrics` from `projectFutureMetrics()`, incorporating daily log trends, Life Zone scores, and habit consistency to predict 90-day trajectory.
+        -   Daily tracking saves to `zoneLogs/{zoneId}/daily/{date}` and `dailyData/{date}` collections but does NOT update profile's core metrics, ensuring Current Me remains stable.
     -   **Future Avatar Engine:** Projects lifestyle metrics and avatar appearance 90 days into the future, displayed via a toggleable second avatar.
     -   **Enhanced Future Path Predictions:** Calculates 30/90/180-day projections using weighted factors (lifestyle trend, Life Zone scores, habit consistency), displaying status indicators, progress bars, and actionable insights.
     -   **Avatar Trait Map Engine:** Converts user data into 6 visual avatar traits (Posture, Body Shape, Facial Expression, Glow/Energy, Movement Level, Aura/Presence), feeding into rendering logic for dynamic transformations.

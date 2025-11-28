@@ -609,18 +609,27 @@ export default function Dashboard() {
                 </div>
               ) : futureMetrics ? (
                 <div>
-                  <p className="text-sm text-gray-700 font-medium mb-2">
-                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).primary}
-                  </p>
-                  <p className={`text-xs ${
-                    getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).tone === 'positive'
-                      ? 'text-green-600 font-semibold'
-                      : getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).tone === 'warning'
-                      ? 'text-orange-600 font-semibold'
-                      : 'text-gray-600'
-                  }`}>
-                    {getFutureAvatarDescription(liveProfile.lifestyleScore, futureMetrics.lifestyleScore).secondary}
-                  </p>
+                  {(() => {
+                    const currentScore = currentMeMetrics?.lifestyleScore || liveProfile.onboardingBaseline?.lifestyleScore || 50;
+                    const futureScore = futureMetrics.lifestyleScore;
+                    const description = getFutureAvatarDescription(currentScore, futureScore);
+                    return (
+                      <>
+                        <p className="text-sm text-gray-700 font-medium mb-2">
+                          {description.primary}
+                        </p>
+                        <p className={`text-xs ${
+                          description.tone === 'positive'
+                            ? 'text-green-600 font-semibold'
+                            : description.tone === 'warning'
+                            ? 'text-orange-600 font-semibold'
+                            : 'text-gray-600'
+                        }`}>
+                          {description.secondary}
+                        </p>
+                      </>
+                    );
+                  })()}
                 </div>
               ) : (
                 <p className="text-sm text-gray-500">
@@ -701,16 +710,22 @@ export default function Dashboard() {
             </div>
 
             <div className="card bg-gradient-to-r from-primary-500 to-accent-500 text-white">
-              <h2 className="text-xl font-bold mb-2">Your Wellness Score</h2>
+              <h2 className="text-xl font-bold mb-2">
+                {!showFutureAvatar ? 'Your Wellness Score' : 'Projected Wellness Score'}
+              </h2>
               <div className="flex items-end gap-2">
                 <span className="text-5xl font-bold">
-                  {Math.round(liveProfile.lifestyleScore || 50)}
+                  {Math.round(!showFutureAvatar 
+                    ? (currentMeMetrics?.lifestyleScore || liveProfile.onboardingBaseline?.lifestyleScore || 50)
+                    : (futureMetrics?.lifestyleScore || 50))}
                 </span>
                 <span className="text-2xl mb-2">/100</span>
               </div>
               <p className="text-blue-100 mt-2">
                 {(() => {
-                  const score = liveProfile.lifestyleScore || 50;
+                  const score = !showFutureAvatar 
+                    ? (currentMeMetrics?.lifestyleScore || liveProfile.onboardingBaseline?.lifestyleScore || 50)
+                    : (futureMetrics?.lifestyleScore || 50);
                   if (score >= 80)
                     return "You're on an excellent path! Keep up the great work.";
                   if (score >= 60)
