@@ -44,13 +44,15 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
 -   **Smart Reassessment Suggestion System:** Monitors long-term trends in daily logs and suggests re-evaluating baseline metrics when significant changes are detected.
 -   **Insights Engine System:** Generates personalized suggestions and pattern recognition (Daily, Weekly, Monthly) based on user data, prioritizing insights.
 -   **Micro-Suggestions Engine:** (`src/utils/microSuggestionsEngine.js`, `src/components/MicroSuggestionCard.jsx`) Generates contextual, PTG-style neutral guidance after each daily log submission.
+    -   **50 Pre-Written PTG Suggestions:** Curated library of suggestions acknowledging effort, discipline, and awareness without value judgments. Examples: "That takes self-discipline to keep tracking consistently", "Maintaining awareness here takes commitment", "Observing patterns like this takes self-awareness".
+    -   **Metric Coverage:** Generators for sleep, activity, nutrition, stress, hydration, emotional, faith, energy, and routine metrics with template interpolation ({current}, {baseline}, {variance}).
     -   **Comparison Logic:** Compares current log metrics against onboarding baseline and rolling 7-day averages.
     -   **Priority Ranking:** Sleep > Stress > Activity > Nutrition order ensures most impactful metrics surface first.
-    -   **Combined Pattern Detection:** Identifies cross-zone interactions (sleep+activity affecting energy, nutrition+hydration synergy).
-    -   **PTG-Style Language:** All suggestions use neutral, descriptive language without value judgments (e.g., "Sleep duration logged at 5.5 hours. Your baseline is 7 hours." not "You're not sleeping enough.").
+    -   **Combined Pattern Detection:** Identifies cross-zone interactions including lowEnergySleepIssue, multipleStressors, overallImproving, balancedPositive, nutritionHydrationSynergy, and overallComplete patterns.
+    -   **PTG-Style Language:** All suggestions use neutral, descriptive language without value judgments (e.g., "Sleep duration logged at 5.5 hours. Baseline is 7 hours. That takes self-discipline to keep tracking consistently.").
     -   **Fallback System:** Guarantees valid suggestion output even with empty/null data scenarios with consistent fallback messaging.
     -   **Firestore Persistence:** Suggestions stored at `/users/{userId}/insights/microSuggestions` for dashboard display and historical reference.
-    -   **Expandable Card UI:** MicroSuggestionCard component with zone-specific icons, priority categorization (attention/positive/neutral), and expand/collapse details.
+    -   **Expandable Card UI:** MicroSuggestionCard component with zone-specific icons (💪 activity, 💤 sleep, ⚖️ stress, 💧 hydration, 📖 faith, ⭐ energy, 🎯 routine), priority categorization (attention/positive/neutral), and expand/collapse details.
 -   **Smart Device Integration Layer:** Enables passive data ingestion from external health devices like Apple Health, Google Fit, Fitbit, Garmin, and Oura Ring, with device-sourced data taking precedence over manual entries.
 -   **Avatar Input Routing Gateway:** (`src/config/avatarRoutingRules.json`, `src/utils/avatarInputInterceptor.js`, `src/utils/avatarStateManager.js`, `src/components/DeveloperInspectorPanel.jsx`) Controls exactly which inputs affect Current Me avatar vs Future Me preview.
     -   **Routing Rules Engine:** JSON configuration defines two categories: `current_me_affects` (long-term traits: age, height, body frame, gender, ethnicity, onboardingBaseline) and `future_me_affects` (daily habits: sleep, activity, nutrition, stress, hydration, faith actions, device data).
