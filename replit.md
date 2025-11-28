@@ -2,7 +2,7 @@
 
 ## Overview
 
-Future Me is a web application designed to visualize a user's future self based on their current lifestyle choices. It achieves this by collecting lifestyle metrics through an interactive questionnaire and dynamically adapting an avatar to reflect health indicators. The core purpose is to engage and motivate users to understand the long-term impact of their daily habits on their well-being. Key capabilities include a legal onboarding flow, a 3-step metric collection, dynamic avatar visualization, real-time wellness score calculation, future self projection, user authentication, and a responsive design.
+Future Me is a web application designed to visualize a user's future self based on their current lifestyle choices. It collects lifestyle metrics through an interactive questionnaire and dynamically adapts an avatar to reflect health indicators. The core purpose is to engage and motivate users to understand the long-term impact of their daily habits on their well-being. Key capabilities include legal onboarding, 6-step metric collection, dynamic avatar visualization, real-time wellness score calculation, future self projection, user authentication, and a responsive design.
 
 ## User Preferences
 
@@ -20,72 +20,47 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-The frontend is built with React 18.3 and Vite 7.1.9, leveraging TailwindCSS 3 for styling with a custom design system. Framer Motion handles animations, and React Router v6 manages client-side routing. The application uses a component-based architecture with the Context API for authentication state. UI/UX decisions prioritize a custom color palette, gradient elements, card-based layouts, and mobile-first responsiveness.
+The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Motion for animations, and React Router v6 for routing. It employs a component-based architecture with the Context API for authentication. UI/UX emphasizes a custom color palette, gradients, card-based layouts, and mobile-first responsiveness.
 
 **Technical Implementations & Feature Specifications:**
 
--   **Onboarding & Metric Collection:** A comprehensive 6-step questionnaire gathers:
-    -   Step 1 (Goals): Age and health goals selection
-    -   Step 2 (Core Habits): Activity, nutrition, sleep, and stress sliders (1-5)
-    -   Step 3 (Physical State): Energy level (1-5), morning fatigue (yes/no/sometimes), body tension (1-5)
-    -   Step 4 (Lifestyle Rhythm): Movement type (light/moderate/intense), eating rhythm (regular/irregular/snacking), sleep rhythm (consistent/inconsistent/irregular)
-    -   Step 5 (Emotional Profile): Primary stressor (work/family/money/uncertainty/health/other/none), emotional climate (overwhelmed/neutral/hopeful), social support (low/average/strong)
-    -   Step 6 (Faith & Purpose): Purpose alignment (aligned/searching/disconnected), faith practice rhythm (consistent/inconsistent/not practicing), motivation level (1-5)
+-   **Onboarding & Metric Collection:** A 6-step questionnaire covers goals, core habits (activity, nutrition, sleep, stress), physical state, lifestyle rhythm, emotional profile, and faith/purpose.
 -   **Wellness Score Calculation:** A formula calculates a 0-100 score based on lifestyle inputs.
--   **Future Me Avatar System:** An SVG-based avatar dynamically adjusts color, posture, body width, and facial expressions based on wellness scores and metrics.
-    -   **Current Me vs Future Me Architectural Separation:** (`src/utils/currentMeAvatarModel.js`) Critical data separation between the two avatar states:
-        -   **Current Me (Baseline-Anchored):** Uses `onboardingBaseline` metrics captured during the 6-step assessment. Represents "you today" based on your lifestyle assessment. Only changes through "slow drift" after 30+ consecutive days of consistent positive behavior (max 10% drift per metric toward daily log averages).
-        -   **Future Me (Projection-Driven):** Uses `futureMetrics` from `projectFutureMetrics()`, incorporating daily log trends, Life Zone scores, and habit consistency to predict 90-day trajectory.
-        -   Daily tracking saves to `zoneLogs/{zoneId}/daily/{date}` and `dailyData/{date}` collections but does NOT update profile's core metrics, ensuring Current Me remains stable.
-    -   **Future Avatar Engine:** Projects lifestyle metrics and avatar appearance 90 days into the future, displayed via a toggleable second avatar.
-    -   **Enhanced Future Path Predictions:** Calculates 30/90/180-day projections using weighted factors (lifestyle trend, Life Zone scores, habit consistency), displaying status indicators, progress bars, and actionable insights.
-    -   **Avatar Trait Map Engine:** Converts user data into 6 visual avatar traits (Posture, Body Shape, Facial Expression, Glow/Energy, Movement Level, Aura/Presence), feeding into rendering logic for dynamic transformations.
-    -   **Avatar Effects Engine:** A modular system (`src/components/avatar/AvatarEffectsEngine.js`) translates lifestyle metrics into CSS visual effects (brightness, contrast, saturation, glow, blur) applied via filters and overlays. Includes baseline modifier system that uses onboarding data (physical state, lifestyle rhythm, emotional profile, faith/purpose) to establish a "Current Me" anchor that shifts effect calculations for more believable avatar visualization.
-    -   **Posture Overlay System:** A modular component (`src/components/avatar/posture/`) displays SVG silhouette overlays (upright, neutral, slump) with Framer Motion transitions based on `postureState`.
-    -   **Facial Expression & Emotional Overlay System:** (`src/components/avatar/FacialExpressionLayer.jsx`) renders emotion-based facial overlays (brows, cheeks, mouth) derived from lifestyle metrics, including special indicators for tired/stressed states.
-    -   **Gender-Aware Body Composition System (Phase 4+):** (`BodyCompositionLayer.jsx`, `GenderSelector.jsx`) A gender-specific body morphing system with distinct male and female SVG models. Calculates Body Composition Index (activity 60% + nutrition 40%) to determine 3 morph states (soft, balanced, fit) for each gender. Male models feature broader shoulders and V-shape torso; female models use hourglass curvature. Uses Framer Motion for smooth state transitions. Gender selection persists to Firestore and uses localStorage caching for instant hydration to prevent incorrect avatar display on page load. Dashboard gates avatar render until gender is determined (shows loading spinner).
-    -   **Energy Glow Layer System:** (`EnergyGlowLayer.jsx`) visualizes energy levels through pulsing aura rings and orbiting particles.
-    -   **Photo Effects Layer System (Phase 5):** A non-destructive overlay system (`src/components/avatar/photo/PhotoEffectsLayer.jsx`) that adds subtle lifestyle-based visual cues to uploaded photos without distorting the image. Features five modular overlay effects: Under-Eye Shadow (curved gradient for tiredness), Stress Tint (gray-blue desaturation overlay), Positive Glow (warm gradient from below for high energy/discipline), Clarity Filter (backdrop-filter contrast/brightness boost for good sleep), and Low-Light Vignette (soft radial darkening for fatigue). All effects use percentage-based positioning, threshold-controlled opacity (0.15-0.25 max), pointer-events: none for non-blocking interaction, and Framer Motion fade transitions. Only renders in photo mode.
-    -   **Photo/Avatar Toggle System:** A reusable component (`src/components/avatar/AvatarViewToggle.jsx`) allows switching between user photos and the dynamic SVG avatar, integrating all visual effects.
--   **Daily Tracking System:** Enables logging daily metrics (sleep, activity, nutrition, stress) with real-time dashboard updates.
+-   **Future Me Avatar System:** An SVG-based avatar dynamically adjusts visual traits (color, posture, body width, facial expressions, glow, movement, aura) based on wellness scores and metrics.
+    -   **Current Me vs Future Me Architectural Separation:** The "Current Me" avatar is anchored to `onboardingBaseline` metrics and changes slowly over time, while the "Future Me" avatar is a 90-day projection based on daily log trends, Life Zone scores, and habit consistency.
+    -   **Future Avatar Engine:** Projects lifestyle metrics and avatar appearance 90 days into the future.
+    -   **Avatar Trait Map Engine & Effects Engine:** Convert user data into visual traits and CSS visual effects (brightness, contrast, saturation, glow, blur).
+    -   **Posture Overlay System:** Displays SVG silhouette overlays based on `postureState`.
+    -   **Facial Expression & Emotional Overlay System:** Renders emotion-based facial overlays.
+    -   **Gender-Aware Body Composition System:** A gender-specific body morphing system with distinct male and female SVG models, calculating 3 morph states (soft, balanced, fit) based on activity and nutrition.
+    -   **Energy Glow Layer System:** Visualizes energy levels through pulsing aura rings and orbiting particles.
+    -   **Photo Effects Layer System:** Adds subtle, non-destructive visual cues to uploaded photos based on lifestyle metrics (e.g., Under-Eye Shadow for tiredness, Positive Glow for high energy).
+    -   **Photo/Avatar Toggle System:** Allows switching between user photos and the dynamic SVG avatar.
+-   **Daily Tracking System:** Enables logging daily metrics with real-time dashboard updates.
 -   **Dashboard Visualization:** Displays current/future avatars, metric bars, wellness scores, goals, and insights.
--   **Life Zone System:** Tracks progress across 6 zones (Health, Social Emotional, Wealth, Faith, Family, Community), each with unique daily log inputs, scoring formulas, and interactive detail modals showing historical data. Zones initialize at 50 points and recalculate scores upon submission.
--   **Habit Builder System:** Users create up to 15 custom habits, track completions, build streaks, and receive zone bonuses. Habits can be linked to Life Zones or tracked as "Personal Habits."
--   **Milestone and Achievement Rewards System:** Automatically tracks 14 achievements across 4 categories (habit mastery, Life Zone excellence, consistency, general progress), triggering visual badges, notifications, and insights.
--   **Smart Reassessment Suggestion System:** (`src/utils/reassessmentAnalyzer.js`, `src/components/ReassessmentBanner.jsx`) Monitors long-term trends in daily logs and recommends baseline updates only when meaningful change has occurred.
-    -   **Trend Analyzer:** Evaluates last 30 days of logs to detect sustained shifts (20%+ improvement or decline from baseline, sustained for 21+ of 30 days) in: activity, nutrition, sleep, stress.
-    -   **Reassessment Trigger Logic:** Sets `shouldSuggestReassessment` flag when meaningful shift detected. Does not trigger if user reassessed within last 30 days or banner was dismissed within 7 days.
-    -   **UI Banner:** Non-intrusive dashboard banner appears when flag is active, showing which metrics improved or declined with action buttons.
-    -   **Update Baseline:** Takes user to full assessment, overwrites baseline values with new assessment, records `lastReassessmentDate`, clears suggestion flag.
-    -   **Not Now:** Dismisses banner for 7 days via `reassessmentDismissedUntil` timestamp, does not reset trend data.
-    -   **Data Handling:** Stores `lastReassessmentDate` and `reassessmentDismissedUntil` in user profile. Daily logs never overwrite baseline; only completed reassessment updates `onboardingBaseline`.
--   **Insights Engine System:** (`src/utils/insightsEngine.js`, `src/components/InsightsPanel.jsx`, `src/components/InsightsHistory.jsx`) Generates personalized suggestions and pattern recognition based on daily logs, baseline assessment, and long-term trends.
-    -   **Daily Insights:** Generated after each daily log submission. Compares today's metrics against baseline and 7-day average, highlighting wins or areas for growth with priority scoring (1=high, 2=medium, 3=low).
-    -   **Weekly Summary Insights:** Generated every 7 days. Includes: highlight (best metric trend), opportunity (metric trending down), and actionable suggestion tailored to user's rhythm/emotional profile.
-    -   **Monthly Pattern Insights:** Generated every 30 days. Includes: emerging long-term pattern, habit consistency ranking per metric, and keystone recommendation (the single change that would impact the most areas).
-    -   **Priority System:** All insights scored 1-3, with priority 1 displayed most prominently.
-    -   **Dashboard Integration:** InsightsPanel displays today's insight, weekly summary, and link to monthly review on dashboard.
-    -   **History View:** InsightsHistory page (`/insights`) allows viewing all insights with tabs for Current, Weekly, and Monthly, including past monthly bundles.
-    -   **Data Storage:** Current insights stored at `/users/{userId}/insights/current`, monthly history at `/users/{userId}/insights/history/monthly/{bundleId}`.
-    -   **Avatar Independence:** Insights Engine provides guidance only; it does not modify Current Me or Future Me avatar calculations.
+-   **Life Zone System:** Tracks progress across 6 zones (Health, Social Emotional, Wealth, Faith, Family, Community), each with unique daily log inputs and scoring formulas.
+-   **Habit Builder System:** Users create custom habits, track completions, and earn zone bonuses.
+-   **Milestone and Achievement Rewards System:** Tracks 14 achievements across various categories, triggering visual badges and notifications.
+-   **Smart Reassessment Suggestion System:** Monitors long-term trends in daily logs and suggests re-evaluating baseline metrics when significant changes are detected.
+-   **Insights Engine System:** Generates personalized suggestions and pattern recognition (Daily, Weekly, Monthly) based on user data, prioritizing insights.
+-   **Smart Device Integration Layer:** Enables passive data ingestion from external health devices like Apple Health, Google Fit, Fitbit, Garmin, and Oura Ring, with device-sourced data taking precedence over manual entries.
 
 **Backend & Data Architecture:**
 
-Firebase Authentication v11 provides email/password sign-up, login, and password reset. Cloud Firestore is the primary database.
+Firebase Authentication v11 handles user authentication. Cloud Firestore is the primary database for user profiles, zone-specific daily logs, habits, and achievements.
 
 **Data Schema Highlights:**
--   User profiles are stored at `/users/{userId}`, containing personal info, onboarding status, metrics, and Life Zone scores.
--   **Zone-Specific Daily Logs:** Stored at `/users/{userId}/zoneLogs/{zoneId}/daily/{yyyy-mm-dd}`, each zone has specific metric inputs.
--   **Zone-Specific Scoring Formulas:** Each zone's score is calculated using weighted inputs from its own daily logs, incorporating trend and streak bonuses.
--   User habits are stored in `/users/{userId}/habits/{habitId}` with details like title, linked zone, streak, and completion history.
--   User achievements are stored in `/users/{userId}/achievements/{achievementId}`, including id, name, description, category, and earned timestamp, with idempotent writes to prevent duplicates.
+-   User profiles: `/users/{userId}` stores personal info, onboarding status, metrics, and Life Zone scores.
+-   Zone-Specific Daily Logs: `/users/{userId}/zoneLogs/{zoneId}/daily/{yyyy-mm-dd}`.
+-   Habits: `/users/{userId}/habits/{habitId}`.
+-   Achievements: `/users/{userId}/achievements/{achievementId}`.
 
 ## External Dependencies
 
 ### Firebase Services
--   `firebase`: Core Firebase SDK for web.
+-   `firebase`: Core Firebase SDK.
 -   `firebase/auth`: User authentication.
--   `firebase/firestore`: Cloud-based NoSQL database.
+-   `firebase/firestore`: Cloud Firestore database.
 
 ### UI & Styling Libraries
 -   `react`: Frontend UI library.
@@ -95,7 +70,7 @@ Firebase Authentication v11 provides email/password sign-up, login, and password
 -   `tailwindcss`: Utility-first CSS framework.
 
 ### Build Tools
--   `vite`: Frontend tooling and build system.
+-   `vite`: Frontend tooling.
 -   `@vitejs/plugin-react`: React support for Vite.
 -   `postcss`: CSS transformation.
 -   `autoprefixer`: Adds vendor prefixes to CSS.
