@@ -1,0 +1,51 @@
+(Phase 5: Micro-Suggestions Engine)
+Objective:
+Build a Micro-Suggestions Engine for the Future Me app that provides concise, actionable, and insight-driven guidance after daily log submissions. Language should align with conscious discipline and PTG-style communication: neutral, non-judgmental, factual, and encouraging reflection and adjustment without value labeling or “good/bad” language.
+Requirements:
+Integration:
+Micro-suggestions appear immediately after a daily log submission.
+Suggestions are visible on the Dashboard as a short message (1–2 lines).
+Users can expand for more details or view weekly/monthly insights for context.
+Logic & Triggers:
+Compare current log metrics to:
+Baseline (from onboarding/reassessment)
+7-day moving average
+Identify areas of improvement or patterns, focusing on small, actionable steps.
+Suggestions should adapt based on combined metrics, e.g., sleep + activity, nutrition + hydration.
+Life Zones Covered:
+Physical Activity
+Nutrition
+Sleep
+Stress / Emotional Wellness
+Faith / Purpose / Motivation
+Combined metrics insights
+Behavior & Tone Rules:
+Neutral and descriptive language: focus on patterns, behaviors, and outcomes.
+Avoid value judgments (“good/bad job”)
+Avoid condescending or patronizing phrasing
+Keep short, actionable, reflective suggestions
+Encourage small, achievable changes
+Maintain PTG conscious discipline tone: clarity, observation, empowerment
+Example Micro-Suggestions:
+Physical Activity / Fitness:
+“Steps are consistent this week. Adding a brief walk after lunch can support daily rhythm.”
+“Movement today was moderate. Consider a light stretch before bed to improve recovery.”
+Nutrition:
+“Vegetable intake is steady. Adding a protein source to breakfast may balance energy levels.”
+“Hydration levels are lower than baseline. Drinking water before meals can support focus and recovery.”
+Sleep:
+“Sleep duration has been variable. Maintaining a consistent bedtime for the next 3 nights can stabilize energy.”
+“Rest was shorter than baseline. A brief pre-sleep routine may improve sleep onset.”
+Stress / Emotional Wellness:
+“Stress indicators increased today. A 5-minute breathing exercise can support clarity and calm.”
+“Evening mood trends slightly low. Journaling for reflection may provide perspective.”
+Faith / Purpose / Motivation:
+“Motivation score is steady. Setting one clear intention for tomorrow may strengthen follow-through.”
+“Purpose alignment is marked as searching. Reflecting on one meaningful goal today can guide next steps.”
+Combined Metrics / Patterns:
+“Energy is low and sleep was inconsistent. Prioritizing an earlier bedtime could improve alertness tomorrow.”
+“Balanced nutrition and movement are trending well. Consider a brief meditation to support emotional clarity.”
+Implementation Notes:
+Each micro-suggestion should be generated based on current log metrics + baseline trends.
+Suggestions should be modular, allowing for easy expansion or adjustment by metric type.
+Ensure suggestions do not modify avatar calculations—Current Me remains baseline-anchored; Future Me uses trends for projections.

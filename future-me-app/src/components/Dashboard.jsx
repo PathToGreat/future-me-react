@@ -18,6 +18,7 @@ import AchievementNotification from "./AchievementNotification";
 import ReassessmentBanner from "./ReassessmentBanner";
 import InsightsPanel from "./InsightsPanel";
 import ConnectedDevicesPanel from "./ConnectedDevicesPanel";
+import MicroSuggestionCard from "./MicroSuggestionCard";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -421,6 +422,23 @@ export default function Dashboard() {
           )}
         </AnimatePresence>
 
+        {/* Micro-Suggestions Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mt-6"
+        >
+          <MicroSuggestionCard 
+            onViewInsights={() => {
+              const insightsSection = document.querySelector('[data-section="insights"]');
+              if (insightsSection) {
+                insightsSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          />
+        </motion.div>
+
         <div className="grid md:grid-cols-2 gap-6 mt-8">
           <DailyInsight
             activity={liveProfile.activity}
@@ -431,7 +449,7 @@ export default function Dashboard() {
           <JourneyMeter onboardingCompleted={liveProfile.onboardingCompleted} />
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8" data-section="insights">
           <InsightsPanel 
             profile={liveProfile}
             historyData={historyData}

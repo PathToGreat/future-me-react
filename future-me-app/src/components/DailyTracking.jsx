@@ -11,6 +11,7 @@ import { fetchAllZoneHistories } from '../hooks/useZoneHistoryData';
 import { generateDailyInsight, generateWeeklyInsights, generateMonthlyInsights, shouldGenerateWeeklyInsight, shouldGenerateMonthlyInsight } from '../utils/insightsEngine';
 import { interceptDailyLogData } from '../utils/avatarInputInterceptor';
 import { processDailyLogForAvatar } from '../utils/avatarStateManager';
+import { generateMicroSuggestion, formatSuggestionForDisplay } from '../utils/microSuggestionsEngine';
 
 const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
   const [metrics, setMetrics] = useState({
@@ -247,6 +248,28 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
             monthlyBundle,
             lastUpdated: new Date().toISOString()
           }, { merge: true });
+
+          try {
+            const microSuggestionResult = generateMicroSuggestion(
+              { ...healthLogData, lifestyleScore: Math.round(lifestyleScore) },
+              fullProfile,
+              last7Days
+            );
+            
+            const formattedSuggestion = formatSuggestionForDisplay(microSuggestionResult);
+            
+            if (formattedSuggestion?.summary) {
+              const suggestionRef = doc(db, 'users', user.uid, 'microSuggestions', today);
+              await setDoc(suggestionRef, {
+                ...formattedSuggestion,
+                rawResult: microSuggestionResult,
+                createdAt: new Date().toISOString()
+              });
+              console.log('💡 Micro-suggestion generated:', formattedSuggestion.summary.substring(0, 50) + '...');
+            }
+          } catch (suggestionError) {
+            console.error('Error generating micro-suggestion:', suggestionError);
+          }
           
         } catch (insightError) {
           console.error('Error generating insights:', insightError);
