@@ -1,174 +1,194 @@
-const SUGGESTION_TEMPLATES = {
-  activity: {
-    belowBaseline: [
-      "Movement today was moderate. Consider a light stretch before bed to support recovery.",
-      "Activity level is lower than your baseline. A brief walk after meals can help rebuild momentum.",
-      "Steps were limited today. Adding 10 minutes of movement tomorrow can restore balance."
-    ],
-    below7Day: [
-      "Activity is below your recent average. A short walk during a break can help.",
-      "Movement has been lighter lately. Consider scheduling a brief active session tomorrow."
-    ],
-    consistent: [
-      "Steps are consistent this week. Adding a brief walk after lunch can support daily rhythm.",
-      "Activity levels are steady. Maintaining this consistency supports long-term progress."
-    ],
-    improving: [
-      "Movement is trending upward. This momentum supports energy and recovery.",
-      "Activity levels have increased recently. Your body is adapting to more movement."
-    ],
-    combined: {
-      lowSleep: "Activity is moderate while rest was limited. Prioritizing sleep tonight may improve tomorrow's energy for movement.",
-      highStress: "Movement was light during a higher-stress day. A gentle walk can support both body and mind.",
-      lowNutrition: "Activity was limited and nutrition was lighter. Balancing both can improve energy levels."
-    }
-  },
-  
-  nutrition: {
-    belowBaseline: [
-      "Nutrition balance is lower than your baseline. Adding a protein source to breakfast may support energy.",
-      "Nutrient intake today was lighter. Planning one balanced meal tomorrow can restore equilibrium."
-    ],
-    below7Day: [
-      "Nutrition has been variable this week. Focusing on one consistent meal can establish rhythm.",
-      "Food choices were lighter than recent days. Preparing a nourishing meal tomorrow may help."
-    ],
-    consistent: [
-      "Vegetable intake is steady. Adding variety to your meals can enhance nutritional balance.",
-      "Nutrition patterns are consistent. This stability supports steady energy throughout the day."
-    ],
-    improving: [
-      "Nutrition choices have improved recently. Your body responds well to balanced fuel.",
-      "Food quality is trending upward. This supports overall wellness and energy."
-    ],
-    hydration: {
-      low: "Hydration levels are lower than baseline. Drinking water before meals can support focus and recovery.",
-      moderate: "Water intake is moderate. Increasing by one glass during afternoon hours may improve energy.",
-      good: "Hydration is well-maintained. This supports digestion, energy, and mental clarity."
-    },
-    combined: {
-      lowSleep: "Nutrition was lighter and sleep was short. Prioritizing a balanced breakfast tomorrow may help both.",
-      lowActivity: "Nutrition and movement were both lighter today. A nourishing meal paired with a short walk can restore balance."
-    }
-  },
-  
+const PTG_SUGGESTION_TEMPLATES = {
   sleep: {
     belowBaseline: [
-      "Sleep duration is shorter than your baseline. Maintaining a consistent bedtime for 3 nights can stabilize energy.",
-      "Rest was shorter than baseline. A brief pre-sleep routine may improve sleep onset."
-    ],
-    below7Day: [
-      "Sleep has been variable this week. A consistent wind-down routine can support better rest.",
-      "Rest quality has fluctuated recently. Reducing screen time before bed may help stabilize patterns."
-    ],
-    consistent: [
-      "Sleep patterns are steady. This consistency supports energy and mental clarity throughout the day.",
-      "Rest duration is stable. Maintaining this rhythm reinforces your body's natural recovery cycle."
-    ],
-    improving: [
-      "Sleep quality is improving. Your body is responding well to your rest patterns.",
-      "Rest duration has increased recently. This supports recovery and daytime energy."
+      "Sleep duration logged at {current} hours. Baseline is {baseline} hours. That takes self-discipline to keep tracking consistently.",
+      "Sleep score below baseline. Awareness of impact takes self-reflection.",
+      "Sleep duration slightly improved over the week. Observing this trend takes persistence."
     ],
     variable: [
-      "Sleep duration has been variable. Maintaining a consistent bedtime for the next 3 nights can stabilize energy.",
-      "Rest timing has varied. Setting a consistent wake-up time can anchor your sleep rhythm."
+      "Sleep consistency shows a {variance}-hour variance. Maintaining awareness here takes commitment.",
+      "Sleep latency logged accurately. Tracking subtle patterns takes persistence."
+    ],
+    consistent: [
+      "Sleep consistency stable for 5 nights. Sustaining patterns takes discipline.",
+      "Sleep quality better than yesterday. Observing patterns takes attention."
+    ],
+    improving: [
+      "Sleep duration slightly improved over the week. Observing this trend takes persistence.",
+      "Sleep quality better than yesterday. Observing patterns takes attention."
     ],
     combined: {
-      highStress: "Sleep was lighter during a higher-stress period. A calming routine before bed may support deeper rest.",
-      lowActivity: "Rest was limited and movement was light. Gentle activity during the day can improve sleep quality.",
-      highActivity: "Activity was high and sleep was short. Your body may benefit from earlier rest tonight."
+      lowActivity: "Low sleep + moderate activity affected morning energy. Observing patterns like this takes self-awareness.",
+      highStress: "Sleep was lighter during a higher-stress period. Awareness of these connections takes self-reflection.",
+      goodFaith: "Good sleep + consistent faith practice correlated with stronger positive glow. Maintaining these practices takes effort and intention."
     }
   },
-  
+
+  activity: {
+    belowBaseline: [
+      "Activity logged as {current}. Baseline: {baseline}. That shows focus on movement today.",
+      "Activity duration slightly lower than baseline. Observing adjustments reflects attentiveness.",
+      "Activity log skipped a planned session. Observing lapses reflects attentiveness."
+    ],
+    consistent: [
+      "Moderate activity today. Keeping routines steady requires commitment.",
+      "Activity intensity matched planned level. Keeping consistent demonstrates focus.",
+      "Movement rhythm consistent today. Maintaining routines reflects self-discipline."
+    ],
+    improving: [
+      "Activity streak maintained for 3 consecutive days. Sustaining routines like this takes commitment.",
+      "Movement today aligned with energy levels. Following through demonstrates discipline."
+    ],
+    variable: [
+      "Movement rhythm today differs from baseline. Adapting routines like this requires self-discipline."
+    ],
+    combined: {
+      lowSleep: "Low sleep + moderate activity affected morning energy. Observing patterns like this takes self-awareness.",
+      goodHydration: "Hydration and activity aligned with energy levels. Tracking interactions takes attentiveness."
+    }
+  },
+
+  nutrition: {
+    belowBaseline: [
+      "Nutrition quality: {current}/5. Baseline: {baseline}/5. Staying mindful of intake takes persistence.",
+      "Nutrition intake slightly better than yesterday. Noticing incremental improvements takes awareness."
+    ],
+    consistent: [
+      "Nutrition log complete for all meals. Following through on this takes persistence.",
+      "Nutrition entries show lower sodium intake. Tracking choices like this demonstrates consistency."
+    ],
+    improving: [
+      "Nutrition intake slightly better than yesterday. Noticing incremental improvements takes awareness.",
+      "Nutrition synergy with hydration noted. Tracking positive interactions takes persistence."
+    ],
+    combined: {
+      goodHydration: "High nutrition + proper hydration created positive synergy today. That reflects thoughtful consistency.",
+      goodActivity: "Nutrition intake balanced with activity today. Observing these synergies takes self-reflection."
+    }
+  },
+
   stress: {
     elevated: [
-      "Stress indicators increased today. A 5-minute breathing exercise can support clarity and calm.",
-      "Tension levels are higher than baseline. A brief moment of stillness may provide perspective."
-    ],
-    elevated7Day: [
-      "Stress has been elevated this week. Identifying one source of pressure may help address it.",
-      "Tension levels have been higher recently. Consider one small action that brings calm."
+      "Stress level today: {current}/5. Baseline: {baseline}/5. Keeping track of stressors demonstrates attentiveness.",
+      "Stress today slightly higher than usual. Awareness of stress patterns takes attentiveness.",
+      "Stressor logged today. Recognizing triggers takes self-reflection."
     ],
     managed: [
-      "Stress levels are within your baseline range. This stability supports clear thinking.",
-      "Tension management is consistent. Maintaining your current approaches is working."
+      "Low stress period detected. Maintaining awareness takes self-discipline.",
+      "Stress recovery exercises logged. Tracking self-care like this reflects awareness."
     ],
     improving: [
-      "Stress levels are lower than recent days. Your coping strategies appear to be working.",
-      "Tension has decreased recently. Notice what contributed to this improvement."
-    ],
-    combined: {
-      lowSleep: "Stress was higher while rest was limited. Prioritizing sleep tonight may improve emotional balance.",
-      lowActivity: "Tension was elevated and movement was light. Physical activity can help process stress.",
-      lowNutrition: "Stress was higher and nutrition was lighter. Balanced meals can support emotional regulation."
-    }
-  },
-  
-  emotional: {
-    lowMood: [
-      "Evening mood trends slightly low. Journaling for reflection may provide perspective.",
-      "Emotional energy was lower today. Connecting with a supportive person may help."
-    ],
-    variable: [
-      "Emotional patterns have varied this week. Tracking triggers can reveal helpful insights.",
-      "Mood has fluctuated recently. Identifying patterns may support emotional balance."
-    ],
-    stable: [
-      "Emotional state is steady. This stability supports decision-making and relationships.",
-      "Mood patterns are consistent. Maintaining your current routines supports this balance."
-    ],
-    improving: [
-      "Emotional wellness is improving. Notice what activities contribute to this positive trend.",
-      "Mood has been more stable recently. Your current approach is supporting well-being."
+      "Stress level trending lower over past 3 days. Observing changes demonstrates consistency.",
+      "Evening stress recovery shows delayed improvement. Noticing this trend takes self-reflection."
     ]
   },
-  
-  faith: {
-    searching: [
-      "Purpose alignment is marked as searching. Reflecting on one meaningful goal today can guide next steps.",
-      "Motivation direction is being explored. Writing down one intention may provide clarity."
-    ],
-    lowMotivation: [
-      "Motivation score is lower than baseline. Setting one clear intention for tomorrow may strengthen follow-through.",
-      "Purpose engagement was lighter today. A brief moment of reflection can reconnect you to your goals."
+
+  hydration: {
+    belowBaseline: [
+      "Hydration slightly below baseline. Tracking this pattern shows attentiveness."
     ],
     consistent: [
-      "Motivation score is steady. Setting one clear intention for tomorrow may strengthen follow-through.",
-      "Purpose alignment is consistent. This stability supports sustained effort toward goals."
+      "Hydration tracked accurately. Consistently logging water intake takes focus."
     ],
-    strong: [
-      "Purpose engagement is strong. This clarity supports focused action and decision-making.",
-      "Motivation levels are high. Channel this energy into your most meaningful priorities."
+    good: [
+      "Hydration and activity aligned with energy levels. Tracking interactions takes attentiveness."
     ]
   },
-  
+
+  emotional: {
+    neutral: [
+      "Emotional climate reported as hopeful. Monitoring mood consistently takes awareness.",
+      "Emotional climate neutral. Recognizing patterns over time demonstrates self-reflection.",
+      "Emotional support interaction logged. Observing social patterns takes attentiveness."
+    ],
+    stable: [
+      "Motivation rating steady. Tracking internal state demonstrates attentiveness."
+    ],
+    variable: [
+      "Body tension reported lower than baseline. Observing improvement reflects consistency."
+    ]
+  },
+
+  faith: {
+    consistent: [
+      "Faith practice logged consistently. Maintaining awareness like this requires discipline.",
+      "Faith or purpose practice observed. Tracking engagement demonstrates awareness."
+    ],
+    combined: {
+      goodSleep: "Good sleep + consistent faith practice correlated with stronger positive glow. Maintaining these practices takes effort and intention."
+    }
+  },
+
+  energy: {
+    low: [
+      "Morning fatigue noted. Awareness of how it changes over time reflects self-reflection."
+    ],
+    improving: [
+      "Morning energy higher than yesterday. Observing fluctuations takes awareness.",
+      "Morning energy aligned with sleep score. Tracking these interactions takes persistence."
+    ]
+  },
+
+  routine: {
+    partial: [
+      "Evening wind-down missed. Recognizing this gap takes attentiveness.",
+      "Evening routine followed partially. Noticing adjustments reflects attentiveness."
+    ],
+    completed: [
+      "Evening wind-down completed. Following routines reflects persistence."
+    ]
+  },
+
   combined: {
     lowEnergySleepIssue: [
-      "Energy is low and sleep was inconsistent. Prioritizing an earlier bedtime could improve alertness tomorrow.",
-      "Fatigue is present and rest was limited. A consistent sleep schedule may restore energy over the coming days."
+      "Low sleep + moderate activity affected morning energy. Observing patterns like this takes self-awareness.",
+      "Morning energy aligned with sleep score. Tracking these interactions takes persistence."
     ],
     balancedPositive: [
-      "Balanced nutrition and movement are trending well. Consider a brief meditation to support emotional clarity.",
-      "Activity and nutrition are well-balanced. This foundation supports overall wellness."
+      "High nutrition + proper hydration created positive synergy today. That reflects thoughtful consistency.",
+      "Nutrition intake balanced with activity today. Observing these synergies takes self-reflection.",
+      "Hydration and activity aligned with energy levels. Tracking interactions takes attentiveness."
     ],
     multipleStressors: [
-      "Multiple areas show signs of strain today. Focus on improving one metric to create positive momentum.",
-      "Several metrics are below baseline. Addressing sleep first often improves other areas."
+      "Multiple areas show signs of strain today. Tracking these patterns takes awareness and discipline.",
+      "Several metrics are below baseline. Continuing to track despite challenges takes persistence."
     ],
     overallImproving: [
-      "Multiple metrics are improving. Your consistent efforts are creating positive momentum.",
-      "Several areas show improvement. This upward trend reflects your daily choices."
+      "Sleep, activity, and nutrition show positive synergy today. Monitoring combined effects takes reflection.",
+      "Multiple metrics are improving. Your consistent tracking efforts demonstrate discipline."
     ],
-    weekendPattern: [
-      "Weekend patterns differ from weekdays. Maintaining some consistency can help smooth the transition.",
-      "Schedule changes on weekends affect your metrics. Consider anchoring one habit to stay consistent."
+    overallComplete: [
+      "Overall tracking completed today. Keeping consistency like this takes effort and discipline."
     ]
   }
 };
 
+const SUGGESTION_TEMPLATES = PTG_SUGGESTION_TEMPLATES;
+
 function getRandomTemplate(templates) {
   if (!templates || templates.length === 0) return null;
   return templates[Math.floor(Math.random() * templates.length)];
+}
+
+function interpolateTemplate(template, values) {
+  if (!template || typeof template !== 'string') return template;
+  
+  return template.replace(/\{(\w+)\}/g, (match, key) => {
+    if (values.hasOwnProperty(key)) {
+      const value = values[key];
+      if (typeof value === 'number') {
+        return Number.isInteger(value) ? value.toString() : value.toFixed(1);
+      }
+      return value;
+    }
+    return match;
+  });
+}
+
+function getTemplateWithValues(templates, values) {
+  const template = getRandomTemplate(templates);
+  if (!template) return null;
+  return interpolateTemplate(template, values);
 }
 
 function calculateMovingAverage(logs, metric, days = 7) {
@@ -273,6 +293,19 @@ function detectCombinedPatterns(currentLog, baseline, avg7Day) {
     patterns.push('weekendContext');
   }
   
+  const loggedMetrics = ['sleep', 'activity', 'nutrition', 'stress', 'hydration'].filter(
+    metric => currentLog[metric] !== undefined && currentLog[metric] !== null
+  );
+  if (loggedMetrics.length >= 4) {
+    patterns.push('overallComplete');
+  }
+  
+  if (nutrition !== undefined && hydration !== undefined) {
+    if (nutrition >= (baselineNutrition || 3) && hydration >= (baseline?.hydration || 3)) {
+      patterns.push('nutritionHydrationSynergy');
+    }
+  }
+  
   return patterns;
 }
 
@@ -293,42 +326,53 @@ function generateSingleMetricSuggestion(metric, currentValue, baselineValue, avg
   const templates = SUGGESTION_TEMPLATES[metric];
   if (!templates) return null;
   
+  const templateValues = {
+    current: currentValue,
+    baseline: baselineValue,
+    average: avg7Day,
+    variance: variance ? variance.toFixed(1) : '0'
+  };
+  
   if (isStressMetric) {
     if (baselineComparison === 'above' || weekComparison === 'above') {
-      if (baselineComparison === 'above') {
-        return getRandomTemplate(templates.elevated);
-      }
-      return getRandomTemplate(templates.elevated7Day);
+      return getTemplateWithValues(templates.elevated, templateValues);
     }
     if (baselineComparison === 'below' || weekComparison === 'below') {
-      return getRandomTemplate(templates.improving);
+      return getTemplateWithValues(templates.improving, templateValues);
     }
-    return getRandomTemplate(templates.managed);
+    return getTemplateWithValues(templates.managed, templateValues);
   }
   
   if (baselineComparison === 'below') {
-    return getRandomTemplate(templates.belowBaseline);
+    return getTemplateWithValues(templates.belowBaseline, templateValues);
   }
   
-  if (weekComparison === 'below') {
-    return getRandomTemplate(templates.below7Day);
+  if (weekComparison === 'below' && templates.below7Day) {
+    return getTemplateWithValues(templates.below7Day, templateValues);
   }
   
-  if (metric === 'sleep' && isVariable) {
-    return getRandomTemplate(templates.variable);
+  if (metric === 'sleep' && isVariable && templates.variable) {
+    return getTemplateWithValues(templates.variable, templateValues);
   }
   
   if (baselineComparison === 'above' || weekComparison === 'above') {
-    return getRandomTemplate(templates.improving);
+    if (templates.improving) {
+      return getTemplateWithValues(templates.improving, templateValues);
+    }
   }
   
-  return getRandomTemplate(templates.consistent);
+  if (templates.consistent) {
+    return getTemplateWithValues(templates.consistent, templateValues);
+  }
+  
+  return getRandomTemplate(templates.belowBaseline || []);
 }
 
 function generateCombinedSuggestion(patterns, currentLog, baseline) {
   if (patterns.length === 0) return null;
   
   const combinedTemplates = SUGGESTION_TEMPLATES.combined;
+  if (!combinedTemplates) return null;
   
   if (patterns.includes('lowEnergySleepIssue')) {
     return getRandomTemplate(combinedTemplates.lowEnergySleepIssue);
@@ -342,71 +386,119 @@ function generateCombinedSuggestion(patterns, currentLog, baseline) {
     return getRandomTemplate(combinedTemplates.overallImproving);
   }
   
-  if (patterns.includes('balancedPositive')) {
+  if (patterns.includes('balancedPositive') || patterns.includes('nutritionHydrationSynergy')) {
     return getRandomTemplate(combinedTemplates.balancedPositive);
+  }
+  
+  if (patterns.includes('overallComplete')) {
+    return getRandomTemplate(combinedTemplates.overallComplete);
   }
   
   return null;
 }
 
 function generateHydrationSuggestion(hydrationValue, baselineHydration) {
-  const templates = SUGGESTION_TEMPLATES.nutrition.hydration;
+  const templates = SUGGESTION_TEMPLATES.hydration;
+  if (!templates) return null;
   
   if (hydrationValue === undefined || hydrationValue === null) return null;
   
   const baseline = baselineHydration || 3;
+  const templateValues = { current: hydrationValue, baseline };
   
   if (hydrationValue < baseline - 0.5) {
-    return templates.low;
+    return getTemplateWithValues(templates.belowBaseline, templateValues);
   }
-  if (hydrationValue < baseline + 0.3) {
-    return templates.moderate;
+  if (hydrationValue >= baseline) {
+    return getTemplateWithValues(templates.good, templateValues);
   }
-  return templates.good;
+  return getTemplateWithValues(templates.consistent, templateValues);
 }
 
 function generateFaithSuggestion(faithData, baseline) {
   const templates = SUGGESTION_TEMPLATES.faith;
+  if (!templates) return null;
   
   if (!faithData) return null;
   
   const { motivation, purposeClarity, faithEngagement } = faithData;
   const baselineMotivation = baseline?.motivation || 3;
+  const templateValues = { current: motivation, baseline: baselineMotivation };
   
-  if (purposeClarity === 'searching' || purposeClarity === 'unclear') {
-    return getRandomTemplate(templates.searching);
+  if (faithEngagement || purposeClarity === 'clear') {
+    return getTemplateWithValues(templates.consistent, templateValues);
   }
   
-  if (motivation !== undefined && motivation < baselineMotivation - 0.5) {
-    return getRandomTemplate(templates.lowMotivation);
-  }
-  
-  if (motivation !== undefined && motivation > baselineMotivation + 0.5) {
-    return getRandomTemplate(templates.strong);
-  }
-  
-  return getRandomTemplate(templates.consistent);
+  return null;
 }
 
 function generateEmotionalSuggestion(emotionalData, baseline) {
   const templates = SUGGESTION_TEMPLATES.emotional;
+  if (!templates) return null;
   
   if (!emotionalData) return null;
   
-  const { mood, emotionalClarity, eveningMood } = emotionalData;
+  const { mood, emotionalClarity, eveningMood, emotionalSupport } = emotionalData;
   const baselineMood = baseline?.mood || 3;
-  
   const moodValue = eveningMood || mood;
+  const templateValues = { current: moodValue, baseline: baselineMood };
   
-  if (moodValue !== undefined && moodValue < baselineMood - 0.5) {
-    return getRandomTemplate(templates.lowMood);
+  if (emotionalSupport) {
+    return getTemplateWithValues(templates.neutral, templateValues);
   }
   
   if (moodValue !== undefined && moodValue > baselineMood + 0.5) {
-    return getRandomTemplate(templates.improving);
+    return getTemplateWithValues(templates.stable, templateValues);
   }
   
-  return getRandomTemplate(templates.stable);
+  if (moodValue !== undefined) {
+    return getTemplateWithValues(templates.neutral, templateValues);
+  }
+  
+  return null;
+}
+
+function generateEnergySuggestion(energyData, baseline, avg7Day) {
+  const templates = SUGGESTION_TEMPLATES.energy;
+  if (!templates) return null;
+  
+  if (!energyData) return null;
+  
+  const { morningEnergy, energyLevel } = energyData;
+  const energyValue = morningEnergy || energyLevel;
+  const baselineEnergy = baseline?.morningEnergy || baseline?.energyLevel || 3;
+  const templateValues = { current: energyValue, baseline: baselineEnergy };
+  
+  if (energyValue === undefined || energyValue === null) return null;
+  
+  if (energyValue < baselineEnergy - 0.5) {
+    return getTemplateWithValues(templates.low, templateValues);
+  }
+  
+  if (energyValue > baselineEnergy + 0.3 || (avg7Day && energyValue > avg7Day + 0.3)) {
+    return getTemplateWithValues(templates.improving, templateValues);
+  }
+  
+  return null;
+}
+
+function generateRoutineSuggestion(routineData, baseline) {
+  const templates = SUGGESTION_TEMPLATES.routine;
+  if (!templates) return null;
+  
+  if (!routineData) return null;
+  
+  const { eveningWindDown, routineCompleted, windDownCompleted } = routineData;
+  
+  if (windDownCompleted || routineCompleted || eveningWindDown === 'completed') {
+    return getTemplateWithValues(templates.completed, {});
+  }
+  
+  if (eveningWindDown === 'partial' || eveningWindDown === 'missed') {
+    return getTemplateWithValues(templates.partial, {});
+  }
+  
+  return null;
 }
 
 export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []) {
@@ -505,6 +597,17 @@ export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []
     baselineMetrics.emotional || baselineMetrics
   );
   
+  const energySuggestion = generateEnergySuggestion(
+    currentLog.energy || currentLog,
+    baselineMetrics.energy || baselineMetrics,
+    avg7Day.morningEnergy || avg7Day.energyLevel
+  );
+  
+  const routineSuggestion = generateRoutineSuggestion(
+    currentLog.routine || currentLog,
+    baselineMetrics.routine || baselineMetrics
+  );
+  
   return {
     primary: primarySuggestion,
     secondary: secondarySuggestion,
@@ -512,6 +615,8 @@ export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []
     hydration: hydrationSuggestion ? { text: hydrationSuggestion } : null,
     faith: faithSuggestion ? { text: faithSuggestion } : null,
     emotional: emotionalSuggestion ? { text: emotionalSuggestion } : null,
+    energy: energySuggestion ? { text: energySuggestion } : null,
+    routine: routineSuggestion ? { text: routineSuggestion } : null,
     allSuggestions: suggestions,
     metadata: {
       patternsDetected: patterns,
@@ -601,6 +706,28 @@ export function formatSuggestionForDisplay(suggestionResult) {
     }
   }
   
+  if (suggestionResult.energy?.text) {
+    const energyDetail = {
+      type: 'energy',
+      text: suggestionResult.energy.text
+    };
+    expandedDetails.push(energyDetail);
+    if (!mainText) {
+      mainText = suggestionResult.energy.text;
+    }
+  }
+  
+  if (suggestionResult.routine?.text) {
+    const routineDetail = {
+      type: 'routine',
+      text: suggestionResult.routine.text
+    };
+    expandedDetails.push(routineDetail);
+    if (!mainText) {
+      mainText = suggestionResult.routine.text;
+    }
+  }
+  
   if (!mainText || mainText.trim() === '') {
     mainText = defaultMessage;
     if (expandedDetails.length === 0) {
@@ -635,6 +762,8 @@ export function getSuggestionIcon(metricType) {
     hydration: '💧',
     faith: '📖',
     emotional: '❤️',
+    energy: '⭐',
+    routine: '🎯',
     combined: '📊',
     general: '💡',
     insight: '💡'

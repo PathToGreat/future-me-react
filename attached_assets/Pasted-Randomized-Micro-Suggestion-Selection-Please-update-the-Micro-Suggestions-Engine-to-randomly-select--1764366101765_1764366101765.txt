@@ -1,0 +1,33 @@
+Randomized Micro-Suggestion Selection
+Please update the Micro-Suggestions Engine to randomly select suggestions from the 50 pre-written PTG-style micro-suggestions for daily log entries. The goal is to ensure variety, context relevance, and maintain PTG-style neutral, descriptive language without value judgments.
+Requirements:
+Contextual Selection:
+Match suggestions to the metric(s) being logged:
+Sleep → sleep-related suggestions
+Stress → stress-related suggestions
+Activity → activity-related suggestions
+Nutrition → nutrition-related suggestions
+Other metrics (hydration, faith, mood) → relevant suggestions
+Prioritize the most meaningful metrics first (Sleep → Stress → Activity → Nutrition).
+Randomization & Rotation:
+Each day, select 1–3 suggestions per metric logged.
+Randomize the selection from the relevant pool to avoid repetition.
+Ensure that over 30 days, all suggestions are likely to appear at least once.
+Integration:
+Suggestions should appear in the expandable micro-suggestions card in the Dashboard after daily log submission.
+Save displayed suggestions to Firestore for historical reference and pattern analysis.
+Include a small “source” note (e.g., “Based on your sleep log today”) for transparency.
+Fallbacks & Minimal Data Days:
+If only partial data is logged, select at least one suggestion from available metrics.
+Never leave the card empty.
+PTG-Style Language:
+Keep language factual, descriptive, and neutral.
+Acknowledge effort, discipline, and awareness rather than giving value judgments or praise.
+Example:
+Instead of “Great job sleeping well,” use “Sleep duration logged at 7 hours. Your baseline is 6.8 hours. Maintaining awareness takes persistence.”
+Optional Enhancements (if feasible):
+Rotate micro-suggestions for multiple logs in a day to prevent repetition.
+Log which suggestions have been shown to prevent duplicates in a 24-hour period.
+Deliverable:
+Update the Micro-Suggestions Engine to implement randomized, contextual, PTG-style micro-suggestions for daily logs.
+Ensure suggestions are saved and displayed correctly in the dashboard and Firestore.
