@@ -9,6 +9,8 @@ import { getUserHabits, calculateHabitZoneBonuses } from '../utils/habitHelpers'
 import { calculateAchievementData, checkAndAwardAchievements } from '../utils/achievementEngine';
 import { fetchAllZoneHistories } from '../hooks/useZoneHistoryData';
 import { generateDailyInsight, generateWeeklyInsights, generateMonthlyInsights, shouldGenerateWeeklyInsight, shouldGenerateMonthlyInsight } from '../utils/insightsEngine';
+import { interceptDailyLogData, processDailyLogForAvatar } from '../utils/avatarInputInterceptor';
+import { processDailyLogForAvatar as processForAvatarState } from '../utils/avatarStateManager';
 
 const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
   const [metrics, setMetrics] = useState({
@@ -108,6 +110,15 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
         sleep: metrics.sleep,
         stress: metrics.stress
       };
+
+      const routingResult = interceptDailyLogData(healthLogData, 'health');
+      console.log('🔀 [Avatar Router] Daily log intercepted:', {
+        futureMeUpdates: Object.keys(routingResult.futureMeUpdates),
+        currentMeBlocked: Object.keys(routingResult.currentMeUpdates).length === 0,
+        blocked: Object.keys(routingResult.blocked)
+      });
+
+      processForAvatarState(healthLogData, 'health');
 
       const healthLogRef = doc(db, 'users', user.uid, 'zoneLogs', 'health', 'daily', today);
       await setDoc(healthLogRef, healthLogData, { merge: true });

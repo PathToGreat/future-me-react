@@ -1,0 +1,122 @@
+{
+  "version": "1.0.0",
+  "description": "Avatar Input Routing Gateway configuration - controls which inputs affect Current Me vs Future Me",
+  
+  "current_me_affects": {
+    "description": "Only long-term traits that define the stable baseline. These rarely change.",
+    "categories": {
+      "demographic": {
+        "inputs": ["age", "birthDate", "gender", "ethnicity"],
+        "update_frequency": "rarely",
+        "requires_reassessment": true
+      },
+      "physical_structure": {
+        "inputs": ["height", "bodyFrame", "bodyType"],
+        "update_frequency": "rarely",
+        "requires_reassessment": true
+      },
+      "baseline_assessment": {
+        "inputs": [
+          "onboardingBaseline.activity",
+          "onboardingBaseline.nutrition",
+          "onboardingBaseline.sleep",
+          "onboardingBaseline.stress",
+          "onboardingBaseline.energyLevel",
+          "onboardingBaseline.morningFatigue",
+          "onboardingBaseline.bodyTension",
+          "onboardingBaseline.movementType",
+          "onboardingBaseline.eatingRhythm",
+          "onboardingBaseline.sleepRhythm",
+          "onboardingBaseline.primaryStressor",
+          "onboardingBaseline.emotionalClimate",
+          "onboardingBaseline.socialSupport",
+          "onboardingBaseline.purposeAlignment",
+          "onboardingBaseline.faithPractice",
+          "onboardingBaseline.motivationLevel"
+        ],
+        "update_frequency": "on_reassessment_only",
+        "requires_reassessment": true
+      }
+    },
+    "all_inputs": [
+      "age",
+      "birthDate",
+      "gender",
+      "ethnicity",
+      "height",
+      "bodyFrame",
+      "bodyType",
+      "onboardingBaseline"
+    ]
+  },
+  
+  "future_me_affects": {
+    "description": "Daily habits and tracking data that influence Future Me projections only.",
+    "categories": {
+      "core_habits": {
+        "inputs": ["sleep", "sleepQuality", "sleepDuration", "activity", "activityLevel", "nutrition", "foodQuality", "stress", "stressLevel"],
+        "update_frequency": "daily",
+        "affects_projection": true
+      },
+      "hydration_nutrition": {
+        "inputs": ["hydration", "waterIntake", "sugarIntake", "caffeineIntake", "alcoholIntake", "mealCount", "vegetableServings", "proteinIntake"],
+        "update_frequency": "daily",
+        "affects_projection": true
+      },
+      "physical_activity": {
+        "inputs": ["steps", "activeMinutes", "workoutDuration", "workoutType", "exerciseIntensity", "standingHours", "caloriesBurned"],
+        "update_frequency": "daily",
+        "affects_projection": true
+      },
+      "rest_recovery": {
+        "inputs": ["napDuration", "restBreaks", "screenTimeBeforeBed", "bedtime", "wakeTime", "sleepInterruptions"],
+        "update_frequency": "daily",
+        "affects_projection": true
+      },
+      "mental_emotional": {
+        "inputs": ["mood", "anxietyLevel", "energyMorning", "energyAfternoon", "energyEvening", "focusLevel", "socialInteraction"],
+        "update_frequency": "daily",
+        "affects_projection": true
+      },
+      "faith_purpose": {
+        "inputs": ["faithActions", "prayerTime", "scriptureReading", "gratitudePractice", "purposeActions", "communityService"],
+        "update_frequency": "daily",
+        "affects_projection": true
+      },
+      "life_zone_logs": {
+        "inputs": ["health_zone", "social_zone", "wealth_zone", "faith_zone", "family_zone", "community_zone"],
+        "update_frequency": "daily",
+        "affects_projection": true
+      },
+      "device_data": {
+        "inputs": ["device_sleep", "device_steps", "device_heartRate", "device_hrv", "device_activity", "device_nutrition"],
+        "update_frequency": "automatic",
+        "affects_projection": true,
+        "source": "external_device"
+      }
+    },
+    "all_inputs": [
+      "sleep", "sleepQuality", "sleepDuration",
+      "activity", "activityLevel", "steps", "activeMinutes", "workoutDuration",
+      "nutrition", "foodQuality", "hydration", "waterIntake", "sugarIntake",
+      "stress", "stressLevel", "anxietyLevel",
+      "mood", "energyMorning", "energyAfternoon", "energyEvening",
+      "faithActions", "prayerTime", "scriptureReading", "gratitudePractice",
+      "health_zone", "social_zone", "wealth_zone", "faith_zone", "family_zone", "community_zone",
+      "device_sleep", "device_steps", "device_heartRate", "device_activity"
+    ]
+  },
+  
+  "blocked_inputs": {
+    "description": "Inputs that are explicitly blocked from affecting any avatar state",
+    "inputs": ["password", "email", "displayName", "photoURL", "createdAt", "lastLogin"]
+  },
+  
+  "routing_behavior": {
+    "unknown_input_policy": "route_to_future_me",
+    "device_data_policy": "future_me_only",
+    "daily_log_policy": "future_me_only",
+    "reassessment_policy": "update_current_me_baseline",
+    "conflict_resolution": "future_me_takes_precedence_for_daily"
+  }
+}

@@ -6,6 +6,7 @@ import BetaAgreement from './components/BetaAgreement';
 import Onboarding from './components/Onboarding';
 import Dashboard from './components/Dashboard';
 import InsightsHistory from './components/InsightsHistory';
+import DeveloperInspectorPanel from './components/DeveloperInspectorPanel';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -85,6 +86,7 @@ export default function App() {
     <Router>
       <AuthProvider>
         <AppRoutes />
+        <DeveloperInspectorPanel />
       </AuthProvider>
     </Router>
   );

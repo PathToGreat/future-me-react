@@ -1,4 +1,5 @@
 import { getAllDeviceDataForDate, getDeviceDataHistory } from './deviceIntegrationManager';
+import { interceptDeviceData } from './avatarInputInterceptor';
 
 const DEVICE_TO_METRIC_MAP = {
   sleep: {
@@ -91,6 +92,17 @@ export async function getMergedMetricsForDate(userId, date, manualLogs) {
   if (!userId || !date) return { metrics: manualLogs, sources: {} };
   
   const deviceData = await getAllDeviceDataForDate(userId, date);
+  
+  if (Object.keys(deviceData).length > 0) {
+    const providerName = Object.values(deviceData)[0]?.source || 'unknown';
+    const routingResult = interceptDeviceData(deviceData, providerName);
+    console.log('🔀 [Avatar Router] Device data intercepted:', {
+      provider: providerName,
+      futureMeUpdates: Object.keys(routingResult.futureMeUpdates),
+      currentMeBlocked: Object.keys(routingResult.currentMeUpdates).length === 0
+    });
+  }
+  
   const mergedMetrics = { ...manualLogs };
   const sources = {};
   

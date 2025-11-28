@@ -6,6 +6,8 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
 import { getCurrentReassessmentDate } from '../utils/reassessmentAnalyzer';
+import { interceptOnboardingData, interceptReassessmentData } from '../utils/avatarInputInterceptor';
+import { initializeCurrentMeBaseline, updateCurrentMeBaseline } from '../utils/avatarStateManager';
 
 const SliderInput = ({ label, value, onChange, leftLabel, rightLabel, min = 1, max = 5 }) => (
   <div>
@@ -184,6 +186,20 @@ export default function Onboarding() {
         lifestyleScore: Math.round(lifestyleScore),
         capturedAt: new Date().toISOString(),
       };
+      
+      if (isReassessment) {
+        const routingResult = interceptReassessmentData(onboardingBaseline);
+        console.log('🔀 [Avatar Router] Reassessment intercepted - updating Current Me baseline:', {
+          updatedFields: Object.keys(routingResult.currentMeUpdates)
+        });
+        updateCurrentMeBaseline(onboardingBaseline, 'reassessment');
+      } else {
+        const routingResult = interceptOnboardingData(onboardingBaseline);
+        console.log('🔀 [Avatar Router] Onboarding intercepted - initializing Current Me baseline:', {
+          updatedFields: Object.keys(routingResult.currentMeUpdates)
+        });
+        initializeCurrentMeBaseline(onboardingBaseline);
+      }
       
       const dataToSave = {
         age: formData.age,
