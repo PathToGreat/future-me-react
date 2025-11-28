@@ -155,11 +155,13 @@ export function generateWeeklyInsights(last7DaysLogs, baseline, last30DaysLogs) 
   const weeklyAverages = {};
   const previousWeekAverages = {};
   
+  const safeHistory = last30DaysLogs || [];
+  
   for (const metric of metrics) {
     weeklyAverages[metric] = calculateAverage(last7DaysLogs, metric);
     
-    const previousWeekLogs = last30DaysLogs?.slice(7, 14) || [];
-    previousWeekAverages[metric] = calculateAverage(previousWeekLogs, metric);
+    const previousWeekLogs = safeHistory.length > 7 ? safeHistory.slice(7, Math.min(14, safeHistory.length)) : [];
+    previousWeekAverages[metric] = previousWeekLogs.length > 0 ? calculateAverage(previousWeekLogs, metric) : null;
   }
   
   let bestMetric = null;
@@ -225,21 +227,28 @@ export function generateWeeklyInsights(last7DaysLogs, baseline, last30DaysLogs) 
     );
   }
   
-  const rhythmProfile = baseline?.lifestyleRhythm || {};
-  const emotionalProfile = baseline?.emotionalProfile || {};
+  const rhythmProfile = baseline?.lifestyleRhythm || baseline?.onboardingBaseline?.lifestyleRhythm || {};
+  const emotionalProfile = baseline?.emotionalProfile || baseline?.onboardingBaseline?.emotionalProfile || {};
   
   let actionableMessage = '';
   let actionableCategory = 'general';
   
-  if (rhythmProfile.sleepRhythm === 'inconsistent' || rhythmProfile.sleepRhythm === 'irregular') {
+  const sleepRhythm = rhythmProfile.sleepRhythm || '';
+  const emotionalClimate = emotionalProfile.emotionalClimate || '';
+  const movementRhythm = rhythmProfile.movementRhythm || '';
+  
+  if (sleepRhythm === 'inconsistent' || sleepRhythm === 'irregular') {
     actionableMessage = 'Your rhythm benefits from consistency. Try setting a fixed wake-up time for the next 3 days.';
     actionableCategory = 'rhythm';
-  } else if (emotionalProfile.emotionalClimate === 'overwhelmed') {
+  } else if (emotionalClimate === 'overwhelmed') {
     actionableMessage = 'When feeling overwhelmed, small wins matter most. Focus on one thing you can control today.';
     actionableCategory = 'emotional';
-  } else if (rhythmProfile.movementRhythm === 'light') {
+  } else if (movementRhythm === 'light') {
     actionableMessage = 'Light movement is a good foundation. Consider adding one 10-minute active break this week.';
     actionableCategory = 'activity';
+  } else if (worstMetric) {
+    actionableMessage = `Focus on improving your ${METRIC_NAMES[worstMetric].toLowerCase()} this week. Small consistent changes add up.`;
+    actionableCategory = worstMetric;
   } else {
     actionableMessage = 'You have good rhythm in your routine. Keep building on that consistency this week.';
     actionableCategory = 'general';
@@ -281,14 +290,16 @@ export function generateMonthlyInsights(last30DaysLogs, baseline, habits = [], l
   const consistencyScores = {};
   
   for (const metric of metrics) {
-    const values = last30DaysLogs.map(l => l[metric]).filter(v => v !== null && v !== undefined);
+    const values = last30DaysLogs
+      .map(l => l?.[metric])
+      .filter(v => v !== null && v !== undefined && typeof v === 'number');
     monthlyAverages[metric] = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : null;
     
-    if (values.length > 7) {
+    if (values.length > 7 && monthlyAverages[metric] !== null) {
       const mean = monthlyAverages[metric];
       const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
       const stdDev = Math.sqrt(variance);
-      consistencyScores[metric] = Math.max(0, 100 - (stdDev * 20));
+      consistencyScores[metric] = Math.max(0, Math.min(100, 100 - (stdDev * 20)));
     } else {
       consistencyScores[metric] = null;
     }
@@ -297,8 +308,9 @@ export function generateMonthlyInsights(last30DaysLogs, baseline, habits = [], l
   let emergingPattern = null;
   let patternType = 'neutral';
   
-  const first15Days = last30DaysLogs.slice(15);
-  const last15Days = last30DaysLogs.slice(0, 15);
+  const midpoint = Math.floor(last30DaysLogs.length / 2);
+  const first15Days = last30DaysLogs.slice(midpoint);
+  const last15Days = last30DaysLogs.slice(0, midpoint);
   
   for (const metric of metrics) {
     const firstHalfAvg = calculateAverage(first15Days, metric);

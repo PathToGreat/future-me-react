@@ -59,6 +59,15 @@ The frontend is built with React 18.3 and Vite 7.1.9, leveraging TailwindCSS 3 f
     -   **Update Baseline:** Takes user to full assessment, overwrites baseline values with new assessment, records `lastReassessmentDate`, clears suggestion flag.
     -   **Not Now:** Dismisses banner for 7 days via `reassessmentDismissedUntil` timestamp, does not reset trend data.
     -   **Data Handling:** Stores `lastReassessmentDate` and `reassessmentDismissedUntil` in user profile. Daily logs never overwrite baseline; only completed reassessment updates `onboardingBaseline`.
+-   **Insights Engine System:** (`src/utils/insightsEngine.js`, `src/components/InsightsPanel.jsx`, `src/components/InsightsHistory.jsx`) Generates personalized suggestions and pattern recognition based on daily logs, baseline assessment, and long-term trends.
+    -   **Daily Insights:** Generated after each daily log submission. Compares today's metrics against baseline and 7-day average, highlighting wins or areas for growth with priority scoring (1=high, 2=medium, 3=low).
+    -   **Weekly Summary Insights:** Generated every 7 days. Includes: highlight (best metric trend), opportunity (metric trending down), and actionable suggestion tailored to user's rhythm/emotional profile.
+    -   **Monthly Pattern Insights:** Generated every 30 days. Includes: emerging long-term pattern, habit consistency ranking per metric, and keystone recommendation (the single change that would impact the most areas).
+    -   **Priority System:** All insights scored 1-3, with priority 1 displayed most prominently.
+    -   **Dashboard Integration:** InsightsPanel displays today's insight, weekly summary, and link to monthly review on dashboard.
+    -   **History View:** InsightsHistory page (`/insights`) allows viewing all insights with tabs for Current, Weekly, and Monthly, including past monthly bundles.
+    -   **Data Storage:** Current insights stored at `/users/{userId}/insights/current`, monthly history at `/users/{userId}/insights/history/monthly/{bundleId}`.
+    -   **Avatar Independence:** Insights Engine provides guidance only; it does not modify Current Me or Future Me avatar calculations.
 
 **Backend & Data Architecture:**
 

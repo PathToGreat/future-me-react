@@ -63,6 +63,12 @@ export default function InsightsPanel({
       if (shouldGenerateMonthlyInsight(newMonthlyBundle) && last30Days.length >= 14) {
         newMonthlyBundle = generateMonthlyInsights(last30Days, profile);
         console.log('📊 Generated monthly insights');
+        
+        if (newMonthlyBundle?.id) {
+          const historyRef = doc(db, 'users', user.uid, 'insights', 'history', 'monthly', newMonthlyBundle.id);
+          await setDoc(historyRef, newMonthlyBundle);
+          console.log('📊 Monthly bundle archived to history');
+        }
       }
       setMonthlyBundle(newMonthlyBundle);
 
