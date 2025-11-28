@@ -470,3 +470,138 @@ export function getAllInsightsForDashboard(dailyInsight, weeklyBundle, monthlyBu
   
   return prioritizeInsights(insights);
 }
+
+export function generateDeviceDataInsight(dataSources, deviceHistory = []) {
+  if (!dataSources) return null;
+  
+  const deviceMetrics = Object.entries(dataSources)
+    .filter(([_, source]) => source.type === 'device')
+    .map(([metric, source]) => ({
+      metric,
+      provider: source.provider
+    }));
+  
+  if (deviceMetrics.length === 0) return null;
+  
+  const metricNames = deviceMetrics.map(d => METRIC_NAMES[d.metric] || d.metric);
+  const provider = deviceMetrics[0]?.provider || 'your device';
+  
+  let message = '';
+  let priority = 3;
+  
+  if (deviceMetrics.length >= 3) {
+    message = `Your ${metricNames.slice(0, -1).join(', ')} and ${metricNames.slice(-1)} data is synced from ${provider}. This gives Future Me more accurate projections.`;
+    priority = 2;
+  } else if (deviceMetrics.length === 2) {
+    message = `Your ${metricNames[0]} and ${metricNames[1]} metrics are from ${provider}, providing more accurate data.`;
+    priority = 2;
+  } else {
+    message = `Your ${metricNames[0]} data is synced from ${provider}.`;
+    priority = 3;
+  }
+  
+  return createInsight(
+    'device',
+    'Device Data Active',
+    message,
+    'device',
+    priority,
+    { deviceMetrics, provider }
+  );
+}
+
+export function detectDeviceManualDisagreement(dataSources) {
+  if (!dataSources) return null;
+  
+  const disagreements = [];
+  
+  for (const [metric, source] of Object.entries(dataSources)) {
+    if (source.type === 'device' && source.manualFallback !== undefined) {
+      const deviceValue = source.rawScore ? Math.round(source.rawScore / 20) : null;
+      const manualValue = source.manualFallback;
+      
+      if (deviceValue !== null && manualValue !== null && Math.abs(deviceValue - manualValue) >= 2) {
+        disagreements.push({
+          metric,
+          deviceValue,
+          manualValue,
+          difference: deviceValue - manualValue
+        });
+      }
+    }
+  }
+  
+  if (disagreements.length === 0) return null;
+  
+  const topDisagreement = disagreements[0];
+  const metricName = METRIC_NAMES[topDisagreement.metric] || topDisagreement.metric;
+  const direction = topDisagreement.difference > 0 ? 'higher' : 'lower';
+  
+  return createInsight(
+    'device_disagreement',
+    'Device vs Manual Difference',
+    `Your device shows ${direction} ${metricName.toLowerCase()} than your manual log. Device data is being used for accuracy.`,
+    topDisagreement.metric,
+    2,
+    { disagreements }
+  );
+}
+
+export function generateDeviceTrendInsight(deviceHistory, metricType) {
+  if (!deviceHistory || deviceHistory.length < 7) return null;
+  
+  const recentData = deviceHistory.slice(0, 7);
+  const olderData = deviceHistory.slice(7, 14);
+  
+  if (olderData.length < 3) return null;
+  
+  const getAvgValue = (data, field) => {
+    const values = data
+      .map(d => d.value?.[field])
+      .filter(v => v !== null && v !== undefined);
+    return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : null;
+  };
+  
+  let field = null;
+  let metricName = '';
+  
+  switch (metricType) {
+    case 'sleep':
+      field = 'sleepScore';
+      metricName = 'Sleep';
+      break;
+    case 'activity':
+      field = 'activeMinutes';
+      metricName = 'Activity';
+      break;
+    case 'hrv':
+      field = 'avgHRV';
+      metricName = 'HRV';
+      break;
+    default:
+      return null;
+  }
+  
+  const recentAvg = getAvgValue(recentData, field);
+  const olderAvg = getAvgValue(olderData, field);
+  
+  if (recentAvg === null || olderAvg === null) return null;
+  
+  const change = ((recentAvg - olderAvg) / olderAvg) * 100;
+  
+  if (Math.abs(change) < 10) return null;
+  
+  const direction = change > 0 ? 'improved' : 'declined';
+  const message = change > 0
+    ? `Your device shows ${metricName.toLowerCase()} has ${direction} by ${Math.abs(change).toFixed(0)}% this week. Great progress!`
+    : `Your device shows ${metricName.toLowerCase()} has ${direction} by ${Math.abs(change).toFixed(0)}% this week. Consider adjustments.`;
+  
+  return createInsight(
+    'device_trend',
+    `${metricName} Trend from Device`,
+    message,
+    metricType,
+    change > 0 ? 2 : 1,
+    { change: change.toFixed(1), recentAvg, olderAvg }
+  );
+}

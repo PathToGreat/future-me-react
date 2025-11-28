@@ -17,6 +17,7 @@ import AchievementsSection from "./AchievementsSection";
 import AchievementNotification from "./AchievementNotification";
 import ReassessmentBanner from "./ReassessmentBanner";
 import InsightsPanel from "./InsightsPanel";
+import ConnectedDevicesPanel from "./ConnectedDevicesPanel";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -51,6 +52,7 @@ export default function Dashboard() {
   const [currentMeMetrics, setCurrentMeMetrics] = useState(null);
   const [reassessmentAnalysis, setReassessmentAnalysis] = useState(null);
   const [showReassessmentBanner, setShowReassessmentBanner] = useState(false);
+  const [showDevicesPanel, setShowDevicesPanel] = useState(false);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
   
@@ -348,6 +350,14 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex gap-3">
+            <button 
+              onClick={() => setShowDevicesPanel(true)} 
+              className="btn-secondary text-sm flex items-center gap-1"
+              title="Connected Devices"
+            >
+              <span>📱</span>
+              <span className="hidden sm:inline">Devices</span>
+            </button>
             <button onClick={handleRetake} className="btn-secondary text-sm">
               Retake Assessment
             </button>
@@ -515,6 +525,13 @@ export default function Dashboard() {
           userId={user.uid}
           onHabitCreated={handleHabitCreated}
         />
+
+        {/* Connected Devices Panel */}
+        <AnimatePresence>
+          {showDevicesPanel && (
+            <ConnectedDevicesPanel onClose={() => setShowDevicesPanel(false)} />
+          )}
+        </AnimatePresence>
 
         {/* Achievements Section */}
         <AchievementsSection achievements={achievements} />

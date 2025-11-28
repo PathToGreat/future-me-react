@@ -1,0 +1,74 @@
+Phase 3 – Smart Device Integration Layer
+Build a unified Smart Device Integration Layer that allows Future Me to ingest data from external devices and apps. This is a foundational system, not a full integration with every provider.
+1. Create a Device Integration Manager
+Create a new module responsible for receiving and handling device data.
+It should support:
+Sleep
+Steps
+Heart rate
+HRV
+Activity minutes
+Stress proxies (if provided by device)
+The manager should expose functions like:
+saveDeviceSleep(data)
+saveDeviceActivity(data)
+saveDeviceStress(data)
+saveDeviceHeartRate(data)
+saveDeviceHRV(data)
+All device data should be normalized into a consistent internal format.
+Normalize using simple shape:
+{
+  date,
+  source,
+  value,
+  metadata: {}
+}
+2. Add Device Data Storage
+Add Firestore collections:
+device_sleep
+device_activity
+device_stress
+device_hr
+device_hrv
+Each entry must include:
+userId
+date
+normalized data
+timestamp
+3. Passive Override Logic
+Build logic that determines how device data interacts with manual daily logs.
+Rules:
+If device data exists for a metric, it becomes primary
+Manual logs remain as fallback
+Show users which values came from devices vs manual inputs
+Future Me projections must prefer device data when available
+Current Me baseline must not use device data unless the user runs a reassessment
+4. Simple Provider Stubs
+Add stubs for common provider categories:
+Apple Health
+Google Fit
+Oura Ring
+Garmin
+WHOOP
+These should be placeholder functions like:
+fetchAppleHealthData()
+fetchGoogleFitData()
+fetchOuraData()
+They do not need to implement API calls.
+They only need to demonstrate where future integrations will plug in.
+5. UI Settings Panel
+Add a new “Connected Devices” panel in Settings.
+It should show:
+Categories (Sleep, Activity, Stress, HR, HRV)
+Whether device data is being received
+Last sync time (fake until real integrations exist)
+Simple “Connect Device” buttons for each provider (non-functional stubs)
+6. Insight Engine Awareness
+Update the Insights Engine so it can identify:
+When device data improves accuracy
+When device data and manual logs disagree
+When sleep, activity, or stress device trends show meaningful changes
+Insights should mention the increased clarity when device data is present.
+7. Do Not Modify the Avatar System
+This layer must not change the logic for Current Me or Future Me.
+Its role is to provide higher-quality input data that the existing system already knows how to use.
