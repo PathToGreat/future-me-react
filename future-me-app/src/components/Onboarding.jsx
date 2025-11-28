@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
+import { getCurrentReassessmentDate } from '../utils/reassessmentAnalyzer';
 
 const SliderInput = ({ label, value, onChange, leftLabel, rightLabel, min = 1, max = 5 }) => (
   <div>
@@ -72,8 +73,11 @@ const MultiSelectButtons = ({ label, options, values, onToggle, columns = 2 }) =
 export default function Onboarding() {
   const { user, updateUserProfile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  
+  const isReassessment = location.state?.isReassessment === true;
   
   const [formData, setFormData] = useState({
     age: '',
@@ -199,6 +203,12 @@ export default function Onboarding() {
         completedAt: new Date().toISOString(),
         lifeZones: initialZones,
       };
+      
+      if (isReassessment) {
+        dataToSave.lastReassessmentDate = getCurrentReassessmentDate();
+        dataToSave.reassessmentDismissedUntil = null;
+        console.log('📊 Reassessment completed - baseline updated');
+      }
       
       console.log('Saving user profile...', dataToSave);
       await updateUserProfile(dataToSave);
