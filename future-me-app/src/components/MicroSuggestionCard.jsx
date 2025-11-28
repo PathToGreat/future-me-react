@@ -68,6 +68,12 @@ export default function MicroSuggestionCard({ suggestion, onViewInsights }) {
           <p className="text-gray-700 text-sm leading-relaxed">
             {storedSuggestion.summary}
           </p>
+          
+          {storedSuggestion.source && (
+            <p className="text-xs text-gray-500 mt-1 italic">
+              {storedSuggestion.source}
+            </p>
+          )}
 
           {storedSuggestion.hasMore && (
             <button
@@ -109,6 +115,11 @@ export default function MicroSuggestionCard({ suggestion, onViewInsights }) {
                     <p className="text-sm text-gray-700 mt-0.5">
                       {detail.text || 'No additional details available.'}
                     </p>
+                    {detail.source && (
+                      <p className="text-xs text-gray-400 mt-0.5 italic">
+                        {detail.source}
+                      </p>
+                    )}
                   </div>
                 </div>
               );
@@ -139,6 +150,8 @@ function formatZoneName(type) {
     hydration: 'Hydration',
     faith: 'Faith & Purpose',
     emotional: 'Emotional Wellness',
+    energy: 'Energy Level',
+    routine: 'Evening Routine',
     combined: 'Combined Pattern',
     general: 'General Insight',
     insight: 'Insight'

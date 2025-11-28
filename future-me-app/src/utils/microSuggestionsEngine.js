@@ -165,6 +165,99 @@ const PTG_SUGGESTION_TEMPLATES = {
 
 const SUGGESTION_TEMPLATES = PTG_SUGGESTION_TEMPLATES;
 
+const METRIC_SOURCE_LABELS = {
+  sleep: 'Based on your sleep log today',
+  activity: 'Based on your activity log today',
+  nutrition: 'Based on your nutrition log today',
+  stress: 'Based on your stress log today',
+  hydration: 'Based on your hydration log today',
+  emotional: 'Based on your emotional log today',
+  faith: 'Based on your faith practice today',
+  energy: 'Based on your energy log today',
+  routine: 'Based on your evening routine today',
+  combined: 'Based on multiple metrics today'
+};
+
+let recentlyShownSuggestions = new Map();
+let suggestionHistoryCache = new Map();
+const ROTATION_WINDOW_HOURS = 24;
+
+function hashSuggestion(suggestion) {
+  if (!suggestion || typeof suggestion !== 'string') return '';
+  return suggestion.substring(0, 50).replace(/\d+\.?\d*/g, 'X');
+}
+
+function isRecentlyShown(suggestionHash, userId = 'default') {
+  const key = `${userId}:${suggestionHash}`;
+  const lastShown = recentlyShownSuggestions.get(key);
+  if (!lastShown) return false;
+  
+  const hoursSinceShown = (Date.now() - lastShown) / (1000 * 60 * 60);
+  return hoursSinceShown < ROTATION_WINDOW_HOURS;
+}
+
+function markAsShown(suggestionHash, userId = 'default') {
+  const key = `${userId}:${suggestionHash}`;
+  recentlyShownSuggestions.set(key, Date.now());
+  
+  for (const [mapKey, timestamp] of recentlyShownSuggestions.entries()) {
+    const hoursSince = (Date.now() - timestamp) / (1000 * 60 * 60);
+    if (hoursSince > ROTATION_WINDOW_HOURS * 2) {
+      recentlyShownSuggestions.delete(mapKey);
+    }
+  }
+}
+
+export function loadSuggestionHistory(historyData) {
+  if (!historyData || !historyData.shownSuggestions) return;
+  
+  const now = Date.now();
+  const cutoffTime = now - (ROTATION_WINDOW_HOURS * 60 * 60 * 1000);
+  
+  for (const [hash, timestamp] of Object.entries(historyData.shownSuggestions)) {
+    if (timestamp > cutoffTime) {
+      recentlyShownSuggestions.set(hash, timestamp);
+    }
+  }
+}
+
+export function getSuggestionHistoryForPersistence(userId) {
+  const history = {};
+  const now = Date.now();
+  const cutoffTime = now - (ROTATION_WINDOW_HOURS * 60 * 60 * 1000);
+  
+  for (const [key, timestamp] of recentlyShownSuggestions.entries()) {
+    if (key.startsWith(`${userId}:`) && timestamp > cutoffTime) {
+      history[key] = timestamp;
+    }
+  }
+  
+  return {
+    shownSuggestions: history,
+    lastUpdated: new Date().toISOString(),
+    userId
+  };
+}
+
+function getRotatedTemplate(templates, values, userId = 'default') {
+  if (!templates || templates.length === 0) return null;
+  
+  const availableTemplates = templates.filter(template => {
+    const interpolated = interpolateTemplate(template, values);
+    const hash = hashSuggestion(interpolated);
+    return !isRecentlyShown(hash, userId);
+  });
+  
+  const pool = availableTemplates.length > 0 ? availableTemplates : templates;
+  
+  const selected = pool[Math.floor(Math.random() * pool.length)];
+  const interpolated = interpolateTemplate(selected, values);
+  
+  markAsShown(hashSuggestion(interpolated), userId);
+  
+  return interpolated;
+}
+
 function getRandomTemplate(templates) {
   if (!templates || templates.length === 0) return null;
   return templates[Math.floor(Math.random() * templates.length)];
@@ -185,10 +278,8 @@ function interpolateTemplate(template, values) {
   });
 }
 
-function getTemplateWithValues(templates, values) {
-  const template = getRandomTemplate(templates);
-  if (!template) return null;
-  return interpolateTemplate(template, values);
+function getTemplateWithValues(templates, values, userId = 'default') {
+  return getRotatedTemplate(templates, values, userId);
 }
 
 function calculateMovingAverage(logs, metric, days = 7) {
@@ -309,7 +400,7 @@ function detectCombinedPatterns(currentLog, baseline, avg7Day) {
   return patterns;
 }
 
-function generateSingleMetricSuggestion(metric, currentValue, baselineValue, avg7Day, logs7Day) {
+function generateSingleMetricSuggestion(metric, currentValue, baselineValue, avg7Day, logs7Day, userId = 'default') {
   const isStressMetric = metric === 'stress';
   
   const baselineComparison = compareToBaseline(
@@ -335,34 +426,34 @@ function generateSingleMetricSuggestion(metric, currentValue, baselineValue, avg
   
   if (isStressMetric) {
     if (baselineComparison === 'above' || weekComparison === 'above') {
-      return getTemplateWithValues(templates.elevated, templateValues);
+      return getTemplateWithValues(templates.elevated, templateValues, userId);
     }
     if (baselineComparison === 'below' || weekComparison === 'below') {
-      return getTemplateWithValues(templates.improving, templateValues);
+      return getTemplateWithValues(templates.improving, templateValues, userId);
     }
-    return getTemplateWithValues(templates.managed, templateValues);
+    return getTemplateWithValues(templates.managed, templateValues, userId);
   }
   
   if (baselineComparison === 'below') {
-    return getTemplateWithValues(templates.belowBaseline, templateValues);
+    return getTemplateWithValues(templates.belowBaseline, templateValues, userId);
   }
   
   if (weekComparison === 'below' && templates.below7Day) {
-    return getTemplateWithValues(templates.below7Day, templateValues);
+    return getTemplateWithValues(templates.below7Day, templateValues, userId);
   }
   
   if (metric === 'sleep' && isVariable && templates.variable) {
-    return getTemplateWithValues(templates.variable, templateValues);
+    return getTemplateWithValues(templates.variable, templateValues, userId);
   }
   
   if (baselineComparison === 'above' || weekComparison === 'above') {
     if (templates.improving) {
-      return getTemplateWithValues(templates.improving, templateValues);
+      return getTemplateWithValues(templates.improving, templateValues, userId);
     }
   }
   
   if (templates.consistent) {
-    return getTemplateWithValues(templates.consistent, templateValues);
+    return getTemplateWithValues(templates.consistent, templateValues, userId);
   }
   
   return getRandomTemplate(templates.belowBaseline || []);
@@ -397,7 +488,7 @@ function generateCombinedSuggestion(patterns, currentLog, baseline) {
   return null;
 }
 
-function generateHydrationSuggestion(hydrationValue, baselineHydration) {
+function generateHydrationSuggestion(hydrationValue, baselineHydration, userId = 'default') {
   const templates = SUGGESTION_TEMPLATES.hydration;
   if (!templates) return null;
   
@@ -407,15 +498,15 @@ function generateHydrationSuggestion(hydrationValue, baselineHydration) {
   const templateValues = { current: hydrationValue, baseline };
   
   if (hydrationValue < baseline - 0.5) {
-    return getTemplateWithValues(templates.belowBaseline, templateValues);
+    return getTemplateWithValues(templates.belowBaseline, templateValues, userId);
   }
   if (hydrationValue >= baseline) {
-    return getTemplateWithValues(templates.good, templateValues);
+    return getTemplateWithValues(templates.good, templateValues, userId);
   }
-  return getTemplateWithValues(templates.consistent, templateValues);
+  return getTemplateWithValues(templates.consistent, templateValues, userId);
 }
 
-function generateFaithSuggestion(faithData, baseline) {
+function generateFaithSuggestion(faithData, baseline, userId = 'default') {
   const templates = SUGGESTION_TEMPLATES.faith;
   if (!templates) return null;
   
@@ -426,13 +517,13 @@ function generateFaithSuggestion(faithData, baseline) {
   const templateValues = { current: motivation, baseline: baselineMotivation };
   
   if (faithEngagement || purposeClarity === 'clear') {
-    return getTemplateWithValues(templates.consistent, templateValues);
+    return getTemplateWithValues(templates.consistent, templateValues, userId);
   }
   
   return null;
 }
 
-function generateEmotionalSuggestion(emotionalData, baseline) {
+function generateEmotionalSuggestion(emotionalData, baseline, userId = 'default') {
   const templates = SUGGESTION_TEMPLATES.emotional;
   if (!templates) return null;
   
@@ -444,21 +535,21 @@ function generateEmotionalSuggestion(emotionalData, baseline) {
   const templateValues = { current: moodValue, baseline: baselineMood };
   
   if (emotionalSupport) {
-    return getTemplateWithValues(templates.neutral, templateValues);
+    return getTemplateWithValues(templates.neutral, templateValues, userId);
   }
   
   if (moodValue !== undefined && moodValue > baselineMood + 0.5) {
-    return getTemplateWithValues(templates.stable, templateValues);
+    return getTemplateWithValues(templates.stable, templateValues, userId);
   }
   
   if (moodValue !== undefined) {
-    return getTemplateWithValues(templates.neutral, templateValues);
+    return getTemplateWithValues(templates.neutral, templateValues, userId);
   }
   
   return null;
 }
 
-function generateEnergySuggestion(energyData, baseline, avg7Day) {
+function generateEnergySuggestion(energyData, baseline, avg7Day, userId = 'default') {
   const templates = SUGGESTION_TEMPLATES.energy;
   if (!templates) return null;
   
@@ -472,17 +563,17 @@ function generateEnergySuggestion(energyData, baseline, avg7Day) {
   if (energyValue === undefined || energyValue === null) return null;
   
   if (energyValue < baselineEnergy - 0.5) {
-    return getTemplateWithValues(templates.low, templateValues);
+    return getTemplateWithValues(templates.low, templateValues, userId);
   }
   
   if (energyValue > baselineEnergy + 0.3 || (avg7Day && energyValue > avg7Day + 0.3)) {
-    return getTemplateWithValues(templates.improving, templateValues);
+    return getTemplateWithValues(templates.improving, templateValues, userId);
   }
   
   return null;
 }
 
-function generateRoutineSuggestion(routineData, baseline) {
+function generateRoutineSuggestion(routineData, baseline, userId = 'default') {
   const templates = SUGGESTION_TEMPLATES.routine;
   if (!templates) return null;
   
@@ -491,17 +582,17 @@ function generateRoutineSuggestion(routineData, baseline) {
   const { eveningWindDown, routineCompleted, windDownCompleted } = routineData;
   
   if (windDownCompleted || routineCompleted || eveningWindDown === 'completed') {
-    return getTemplateWithValues(templates.completed, {});
+    return getTemplateWithValues(templates.completed, {}, userId);
   }
   
   if (eveningWindDown === 'partial' || eveningWindDown === 'missed') {
-    return getTemplateWithValues(templates.partial, {});
+    return getTemplateWithValues(templates.partial, {}, userId);
   }
   
   return null;
 }
 
-export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []) {
+export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = [], userId = 'default') {
   if (!currentLog) {
     return {
       primary: null,
@@ -533,8 +624,10 @@ export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []
     const avgValue = avg7Day[metric];
     
     if (currentValue !== undefined && currentValue !== null) {
+      const suggestionText = generateSingleMetricSuggestion(metric, currentValue, baselineValue, avgValue, last7DaysLogs, userId);
       suggestions[metric] = {
-        text: generateSingleMetricSuggestion(metric, currentValue, baselineValue, avgValue, last7DaysLogs),
+        text: suggestionText,
+        source: METRIC_SOURCE_LABELS[metric],
         currentValue,
         baselineValue,
         avg7Day: avgValue,
@@ -584,44 +677,50 @@ export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []
   
   const hydrationSuggestion = generateHydrationSuggestion(
     currentLog.hydration, 
-    baselineMetrics.hydration
+    baselineMetrics.hydration,
+    userId
   );
   
   const faithSuggestion = generateFaithSuggestion(
     currentLog.faith || currentLog,
-    baselineMetrics.faith || baselineMetrics
+    baselineMetrics.faith || baselineMetrics,
+    userId
   );
   
   const emotionalSuggestion = generateEmotionalSuggestion(
     currentLog.emotional || currentLog,
-    baselineMetrics.emotional || baselineMetrics
+    baselineMetrics.emotional || baselineMetrics,
+    userId
   );
   
   const energySuggestion = generateEnergySuggestion(
     currentLog.energy || currentLog,
     baselineMetrics.energy || baselineMetrics,
-    avg7Day.morningEnergy || avg7Day.energyLevel
+    avg7Day.morningEnergy || avg7Day.energyLevel,
+    userId
   );
   
   const routineSuggestion = generateRoutineSuggestion(
     currentLog.routine || currentLog,
-    baselineMetrics.routine || baselineMetrics
+    baselineMetrics.routine || baselineMetrics,
+    userId
   );
   
   return {
     primary: primarySuggestion,
     secondary: secondarySuggestion,
-    combined: combinedSuggestion ? { text: combinedSuggestion, patterns } : null,
-    hydration: hydrationSuggestion ? { text: hydrationSuggestion } : null,
-    faith: faithSuggestion ? { text: faithSuggestion } : null,
-    emotional: emotionalSuggestion ? { text: emotionalSuggestion } : null,
-    energy: energySuggestion ? { text: energySuggestion } : null,
-    routine: routineSuggestion ? { text: routineSuggestion } : null,
+    combined: combinedSuggestion ? { text: combinedSuggestion, source: METRIC_SOURCE_LABELS.combined, patterns } : null,
+    hydration: hydrationSuggestion ? { text: hydrationSuggestion, source: METRIC_SOURCE_LABELS.hydration } : null,
+    faith: faithSuggestion ? { text: faithSuggestion, source: METRIC_SOURCE_LABELS.faith } : null,
+    emotional: emotionalSuggestion ? { text: emotionalSuggestion, source: METRIC_SOURCE_LABELS.emotional } : null,
+    energy: energySuggestion ? { text: energySuggestion, source: METRIC_SOURCE_LABELS.energy } : null,
+    routine: routineSuggestion ? { text: routineSuggestion, source: METRIC_SOURCE_LABELS.routine } : null,
     allSuggestions: suggestions,
     metadata: {
       patternsDetected: patterns,
       avg7Day,
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
+      userId
     }
   };
 }
@@ -631,9 +730,11 @@ export function formatSuggestionForDisplay(suggestionResult) {
   
   const defaultResult = {
     summary: defaultMessage,
+    source: 'Based on your daily tracking',
     details: [{
       type: 'general',
       text: defaultMessage,
+      source: 'Based on your daily tracking',
       comparison: 'consistent'
     }],
     hasMore: false,
@@ -649,18 +750,24 @@ export function formatSuggestionForDisplay(suggestionResult) {
   let mainText = '';
   let expandedDetails = [];
   
+  let mainSource = null;
+  
   if (combined?.text) {
     mainText = combined.text;
+    mainSource = combined.source || METRIC_SOURCE_LABELS.combined;
     expandedDetails.push({
       type: 'combined',
       text: combined.text,
+      source: combined.source || METRIC_SOURCE_LABELS.combined,
       patterns: combined.patterns || []
     });
   } else if (primary?.text) {
     mainText = primary.text;
+    mainSource = primary.source || METRIC_SOURCE_LABELS[primary.metric] || null;
     expandedDetails.push({
       type: primary.metric || 'general',
       text: primary.text,
+      source: primary.source || METRIC_SOURCE_LABELS[primary.metric] || null,
       comparison: primary.comparison || 'consistent'
     });
   }
@@ -669,6 +776,7 @@ export function formatSuggestionForDisplay(suggestionResult) {
     expandedDetails.push({
       type: secondary.metric || 'general',
       text: secondary.text,
+      source: secondary.source || METRIC_SOURCE_LABELS[secondary.metric] || null,
       comparison: secondary.comparison || 'consistent'
     });
   }
@@ -676,64 +784,76 @@ export function formatSuggestionForDisplay(suggestionResult) {
   if (suggestionResult.hydration?.text) {
     const hydrationDetail = {
       type: 'hydration',
-      text: suggestionResult.hydration.text
+      text: suggestionResult.hydration.text,
+      source: suggestionResult.hydration.source || METRIC_SOURCE_LABELS.hydration
     };
     expandedDetails.push(hydrationDetail);
     if (!mainText) {
       mainText = suggestionResult.hydration.text;
+      mainSource = hydrationDetail.source;
     }
   }
   
   if (suggestionResult.faith?.text) {
     const faithDetail = {
       type: 'faith',
-      text: suggestionResult.faith.text
+      text: suggestionResult.faith.text,
+      source: suggestionResult.faith.source || METRIC_SOURCE_LABELS.faith
     };
     expandedDetails.push(faithDetail);
     if (!mainText) {
       mainText = suggestionResult.faith.text;
+      mainSource = faithDetail.source;
     }
   }
   
   if (suggestionResult.emotional?.text) {
     const emotionalDetail = {
       type: 'emotional',
-      text: suggestionResult.emotional.text
+      text: suggestionResult.emotional.text,
+      source: suggestionResult.emotional.source || METRIC_SOURCE_LABELS.emotional
     };
     expandedDetails.push(emotionalDetail);
     if (!mainText) {
       mainText = suggestionResult.emotional.text;
+      mainSource = emotionalDetail.source;
     }
   }
   
   if (suggestionResult.energy?.text) {
     const energyDetail = {
       type: 'energy',
-      text: suggestionResult.energy.text
+      text: suggestionResult.energy.text,
+      source: suggestionResult.energy.source || METRIC_SOURCE_LABELS.energy
     };
     expandedDetails.push(energyDetail);
     if (!mainText) {
       mainText = suggestionResult.energy.text;
+      mainSource = energyDetail.source;
     }
   }
   
   if (suggestionResult.routine?.text) {
     const routineDetail = {
       type: 'routine',
-      text: suggestionResult.routine.text
+      text: suggestionResult.routine.text,
+      source: suggestionResult.routine.source || METRIC_SOURCE_LABELS.routine
     };
     expandedDetails.push(routineDetail);
     if (!mainText) {
       mainText = suggestionResult.routine.text;
+      mainSource = routineDetail.source;
     }
   }
   
   if (!mainText || mainText.trim() === '') {
     mainText = defaultMessage;
+    mainSource = 'Based on your daily tracking';
     if (expandedDetails.length === 0) {
       expandedDetails.push({
         type: 'general',
         text: defaultMessage,
+        source: 'Based on your daily tracking',
         comparison: 'consistent'
       });
     }
@@ -743,9 +863,11 @@ export function formatSuggestionForDisplay(suggestionResult) {
   
   return {
     summary: finalSummary,
+    source: mainSource || 'Based on your daily tracking',
     details: expandedDetails.length > 0 ? expandedDetails : [{
       type: 'general',
       text: defaultMessage,
+      source: 'Based on your daily tracking',
       comparison: 'consistent'
     }],
     hasMore: expandedDetails.length > 1,

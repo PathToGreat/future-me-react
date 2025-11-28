@@ -11,7 +11,7 @@ import { fetchAllZoneHistories } from '../hooks/useZoneHistoryData';
 import { generateDailyInsight, generateWeeklyInsights, generateMonthlyInsights, shouldGenerateWeeklyInsight, shouldGenerateMonthlyInsight } from '../utils/insightsEngine';
 import { interceptDailyLogData } from '../utils/avatarInputInterceptor';
 import { processDailyLogForAvatar } from '../utils/avatarStateManager';
-import { generateMicroSuggestion, formatSuggestionForDisplay } from '../utils/microSuggestionsEngine';
+import { generateMicroSuggestion, formatSuggestionForDisplay, loadSuggestionHistory, getSuggestionHistoryForPersistence } from '../utils/microSuggestionsEngine';
 
 const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
   const [metrics, setMetrics] = useState({
@@ -49,6 +49,16 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
       if (!user) return;
 
       const today = new Date().toISOString().slice(0, 10);
+      
+      try {
+        const historyRef = doc(db, 'users', user.uid, 'suggestionHistory', 'rotation');
+        const historySnap = await getDoc(historyRef);
+        if (historySnap.exists()) {
+          loadSuggestionHistory(historySnap.data());
+        }
+      } catch (historyError) {
+        console.log('No suggestion history found, starting fresh');
+      }
       
       const healthLogRef = doc(db, 'users', user.uid, 'zoneLogs', 'health', 'daily', today);
       const healthLogSnap = await getDoc(healthLogRef);
@@ -253,7 +263,8 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
             const microSuggestionResult = generateMicroSuggestion(
               { ...healthLogData, lifestyleScore: Math.round(lifestyleScore) },
               fullProfile,
-              last7Days
+              last7Days,
+              user.uid
             );
             
             const formattedSuggestion = formatSuggestionForDisplay(microSuggestionResult);
@@ -263,9 +274,15 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
               await setDoc(suggestionRef, {
                 ...formattedSuggestion,
                 rawResult: microSuggestionResult,
+                userId: user.uid,
                 createdAt: new Date().toISOString()
               });
               console.log('💡 Micro-suggestion generated:', formattedSuggestion.summary.substring(0, 50) + '...');
+              
+              const rotationHistoryRef = doc(db, 'users', user.uid, 'suggestionHistory', 'rotation');
+              const historyData = getSuggestionHistoryForPersistence(user.uid);
+              await setDoc(rotationHistoryRef, historyData, { merge: true });
+              console.log('💡 Suggestion rotation history saved');
             }
           } catch (suggestionError) {
             console.error('Error generating micro-suggestion:', suggestionError);
