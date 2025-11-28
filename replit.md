@@ -52,6 +52,13 @@ The frontend is built with React 18.3 and Vite 7.1.9, leveraging TailwindCSS 3 f
 -   **Life Zone System:** Tracks progress across 6 zones (Health, Social Emotional, Wealth, Faith, Family, Community), each with unique daily log inputs, scoring formulas, and interactive detail modals showing historical data. Zones initialize at 50 points and recalculate scores upon submission.
 -   **Habit Builder System:** Users create up to 15 custom habits, track completions, build streaks, and receive zone bonuses. Habits can be linked to Life Zones or tracked as "Personal Habits."
 -   **Milestone and Achievement Rewards System:** Automatically tracks 14 achievements across 4 categories (habit mastery, Life Zone excellence, consistency, general progress), triggering visual badges, notifications, and insights.
+-   **Smart Reassessment Suggestion System:** (`src/utils/reassessmentAnalyzer.js`, `src/components/ReassessmentBanner.jsx`) Monitors long-term trends in daily logs and recommends baseline updates only when meaningful change has occurred.
+    -   **Trend Analyzer:** Evaluates last 30 days of logs to detect sustained shifts (20%+ improvement or decline from baseline, sustained for 21+ of 30 days) in: activity, nutrition, sleep, stress.
+    -   **Reassessment Trigger Logic:** Sets `shouldSuggestReassessment` flag when meaningful shift detected. Does not trigger if user reassessed within last 30 days or banner was dismissed within 7 days.
+    -   **UI Banner:** Non-intrusive dashboard banner appears when flag is active, showing which metrics improved or declined with action buttons.
+    -   **Update Baseline:** Takes user to full assessment, overwrites baseline values with new assessment, records `lastReassessmentDate`, clears suggestion flag.
+    -   **Not Now:** Dismisses banner for 7 days via `reassessmentDismissedUntil` timestamp, does not reset trend data.
+    -   **Data Handling:** Stores `lastReassessmentDate` and `reassessmentDismissedUntil` in user profile. Daily logs never overwrite baseline; only completed reassessment updates `onboardingBaseline`.
 
 **Backend & Data Architecture:**
 

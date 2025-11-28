@@ -15,6 +15,7 @@ import HabitCreationModal from "./HabitCreationModal";
 import HabitCard from "./HabitCard";
 import AchievementsSection from "./AchievementsSection";
 import AchievementNotification from "./AchievementNotification";
+import ReassessmentBanner from "./ReassessmentBanner";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -22,6 +23,7 @@ import { predictFutureState, getMotivationalMessage, getInsightMessage } from ".
 import { getMetricTrend } from "../utils/analyzeTrends";
 import { projectFutureMetrics, getFutureAvatarDescription } from "../utils/futureAvatarModel";
 import { calculateCurrentMeMetrics, getCurrentMeDescription } from "../utils/currentMeAvatarModel";
+import { analyzeReassessmentNeed } from "../utils/reassessmentAnalyzer";
 import { getUserHabits, calculateHabitZoneBonuses } from "../utils/habitHelpers";
 import { getUserAchievements } from "../utils/achievementEngine";
 import { ZONE_CONFIG } from "../utils/zoneConfig";
@@ -46,6 +48,8 @@ export default function Dashboard() {
   
   const [selectedGender, setSelectedGender] = useState(null);
   const [currentMeMetrics, setCurrentMeMetrics] = useState(null);
+  const [reassessmentAnalysis, setReassessmentAnalysis] = useState(null);
+  const [showReassessmentBanner, setShowReassessmentBanner] = useState(false);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
   
@@ -61,6 +65,22 @@ export default function Dashboard() {
         sleep: metrics.sleep.toFixed(1),
         stress: metrics.stress.toFixed(1)
       });
+    }
+  }, [liveProfile, historyData]);
+
+  useEffect(() => {
+    if (liveProfile && historyData && historyData.length >= 21) {
+      const analysis = analyzeReassessmentNeed(liveProfile, historyData);
+      setReassessmentAnalysis(analysis);
+      setShowReassessmentBanner(analysis.shouldSuggestReassessment);
+      
+      if (analysis.shouldSuggestReassessment) {
+        console.log('📊 Reassessment suggested:', {
+          improvements: analysis.improvements,
+          declines: analysis.declines,
+          summary: analysis.summary
+        });
+      }
     }
   }, [liveProfile, historyData]);
 
@@ -341,6 +361,15 @@ export default function Dashboard() {
           lifeZones={liveProfile.lifeZones}
           habits={habits}
           achievements={achievements}
+        />
+
+        {/* Smart Reassessment Suggestion Banner */}
+        <ReassessmentBanner
+          isVisible={showReassessmentBanner}
+          improvements={reassessmentAnalysis?.improvements || []}
+          declines={reassessmentAnalysis?.declines || []}
+          summary={reassessmentAnalysis?.summary}
+          onDismiss={() => setShowReassessmentBanner(false)}
         />
 
         {/* Log Today's Metrics Button */}

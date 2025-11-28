@@ -280,6 +280,18 @@ export default function Onboarding() {
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-2xl w-full"
       >
+        {isReassessment && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">📊</span>
+              <div>
+                <h3 className="font-semibold text-gray-800">Baseline Update</h3>
+                <p className="text-sm text-gray-600">Your lifestyle has changed. Let's update your baseline to reflect where you are now.</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-2xl font-bold text-gray-800">{getSectionTitle()}</h2>
