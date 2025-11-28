@@ -6,19 +6,102 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { calculateAllLifeZones } from '../utils/lifeZoneEngine';
 
+const SliderInput = ({ label, value, onChange, leftLabel, rightLabel, min = 1, max = 5 }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+    <input
+      type="range"
+      min={min}
+      max={max}
+      value={value}
+      onChange={(e) => onChange(parseInt(e.target.value))}
+      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-500"
+    />
+    <div className="flex justify-between text-sm text-gray-600 mt-1">
+      <span>{leftLabel}</span>
+      <span className="font-semibold text-primary-600">{value}/{max}</span>
+      <span>{rightLabel}</span>
+    </div>
+  </div>
+);
+
+const OptionButtons = ({ label, options, value, onChange, columns = 3 }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-3">{label}</label>
+    <div className={`grid gap-2 ${columns === 2 ? 'grid-cols-2' : columns === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
+      {options.map(option => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onChange(option.value)}
+          className={`p-3 rounded-lg border-2 transition-all text-sm ${
+            value === option.value
+              ? 'border-primary-500 bg-primary-50 text-primary-700'
+              : 'border-gray-200 text-gray-700 hover:border-primary-300'
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const MultiSelectButtons = ({ label, options, values, onToggle, columns = 2 }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-3">{label}</label>
+    <div className={`grid gap-3 ${columns === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
+      {options.map(option => (
+        <button
+          key={option}
+          type="button"
+          onClick={() => onToggle(option)}
+          className={`p-3 rounded-lg border-2 transition-all ${
+            values.includes(option)
+              ? 'border-primary-500 bg-primary-50 text-primary-700'
+              : 'border-gray-200 text-gray-700 hover:border-primary-300'
+          }`}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
 export default function Onboarding() {
   const { user, updateUserProfile } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  
   const [formData, setFormData] = useState({
+    age: '',
+    goals: [],
+    
     activity: 3,
     nutrition: 3,
     sleep: 3,
     stress: 3,
-    age: '',
-    goals: [],
+    
+    energyLevel: 3,
+    morningFatigue: 'sometimes',
+    bodyTension: 3,
+    
+    movementRhythm: 'moderate',
+    eatingRhythm: 'regular',
+    sleepRhythm: 'consistent',
+    
+    primaryStressor: 'none',
+    emotionalClimate: 'neutral',
+    socialSupport: 'average',
+    
+    purposeAlignment: 'searching',
+    faithRhythm: 'inconsistent',
+    motivationLevel: 3,
   });
+
+  const TOTAL_STEPS = 6;
 
   const handleSubmit = async () => {
     console.log('Starting onboarding submission...');
@@ -65,8 +148,41 @@ export default function Onboarding() {
       const initialZones = calculateAllLifeZones(zoneHistories, null);
       console.log('Initial Life Zones calculated:', initialZones);
       
+      const baselineState = {
+        energyLevel: formData.energyLevel,
+        morningFatigue: formData.morningFatigue,
+        bodyTension: formData.bodyTension,
+      };
+      
+      const lifestyleRhythm = {
+        movementRhythm: formData.movementRhythm,
+        eatingRhythm: formData.eatingRhythm,
+        sleepRhythm: formData.sleepRhythm,
+      };
+      
+      const emotionalProfile = {
+        primaryStressor: formData.primaryStressor,
+        emotionalClimate: formData.emotionalClimate,
+        socialSupport: formData.socialSupport,
+      };
+      
+      const faithPurpose = {
+        purposeAlignment: formData.purposeAlignment,
+        faithRhythm: formData.faithRhythm,
+        motivationLevel: formData.motivationLevel,
+      };
+      
       const dataToSave = {
-        ...formData,
+        age: formData.age,
+        goals: formData.goals,
+        activity: formData.activity,
+        nutrition: formData.nutrition,
+        sleep: formData.sleep,
+        stress: formData.stress,
+        baselineState,
+        lifestyleRhythm,
+        emotionalProfile,
+        faithPurpose,
         lifestyleScore: Math.round(lifestyleScore),
         avatarState,
         onboardingCompleted: true,
@@ -101,6 +217,42 @@ export default function Onboarding() {
     }));
   };
 
+  const canProceed = () => {
+    switch (step) {
+      case 1: return formData.age !== '';
+      case 2: return true;
+      case 3: return true;
+      case 4: return true;
+      case 5: return true;
+      case 6: return true;
+      default: return true;
+    }
+  };
+
+  const getSectionTitle = () => {
+    switch (step) {
+      case 1: return 'Your Goals';
+      case 2: return 'Core Habits';
+      case 3: return 'Physical State';
+      case 4: return 'Lifestyle Rhythm';
+      case 5: return 'Emotional Profile';
+      case 6: return 'Faith & Purpose';
+      default: return '';
+    }
+  };
+
+  const getSectionSubtitle = () => {
+    switch (step) {
+      case 1: return 'Tell us about yourself and what you want to achieve';
+      case 2: return 'Your current daily lifestyle patterns';
+      case 3: return 'How your body feels day-to-day';
+      case 4: return 'The rhythm of your daily life';
+      case 5: return 'Your emotional landscape and stress';
+      case 6: return 'What drives your transformation';
+      default: return '';
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
       <motion.div
@@ -109,14 +261,15 @@ export default function Onboarding() {
         className="max-w-2xl w-full"
       >
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">Tell us about yourself</h2>
-            <span className="text-sm text-gray-500">Step {step} of 3</span>
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-2xl font-bold text-gray-800">{getSectionTitle()}</h2>
+            <span className="text-sm text-gray-500">Step {step} of {TOTAL_STEPS}</span>
           </div>
+          <p className="text-sm text-gray-600 mb-4">{getSectionSubtitle()}</p>
           <div className="h-2 bg-gray-200 rounded-full">
             <div
               className="h-2 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all duration-500"
-              style={{ width: `${(step / 3) * 100}%` }}
+              style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
             />
           </div>
         </div>
@@ -137,111 +290,198 @@ export default function Onboarding() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  What are your health goals?
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {['Fitness', 'Weight Loss', 'Muscle Gain', 'Better Sleep', 'Stress Relief', 'Longevity'].map(goal => (
-                    <button
-                      key={goal}
-                      type="button"
-                      onClick={() => toggleGoal(goal)}
-                      className={`p-3 rounded-lg border-2 transition-all ${
-                        formData.goals.includes(goal)
-                          ? 'border-primary-500 bg-primary-50 text-primary-700'
-                          : 'border-gray-200 text-gray-700 hover:border-primary-300'
-                      }`}
-                    >
-                      {goal}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <MultiSelectButtons
+                label="What are your health goals?"
+                options={['Fitness', 'Weight Loss', 'Muscle Gain', 'Better Sleep', 'Stress Relief', 'Longevity']}
+                values={formData.goals}
+                onToggle={toggleGoal}
+                columns={2}
+              />
             </motion.div>
           )}
 
           {step === 2 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Physical Activity Level
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={formData.activity}
-                  onChange={(e) => updateField('activity', parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-sm text-gray-600 mt-1">
-                  <span>Sedentary</span>
-                  <span className="font-semibold text-primary-600">{formData.activity}/5</span>
-                  <span>Very Active</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nutrition Quality
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={formData.nutrition}
-                  onChange={(e) => updateField('nutrition', parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-sm text-gray-600 mt-1">
-                  <span>Poor</span>
-                  <span className="font-semibold text-primary-600">{formData.nutrition}/5</span>
-                  <span>Excellent</span>
-                </div>
-              </div>
+              <SliderInput
+                label="Physical Activity Level"
+                value={formData.activity}
+                onChange={(v) => updateField('activity', v)}
+                leftLabel="Sedentary"
+                rightLabel="Very Active"
+              />
+              <SliderInput
+                label="Nutrition Quality"
+                value={formData.nutrition}
+                onChange={(v) => updateField('nutrition', v)}
+                leftLabel="Poor"
+                rightLabel="Excellent"
+              />
+              <SliderInput
+                label="Sleep Quality"
+                value={formData.sleep}
+                onChange={(v) => updateField('sleep', v)}
+                leftLabel="Poor"
+                rightLabel="Excellent"
+              />
+              <SliderInput
+                label="Stress Level"
+                value={formData.stress}
+                onChange={(v) => updateField('stress', v)}
+                leftLabel="Low"
+                rightLabel="High"
+              />
             </motion.div>
           )}
 
           {step === 3 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sleep Quality
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={formData.sleep}
-                  onChange={(e) => updateField('sleep', parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-sm text-gray-600 mt-1">
-                  <span>Poor</span>
-                  <span className="font-semibold text-primary-600">{formData.sleep}/5</span>
-                  <span>Excellent</span>
-                </div>
-              </div>
+              <SliderInput
+                label="Energy level most days"
+                value={formData.energyLevel}
+                onChange={(v) => updateField('energyLevel', v)}
+                leftLabel="Very Low"
+                rightLabel="High Energy"
+              />
+              
+              <OptionButtons
+                label="Do you wake up tired even after a full night's sleep?"
+                options={[
+                  { value: 'no', label: 'No' },
+                  { value: 'sometimes', label: 'Sometimes' },
+                  { value: 'yes', label: 'Yes' },
+                ]}
+                value={formData.morningFatigue}
+                onChange={(v) => updateField('morningFatigue', v)}
+                columns={3}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Stress Level
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={formData.stress}
-                  onChange={(e) => updateField('stress', parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-sm text-gray-600 mt-1">
-                  <span>Low</span>
-                  <span className="font-semibold text-primary-600">{formData.stress}/5</span>
-                  <span>High</span>
-                </div>
-              </div>
+              <SliderInput
+                label="General body tension (neck, shoulders, gut)"
+                value={formData.bodyTension}
+                onChange={(v) => updateField('bodyTension', v)}
+                leftLabel="Relaxed"
+                rightLabel="Very Tense"
+              />
+            </motion.div>
+          )}
+
+          {step === 4 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <OptionButtons
+                label="Daily movement type"
+                options={[
+                  { value: 'light', label: 'Light' },
+                  { value: 'moderate', label: 'Moderate' },
+                  { value: 'intense', label: 'Intense' },
+                ]}
+                value={formData.movementRhythm}
+                onChange={(v) => updateField('movementRhythm', v)}
+                columns={3}
+              />
+
+              <OptionButtons
+                label="Eating rhythm"
+                options={[
+                  { value: 'regular', label: 'Regular Meals' },
+                  { value: 'irregular', label: 'Irregular' },
+                  { value: 'snacking', label: 'Frequent Snacking' },
+                ]}
+                value={formData.eatingRhythm}
+                onChange={(v) => updateField('eatingRhythm', v)}
+                columns={3}
+              />
+
+              <OptionButtons
+                label="Sleep rhythm"
+                options={[
+                  { value: 'consistent', label: 'Consistent Bedtime' },
+                  { value: 'inconsistent', label: 'Inconsistent' },
+                  { value: 'irregular', label: 'Very Irregular' },
+                ]}
+                value={formData.sleepRhythm}
+                onChange={(v) => updateField('sleepRhythm', v)}
+                columns={3}
+              />
+            </motion.div>
+          )}
+
+          {step === 5 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <OptionButtons
+                label="Primary stress source"
+                options={[
+                  { value: 'work', label: 'Work' },
+                  { value: 'family', label: 'Family' },
+                  { value: 'money', label: 'Money' },
+                  { value: 'uncertainty', label: 'Uncertainty' },
+                  { value: 'health', label: 'Health' },
+                  { value: 'other', label: 'Other' },
+                  { value: 'none', label: 'None' },
+                ]}
+                value={formData.primaryStressor}
+                onChange={(v) => updateField('primaryStressor', v)}
+                columns={3}
+              />
+
+              <OptionButtons
+                label="Overall emotional climate"
+                options={[
+                  { value: 'overwhelmed', label: 'Overwhelmed' },
+                  { value: 'neutral', label: 'Neutral' },
+                  { value: 'hopeful', label: 'Hopeful' },
+                ]}
+                value={formData.emotionalClimate}
+                onChange={(v) => updateField('emotionalClimate', v)}
+                columns={3}
+              />
+
+              <OptionButtons
+                label="Social support level"
+                options={[
+                  { value: 'low', label: 'Low' },
+                  { value: 'average', label: 'Average' },
+                  { value: 'strong', label: 'Strong' },
+                ]}
+                value={formData.socialSupport}
+                onChange={(v) => updateField('socialSupport', v)}
+                columns={3}
+              />
+            </motion.div>
+          )}
+
+          {step === 6 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <OptionButtons
+                label="Do you feel aligned with your purpose right now?"
+                options={[
+                  { value: 'aligned', label: 'Aligned' },
+                  { value: 'searching', label: 'Searching' },
+                  { value: 'disconnected', label: 'Disconnected' },
+                ]}
+                value={formData.purposeAlignment}
+                onChange={(v) => updateField('purposeAlignment', v)}
+                columns={3}
+              />
+
+              <OptionButtons
+                label="Faith practice rhythm"
+                options={[
+                  { value: 'consistent', label: 'Consistent' },
+                  { value: 'inconsistent', label: 'Inconsistent' },
+                  { value: 'not_practicing', label: 'Not Currently' },
+                ]}
+                value={formData.faithRhythm}
+                onChange={(v) => updateField('faithRhythm', v)}
+                columns={3}
+              />
+
+              <SliderInput
+                label="How motivated are you to change?"
+                value={formData.motivationLevel}
+                onChange={(v) => updateField('motivationLevel', v)}
+                leftLabel="Not Very"
+                rightLabel="Highly Motivated"
+              />
             </motion.div>
           )}
 
@@ -252,11 +492,11 @@ export default function Onboarding() {
               </button>
             )}
             <button
-              onClick={() => step < 3 ? setStep(step + 1) : handleSubmit()}
+              onClick={() => step < TOTAL_STEPS ? setStep(step + 1) : handleSubmit()}
               className="btn-primary flex-1"
-              disabled={(step === 1 && !formData.age) || loading}
+              disabled={!canProceed() || loading}
             >
-              {loading ? 'Generating...' : step === 3 ? 'See My Future' : 'Next'}
+              {loading ? 'Generating Your Future...' : step === TOTAL_STEPS ? 'See My Future' : 'Next'}
             </button>
           </div>
         </div>

@@ -1,0 +1,96 @@
+1. Baseline Physical State
+Not physique measurements, not weight, not anything sensitive.
+Just simple indicators of wellness that give “Current Me” a believable anchor.
+Add:
+Energy level most days
+(1–5 scale)
+Resting fatigue
+“Do you wake up tired even after a full night’s sleep?”
+Yes / No / Sometimes
+General body tension
+(Neck, shoulders, gut tightness)
+1–5 scale
+These three help shape:
+posture baseline
+facial expression baseline
+under-eye shading baseline
+energy aura baseline
+2. Lifestyle Rhythm
+Not habits. Rhythm.
+Add:
+Daily movement type:
+Light / Moderate / Intense
+(not duration, just type)
+Eating rhythm:
+Regular meals / irregular / frequent snacking
+Sleep rhythm:
+Consistent bedtime / inconsistent / very irregular
+These help the avatar understand:
+“Why” a user is the way they are
+What will likely change first
+Where to apply future projections
+3. Emotional State + Stressors
+This affects face, posture, energy, and long-term projections.
+Add:
+Primary stress source:
+Options:
+Work / Family / Money / Uncertainty / Health / Other / None
+Overall emotional climate:
+Overwhelmed / Neutral / Hopeful
+Social support:
+Strong / Average / Low
+These three are extremely valuable because:
+low social support = interpretation of stress changes
+overwhelmed baseline means “Current Me” starts more fatigued
+hopeful baseline boosts positive glow
+4. Faith + Purpose + Motivation
+This is unique to your brand and gives a deeper picture of what drives the user’s transformation.
+Add:
+Meaning/purpose direction:
+“Do you feel aligned with your purpose right now?”
+Aligned / Searching / Disconnected
+Faith practice rhythm:
+Consistent / inconsistent / not currently practicing
+Internal motivation:
+“How motivated are you to change?”
+1–5 scale
+These give:
+subtle glow intensification
+clarity filter strength
+future projection optimism scaling
+more meaningful suggestions later
+What NOT to add
+Do not add:
+Weight
+Height
+Body fat
+Clothing sizes
+Photos inside the assessment
+Anything medical
+Too many sliders
+Long text answers
+Questions that shame the user
+Anything that takes more than 2 minutes
+You want behavioral indicators, not biological measurements.
+The updated flow should look like:
+Section 1: Core Habits (current 4 sliders)
+Physical activity
+Nutrition quality
+Sleep quality
+Stress level
+Section 2: Physical State
+Energy level
+Morning fatigue
+Body tension
+Section 3: Lifestyle Rhythm
+Movement rhythm
+Eating rhythm
+Sleep rhythm
+Section 4: Emotional + Stress Profile
+Primary stress source
+Emotional climate
+Social support
+Section 5: Faith + Purpose + Motivation
+Purpose alignment
+Faith rhythm
+Motivation level
