@@ -5,6 +5,7 @@ import AuthScreen from './components/AuthScreen';
 import BetaAgreement from './components/BetaAgreement';
 import Onboarding from './components/Onboarding';
 import Dashboard from './components/Dashboard';
+import InsightsHistory from './components/InsightsHistory';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -60,6 +61,13 @@ function AppRoutes() {
     return <Dashboard />;
   };
 
+  const getInsightsElement = () => {
+    if (!user) return <Navigate to="/auth" />;
+    if (!userProfile?.hasAcceptedBetaTerms) return <Navigate to="/beta-agreement" />;
+    if (!userProfile?.onboardingCompleted) return <Navigate to="/onboarding" />;
+    return <InsightsHistory />;
+  };
+
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
@@ -67,6 +75,7 @@ function AppRoutes() {
       <Route path="/beta-agreement" element={getBetaAgreementElement()} />
       <Route path="/onboarding" element={getOnboardingElement()} />
       <Route path="/dashboard" element={getDashboardElement()} />
+      <Route path="/insights" element={getInsightsElement()} />
     </Routes>
   );
 }

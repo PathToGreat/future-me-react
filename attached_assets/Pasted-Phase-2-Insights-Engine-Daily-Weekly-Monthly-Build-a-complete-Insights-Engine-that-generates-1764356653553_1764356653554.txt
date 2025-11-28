@@ -1,0 +1,55 @@
+Phase 2 – Insights Engine (Daily + Weekly + Monthly)
+Build a complete Insights Engine that generates personalized suggestions, pattern recognition, and meaningful feedback for the user based on their daily logs, baseline assessment, and long-term trends.
+1. Create an Insights Engine Module
+Add a new centralized module responsible for generating insights.
+It should accept:
+Baseline assessment data
+Last 7 days of logs
+Last 30 days of logs
+Trend data already built in Phase 1
+It should output structured insight objects like:
+{
+  "type": "daily" | "weekly" | "monthly",
+  "title": "",
+  "message": "",
+  "category": "activity" | "nutrition" | "sleep" | "stress" | "rhythm" | "emotional" | "motivation" | "faith",
+  "priority": 1 | 2 | 3
+}
+2. Daily Insight Generation
+Generate one daily insight after the user submits their daily log.
+Requirements:
+Compare today’s log to their baseline
+Compare today’s log to their last 7-day average
+Highlight small wins, actionable adjustments, or notable patterns
+Examples (structure only, not content):
+"Your stress level today was higher than usual. Consider a grounding activity."
+"Your sleep quality is improving compared to last week."
+Ensure insights are constructive, positive, and user-friendly.
+3. Weekly Summary Insights
+Generate a weekly insights bundle every 7 days.
+It should include:
+One highlight (best metric trend)
+One opportunity (metric trending downward)
+One actionable suggestion tailored to their rhythm or emotional climate
+Display this in a simple scrollable panel on the dashboard.
+4. Monthly Pattern Insights
+Every 30 days, generate a deeper insights panel.
+This must include:
+Emerging long-term pattern
+Habit consistency ranking
+One “keystone recommendation” (the change that would impact the most areas)
+Store monthly insight bundles and allow the user to revisit them in a “History” tab.
+5. Insight Priority System
+Add a priority scoring system:
+Priority 1 = high relevance
+Priority 2 = medium
+Priority 3 = low
+Higher priority insights should appear more prominently.
+6. Dashboard UI Integration
+Add a small “Insights” section on the dashboard showing:
+Today’s insight
+This week’s summary (if it exists)
+A link to “View All Insights”
+7. Do Not Affect Avatars
+The Insights Engine must not modify Current Me or Future Me avatar calculations.
+It provides guidance, not visualization changes.

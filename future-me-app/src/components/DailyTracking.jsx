@@ -8,6 +8,7 @@ import { getMetricTrend } from '../utils/analyzeTrends';
 import { getUserHabits, calculateHabitZoneBonuses } from '../utils/habitHelpers';
 import { calculateAchievementData, checkAndAwardAchievements } from '../utils/achievementEngine';
 import { fetchAllZoneHistories } from '../hooks/useZoneHistoryData';
+import { generateDailyInsight, generateWeeklyInsights, generateMonthlyInsights, shouldGenerateWeeklyInsight, shouldGenerateMonthlyInsight } from '../utils/insightsEngine';
 
 const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
   const [metrics, setMetrics] = useState({
@@ -186,6 +187,49 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
           if (onAchievementsEarned) {
             onAchievementsEarned(newAchievements);
           }
+        }
+
+        try {
+          const insightsRef = doc(db, 'users', user.uid, 'insights', 'current');
+          const existingInsightsSnap = await getDoc(insightsRef);
+          const existingInsights = existingInsightsSnap.exists() ? existingInsightsSnap.data() : {};
+          
+          const last7Days = historyData.slice(0, 7);
+          const last30Days = historyData.slice(0, 30);
+          
+          const dailyInsight = generateDailyInsight(
+            { ...healthLogData, lifestyleScore: Math.round(lifestyleScore) },
+            fullProfile,
+            last7Days
+          );
+          console.log('📊 Daily insight generated:', dailyInsight?.title);
+          
+          let weeklyBundle = existingInsights.weeklyBundle;
+          if (shouldGenerateWeeklyInsight(weeklyBundle) && last7Days.length >= 3) {
+            weeklyBundle = generateWeeklyInsights(last7Days, fullProfile, last30Days);
+            console.log('📊 Weekly insights generated');
+          }
+          
+          let monthlyBundle = existingInsights.monthlyBundle;
+          if (shouldGenerateMonthlyInsight(monthlyBundle) && last30Days.length >= 14) {
+            monthlyBundle = generateMonthlyInsights(last30Days, fullProfile);
+            console.log('📊 Monthly insights generated');
+            
+            if (monthlyBundle) {
+              const historyColRef = doc(db, 'users', user.uid, 'insights', 'history', 'monthly', monthlyBundle.id);
+              await setDoc(historyColRef, monthlyBundle);
+            }
+          }
+          
+          await setDoc(insightsRef, {
+            dailyInsight,
+            weeklyBundle,
+            monthlyBundle,
+            lastUpdated: new Date().toISOString()
+          }, { merge: true });
+          
+        } catch (insightError) {
+          console.error('Error generating insights:', insightError);
         }
       } catch (error) {
         console.error('Error checking achievements:', error);

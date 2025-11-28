@@ -16,6 +16,7 @@ import HabitCard from "./HabitCard";
 import AchievementsSection from "./AchievementsSection";
 import AchievementNotification from "./AchievementNotification";
 import ReassessmentBanner from "./ReassessmentBanner";
+import InsightsPanel from "./InsightsPanel";
 import { useHistoryData, saveDailySnapshot } from "../hooks/useHistoryData";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -418,6 +419,13 @@ export default function Dashboard() {
             stress={liveProfile.stress}
           />
           <JourneyMeter onboardingCompleted={liveProfile.onboardingCompleted} />
+        </div>
+
+        <div className="mt-8">
+          <InsightsPanel 
+            profile={liveProfile}
+            historyData={historyData}
+          />
         </div>
 
         <div className="mt-8">
