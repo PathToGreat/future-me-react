@@ -24,13 +24,19 @@ The frontend is built with React 18.3 and Vite 7.1.9, leveraging TailwindCSS 3 f
 
 **Technical Implementations & Feature Specifications:**
 
--   **Onboarding & Metric Collection:** A 3-step questionnaire gathers age, goals, and lifestyle ratings (activity, nutrition, sleep, stress).
+-   **Onboarding & Metric Collection:** A comprehensive 6-step questionnaire gathers:
+    -   Step 1 (Goals): Age and health goals selection
+    -   Step 2 (Core Habits): Activity, nutrition, sleep, and stress sliders (1-5)
+    -   Step 3 (Physical State): Energy level (1-5), morning fatigue (yes/no/sometimes), body tension (1-5)
+    -   Step 4 (Lifestyle Rhythm): Movement type (light/moderate/intense), eating rhythm (regular/irregular/snacking), sleep rhythm (consistent/inconsistent/irregular)
+    -   Step 5 (Emotional Profile): Primary stressor (work/family/money/uncertainty/health/other/none), emotional climate (overwhelmed/neutral/hopeful), social support (low/average/strong)
+    -   Step 6 (Faith & Purpose): Purpose alignment (aligned/searching/disconnected), faith practice rhythm (consistent/inconsistent/not practicing), motivation level (1-5)
 -   **Wellness Score Calculation:** A formula calculates a 0-100 score based on lifestyle inputs.
 -   **Future Me Avatar System:** An SVG-based avatar dynamically adjusts color, posture, body width, and facial expressions based on wellness scores and metrics.
     -   **Future Avatar Engine:** Projects lifestyle metrics and avatar appearance 90 days into the future, displayed via a toggleable second avatar.
     -   **Enhanced Future Path Predictions:** Calculates 30/90/180-day projections using weighted factors (lifestyle trend, Life Zone scores, habit consistency), displaying status indicators, progress bars, and actionable insights.
     -   **Avatar Trait Map Engine:** Converts user data into 6 visual avatar traits (Posture, Body Shape, Facial Expression, Glow/Energy, Movement Level, Aura/Presence), feeding into rendering logic for dynamic transformations.
-    -   **Avatar Effects Engine:** A modular system (`src/components/avatar/AvatarEffectsEngine.js`) translates lifestyle metrics into CSS visual effects (brightness, contrast, saturation, glow, blur) applied via filters and overlays.
+    -   **Avatar Effects Engine:** A modular system (`src/components/avatar/AvatarEffectsEngine.js`) translates lifestyle metrics into CSS visual effects (brightness, contrast, saturation, glow, blur) applied via filters and overlays. Includes baseline modifier system that uses onboarding data (physical state, lifestyle rhythm, emotional profile, faith/purpose) to establish a "Current Me" anchor that shifts effect calculations for more believable avatar visualization.
     -   **Posture Overlay System:** A modular component (`src/components/avatar/posture/`) displays SVG silhouette overlays (upright, neutral, slump) with Framer Motion transitions based on `postureState`.
     -   **Facial Expression & Emotional Overlay System:** (`src/components/avatar/FacialExpressionLayer.jsx`) renders emotion-based facial overlays (brows, cheeks, mouth) derived from lifestyle metrics, including special indicators for tired/stressed states.
     -   **Gender-Aware Body Composition System (Phase 4+):** (`BodyCompositionLayer.jsx`, `GenderSelector.jsx`) A gender-specific body morphing system with distinct male and female SVG models. Calculates Body Composition Index (activity 60% + nutrition 40%) to determine 3 morph states (soft, balanced, fit) for each gender. Male models feature broader shoulders and V-shape torso; female models use hourglass curvature. Uses Framer Motion for smooth state transitions. Gender selection persists to Firestore and uses localStorage caching for instant hydration to prevent incorrect avatar display on page load. Dashboard gates avatar render until gender is determined (shows loading spinner).
