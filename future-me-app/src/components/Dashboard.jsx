@@ -21,6 +21,7 @@ import { db } from "../config/firebase";
 import { predictFutureState, getMotivationalMessage, getInsightMessage } from "../utils/predictFutureState";
 import { getMetricTrend } from "../utils/analyzeTrends";
 import { projectFutureMetrics, getFutureAvatarDescription } from "../utils/futureAvatarModel";
+import { calculateCurrentMeMetrics, getCurrentMeDescription } from "../utils/currentMeAvatarModel";
 import { getUserHabits, calculateHabitZoneBonuses } from "../utils/habitHelpers";
 import { getUserAchievements } from "../utils/achievementEngine";
 import { ZONE_CONFIG } from "../utils/zoneConfig";
@@ -44,8 +45,24 @@ export default function Dashboard() {
   const [selectedZone, setSelectedZone] = useState(null);
   
   const [selectedGender, setSelectedGender] = useState(null);
+  const [currentMeMetrics, setCurrentMeMetrics] = useState(null);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
+  
+  useEffect(() => {
+    if (liveProfile && historyData) {
+      const metrics = calculateCurrentMeMetrics(liveProfile, historyData);
+      setCurrentMeMetrics(metrics);
+      console.log('📊 Current Me metrics calculated:', {
+        source: metrics.source,
+        slowDriftApplied: metrics.slowDriftApplied,
+        activity: metrics.activity.toFixed(1),
+        nutrition: metrics.nutrition.toFixed(1),
+        sleep: metrics.sleep.toFixed(1),
+        stress: metrics.stress.toFixed(1)
+      });
+    }
+  }, [liveProfile, historyData]);
 
   // Calculate future growth outlook when trend analysis is available
   useEffect(() => {
@@ -535,14 +552,14 @@ export default function Dashboard() {
               </div>
             ) : !showFutureAvatar ? (
               <FutureMeAvatar
-                lifestyleScore={liveProfile.lifestyleScore || 50}
-                activity={liveProfile.activity || 3}
-                nutrition={liveProfile.nutrition || 3}
-                sleep={liveProfile.sleep || 3}
-                stress={liveProfile.stress || 3}
+                lifestyleScore={currentMeMetrics?.lifestyleScore || liveProfile.onboardingBaseline?.lifestyleScore || 50}
+                activity={currentMeMetrics?.activity || liveProfile.onboardingBaseline?.activity || 3}
+                nutrition={currentMeMetrics?.nutrition || liveProfile.onboardingBaseline?.nutrition || 3}
+                sleep={currentMeMetrics?.sleep || liveProfile.onboardingBaseline?.sleep || 3}
+                stress={currentMeMetrics?.stress || liveProfile.onboardingBaseline?.stress || 3}
                 images={liveProfile.images || []}
-                trendAnalysis={trendAnalysis}
-                predictions={predictions}
+                trendAnalysis={null}
+                predictions={null}
                 habits={habits}
                 achievements={achievements}
                 lifeZones={liveProfile.lifeZones || null}
@@ -553,6 +570,7 @@ export default function Dashboard() {
                   emotionalProfile: liveProfile.emotionalProfile,
                   faithPurpose: liveProfile.faithPurpose
                 }}
+                isCurrentMe={true}
               />
             ) : (
               <FutureAvatar
@@ -581,10 +599,12 @@ export default function Dashboard() {
               {!showFutureAvatar ? (
                 <div>
                   <p className="text-sm text-gray-700 font-medium mb-2">
-                    This is your current self based on today's lifestyle habits.
+                    This is your current self based on your lifestyle assessment.
                   </p>
                   <p className="text-xs text-gray-500">
-                    Your avatar reflects your activity, nutrition, sleep, and stress levels in real-time.
+                    {currentMeMetrics?.slowDriftApplied 
+                      ? "Your sustained effort over 30+ days is starting to shape your baseline."
+                      : "Daily logs shape your future projection, not your current baseline."}
                   </p>
                 </div>
               ) : futureMetrics ? (
@@ -626,25 +646,33 @@ export default function Dashboard() {
               <div className="space-y-4">
                 <MetricBar
                   label="Physical Activity"
-                  value={!showFutureAvatar ? liveProfile.activity : futureMetrics?.activity || liveProfile.activity}
+                  value={!showFutureAvatar 
+                    ? (currentMeMetrics?.activity || liveProfile.onboardingBaseline?.activity || 3)
+                    : (futureMetrics?.activity || 3)}
                   max={5}
                   color="blue"
                 />
                 <MetricBar
                   label="Nutrition Quality"
-                  value={!showFutureAvatar ? liveProfile.nutrition : futureMetrics?.nutrition || liveProfile.nutrition}
+                  value={!showFutureAvatar 
+                    ? (currentMeMetrics?.nutrition || liveProfile.onboardingBaseline?.nutrition || 3)
+                    : (futureMetrics?.nutrition || 3)}
                   max={5}
                   color="green"
                 />
                 <MetricBar
                   label="Sleep Quality"
-                  value={!showFutureAvatar ? liveProfile.sleep : futureMetrics?.sleep || liveProfile.sleep}
+                  value={!showFutureAvatar 
+                    ? (currentMeMetrics?.sleep || liveProfile.onboardingBaseline?.sleep || 3)
+                    : (futureMetrics?.sleep || 3)}
                   max={5}
                   color="purple"
                 />
                 <MetricBar
                   label="Stress Level"
-                  value={!showFutureAvatar ? liveProfile.stress : futureMetrics?.stress || liveProfile.stress}
+                  value={!showFutureAvatar 
+                    ? (currentMeMetrics?.stress || liveProfile.onboardingBaseline?.stress || 3)
+                    : (futureMetrics?.stress || 3)}
                   max={5}
                   color="red"
                   reverse

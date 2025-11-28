@@ -172,6 +172,15 @@ export default function Onboarding() {
         motivationLevel: formData.motivationLevel,
       };
       
+      const onboardingBaseline = {
+        activity: formData.activity,
+        nutrition: formData.nutrition,
+        sleep: formData.sleep,
+        stress: formData.stress,
+        lifestyleScore: Math.round(lifestyleScore),
+        capturedAt: new Date().toISOString(),
+      };
+      
       const dataToSave = {
         age: formData.age,
         goals: formData.goals,
@@ -179,6 +188,7 @@ export default function Onboarding() {
         nutrition: formData.nutrition,
         sleep: formData.sleep,
         stress: formData.stress,
+        onboardingBaseline,
         baselineState,
         lifestyleRhythm,
         emotionalProfile,

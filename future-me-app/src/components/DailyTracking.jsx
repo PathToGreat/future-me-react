@@ -144,16 +144,19 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
 
       const userProfileRef = doc(db, 'users', user.uid);
       await setDoc(userProfileRef, {
-        sleep: metrics.sleep,
-        activity: metrics.activity,
-        nutrition: metrics.nutrition,
-        stress: metrics.stress,
-        lifestyleScore: Math.round(lifestyleScore),
         lifeZones: lifeZones,
+        lastDailyLog: {
+          date: today,
+          activity: metrics.activity,
+          nutrition: metrics.nutrition,
+          sleep: metrics.sleep,
+          stress: metrics.stress,
+          lifestyleScore: Math.round(lifestyleScore),
+        },
       }, { merge: true });
 
-      console.log('✅ Saved daily metrics and updated profile - lifestyleScore:', lifestyleScore.toFixed(1));
-      console.log('🎯 Life Zones recalculated with zone-specific data');
+      console.log('✅ Saved daily log - lifestyleScore:', lifestyleScore.toFixed(1));
+      console.log('🎯 Life Zones recalculated (Current Me baseline unchanged)');
 
       try {
         const historyRef = collection(db, 'users', user.uid, 'dailyData');

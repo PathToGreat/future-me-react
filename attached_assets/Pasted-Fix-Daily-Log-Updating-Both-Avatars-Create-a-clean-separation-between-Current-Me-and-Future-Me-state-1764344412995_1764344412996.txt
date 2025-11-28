@@ -1,0 +1,49 @@
+Fix Daily Log Updating Both Avatars
+Create a clean separation between Current Me and Future Me states**
+I need you to correct the avatar logic so that daily logs only influence Future Me, not Current Me, while still allowing very small, realistic Current Me updates based on long-term consistency.
+Please do the following:
+Identify where avatar state is currently stored and whether Current Me and Future Me share any state objects, modifier lists, or derived values.
+Separate the state into two completely independent systems:
+currentMeState
+futureMeState
+Current Me rules:
+Current Me is built entirely from the onboarding assessment and any voluntary reassessment.
+Daily logs cannot directly change Current Me.
+Add a “slow drift” update system:
+If the user logs consistent improvements for 30 days (or a threshold you determine appropriate), Current Me may adjust slightly.
+These adjustments should mimic realistic short-term change:
+Slight glow change
+Slight posture improvement
+Slight reduction of under-eye shadow
+No drastic changes, no future projection features
+Future Me rules:
+Future Me should respond immediately to patterns in the daily log.
+Daily logs can update projected modifiers:
+Stress trend
+Sleep rhythm trend
+Nutrition trend
+Movement trend
+Purpose alignment trend
+Emotional climate trend
+Future Me should remain completely independent from Current Me baseline.
+Decouple the avatar effects engine:
+Ensure Current Me uses only:
+assessment values
+optional reassessment
+slow drift mechanism based on long-term behavior
+Ensure Future Me uses:
+trend analysis from daily logs
+projection algorithms
+scaling for positive and negative trajectories
+Confirm that no daily log fields modify Current Me directly:
+Check all functions that consume daily log data
+If any of them update shared states or shared modifier arrays, split them into separate Current vs Future versions
+After changes, expose two clear functions:
+calculateCurrentMeAvatar()
+calculateFutureMeAvatar()
+Test with sample logs:
+Log poor habits for 7 days: Only Future Me changes.
+Log great habits for 7 days: Only Future Me changes.
+Log great habits for 30 consistent days: Current Me adjusts slightly while Future Me shows larger projected improvements.
+Reassess: Current Me instantly updates to new baseline.
+Make the minimal structural changes necessary but ensure the logic separation is absolute and cannot regress.
