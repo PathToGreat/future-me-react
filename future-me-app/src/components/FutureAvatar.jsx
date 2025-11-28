@@ -18,7 +18,8 @@ export default function FutureAvatar({
   habits = [],
   achievements = [],
   lifeZones = null,
-  gender = 'male'
+  gender = 'male',
+  baselineData = null
 }) {
   const [viewMode, setViewMode] = useState(VIEW_MODES.PHOTO);
   const hasImages = images && images.length > 0;
@@ -86,9 +87,10 @@ export default function FutureAvatar({
       disciplineScore: disciplineScore,
       streakDays: maxStreak,
       consistencyScore: consistencyScore,
-      gender: gender
+      gender: gender,
+      baselineData: baselineData
     });
-  }, [dailyMetrics, disciplineScore, maxStreak, consistencyScore, gender]);
+  }, [dailyMetrics, disciplineScore, maxStreak, consistencyScore, gender, baselineData]);
 
   if (!futureMetrics) {
     return (

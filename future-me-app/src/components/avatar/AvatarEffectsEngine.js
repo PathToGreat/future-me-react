@@ -14,6 +14,12 @@
  * - glowIntensity: Energy glow strength (0-1)
  * - blurAmount: Focus/clarity of avatar (0-1 normalized, maps to px)
  * - postureState: Physical stance indicator ('upright', 'neutral', 'slump')
+ * 
+ * Baseline Modifiers (from onboarding):
+ * - Physical State: energyLevel, morningFatigue, bodyTension
+ * - Lifestyle Rhythm: movementRhythm, eatingRhythm, sleepRhythm
+ * - Emotional Profile: primaryStressor, emotionalClimate, socialSupport
+ * - Faith & Purpose: purposeAlignment, faithRhythm, motivationLevel
  */
 
 /**
@@ -37,6 +43,199 @@ const normalize = (value, min = 1, max = 5) => {
  * @returns {number} Clamped value
  */
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+/**
+ * Baseline Modifier Calculators
+ * These functions convert onboarding baseline data into normalized modifiers
+ * that shift the avatar effect calculations
+ */
+
+/**
+ * Converts baseline physical state to normalized modifiers
+ * @param {Object} baselineState - Physical state from onboarding
+ * @returns {Object} Normalized modifiers for energy, fatigue, and tension
+ */
+const normalizeBaselineState = (baselineState = {}) => {
+  const {
+    energyLevel = 3,
+    morningFatigue = 'sometimes',
+    bodyTension = 3
+  } = baselineState;
+  
+  const energyModifier = normalize(energyLevel);
+  
+  const fatigueModifier = 
+    morningFatigue === 'yes' ? 0.8 :
+    morningFatigue === 'sometimes' ? 0.4 : 0.1;
+  
+  const tensionModifier = normalize(bodyTension);
+  
+  return {
+    energyModifier,
+    fatigueModifier,
+    tensionModifier
+  };
+};
+
+/**
+ * Converts lifestyle rhythm to normalized modifiers
+ * @param {Object} lifestyleRhythm - Rhythm data from onboarding
+ * @returns {Object} Normalized rhythm modifiers
+ */
+const normalizeLifestyleRhythm = (lifestyleRhythm = {}) => {
+  const {
+    movementRhythm = 'moderate',
+    eatingRhythm = 'regular',
+    sleepRhythm = 'consistent'
+  } = lifestyleRhythm;
+  
+  const movementModifier = 
+    movementRhythm === 'intense' ? 1.0 :
+    movementRhythm === 'moderate' ? 0.6 : 0.3;
+  
+  const eatingModifier = 
+    eatingRhythm === 'regular' ? 1.0 :
+    eatingRhythm === 'irregular' ? 0.5 : 0.3;
+  
+  const sleepRhythmModifier = 
+    sleepRhythm === 'consistent' ? 1.0 :
+    sleepRhythm === 'inconsistent' ? 0.5 : 0.2;
+  
+  return {
+    movementModifier,
+    eatingModifier,
+    sleepRhythmModifier
+  };
+};
+
+/**
+ * Converts emotional profile to normalized modifiers
+ * @param {Object} emotionalProfile - Emotional data from onboarding
+ * @returns {Object} Normalized emotional modifiers
+ */
+const normalizeEmotionalProfile = (emotionalProfile = {}) => {
+  const {
+    primaryStressor = 'none',
+    emotionalClimate = 'neutral',
+    socialSupport = 'average'
+  } = emotionalProfile;
+  
+  const stressorImpact = 
+    primaryStressor === 'none' ? 0.0 :
+    ['health', 'money', 'uncertainty'].includes(primaryStressor) ? 0.8 :
+    ['work', 'family'].includes(primaryStressor) ? 0.5 : 0.3;
+  
+  const climateModifier = 
+    emotionalClimate === 'hopeful' ? 1.0 :
+    emotionalClimate === 'neutral' ? 0.5 : 0.1;
+  
+  const supportModifier = 
+    socialSupport === 'strong' ? 1.0 :
+    socialSupport === 'average' ? 0.5 : 0.2;
+  
+  return {
+    stressorImpact,
+    climateModifier,
+    supportModifier,
+    effectiveStress: stressorImpact * (1 - supportModifier * 0.3)
+  };
+};
+
+/**
+ * Converts faith/purpose data to normalized modifiers
+ * @param {Object} faithPurpose - Faith/purpose data from onboarding
+ * @returns {Object} Normalized purpose modifiers
+ */
+const normalizeFaithPurpose = (faithPurpose = {}) => {
+  const {
+    purposeAlignment = 'searching',
+    faithRhythm = 'inconsistent',
+    motivationLevel = 3
+  } = faithPurpose;
+  
+  const alignmentModifier = 
+    purposeAlignment === 'aligned' ? 1.0 :
+    purposeAlignment === 'searching' ? 0.5 : 0.2;
+  
+  const faithModifier = 
+    faithRhythm === 'consistent' ? 1.0 :
+    faithRhythm === 'inconsistent' ? 0.5 : 0.3;
+  
+  const motivationModifier = normalize(motivationLevel);
+  
+  const clarityBoost = (alignmentModifier + faithModifier + motivationModifier) / 3;
+  
+  return {
+    alignmentModifier,
+    faithModifier,
+    motivationModifier,
+    clarityBoost
+  };
+};
+
+/**
+ * Computes combined baseline modifiers from all onboarding data
+ * @param {Object} baselineData - All baseline data from onboarding
+ * @returns {Object} Combined baseline modifiers
+ */
+export const computeBaselineModifiers = (baselineData = {}) => {
+  const {
+    baselineState = {},
+    lifestyleRhythm = {},
+    emotionalProfile = {},
+    faithPurpose = {}
+  } = baselineData;
+  
+  const physical = normalizeBaselineState(baselineState);
+  const rhythm = normalizeLifestyleRhythm(lifestyleRhythm);
+  const emotional = normalizeEmotionalProfile(emotionalProfile);
+  const purpose = normalizeFaithPurpose(faithPurpose);
+  
+  const energyBaseline = (
+    physical.energyModifier * 0.4 +
+    (1 - physical.fatigueModifier) * 0.3 +
+    rhythm.movementModifier * 0.2 +
+    purpose.motivationModifier * 0.1
+  );
+  
+  const postureBaseline = (
+    (1 - physical.tensionModifier) * 0.5 +
+    (1 - emotional.effectiveStress) * 0.3 +
+    rhythm.sleepRhythmModifier * 0.2
+  );
+  
+  const emotionalBaseline = (
+    emotional.climateModifier * 0.4 +
+    emotional.supportModifier * 0.3 +
+    purpose.alignmentModifier * 0.3
+  );
+  
+  const clarityBaseline = (
+    purpose.clarityBoost * 0.5 +
+    rhythm.sleepRhythmModifier * 0.3 +
+    (1 - physical.fatigueModifier) * 0.2
+  );
+  
+  const glowBaseline = (
+    purpose.clarityBoost * 0.4 +
+    energyBaseline * 0.3 +
+    emotional.climateModifier * 0.3
+  );
+  
+  return {
+    physical,
+    rhythm,
+    emotional,
+    purpose,
+    energyBaseline: clamp(energyBaseline, 0, 1),
+    postureBaseline: clamp(postureBaseline, 0, 1),
+    emotionalBaseline: clamp(emotionalBaseline, 0, 1),
+    clarityBaseline: clamp(clarityBaseline, 0, 1),
+    glowBaseline: clamp(glowBaseline, 0, 1),
+    fatigueBaseline: clamp(physical.fatigueModifier, 0, 1),
+    stressBaseline: clamp(emotional.effectiveStress, 0, 1)
+  };
+};
 
 /**
  * Effect Calculators
@@ -322,6 +521,7 @@ const calculateFacialOverlays = (metrics) => {
  * @param {number} metrics.sleepScore - Sleep quality (1-5)
  * @param {number} metrics.stressScore - Stress level (1-5, higher = more stress)
  * @param {number} metrics.disciplineScore - Discipline/consistency level (1-5)
+ * @param {Object} metrics.baselineData - Onboarding baseline data (optional)
  * 
  * @returns {Object} Visual effect states for avatar rendering
  */
@@ -332,7 +532,8 @@ export const computeAvatarEffects = (metrics = {}) => {
     sleepScore = 3,
     stressScore = 3,
     disciplineScore = 3,
-    gender = 'male'
+    gender = 'male',
+    baselineData = null
   } = metrics;
   
   const normalizedMetrics = {
@@ -348,17 +549,91 @@ export const computeAvatarEffects = (metrics = {}) => {
     consistencyScore = 0.5
   } = metrics;
   
-  const brightnessLevel = calculateBrightness(normalizedMetrics);
-  const contrastLevel = calculateContrast(normalizedMetrics);
-  const saturationLevel = calculateSaturation(normalizedMetrics);
-  const darknessOverlay = calculateDarknessOverlay(normalizedMetrics);
-  const glowIntensity = calculateGlowIntensity(normalizedMetrics);
-  const blurAmount = calculateBlurAmount(normalizedMetrics);
-  const postureState = calculatePostureState(normalizedMetrics);
-  const emotionState = calculateEmotionState(normalizedMetrics);
-  const facialOverlays = calculateFacialOverlays(normalizedMetrics);
+  const baselineModifiers = baselineData 
+    ? computeBaselineModifiers(baselineData)
+    : null;
+  
+  let adjustedMetrics = { ...normalizedMetrics };
+  
+  if (baselineModifiers) {
+    adjustedMetrics = {
+      ...normalizedMetrics,
+      stressNorm: clamp(
+        normalizedMetrics.stressNorm * 0.7 + baselineModifiers.stressBaseline * 0.3,
+        0, 1
+      ),
+      sleepNorm: clamp(
+        normalizedMetrics.sleepNorm * 0.8 + (1 - baselineModifiers.fatigueBaseline) * 0.2,
+        0, 1
+      )
+    };
+  }
+  
+  const brightnessLevel = calculateBrightness(adjustedMetrics);
+  const contrastLevel = calculateContrast(adjustedMetrics);
+  const saturationLevel = calculateSaturation(adjustedMetrics);
+  
+  let darknessOverlay = calculateDarknessOverlay(adjustedMetrics);
+  if (baselineModifiers) {
+    darknessOverlay = clamp(
+      darknessOverlay * 0.6 + baselineModifiers.fatigueBaseline * 0.15,
+      0, 0.5
+    );
+  }
+  
+  let glowIntensity = calculateGlowIntensity(adjustedMetrics);
+  if (baselineModifiers) {
+    const glowBoost = baselineModifiers.glowBaseline * 0.2;
+    glowIntensity = clamp(glowIntensity + glowBoost, 0, 1);
+  }
+  
+  let blurAmount = calculateBlurAmount(adjustedMetrics);
+  if (baselineModifiers) {
+    const clarityBoost = baselineModifiers.clarityBaseline * 0.3;
+    blurAmount = clamp(blurAmount * (1 - clarityBoost), 0, 1);
+  }
+  
+  let postureState = calculatePostureState(adjustedMetrics);
+  if (baselineModifiers) {
+    const postureFloor = baselineModifiers.postureBaseline;
+    if (postureFloor < 0.4 && postureState === 'upright') {
+      postureState = 'neutral';
+    } else if (postureFloor >= 0.7 && postureState === 'slump') {
+      postureState = 'neutral';
+    }
+  }
+  
+  let emotionState = calculateEmotionState(adjustedMetrics);
+  if (baselineModifiers) {
+    const emotionalFloor = baselineModifiers.emotionalBaseline;
+    if (emotionalFloor >= 0.7 && (emotionState === 'tired' || emotionState === 'neutral')) {
+      emotionState = 'content';
+    } else if (emotionalFloor < 0.3 && emotionState === 'happy') {
+      emotionState = 'content';
+    }
+  }
+  
+  const facialOverlays = calculateFacialOverlays(adjustedMetrics);
+  if (baselineModifiers) {
+    facialOverlays.energyGlow = clamp(
+      facialOverlays.energyGlow + baselineModifiers.glowBaseline * 0.15,
+      0, 0.8
+    );
+    facialOverlays.eyeBlur = clamp(
+      facialOverlays.eyeBlur + baselineModifiers.fatigueBaseline * 0.1,
+      0, 0.6
+    );
+  }
+  
   const bodyComposition = calculateBodyComposition(normalizedMetrics, { gender });
-  const energyPulse = calculateEnergyPulse(normalizedMetrics, { streakDays, consistencyScore });
+  const energyPulse = calculateEnergyPulse(adjustedMetrics, { streakDays, consistencyScore });
+  
+  if (baselineModifiers) {
+    energyPulse.pulseIntensity = clamp(
+      energyPulse.pulseIntensity + baselineModifiers.energyBaseline * 0.15,
+      0, 1
+    );
+  }
   
   return {
     brightnessLevel,
@@ -372,6 +647,7 @@ export const computeAvatarEffects = (metrics = {}) => {
     facialOverlays,
     bodyComposition,
     energyPulse,
+    baselineModifiers,
     
     cssFilter: buildCSSFilter({
       brightnessLevel,
@@ -383,6 +659,8 @@ export const computeAvatarEffects = (metrics = {}) => {
     _debug: {
       rawMetrics: metrics,
       normalizedMetrics,
+      adjustedMetrics,
+      baselineApplied: !!baselineModifiers,
       timestamp: new Date().toISOString()
     }
   };

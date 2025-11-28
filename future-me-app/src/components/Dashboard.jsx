@@ -547,6 +547,12 @@ export default function Dashboard() {
                 achievements={achievements}
                 lifeZones={liveProfile.lifeZones || null}
                 gender={selectedGender}
+                baselineData={{
+                  baselineState: liveProfile.baselineState,
+                  lifestyleRhythm: liveProfile.lifestyleRhythm,
+                  emotionalProfile: liveProfile.emotionalProfile,
+                  faithPurpose: liveProfile.faithPurpose
+                }}
               />
             ) : (
               <FutureAvatar
@@ -556,6 +562,12 @@ export default function Dashboard() {
                 achievements={achievements}
                 lifeZones={liveProfile.lifeZones || null}
                 gender={selectedGender}
+                baselineData={{
+                  baselineState: liveProfile.baselineState,
+                  lifestyleRhythm: liveProfile.lifestyleRhythm,
+                  emotionalProfile: liveProfile.emotionalProfile,
+                  faithPurpose: liveProfile.faithPurpose
+                }}
               />
             )}
             
