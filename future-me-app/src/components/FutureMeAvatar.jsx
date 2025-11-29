@@ -316,7 +316,7 @@ export default function FutureMeAvatar({
               animate={{ opacity: 1 }}
               src={images[images.length - 1]}
               alt="Your uploaded image"
-              className="w-[200px] h-[300px] object-cover rounded-2xl shadow-2xl"
+              className="w-full max-w-[200px] aspect-[2/3] object-cover rounded-2xl shadow-2xl"
               style={{
                 filter: `${avatarEffects.cssFilter} brightness(${trendBrightness})`,
               }}

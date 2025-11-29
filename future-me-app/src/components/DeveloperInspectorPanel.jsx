@@ -144,7 +144,7 @@ export default function DeveloperInspectorPanel() {
         initial={{ opacity: 0, x: 400 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 400 }}
-        className="fixed right-0 top-0 h-full w-96 bg-gray-900 text-white shadow-2xl z-50 overflow-hidden flex flex-col"
+        className="fixed right-0 top-0 h-full w-full max-w-96 bg-gray-900 text-white shadow-2xl z-50 overflow-hidden flex flex-col"
       >
         <div className="bg-gradient-to-r from-purple-700 to-indigo-700 p-4 flex items-center justify-between">
           <div>

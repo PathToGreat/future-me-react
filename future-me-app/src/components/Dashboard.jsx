@@ -619,7 +619,7 @@ export default function Dashboard() {
             className="card flex flex-col items-center justify-center p-12 bg-gradient-to-br from-blue-50 to-purple-50"
           >
             {selectedGender === null ? (
-              <div className="w-[200px] h-[300px] flex items-center justify-center">
+              <div className="w-full max-w-[200px] aspect-[2/3] flex items-center justify-center">
                 <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
               </div>
             ) : !showFutureAvatar ? (
