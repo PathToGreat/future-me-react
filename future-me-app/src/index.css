@@ -3,8 +3,20 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply font-sans antialiased bg-gradient-to-br from-blue-50 via-white to-purple-50;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  img, canvas, video {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  #root {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 
