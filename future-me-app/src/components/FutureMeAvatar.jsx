@@ -370,8 +370,7 @@ export default function FutureMeAvatar({
           <div className="relative z-10">
             <div style={getGlowOverlayStyle(avatarEffects.glowIntensity, colors.glow)} />
             <svg
-              width="200"
-              height="300"
+              className="w-full max-w-[200px] h-auto"
               viewBox="0 0 200 300"
               style={{ filter: `${avatarEffects.cssFilter} brightness(${trendBrightness})` }}
             >
