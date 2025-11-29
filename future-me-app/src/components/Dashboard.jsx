@@ -341,7 +341,7 @@ export default function Dashboard() {
       />
       
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 w-full max-w-full overflow-x-hidden">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">
               Your Future Self
@@ -350,7 +350,7 @@ export default function Dashboard() {
               Based on your current lifestyle choices
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             <button 
               onClick={() => setShowDevicesPanel(true)} 
               className="btn-secondary text-sm flex items-center gap-1"
@@ -359,7 +359,7 @@ export default function Dashboard() {
               <span>📱</span>
               <span className="hidden sm:inline">Devices</span>
             </button>
-            <button onClick={handleRetake} className="btn-secondary text-sm">
+            <button onClick={handleRetake} className="btn-secondary text-sm whitespace-nowrap">
               Retake Assessment
             </button>
             <button onClick={handleLogout} className="btn-secondary text-sm">
