@@ -21,7 +21,7 @@ const AchievementNotification = ({ achievement, onClose }) => {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -100, scale: 0.9 }}
         transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-        className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4"
+        className="fixed top-4 left-4 right-4 md:left-1/2 md:right-auto md:transform md:-translate-x-1/2 z-50 max-w-md md:w-full"
       >
         <div className="bg-gradient-to-br from-purple-600/90 to-indigo-600/90 backdrop-blur-lg border border-purple-400/50 rounded-xl shadow-2xl p-4">
           <div className="flex items-start gap-4">

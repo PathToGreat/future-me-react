@@ -357,7 +357,7 @@ export default function Dashboard() {
               title="Connected Devices"
             >
               <span>📱</span>
-              <span className="hidden sm:inline">Devices</span>
+              <span>Devices</span>
             </button>
             <button onClick={handleRetake} className="btn-secondary text-sm whitespace-nowrap">
               Retake Assessment
