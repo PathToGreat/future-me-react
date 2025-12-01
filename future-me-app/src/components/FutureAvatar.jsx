@@ -425,7 +425,7 @@ export default function FutureAvatar({
 
                   <motion.path
                     d={mouthPath}
-                    stroke={avatarTraits.facialExpression.score >= 60 ? '#10b981' : avatarTraits.facialExpression.score >= 40 ? '#f59e0b' : '#ef4444'}
+                    stroke="#1f2937"
                     strokeWidth="3"
                     fill="none"
                     strokeLinecap="round"
