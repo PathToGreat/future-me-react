@@ -4,7 +4,7 @@ import LandingPage from './components/LandingPage';
 import AuthScreen from './components/AuthScreen';
 import BetaAgreement from './components/BetaAgreement';
 import Onboarding from './components/Onboarding';
-import Dashboard from './components/Dashboard';
+import MainLayout from './screens/MainLayout';
 import InsightsHistory from './components/InsightsHistory';
 import DeveloperInspectorPanel from './components/DeveloperInspectorPanel';
 
@@ -59,7 +59,7 @@ function AppRoutes() {
     if (!user) return <Navigate to="/auth" />;
     if (!userProfile?.hasAcceptedBetaTerms) return <Navigate to="/beta-agreement" />;
     if (!userProfile?.onboardingCompleted) return <Navigate to="/onboarding" />;
-    return <Dashboard />;
+    return <MainLayout />;
   };
 
   const getInsightsElement = () => {
