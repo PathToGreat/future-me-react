@@ -27,8 +27,25 @@ export function AppProvider({ children }) {
   const [reassessmentAnalysis, setReassessmentAnalysis] = useState(null);
   const [showReassessmentBanner, setShowReassessmentBanner] = useState(false);
   const [predictions, setPredictions] = useState(null);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [walkthroughCompleted, setWalkthroughCompleted] = useState(false);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
+
+  useEffect(() => {
+    if (user?.uid && liveProfile) {
+      const walkthroughKey = `walkthrough_completed_${user.uid}`;
+      const completed = localStorage.getItem(walkthroughKey) === 'true';
+      setWalkthroughCompleted(completed);
+      
+      if (!completed && (!historyData || historyData.length === 0)) {
+        const timer = setTimeout(() => {
+          setShowWalkthrough(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [user?.uid, liveProfile, historyData]);
 
   useEffect(() => {
     if (liveProfile && historyData) {
@@ -186,6 +203,23 @@ export function AppProvider({ children }) {
     setSelectedGender(gender);
   }, []);
 
+  const completeWalkthrough = useCallback(() => {
+    if (user?.uid) {
+      const walkthroughKey = `walkthrough_completed_${user.uid}`;
+      localStorage.setItem(walkthroughKey, 'true');
+      setWalkthroughCompleted(true);
+    }
+    setShowWalkthrough(false);
+  }, [user?.uid]);
+
+  const dismissWalkthrough = useCallback(() => {
+    setShowWalkthrough(false);
+  }, []);
+
+  const replayWalkthrough = useCallback(() => {
+    setShowWalkthrough(true);
+  }, []);
+
   const value = {
     liveProfile,
     showFutureAvatar,
@@ -201,12 +235,17 @@ export function AppProvider({ children }) {
     showReassessmentBanner,
     trendAnalysis,
     historyData,
+    showWalkthrough,
+    walkthroughCompleted,
     refreshHabits,
     refreshAchievements,
     handleAchievementsEarned,
     handleCloseNotification,
     dismissReassessmentBanner,
     handleGenderChange,
+    completeWalkthrough,
+    dismissWalkthrough,
+    replayWalkthrough,
   };
 
   return (

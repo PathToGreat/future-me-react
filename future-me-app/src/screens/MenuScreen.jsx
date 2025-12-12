@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useApp } from '../context/AppContext';
 import ConnectedDevicesPanel from '../components/ConnectedDevicesPanel';
 
 const MENU_ITEMS = [
   { id: 'devices', label: 'Connected Devices', icon: '📱', description: 'Manage health device integrations' },
   { id: 'retake', label: 'Retake Assessment', icon: '📋', description: 'Update your baseline metrics' },
+  { id: 'walkthrough', label: 'Replay Walkthrough', icon: '🎓', description: 'View the app introduction again' },
   { id: 'settings', label: 'Account Settings', icon: '⚙️', description: 'Manage your profile and preferences' },
   { id: 'support', label: 'Support', icon: '❓', description: 'Get help and FAQs' },
   { id: 'logout', label: 'Log Out', icon: '🚪', description: 'Sign out of your account', danger: true },
@@ -14,6 +16,7 @@ const MENU_ITEMS = [
 
 export default function MenuScreen() {
   const { logout } = useAuth();
+  const { replayWalkthrough } = useApp();
   const navigate = useNavigate();
   const [showDevicesPanel, setShowDevicesPanel] = useState(false);
 
@@ -24,6 +27,9 @@ export default function MenuScreen() {
         break;
       case 'retake':
         navigate('/onboarding');
+        break;
+      case 'walkthrough':
+        replayWalkthrough();
         break;
       case 'settings':
         alert('Account Settings coming soon!');

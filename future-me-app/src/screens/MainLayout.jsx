@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AppProvider, useApp } from '../context/AppContext';
 import BottomNavigation from '../components/navigation/BottomNavigation';
 import AchievementNotification from '../components/AchievementNotification';
+import OnboardingWalkthrough from '../components/OnboardingWalkthrough';
 import HomeScreen from './HomeScreen';
 import AvatarScreen from './AvatarScreen';
 import HabitsScreen from './HabitsScreen';
@@ -11,7 +12,13 @@ import MenuScreen from './MenuScreen';
 
 function MainLayoutContent() {
   const [activeTab, setActiveTab] = useState('home');
-  const { newAchievementNotification, handleCloseNotification } = useApp();
+  const { 
+    newAchievementNotification, 
+    handleCloseNotification,
+    showWalkthrough,
+    completeWalkthrough,
+    dismissWalkthrough,
+  } = useApp();
 
   const renderScreen = () => {
     switch (activeTab) {
@@ -35,6 +42,12 @@ function MainLayoutContent() {
       <AchievementNotification 
         achievement={newAchievementNotification}
         onClose={handleCloseNotification}
+      />
+      
+      <OnboardingWalkthrough
+        isVisible={showWalkthrough}
+        onComplete={completeWalkthrough}
+        onDismiss={dismissWalkthrough}
       />
       
       <main className="max-w-4xl mx-auto px-4 py-6">
