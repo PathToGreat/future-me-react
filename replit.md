@@ -20,7 +20,14 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Motion for animations, and React Router v6 for routing. It employs a component-based architecture with the Context API for authentication. UI/UX emphasizes a custom color palette, gradients, card-based layouts, and mobile-first responsiveness.
+The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Motion for animations, and React Router v6 for routing. It employs a component-based architecture with the Context API for authentication and shared state. UI/UX emphasizes a custom color palette, gradients, card-based layouts, and mobile-first responsiveness.
+
+**Multi-Screen Mobile Architecture (December 2025):**
+-   **Screen Structure:** The app uses a multi-screen layout with persistent bottom navigation instead of a single scrolling dashboard.
+-   **Screens:** Home (daily overview, micro-insights), Avatar (current/future visualization), Habits (habit management, achievements), Metrics (daily logging, Life Zones), Menu (settings, devices, logout).
+-   **Navigation:** `BottomNavigation.jsx` provides a 5-tab bar with animated active state indicators.
+-   **State Management:** `AppContext.jsx` centralizes shared state (profile, habits, achievements, metrics) across all screens.
+-   **Layout:** `MainLayout.jsx` wraps all screens with the bottom navigation and provides smooth screen transitions.
 
 **Technical Implementations & Feature Specifications:**
 
