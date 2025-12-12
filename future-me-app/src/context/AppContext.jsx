@@ -4,6 +4,8 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useHistoryData, saveDailySnapshot } from '../hooks/useHistoryData';
 import { projectFutureMetrics } from '../utils/futureAvatarModel';
+import { predictFutureState } from '../utils/predictFutureState';
+import { getMetricTrend } from '../utils/analyzeTrends';
 import { calculateCurrentMeMetrics } from '../utils/currentMeAvatarModel';
 import { analyzeReassessmentNeed } from '../utils/reassessmentAnalyzer';
 import { getUserHabits, calculateHabitZoneBonuses } from '../utils/habitHelpers';
@@ -24,6 +26,7 @@ export function AppProvider({ children }) {
   const [currentMeMetrics, setCurrentMeMetrics] = useState(null);
   const [reassessmentAnalysis, setReassessmentAnalysis] = useState(null);
   const [showReassessmentBanner, setShowReassessmentBanner] = useState(false);
+  const [predictions, setPredictions] = useState(null);
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -92,13 +95,35 @@ export function AppProvider({ children }) {
   }, [user?.uid]);
 
   useEffect(() => {
-    console.log('📊 Future metrics check - historyData length:', historyData?.length || 0);
-    if (historyData && historyData.length >= 1 && liveProfile) {
-      const projected = projectFutureMetrics(historyData, liveProfile, habits);
-      console.log('📊 Future metrics projected:', projected);
-      setFutureMetrics(projected);
+    if (trendAnalysis && liveProfile?.lifestyleScore && historyData) {
+      const metricTrends = historyData.length >= 2 ? {
+        activity: getMetricTrend(historyData, 'activity'),
+        nutrition: getMetricTrend(historyData, 'nutrition'),
+        sleep: getMetricTrend(historyData, 'sleep'),
+        stress: getMetricTrend(historyData, 'stress')
+      } : null;
+
+      const futureProjections = predictFutureState(
+        liveProfile.lifestyleScore,
+        trendAnalysis.trendSlope,
+        {
+          lifeZones: liveProfile.lifeZones || null,
+          habits: habits,
+          metricTrends: metricTrends
+        }
+      );
+      setPredictions(futureProjections);
+      console.log('📊 Predictions calculated:', futureProjections ? 'success' : 'null');
     }
-  }, [historyData, liveProfile, habits]);
+  }, [trendAnalysis, liveProfile?.lifestyleScore, liveProfile?.lifeZones, habits, historyData]);
+
+  useEffect(() => {
+    if (liveProfile && historyData && predictions && historyData.length >= 2) {
+      const projected = projectFutureMetrics(liveProfile, historyData, predictions, 90);
+      setFutureMetrics(projected);
+      console.log('📊 Future Avatar Metrics calculated:', projected ? 'success' : 'null');
+    }
+  }, [liveProfile, historyData, predictions]);
 
   useEffect(() => {
     if (historyData && historyData.length >= 14 && liveProfile?.onboardingBaseline) {
