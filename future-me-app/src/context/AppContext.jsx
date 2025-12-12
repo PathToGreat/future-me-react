@@ -35,10 +35,27 @@ export function AppProvider({ children }) {
   useEffect(() => {
     if (user?.uid && liveProfile) {
       const walkthroughKey = `walkthrough_completed_${user.uid}`;
-      const completed = localStorage.getItem(walkthroughKey) === 'true';
-      setWalkthroughCompleted(completed);
+      const completedTimestamp = localStorage.getItem(walkthroughKey);
+      const wasCompleted = !!completedTimestamp;
+      setWalkthroughCompleted(wasCompleted);
       
-      if (!completed && (!historyData || historyData.length === 0)) {
+      const shouldShowWalkthrough = () => {
+        if (!wasCompleted) return true;
+        if (!historyData || historyData.length === 0) return true;
+        
+        if (historyData.length > 0) {
+          const lastLog = historyData[0];
+          if (lastLog?.date) {
+            const lastLogDate = new Date(lastLog.date);
+            const today = new Date();
+            const daysSinceLastLog = Math.floor((today - lastLogDate) / (1000 * 60 * 60 * 24));
+            if (daysSinceLastLog > 7) return true;
+          }
+        }
+        return false;
+      };
+      
+      if (shouldShowWalkthrough()) {
         const timer = setTimeout(() => {
           setShowWalkthrough(true);
         }, 1000);
