@@ -28,6 +28,7 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
 -   **Navigation:** `BottomNavigation.jsx` provides a 5-tab bar with animated active state indicators.
 -   **State Management:** `AppContext.jsx` centralizes shared state (profile, habits, achievements, metrics) across all screens.
 -   **Layout:** `MainLayout.jsx` wraps all screens with the bottom navigation and provides smooth screen transitions.
+-   **First-Time User Walkthrough:** `OnboardingWalkthrough.jsx` provides a 6-step guided tour for new users explaining app features (intro, metrics logging, avatar, insights, habits, finish). Auto-launches for users with no logged data, can be replayed from Menu, uses localStorage to track completion per user.
 
 **Technical Implementations & Feature Specifications:**
 
