@@ -92,8 +92,10 @@ export function AppProvider({ children }) {
   }, [user?.uid]);
 
   useEffect(() => {
-    if (historyData && historyData.length >= 7 && liveProfile) {
+    console.log('📊 Future metrics check - historyData length:', historyData?.length || 0);
+    if (historyData && historyData.length >= 1 && liveProfile) {
       const projected = projectFutureMetrics(historyData, liveProfile, habits);
+      console.log('📊 Future metrics projected:', projected);
       setFutureMetrics(projected);
     }
   }, [historyData, liveProfile, habits]);
