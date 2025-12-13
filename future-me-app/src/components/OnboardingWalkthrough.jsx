@@ -107,7 +107,7 @@ export default function OnboardingWalkthrough({ isVisible, onComplete, onDismiss
           transition={{ duration: 0.3 }}
           className={`absolute left-4 right-4 max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-6 ${
             step.position === 'center' 
-              ? 'top-1/2 -translate-y-1/2' 
+              ? 'top-8 sm:top-1/2 sm:-translate-y-1/2' 
               : 'top-24'
           }`}
         >
@@ -167,31 +167,44 @@ export default function OnboardingWalkthrough({ isVisible, onComplete, onDismiss
 }
 
 function HighlightOverlay({ highlight }) {
-  const getHighlightPosition = () => {
-    switch (highlight) {
-      case 'home':
-        return { left: '10%', width: '20%' };
-      case 'avatar':
-        return { left: '30%', width: '20%' };
-      case 'habits':
-        return { left: '50%', width: '20%' };
-      case 'metrics':
-        return { left: '70%', width: '20%' };
-      default:
-        return { left: '50%', width: '20%' };
-    }
-  };
+  const [position, setPosition] = useState({ left: 0, width: 0 });
 
-  const position = getHighlightPosition();
+  useEffect(() => {
+    const updatePosition = () => {
+      const navItems = ['home', 'avatar', 'habits', 'metrics', 'menu'];
+      const index = navItems.indexOf(highlight);
+      if (index === -1) return;
+
+      const nav = document.querySelector('nav');
+      if (!nav) return;
+
+      const buttons = nav.querySelectorAll('button');
+      if (buttons[index]) {
+        const button = buttons[index];
+        const rect = button.getBoundingClientRect();
+        setPosition({
+          left: rect.left + rect.width / 2,
+          width: rect.width
+        });
+      }
+    };
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    return () => window.removeEventListener('resize', updatePosition);
+  }, [highlight]);
+
+  if (position.width === 0) return null;
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none z-40"
+      className="fixed bottom-0 left-0 right-0 h-20 pointer-events-none z-40"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div
-        className="absolute bottom-0 h-full"
+        className="absolute bottom-0 h-16"
         style={{
           left: position.left,
           width: position.width,

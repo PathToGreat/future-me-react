@@ -39,8 +39,11 @@ export function AppProvider({ children }) {
       const wasCompleted = !!completedTimestamp;
       setWalkthroughCompleted(wasCompleted);
       
+      if (wasCompleted) {
+        return;
+      }
+      
       const shouldShowWalkthrough = () => {
-        if (!wasCompleted) return true;
         if (!historyData || historyData.length === 0) return true;
         
         if (historyData.length > 0) {
@@ -52,7 +55,7 @@ export function AppProvider({ children }) {
             if (daysSinceLastLog > 7) return true;
           }
         }
-        return false;
+        return true;
       };
       
       if (shouldShowWalkthrough()) {
