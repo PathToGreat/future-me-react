@@ -71,6 +71,13 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
     -   **Developer Inspector Panel:** Hidden debug panel (Shift+M keyboard shortcut) showing all intercepted inputs, routing decisions (Current Me/Future Me/Blocked), blocked attempts log, real-time avatar state, and routing statistics.
     -   **Routing Test Mode:** Toggle within inspector panel enables simulating fake inputs to verify routing behavior without affecting user data. Includes quick test buttons for daily log batch, Current Me input, device input, and blocked input scenarios.
     -   **Integration Points:** Interceptor integrated into DailyTracking (daily log submission), Onboarding (baseline initialization), and deviceDataMerger (device data processing) without modifying existing avatar calculators.
+-   **Progress & Momentum Layer (Phase X - December 2025):** (`src/components/ProgressTimeline.jsx`, `src/components/FocusZoneIndicator.jsx`, `src/components/ConsistencyStreaks.jsx`, `src/components/WeeklyReflectionPrompt.jsx`, `src/components/InvestorMetricsDashboard.jsx`) A lightweight system helping users see where they are, what's improving, and what matters most.
+    -   **Personal Progress Timeline:** Visual timeline showing baseline (from onboarding), current 7-day average, and directional trend (improving/stable/declining) for sleep, stress, activity, and nutrition. Non-judgmental, descriptive only.
+    -   **Focus Zone Indicator:** Identifies 1 primary area that would create the biggest downstream benefit. Updates weekly (cached in localStorage by week number), not daily. Uses supportive language: "This week, improving sleep consistency would support energy and stress recovery."
+    -   **Consistency Streaks:** Tracks logging consistency, habit follow-through, and total awareness days. No gamified pressure - paused streaks show "Ready to resume" not "Streak broken". Reinforces identity as someone who practices awareness.
+    -   **Weekly Reflection Prompt:** Surfaces on weekends with one observation from user data and one neutral question. Examples: "You logged more consistently this week than last. What supported that?" Optional - no required input. Dismissible per week.
+    -   **Investor Metrics Dashboard (Internal Only):** Hidden dashboard accessible via 5-tap on version number in Menu. Tracks: % users logging 3+ days/week, % completing onboarding, % returning after 7 days. For founder insight only.
+    -   **Guardrails:** No judgmental scores, no pressure notifications, no additional onboarding steps, nothing clinical or gamified. Everything feels supportive, grounded, human, identity reinforcing.
 
 **Backend & Data Architecture:**
 
