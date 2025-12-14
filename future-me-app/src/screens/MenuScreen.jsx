@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import ConnectedDevicesPanel from '../components/ConnectedDevicesPanel';
+import InvestorMetricsDashboard from '../components/InvestorMetricsDashboard';
 
 const MENU_ITEMS = [
   { id: 'devices', label: 'Connected Devices', icon: '📱', description: 'Manage health device integrations' },
@@ -19,6 +20,23 @@ export default function MenuScreen() {
   const { replayWalkthrough } = useApp();
   const navigate = useNavigate();
   const [showDevicesPanel, setShowDevicesPanel] = useState(false);
+  const [showFounderMetrics, setShowFounderMetrics] = useState(false);
+  const [versionTapCount, setVersionTapCount] = useState(0);
+  
+  useEffect(() => {
+    if (versionTapCount >= 5) {
+      setShowFounderMetrics(true);
+      setVersionTapCount(0);
+    }
+    
+    const timer = setTimeout(() => {
+      if (versionTapCount > 0 && versionTapCount < 5) {
+        setVersionTapCount(0);
+      }
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, [versionTapCount]);
 
   const handleMenuClick = async (itemId) => {
     switch (itemId) {
@@ -95,14 +113,47 @@ export default function MenuScreen() {
       </motion.div>
 
       <div className="pt-6 border-t border-gray-200">
-        <p className="text-center text-sm text-gray-400">
+        <button
+          onClick={() => setVersionTapCount(prev => prev + 1)}
+          className="w-full text-center text-sm text-gray-400 cursor-default select-none"
+        >
           Future Me v1.0
-        </p>
+        </button>
       </div>
 
       <AnimatePresence>
         {showDevicesPanel && (
           <ConnectedDevicesPanel onClose={() => setShowDevicesPanel(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showFounderMetrics && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowFounderMetrics(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg"
+            >
+              <div className="relative">
+                <button
+                  onClick={() => setShowFounderMetrics(false)}
+                  className="absolute -top-2 -right-2 w-8 h-8 bg-gray-700 rounded-full text-white flex items-center justify-center z-10"
+                >
+                  ✕
+                </button>
+                <InvestorMetricsDashboard />
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

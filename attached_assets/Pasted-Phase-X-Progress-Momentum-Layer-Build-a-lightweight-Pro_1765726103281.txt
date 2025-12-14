@@ -1,0 +1,59 @@
+Phase X – Progress & Momentum Layer
+Build a lightweight Progress & Momentum system that helps users clearly see where they are, what’s improving, and what matters most right now.
+1. Personal Progress Timeline
+Create a simple visual timeline or progress strip that shows:
+Starting baseline (from onboarding assessment)
+Current 7-day average
+Directional trend (improving, stable, declining)
+This should be:
+Non-judgmental
+Descriptive only
+Visible from the Home screen
+Tied to key areas like sleep, stress, activity, and consistency
+Purpose: Help users visually understand “movement over time” without overwhelm.
+2. Focus Zone Indicator
+Add a small section on the Home screen called “Current Focus” that:
+Identifies 1 primary area that would create the biggest downstream benefit right now
+Uses existing data patterns only
+Updates weekly, not daily
+Language example tone:
+“This week, improving sleep consistency would support energy and stress recovery.”
+Purpose: Reduce cognitive load and give users clarity on where to place attention.
+3. Consistency Streaks (Behavior-Based)
+Introduce consistency indicators that track:
+Logging consistency (not performance)
+Habit follow-through
+Awareness actions (showing up)
+Important constraints:
+No gamified pressure
+No streak loss shame
+If a streak pauses, language should reflect “resuming” not “breaking”
+Purpose: Reinforce identity as someone who practices awareness and discipline.
+4. Weekly Reflection Prompt
+Once per week, surface a short reflection card with:
+One observation from the user’s data
+One neutral question that invites awareness
+Examples:
+“You logged more consistently this week than last. What supported that?”
+“Stress remained steady while sleep varied. What did you notice?”
+No required input. Optional reflection only.
+Purpose: Deepen ownership without friction.
+5. Investor-Ready Metric (Internal Only)
+Create a simple internal dashboard metric that tracks:
+% of users who log 3+ days per week
+% who complete onboarding walkthrough
+% who return after 7 days
+This does not need to be visible to users.
+This is for founder insight and future reporting.
+Purpose: Prepare the product for informed growth conversations.
+Guardrails
+Do NOT add:
+Scores that judge the user
+Notifications that pressure behavior
+More onboarding steps
+Anything that feels clinical or gamified
+Everything should feel:
+Supportive
+Grounded
+Human
+Identity reinforcing

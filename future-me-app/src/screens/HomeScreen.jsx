@@ -7,6 +7,10 @@ import JourneyMeter from '../components/JourneyMeter';
 import MicroSuggestionCard from '../components/MicroSuggestionCard';
 import ReassessmentBanner from '../components/ReassessmentBanner';
 import InsightsPanel from '../components/InsightsPanel';
+import ProgressTimeline from '../components/ProgressTimeline';
+import FocusZoneIndicator from '../components/FocusZoneIndicator';
+import ConsistencyStreaks from '../components/ConsistencyStreaks';
+import WeeklyReflectionPrompt from '../components/WeeklyReflectionPrompt';
 
 export default function HomeScreen() {
   const {
@@ -34,6 +38,10 @@ export default function HomeScreen() {
         <p className="text-gray-600">Your daily overview</p>
       </div>
 
+      <FocusZoneIndicator />
+
+      <WeeklyReflectionPrompt />
+
       <FutureSelfPreview 
         lifestyleScore={liveProfile.lifestyleScore || 50} 
         lifeZones={liveProfile.lifeZones}
@@ -57,6 +65,11 @@ export default function HomeScreen() {
           }
         }}
       />
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <ProgressTimeline />
+        <ConsistencyStreaks />
+      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         <DailyInsight
