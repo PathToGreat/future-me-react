@@ -210,17 +210,44 @@ export default function ConnectedDevicesPanel({ onClose }) {
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
             <div className="flex gap-3">
               <span className="text-xl">📱</span>
               <div>
-                <h4 className="font-medium text-gray-800 mb-1">Device Integration Coming Soon</h4>
+                <h4 className="font-medium text-gray-800 mb-1">What Device Data Will Enhance</h4>
+                <p className="text-sm text-gray-600 mb-2">
+                  When connected, your health devices will provide more accurate passive data for:
+                </p>
+                <ul className="text-sm text-gray-600 space-y-1 ml-4">
+                  <li>• Sleep duration, quality, and timing patterns</li>
+                  <li>• Activity levels without manual logging</li>
+                  <li>• Stress indicators through HRV measurements</li>
+                  <li>• More precise Future Me projections</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+            <div className="flex gap-3">
+              <span className="text-xl">🔒</span>
+              <div>
+                <h4 className="font-medium text-gray-800 mb-1">What Device Data Will Not Change</h4>
                 <p className="text-sm text-gray-600">
-                  We're working on bringing automatic data sync from your favorite health devices. 
-                  When available, device data will automatically enhance your Future Me projections 
-                  with more accurate metrics.
+                  Your onboarding baseline remains protected. Device data enhances daily tracking 
+                  and Future Me projections, but your baseline can only be updated through 
+                  reassessment that you initiate.
                 </p>
               </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <div className="flex gap-3 items-center">
+              <span className="text-xl">➡️</span>
+              <p className="text-sm text-gray-500 italic">
+                Designed to support future passive data when available
+              </p>
             </div>
           </div>
         </div>

@@ -1,0 +1,57 @@
+Phase Y – Evidence of Value & Signal Clarity
+Objective: Strengthen user belief that the app is working by making progress more obvious, attributable, and meaningful while quietly preparing the product for investor, advisor, and partner conversations.
+1. “Why This Changed” Layer (Signal Attribution)
+Add a lightweight explanation layer that helps users understand why something improved or declined.
+What to build:
+* When a metric, insight, or Focus Zone updates, include a short contextual explanation such as:
+    * “This shift appears connected to 4 days of consistent sleep timing.”
+    * “Stress stabilized during a week with fewer skipped logs.”
+* These explanations should be:
+    * Descriptive, not corrective
+    * Based only on patterns already tracked
+    * Shown sparingly, not everywhere
+
+2. Personal Proof Moments (Quiet Wins)
+Introduce moments where users see evidence of progress without celebration language.
+What to build:
+* A small “Noticing” or “Observed Change” card that appears occasionally (not daily)
+* Examples:
+    * “Your baseline stress is now lower than when you started.”
+    * “You are logging with more consistency than your first two weeks.”
+* These should:
+    * Never say “congrats” or “great job”
+    * Never use scores or gamification
+    * Appear only when change is statistically meaningful
+
+
+3. Lightweight Outcome Summary (Shareable, Optional)
+Prepare the app for organic sharing without pushing it.
+What to build:
+* A simple, optional “Progress Snapshot” view that shows:
+    * Starting point vs current averages
+    * One Focus Zone insight
+    * One reflection-style observation
+* This view should be:
+    * Private by default
+    * Easily shareable if the user chooses
+    * Framed as “Here’s what I’m noticing about myself”
+
+
+4. Readiness for Real Data (Without Turning It On)
+Do not add new integrations yet.
+What to build:
+* Add clear language in the Devices area that explains:
+    * What device data will enhance
+    * What it will not change (baseline integrity)
+* Include a passive indicator like:
+    * “Designed to support future passive data when available”
+
+5. Founder Signal Pack (Internal Only)
+Quietly prepare yourself for smarter conversations.
+What to build:
+* Expand the hidden Founder Metrics Dashboard to include:
+    * Average days to first “noticed change”
+    * % of users who reach 7-day consistency
+    * % who return after first insight
+* No graphs needed
+* Just clean, readable signals

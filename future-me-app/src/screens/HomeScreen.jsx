@@ -11,6 +11,8 @@ import ProgressTimeline from '../components/ProgressTimeline';
 import FocusZoneIndicator from '../components/FocusZoneIndicator';
 import ConsistencyStreaks from '../components/ConsistencyStreaks';
 import WeeklyReflectionPrompt from '../components/WeeklyReflectionPrompt';
+import NoticingCard from '../components/NoticingCard';
+import ProgressSnapshot from '../components/ProgressSnapshot';
 
 export default function HomeScreen() {
   const {
@@ -22,6 +24,8 @@ export default function HomeScreen() {
     dismissReassessmentBanner,
     historyData,
   } = useApp();
+  
+  const [showSnapshot, setShowSnapshot] = useState(false);
 
   if (!liveProfile) {
     return (
@@ -39,6 +43,8 @@ export default function HomeScreen() {
       </div>
 
       <FocusZoneIndicator />
+
+      <NoticingCard />
 
       <WeeklyReflectionPrompt />
 
@@ -87,6 +93,22 @@ export default function HomeScreen() {
           historyData={historyData}
         />
       </div>
+
+      {historyData && historyData.length >= 3 && (
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowSnapshot(true)}
+            className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-2"
+          >
+            📊 View Progress Snapshot
+          </button>
+        </div>
+      )}
+
+      <ProgressSnapshot 
+        isOpen={showSnapshot} 
+        onClose={() => setShowSnapshot(false)} 
+      />
     </div>
   );
 }
