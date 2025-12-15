@@ -21,6 +21,9 @@ async function fetchInvestorMetrics() {
     let usersReturnedAfterFirstInsight = 0;
     let totalDaysToFirstChange = 0;
     let usersWithFirstChange = 0;
+    let usersReachedFirstWin = 0;
+    let usersReturnedAfterMissedDay = 0;
+    let usersWithMultipleSnapshotViews = 0;
     
     for (const userDoc of usersSnapshot.docs) {
       totalUsers++;
@@ -122,6 +125,28 @@ async function fetchInvestorMetrics() {
             usersReturnedAfterFirstInsight++;
           }
         }
+
+        if (allLogs.length >= 3) {
+          usersReachedFirstWin++;
+        }
+
+        if (allLogs.length >= 2) {
+          const sortedLogs = [...allLogs].sort((a, b) => new Date(a.date) - new Date(b.date));
+          for (let i = 1; i < sortedLogs.length; i++) {
+            const prevDate = new Date(sortedLogs[i - 1].date);
+            const currDate = new Date(sortedLogs[i].date);
+            const dayDiff = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24));
+            if (dayDiff >= 2) {
+              usersReturnedAfterMissedDay++;
+              break;
+            }
+          }
+        }
+
+        const snapshotViewCount = userData.snapshotViewCount || 0;
+        if (snapshotViewCount > 1) {
+          usersWithMultipleSnapshotViews++;
+        }
       } catch (error) {
         console.log('Could not fetch daily data for user:', userDoc.id);
       }
@@ -135,6 +160,9 @@ async function fetchInvestorMetrics() {
       sevenDayConsistencyRate: totalUsers > 0 ? Math.round((usersReached7DayConsistency / totalUsers) * 100) : 0,
       avgDaysToFirstChange: usersWithFirstChange > 0 ? Math.round(totalDaysToFirstChange / usersWithFirstChange) : 0,
       returnAfterInsightRate: usersReachedFirstInsight > 0 ? Math.round((usersReturnedAfterFirstInsight / usersReachedFirstInsight) * 100) : 0,
+      firstWinRate: totalUsers > 0 ? Math.round((usersReachedFirstWin / totalUsers) * 100) : 0,
+      returnAfterMissedDayRate: totalUsers > 0 ? Math.round((usersReturnedAfterMissedDay / totalUsers) * 100) : 0,
+      multipleSnapshotViewRate: totalUsers > 0 ? Math.round((usersWithMultipleSnapshotViews / totalUsers) * 100) : 0,
       lastUpdated: new Date().toISOString()
     };
   } catch (error) {
@@ -236,6 +264,26 @@ export default function InvestorMetricsDashboard() {
           <div className="bg-gray-800 rounded-lg p-3 text-center">
             <p className="text-gray-400 text-xs mb-1">Return After Insight</p>
             <p className="text-xl font-bold text-pink-400">{metrics.returnAfterInsightRate}%</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-700 pt-4 mb-4">
+        <h3 className="text-sm font-medium text-gray-400 mb-3">Commitment Signals (Phase Z)</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-gray-800 rounded-lg p-3 text-center">
+            <p className="text-gray-400 text-xs mb-1">First Win Rate</p>
+            <p className="text-xl font-bold text-emerald-400">{metrics.firstWinRate}%</p>
+          </div>
+          
+          <div className="bg-gray-800 rounded-lg p-3 text-center">
+            <p className="text-gray-400 text-xs mb-1">Return After Miss</p>
+            <p className="text-xl font-bold text-orange-400">{metrics.returnAfterMissedDayRate}%</p>
+          </div>
+          
+          <div className="bg-gray-800 rounded-lg p-3 text-center">
+            <p className="text-gray-400 text-xs mb-1">Multiple Snapshots</p>
+            <p className="text-xl font-bold text-violet-400">{metrics.multipleSnapshotViewRate}%</p>
           </div>
         </div>
       </div>

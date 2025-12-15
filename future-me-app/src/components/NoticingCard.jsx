@@ -1,7 +1,9 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { doc, setDoc, increment, getDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const NOTICING_TEMPLATES = [
   {
@@ -117,11 +119,12 @@ function getWeekNumber() {
   return Math.floor(diff / oneWeek);
 }
 
-export default function NoticingCard() {
+export default function NoticingCard({ onNoticingTriggered }) {
   const { historyData, liveProfile } = useApp();
   const { user } = useAuth();
   const [isDismissed, setIsDismissed] = useState(false);
   const [currentNoticing, setCurrentNoticing] = useState(null);
+  const [shareStatus, setShareStatus] = useState(null);
 
   const baseline = liveProfile?.onboardingBaseline || {};
   
@@ -150,6 +153,9 @@ export default function NoticingCard() {
       try {
         if (template.condition(noticingData)) {
           setCurrentNoticing(template);
+          if (onNoticingTriggered) {
+            onNoticingTriggered(true);
+          }
           return;
         }
       } catch (e) {
@@ -158,7 +164,33 @@ export default function NoticingCard() {
     }
     
     setCurrentNoticing(null);
-  }, [noticingData, isDismissed]);
+  }, [noticingData, isDismissed, onNoticingTriggered]);
+
+  const handleShare = useCallback(async () => {
+    if (!currentNoticing) return;
+
+    const shareText = `Observed Change: ${currentNoticing.text}\n\nTracking my awareness journey.`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'My Observation',
+          text: shareText
+        });
+        setShareStatus('shared');
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          await navigator.clipboard.writeText(shareText);
+          setShareStatus('copied');
+        }
+      }
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      setShareStatus('copied');
+    }
+
+    setTimeout(() => setShareStatus(null), 2000);
+  }, [currentNoticing]);
 
   const handleDismiss = () => {
     localStorage.setItem(dismissKey, 'true');
@@ -183,6 +215,12 @@ export default function NoticingCard() {
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-1">Observed Change</h4>
               <p className="text-sm text-gray-600">{currentNoticing.text}</p>
+              <button
+                onClick={handleShare}
+                className="text-xs text-gray-400 hover:text-gray-600 mt-2 flex items-center gap-1"
+              >
+                {shareStatus === 'copied' ? '✓ Copied' : shareStatus === 'shared' ? '✓ Shared' : 'Share this reflection'}
+              </button>
             </div>
           </div>
           <button

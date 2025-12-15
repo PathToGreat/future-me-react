@@ -13,6 +13,9 @@ import ConsistencyStreaks from '../components/ConsistencyStreaks';
 import WeeklyReflectionPrompt from '../components/WeeklyReflectionPrompt';
 import NoticingCard from '../components/NoticingCard';
 import ProgressSnapshot from '../components/ProgressSnapshot';
+import DailyReasonToReturn from '../components/DailyReasonToReturn';
+import FirstMeaningfulWin from '../components/FirstMeaningfulWin';
+import GentleCommitmentPrompt from '../components/GentleCommitmentPrompt';
 
 export default function HomeScreen() {
   const {
@@ -26,6 +29,7 @@ export default function HomeScreen() {
   } = useApp();
   
   const [showSnapshot, setShowSnapshot] = useState(false);
+  const [noticingTriggered, setNoticingTriggered] = useState(false);
 
   if (!liveProfile) {
     return (
@@ -42,9 +46,11 @@ export default function HomeScreen() {
         <p className="text-gray-600">Your daily overview</p>
       </div>
 
+      <DailyReasonToReturn />
+
       <FocusZoneIndicator />
 
-      <NoticingCard />
+      <NoticingCard onNoticingTriggered={setNoticingTriggered} />
 
       <WeeklyReflectionPrompt />
 
@@ -109,6 +115,9 @@ export default function HomeScreen() {
         isOpen={showSnapshot} 
         onClose={() => setShowSnapshot(false)} 
       />
+
+      <FirstMeaningfulWin noticingTriggered={noticingTriggered} />
+      <GentleCommitmentPrompt />
     </div>
   );
 }
