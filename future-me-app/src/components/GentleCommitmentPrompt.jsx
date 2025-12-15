@@ -5,21 +5,50 @@ import { useApp } from '../context/AppContext';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
+const LOCAL_STORAGE_KEY = 'futureme_commitment_shown';
+
+function getLocalCommitmentStatus(userId) {
+  try {
+    const stored = localStorage.getItem(`${LOCAL_STORAGE_KEY}_${userId}`);
+    return stored === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function setLocalCommitmentStatus(userId) {
+  try {
+    localStorage.setItem(`${LOCAL_STORAGE_KEY}_${userId}`, 'true');
+  } catch {
+    // localStorage not available
+  }
+}
+
 async function getCommitmentStatus(userId) {
   if (!userId) return null;
+  
+  if (getLocalCommitmentStatus(userId)) {
+    return { promptShown: true };
+  }
   
   try {
     const docRef = doc(db, 'users', userId, 'milestones', 'commitment');
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
+    if (docSnap.exists() && docSnap.data()?.promptShown) {
+      setLocalCommitmentStatus(userId);
+      return docSnap.data();
+    }
+    return null;
   } catch (error) {
-    console.log('Error checking commitment status:', error);
+    console.warn('Error checking commitment status:', error.message);
     return null;
   }
 }
 
 async function saveCommitmentChoice(userId, choice) {
-  if (!userId) return;
+  if (!userId) return false;
+  
+  setLocalCommitmentStatus(userId);
   
   try {
     const docRef = doc(db, 'users', userId, 'milestones', 'commitment');
@@ -31,8 +60,10 @@ async function saveCommitmentChoice(userId, choice) {
         ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
         : null
     });
+    return true;
   } catch (error) {
-    console.log('Error saving commitment choice:', error);
+    console.warn('Error saving commitment choice to Firestore:', error.message);
+    return false;
   }
 }
 
@@ -53,20 +84,28 @@ export default function GentleCommitmentPrompt() {
   const { historyData } = useApp();
   const [isVisible, setIsVisible] = useState(false);
   const [alreadyShown, setAlreadyShown] = useState(null);
+  const [statusFetched, setStatusFetched] = useState(false);
 
   useEffect(() => {
     if (!user?.uid) return;
     
+    let mounted = true;
+    
     const fetchStatus = async () => {
       const existingCommitment = await getCommitmentStatus(user.uid);
-      setAlreadyShown(existingCommitment?.promptShown || false);
+      if (mounted) {
+        setAlreadyShown(existingCommitment?.promptShown || false);
+        setStatusFetched(true);
+      }
     };
     
     fetchStatus();
+    
+    return () => { mounted = false; };
   }, [user?.uid]);
 
   useEffect(() => {
-    if (!user?.uid || alreadyShown === null || alreadyShown === true) return;
+    if (!user?.uid || !statusFetched || alreadyShown) return;
 
     const interactionDays = countInteractionDays(historyData);
     
@@ -76,12 +115,12 @@ export default function GentleCommitmentPrompt() {
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [user?.uid, historyData, alreadyShown]);
+  }, [user?.uid, historyData, statusFetched, alreadyShown]);
 
   const handleChoice = async (choice) => {
-    await saveCommitmentChoice(user?.uid, choice);
-    setIsVisible(false);
     setAlreadyShown(true);
+    setIsVisible(false);
+    await saveCommitmentChoice(user?.uid, choice);
   };
 
   if (!isVisible) {

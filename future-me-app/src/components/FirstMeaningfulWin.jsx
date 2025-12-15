@@ -29,21 +29,50 @@ const WIN_MESSAGES = {
   }
 };
 
+const LOCAL_STORAGE_KEY = 'futureme_first_win_shown';
+
+function getLocalWinStatus(userId) {
+  try {
+    const stored = localStorage.getItem(`${LOCAL_STORAGE_KEY}_${userId}`);
+    return stored === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function setLocalWinStatus(userId) {
+  try {
+    localStorage.setItem(`${LOCAL_STORAGE_KEY}_${userId}`, 'true');
+  } catch {
+    // localStorage not available
+  }
+}
+
 async function checkFirstWinStatus(userId) {
   if (!userId) return null;
+  
+  if (getLocalWinStatus(userId)) {
+    return { shown: true };
+  }
   
   try {
     const docRef = doc(db, 'users', userId, 'milestones', 'firstWin');
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
+    if (docSnap.exists() && docSnap.data()?.shown) {
+      setLocalWinStatus(userId);
+      return docSnap.data();
+    }
+    return null;
   } catch (error) {
-    console.log('Error checking first win status:', error);
+    console.warn('Error checking first win status:', error.message);
     return null;
   }
 }
 
 async function markFirstWinShown(userId, triggerType) {
-  if (!userId) return;
+  if (!userId) return false;
+  
+  setLocalWinStatus(userId);
   
   try {
     const docRef = doc(db, 'users', userId, 'milestones', 'firstWin');
@@ -52,8 +81,10 @@ async function markFirstWinShown(userId, triggerType) {
       triggerType,
       shownAt: new Date().toISOString()
     });
+    return true;
   } catch (error) {
-    console.log('Error marking first win:', error);
+    console.warn('Error saving first win to Firestore:', error.message);
+    return false;
   }
 }
 
@@ -84,36 +115,44 @@ export default function FirstMeaningfulWin({ noticingTriggered = false }) {
   const [isVisible, setIsVisible] = useState(false);
   const [winData, setWinData] = useState(null);
   const [alreadyShown, setAlreadyShown] = useState(null);
+  const [statusFetched, setStatusFetched] = useState(false);
 
   useEffect(() => {
     if (!user?.uid) return;
     
+    let mounted = true;
+    
     const fetchStatus = async () => {
       const existingWin = await checkFirstWinStatus(user.uid);
-      setAlreadyShown(existingWin?.shown || false);
+      if (mounted) {
+        setAlreadyShown(existingWin?.shown || false);
+        setStatusFetched(true);
+      }
     };
     
     fetchStatus();
+    
+    return () => { mounted = false; };
   }, [user?.uid]);
 
   useEffect(() => {
-    if (!user?.uid || alreadyShown === null || alreadyShown === true) return;
+    if (!user?.uid || !statusFetched || alreadyShown) return;
 
-    const checkWin = async () => {
-      const focusZoneHistory = liveProfile?.focusZoneHistory || [];
-      const trigger = detectWinTrigger(historyData, noticingTriggered, focusZoneHistory);
+    const focusZoneHistory = liveProfile?.focusZoneHistory || [];
+    const trigger = detectWinTrigger(historyData, noticingTriggered, focusZoneHistory);
 
-      if (trigger) {
+    if (trigger) {
+      const showModal = async () => {
+        await markFirstWinShown(user.uid, trigger);
         setWinData(WIN_MESSAGES[trigger]);
         setIsVisible(true);
-        await markFirstWinShown(user.uid, trigger);
         setAlreadyShown(true);
-      }
-    };
-
-    const timer = setTimeout(checkWin, 1500);
-    return () => clearTimeout(timer);
-  }, [user?.uid, historyData, noticingTriggered, liveProfile, alreadyShown]);
+      };
+      
+      const timer = setTimeout(showModal, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [user?.uid, historyData, noticingTriggered, liveProfile, statusFetched, alreadyShown]);
 
   const handleDismiss = () => {
     setIsVisible(false);
