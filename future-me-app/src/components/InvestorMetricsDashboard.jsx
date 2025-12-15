@@ -222,7 +222,7 @@ export default function InvestorMetricsDashboard() {
 
       <div className="border-t border-gray-700 pt-4 mb-4">
         <h3 className="text-sm font-medium text-gray-400 mb-3">Engagement Signals</h3>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="bg-gray-800 rounded-lg p-3 text-center">
             <p className="text-gray-400 text-xs mb-1">Avg Days to First Change</p>
             <p className="text-xl font-bold text-amber-400">{metrics.avgDaysToFirstChange || '—'}</p>
