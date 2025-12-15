@@ -49,6 +49,13 @@ export default function InsightsPanel({
       if (todayLog && (!newDailyInsight || newDailyInsight.createdAt?.split('T')[0] !== today)) {
         newDailyInsight = generateDailyInsight(todayLog, profile, last7Days);
         console.log('📊 Generated daily insight:', newDailyInsight?.title);
+      } else if (!todayLog && last7Days.length > 0 && (!newDailyInsight || newDailyInsight.createdAt?.split('T')[0] !== today)) {
+        const mostRecentLog = last7Days[0];
+        newDailyInsight = generateDailyInsight(mostRecentLog, profile, last7Days);
+        if (newDailyInsight) {
+          newDailyInsight.title = 'Recent Observation';
+        }
+        console.log('📊 Generated insight from recent log:', newDailyInsight?.title);
       }
       setDailyInsight(newDailyInsight);
 

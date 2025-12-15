@@ -32,6 +32,16 @@ service cloud.firestore {
       match /milestones/{milestoneId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+      
+      // User insights: /users/{uid}/insights/{insightId}
+      match /insights/{insightId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Monthly insights history: /users/{uid}/insights/history/monthly/{bundleId}
+      match /insights/history/monthly/{bundleId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
 }
