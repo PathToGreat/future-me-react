@@ -40,6 +40,12 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
 -   **Smart Device Integration Layer:** Enables passive data ingestion from external health devices, prioritizing device data over manual entries.
 -   **Progress & Momentum Layer:** Provides features like a personal progress timeline, focus zone indicators, consistency streaks, and weekly reflection prompts, all designed to be supportive and non-judgmental.
 -   **Evidence of Value & Signal Clarity:** A system to show users the impact of their actions through "NoticingCard" (personal proof moments), a "Signal Attribution Layer" that explains metric changes, and a "ProgressSnapshot" for sharing.
+-   **Commitment & Retention Layer (Phase Z):** Features designed to encourage natural return and psychological commitment without gamification:
+    -   **DailyReasonToReturn:** Shows observations from last data, reflective prompts based on Focus Zone, or continuity messages when user hasn't logged today. No shaming or required action.
+    -   **FirstMeaningfulWin:** Detects first "this is working" moment (3 days logging, first noticing, consistent focus zone). Shows grounded modal once, saved to Firestore milestones.
+    -   **GentleCommitmentPrompt:** Surfaces after 7 days of interaction (not consecutive). Two options: "Commit to 30 days" or "Continue casually". Psychological commitment only, no paywall.
+    -   **Share Without Selling:** NoticingCard and ProgressSnapshot have personal share actions without social branding.
+    -   **Founder Metrics (Phase Z):** firstWinRate, returnAfterMissedDayRate, multipleSnapshotViewRate tracked in InvestorMetricsDashboard.
 
 **Backend & Data Architecture:**
 
