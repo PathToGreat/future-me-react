@@ -161,7 +161,7 @@ export default function InsightsPanel({
               e.preventDefault();
               e.stopPropagation();
               console.log('View All button clicked - navigating to /insights');
-              navigate('/insights');
+              window.location.href = '/insights';
             }}
             className="text-sm text-primary-600 hover:text-primary-700 font-medium z-10 relative px-3 py-1.5 rounded-md hover:bg-primary-50 transition-colors cursor-pointer"
           >
@@ -287,7 +287,7 @@ export default function InsightsPanel({
                   e.preventDefault();
                   e.stopPropagation();
                   console.log('Monthly View button clicked - navigating to /insights');
-                  navigate('/insights');
+                  window.location.href = '/insights';
                 }}
                 className="text-xs text-purple-600 hover:text-purple-700 font-medium z-10 relative px-3 py-1.5 rounded-md hover:bg-purple-50 transition-colors cursor-pointer"
               >
