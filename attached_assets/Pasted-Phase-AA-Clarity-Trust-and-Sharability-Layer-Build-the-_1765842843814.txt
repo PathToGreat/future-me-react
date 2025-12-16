@@ -1,0 +1,56 @@
+Phase AA: Clarity, Trust, and Sharability Layer
+Build the following components without changing any existing logic, scoring systems, or avatar calculations.
+1. “What This Means” Clarity Panel
+Add a small expandable panel on the Home screen beneath key insights that explains outcomes in plain language.
+Requirements:
+Translates observed changes into simple cause-effect language
+Example tone:
+“Your stress trend stabilized this week. This usually happens when sleep timing becomes more consistent.”
+No advice
+No instructions
+No calls to action
+Collapsed by default
+Optional to open
+Purpose:
+Help users understand why something changed without telling them what to do.
+2. Shareable Progress Explanation Card
+Extend ProgressSnapshot with a second optional view called “What Changed”.
+Requirements:
+One short paragraph explaining the most meaningful shift since baseline
+Uses neutral, descriptive language
+No percentages unless already present
+Example tone:
+“Since starting, sleep consistency increased and stress variability decreased. This pattern typically supports steadier energy.”
+Purpose:
+Allows users to share progress with a spouse, friend, coach, or investor without oversharing data.
+3. Trust & Transparency Micro-Copy
+Add subtle informational copy in three locations:
+A. Avatar Screen
+One line under the avatar:
+“Your baseline only updates through reassessment, not daily logs.”
+B. Insights Screen
+One line at the bottom:
+“Insights reflect patterns, not diagnoses or predictions.”
+C. Devices Screen
+Clarify status:
+“Device connections are prepared but not yet active. When available, they will enhance tracking without changing your baseline.”
+Purpose:
+Reinforces honesty, integrity, and expectations without disclaimers.
+4. “How People Use This” Lightweight Social Proof
+Add a rotating single-sentence card on the Home screen.
+Requirements:
+Not testimonials
+No names
+No hype
+Examples:
+“Some users notice changes in stress patterns within the first two weeks.”
+“Many people use this as a daily awareness check, not a habit streak.”
+Purpose:
+Normalizes use and reduces performance pressure.
+5. Founder Signal: Clarity Confidence Score (Internal Only)
+Add an internal metric that tracks:
+How often users expand “What This Means”
+How often ProgressSnapshot is viewed or shared
+Whether users return after viewing an explanation
+Purpose:
+Measures whether clarity increases retention without pushing behavior.

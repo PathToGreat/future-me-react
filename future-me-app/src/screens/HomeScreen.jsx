@@ -16,6 +16,11 @@ import ProgressSnapshot from '../components/ProgressSnapshot';
 import DailyReasonToReturn from '../components/DailyReasonToReturn';
 import FirstMeaningfulWin from '../components/FirstMeaningfulWin';
 import GentleCommitmentPrompt from '../components/GentleCommitmentPrompt';
+import HowPeopleUseThis from '../components/HowPeopleUseThis';
+import { doc, updateDoc, setDoc, getDoc, increment } from 'firebase/firestore';
+import { db } from '../config/firebase';
+import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
 
 export default function HomeScreen() {
   const {
@@ -27,9 +32,44 @@ export default function HomeScreen() {
     dismissReassessmentBanner,
     historyData,
   } = useApp();
+  const { user } = useAuth();
   
   const [showSnapshot, setShowSnapshot] = useState(false);
   const [noticingTriggered, setNoticingTriggered] = useState(false);
+
+  useEffect(() => {
+    const initClarityMetrics = async () => {
+      if (!user?.uid) return;
+      try {
+        const metricsRef = doc(db, 'users', user.uid, 'metrics', 'clarity');
+        const metricsSnap = await getDoc(metricsRef);
+        if (!metricsSnap.exists()) {
+          await setDoc(metricsRef, {
+            whatThisMeansExpanded: 0,
+            whatChangedViewed: 0,
+            progressSnapshotViewed: 0,
+            progressSnapshotShared: 0,
+            returnAfterExplanation: 0,
+            createdAt: new Date().toISOString()
+          });
+        }
+      } catch (error) {}
+    };
+    initClarityMetrics();
+  }, [user?.uid]);
+
+  const handleOpenSnapshot = async () => {
+    setShowSnapshot(true);
+    if (user?.uid) {
+      try {
+        const metricsRef = doc(db, 'users', user.uid, 'metrics', 'clarity');
+        await updateDoc(metricsRef, {
+          progressSnapshotViewed: increment(1),
+          lastSnapshotView: new Date().toISOString()
+        }).catch(() => {});
+      } catch (error) {}
+    }
+  };
 
   if (!liveProfile) {
     return (
@@ -49,6 +89,8 @@ export default function HomeScreen() {
       <DailyReasonToReturn />
 
       <FocusZoneIndicator />
+
+      <HowPeopleUseThis />
 
       <NoticingCard onNoticingTriggered={setNoticingTriggered} />
 
@@ -103,7 +145,7 @@ export default function HomeScreen() {
       {historyData && historyData.length >= 3 && (
         <div className="flex justify-center">
           <button
-            onClick={() => setShowSnapshot(true)}
+            onClick={handleOpenSnapshot}
             className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-2"
           >
             📊 View Progress Snapshot

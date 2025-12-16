@@ -12,6 +12,7 @@ import {
   shouldGenerateMonthlyInsight,
   getAllInsightsForDashboard
 } from '../utils/insightsEngine';
+import WhatThisMeans from './WhatThisMeans';
 
 export default function InsightsPanel({ 
   profile, 
@@ -199,6 +200,13 @@ export default function InsightsPanel({
                 {expandedInsight !== 'daily' && (
                   <p className="text-sm text-gray-600 mt-1 line-clamp-1">{dailyInsight.message}</p>
                 )}
+                {expandedInsight === 'daily' && (
+                  <WhatThisMeans 
+                    insight={dailyInsight} 
+                    historyData={historyData}
+                    baseline={profile?.onboardingBaseline}
+                  />
+                )}
               </div>
             </div>
           </motion.div>
@@ -233,6 +241,13 @@ export default function InsightsPanel({
                           <span className="text-gray-600 ml-1">{insight.message}</span>
                         </div>
                       ))}
+                      {expandedInsight === 'weekly' && (
+                        <WhatThisMeans 
+                          insight={weeklyBundle.insights[0]} 
+                          historyData={historyData}
+                          baseline={profile?.onboardingBaseline}
+                        />
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>

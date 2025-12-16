@@ -200,6 +200,10 @@ export default function AvatarScreen() {
             )}
           </div>
           
+          <p className="mt-3 text-xs text-gray-400 text-center">
+            Your baseline only updates through reassessment, not daily logs.
+          </p>
+
           <div className="mt-4 w-full max-w-xs">
             <GenderSelector onGenderChange={handleGenderChange} />
           </div>

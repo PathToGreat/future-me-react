@@ -122,6 +122,12 @@ export default function ConnectedDevicesPanel({ onClose }) {
           </button>
         </div>
 
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mx-6 mt-4 rounded-r-lg">
+          <p className="text-xs text-blue-700">
+            Device connections are prepared but not yet active. When available, they will enhance tracking without changing your baseline.
+          </p>
+        </div>
+
         <div className="p-6 space-y-6">
           <div>
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">

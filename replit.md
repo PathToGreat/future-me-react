@@ -46,6 +46,12 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
     -   **GentleCommitmentPrompt:** Surfaces after 7 days of interaction (not consecutive). Two options: "Commit to 30 days" or "Continue casually". Psychological commitment only, no paywall.
     -   **Share Without Selling:** NoticingCard and ProgressSnapshot have personal share actions without social branding.
     -   **Founder Metrics (Phase Z):** firstWinRate, returnAfterMissedDayRate, multipleSnapshotViewRate tracked in InvestorMetricsDashboard.
+-   **Clarity, Trust, and Sharability Layer (Phase AA):** Features that help users understand and share their progress with integrity:
+    -   **WhatThisMeans Panel:** Expandable clarity panel beneath insights that explains outcomes in plain cause-effect language. No advice, no instructions. Collapsed by default.
+    -   **ProgressSnapshot "What Changed" View:** Second tab in ProgressSnapshot with a shareable paragraph explaining the most meaningful shift since baseline. Neutral, descriptive language for sharing with spouse, friend, or coach.
+    -   **HowPeopleUseThis Card:** Rotating single-sentence social proof on Home screen. No testimonials, no names, no hype. Normalizes use and reduces performance pressure.
+    -   **Trust Micro-Copy:** Subtle informational text in three locations: Avatar ("baseline only updates through reassessment"), Insights ("patterns, not diagnoses"), Devices ("prepared but not yet active").
+    -   **Clarity Confidence Score (Internal):** Founder metric tracking how often users expand explanations, view/share snapshots, and return after viewing clarity features.
 
 **Backend & Data Architecture:**
 

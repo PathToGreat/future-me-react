@@ -346,6 +346,9 @@ export default function InsightsHistory() {
             </motion.div>
           )}
         </AnimatePresence>
+        <p className="text-xs text-gray-400 text-center mt-6 pb-4">
+          Insights reflect patterns, not diagnoses or predictions.
+        </p>
       </div>
     </div>
   );
