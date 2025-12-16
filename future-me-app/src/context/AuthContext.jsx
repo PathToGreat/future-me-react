@@ -18,15 +18,18 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
     let unsubscribeProfile = null;
+    let initialProfileLoaded = false;
     
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       
       if (currentUser) {
         console.log('🔄 Setting up real-time listener for user:', currentUser.uid);
+        setProfileLoading(true);
         
         // Set up real-time listener for user profile
         unsubscribeProfile = onSnapshot(
@@ -41,20 +44,27 @@ export const AuthProvider = ({ children }) => {
                          'Stress:', data.stress);
               setUserProfile(data);
             }
+            if (!initialProfileLoaded) {
+              initialProfileLoaded = true;
+              setProfileLoading(false);
+              setLoading(false);
+            }
           },
           (error) => {
             console.error('❌ Firebase listener error:', error);
+            setProfileLoading(false);
+            setLoading(false);
           }
         );
       } else {
         setUserProfile(null);
+        setProfileLoading(false);
+        setLoading(false);
         if (unsubscribeProfile) {
           unsubscribeProfile();
           unsubscribeProfile = null;
         }
       }
-      
-      setLoading(false);
     });
 
     return () => {

@@ -155,18 +155,16 @@ export default function InsightsPanel({
           <span>📊</span> Insights
         </h3>
         {(weeklyBundle || monthlyBundle) && (
-          <button
-            type="button"
+          <a
+            href="/insights"
             onClick={(e) => {
-              e.preventDefault();
               e.stopPropagation();
               console.log('View All button clicked - navigating to /insights');
-              window.location.href = '/insights';
             }}
-            className="text-sm text-primary-600 hover:text-primary-700 font-medium z-10 relative px-3 py-1.5 rounded-md hover:bg-primary-50 transition-colors cursor-pointer"
+            className="text-sm text-primary-600 hover:text-primary-700 font-medium z-10 relative px-3 py-1.5 rounded-md hover:bg-primary-50 transition-colors cursor-pointer inline-block"
           >
             View All
-          </button>
+          </a>
         )}
       </div>
 
@@ -281,18 +279,16 @@ export default function InsightsPanel({
                 <span>🎯</span>
                 <span className="text-sm font-medium text-gray-700">Monthly Review Available</span>
               </div>
-              <button
-                type="button"
+              <a
+                href="/insights"
                 onClick={(e) => {
-                  e.preventDefault();
                   e.stopPropagation();
                   console.log('Monthly View button clicked - navigating to /insights');
-                  window.location.href = '/insights';
                 }}
-                className="text-xs text-purple-600 hover:text-purple-700 font-medium z-10 relative px-3 py-1.5 rounded-md hover:bg-purple-50 transition-colors cursor-pointer"
+                className="text-xs text-purple-600 hover:text-purple-700 font-medium z-10 relative px-3 py-1.5 rounded-md hover:bg-purple-50 transition-colors cursor-pointer inline-block"
               >
                 View
-              </button>
+              </a>
             </div>
           </motion.div>
         )}
