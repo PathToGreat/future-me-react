@@ -156,11 +156,14 @@ export default function InsightsPanel({
         </h3>
         {(weeklyBundle || monthlyBundle) && (
           <button
+            type="button"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
+              console.log('View All button clicked - navigating to /insights');
               navigate('/insights');
             }}
-            className="text-sm text-primary-600 hover:text-primary-700 font-medium z-10 relative"
+            className="text-sm text-primary-600 hover:text-primary-700 font-medium z-10 relative px-3 py-1.5 rounded-md hover:bg-primary-50 transition-colors cursor-pointer"
           >
             View All
           </button>
@@ -279,11 +282,14 @@ export default function InsightsPanel({
                 <span className="text-sm font-medium text-gray-700">Monthly Review Available</span>
               </div>
               <button
+                type="button"
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
+                  console.log('Monthly View button clicked - navigating to /insights');
                   navigate('/insights');
                 }}
-                className="text-xs text-purple-600 hover:text-purple-700 font-medium z-10 relative"
+                className="text-xs text-purple-600 hover:text-purple-700 font-medium z-10 relative px-3 py-1.5 rounded-md hover:bg-purple-50 transition-colors cursor-pointer"
               >
                 View
               </button>
