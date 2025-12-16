@@ -1,0 +1,88 @@
+[Error] Fetch API cannot load https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?gsessionid=2lYa0CO4mcSdtWjcWycV890mTFTszbgXisquGImz2-I&VER=8&database=projects%2Ffuture-me-app-5d754%2Fdatabases%2F(default)&RID=rpc&SID=yUcpZkU4MYWpsyZbQ2jFSg&AID=62&CI=0&TYPE=xmlhttp&zx=g2v3abe1clgy&t=1 due to access control checks.
+	(anonymous function) (index-D69ay4Il.js:1578:9304)
+	(anonymous function) (index-D69ay4Il.js:1580:1511)
+	ko (index-D69ay4Il.js:1577:2020)
+	Yh (index-D69ay4Il.js:1581:5238)
+	(anonymous function) (index-D69ay4Il.js:1581:4522)
+	P (index-D69ay4Il.js:1573:1827)
+[Error] Fetch API cannot load https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?gsessionid=uB_j7tGidkrdc8CXFJNrC5gI-s04KN5b4QMJbHXES6k&VER=8&database=projects%2Ffuture-me-app-5d754%2Fdatabases%2F(default)&RID=rpc&SID=6CNIJtr_pIxYoSDQsbJXaQ&AID=2&CI=0&TYPE=xmlhttp&zx=2y6ilxfxwmfu&t=1 due to access control checks.
+	(anonymous function) (index-D69ay4Il.js:1578:9304)
+	(anonymous function) (index-D69ay4Il.js:1580:1511)
+	ko (index-D69ay4Il.js:1577:2020)
+	Yh (index-D69ay4Il.js:1581:5238)
+	(anonymous function) (index-D69ay4Il.js:1581:4522)
+	P (index-D69ay4Il.js:1573:1827)
+[Error] Fetch API cannot load https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?gsessionid=2lYa0CO4mcSdtWjcWycV890mTFTszbgXisquGImz2-I&VER=8&database=projects%2Ffuture-me-app-5d754%2Fdatabases%2F(default)&RID=rpc&SID=yUcpZkU4MYWpsyZbQ2jFSg&AID=62&CI=0&TYPE=xmlhttp&zx=wh3l9brrnbr7&t=2 due to access control checks.
+	(anonymous function) (index-D69ay4Il.js:1578:9304)
+	(anonymous function) (index-D69ay4Il.js:1580:1511)
+	ko (index-D69ay4Il.js:1577:2020)
+	Yh (index-D69ay4Il.js:1581:5238)
+	(anonymous function) (index-D69ay4Il.js:1581:4522)
+	(anonymous function) (index-D69ay4Il.js:1573:9803)
+[Error] Fetch API cannot load https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?gsessionid=uB_j7tGidkrdc8CXFJNrC5gI-s04KN5b4QMJbHXES6k&VER=8&database=projects%2Ffuture-me-app-5d754%2Fdatabases%2F(default)&RID=rpc&SID=6CNIJtr_pIxYoSDQsbJXaQ&AID=2&CI=0&TYPE=xmlhttp&zx=opkqo7w8kamm&t=2 due to access control checks.
+	(anonymous function) (index-D69ay4Il.js:1578:9304)
+	(anonymous function) (index-D69ay4Il.js:1580:1511)
+	ko (index-D69ay4Il.js:1577:2020)
+	Yh (index-D69ay4Il.js:1581:5238)
+	(anonymous function) (index-D69ay4Il.js:1581:4522)
+	(anonymous function) (index-D69ay4Il.js:1573:9803)
+[Log] 🔥 Initializing Firebase with config: – {projectId: "future-me-app-5d754", storageBucket: "future-me-app-5d754.firebasestorage.app", authDomain: "future-me-app-5d754.firebaseapp.com"} (index-D69ay4Il.js, line 3553)
+[Log] ✅ Firebase initialized successfully (index-D69ay4Il.js, line 3553)
+[Log] 🔄 Setting up real-time listener for user: – "BjjbLHJMMiTBWh2bSQh36YNAatz2" (index-D69ay4Il.js, line 3553)
+[Log] 💡 Metrics Updated - LifestyleScore: – 106 – "Activity:" – 5 – "Nutrition:" – 5 – "Sleep:" – 4 – "Stress:" – 2 (index-D69ay4Il.js, line 3553)
+[Log] 📚 Setting up real-time listener for daily data (index-D69ay4Il.js, line 3561)
+[Error] Error loading stored suggestion: – FirebaseError: [code=permission-denied]: Missing or insufficient permissions.
+FirebaseError: [code=permission-denied]: Missing or insufficient permissions.
+	(anonymous function) (index-D69ay4Il.js:3561:165001)
+[Log] 📊 Real-time update: 20 daily data entries (index-D69ay4Il.js, line 3561)
+[Log] 📈 Trend detected: improving (Score: +6.7%) (index-D69ay4Il.js, line 3561)
+[Log] 📊 Trend Analysis Results: (index-D69ay4Il.js, line 3561)
+[Log]   - Data Points: 20 days (index-D69ay4Il.js, line 3561)
+[Log]   - First Score: 93.8 (index-D69ay4Il.js, line 3561)
+[Log]   - Last Score: 100.0 (index-D69ay4Il.js, line 3561)
+[Log]   - Average Score: 101.3 (index-D69ay4Il.js, line 3561)
+[Log]   - Trend Slope: 0.33 points/day (index-D69ay4Il.js, line 3561)
+[Log]   - Direction: improving (index-D69ay4Il.js, line 3561)
+[Log] 📊 Prediction Factors: (index-D69ay4Il.js, line 3561)
+[Log]   - Habit Consistency: 55% (index-D69ay4Il.js, line 3561)
+[Log]   - Life Zone Average: 74.0 (index-D69ay4Il.js, line 3561)
+[Log]   - Stability Factor: 40% (index-D69ay4Il.js, line 3561)
+[Log]   - Metric Momentum: 0.10 (index-D69ay4Il.js, line 3561)
+[Log] ➡️ 30-day projection: 100 (thriving) (index-D69ay4Il.js, line 3561)
+[Log] ➡️ 90-day projection: 100 (thriving) (index-D69ay4Il.js, line 3561)
+[Log] ➡️ 180-day projection: 100 (thriving) (index-D69ay4Il.js, line 3561)
+[Log] ⭐ Overall trajectory: declining (180-day score: 100) (index-D69ay4Il.js, line 3561)
+[Log] 📊 Predictions calculated: – "success" (index-D69ay4Il.js, line 3561)
+[Log] 📊 Future Avatar Metrics Projected: (index-D69ay4Il.js, line 3561)
+[Log]   - Timeframe: 90 days (index-D69ay4Il.js, line 3561)
+[Log]   - Activity: 5 → 5.0 (index-D69ay4Il.js, line 3561)
+[Log]   - Nutrition: 5 → 5.0 (index-D69ay4Il.js, line 3561)
+[Log]   - Sleep: 4 → 4.0 (index-D69ay4Il.js, line 3561)
+[Log]   - Stress: 2 → 1.0 (index-D69ay4Il.js, line 3561)
+[Log]   - Body Composition: 95 (index-D69ay4Il.js, line 3561)
+[Log]   - Avatar Width: 107px (index-D69ay4Il.js, line 3561)
+[Log]   - Lifestyle Score: 100 (index-D69ay4Il.js, line 3561)
+[Log] 📊 Future Avatar Metrics calculated: – "success" (index-D69ay4Il.js, line 3561)
+[Error] ❌ Error saving daily snapshot: – FirebaseError: [code=permission-denied]: Missing or insufficient permissions.
+FirebaseError: [code=permission-denied]: Missing or insufficient permissions.
+	(anonymous function) (index-D69ay4Il.js:3561:116585)
+[Error] ❌ Error saving daily snapshot:
+FirebaseError: [code=permission-denied]: Missing or insufficient permissions.
+Ri — index-D69ay4Il.js:194
+ge — index-D69ay4Il.js:1671:532
+(anonymous function) — index-D69ay4Il.js:2804:3241
+(anonymous function) — index-D69ay4Il.js:2804:2437
+gr — index-D69ay4Il.js:1573:8138
+Xt — index-D69ay4Il.js:1573:7528
+(anonymous function) — index-D69ay4Il.js:1581:8820
+Qs — index-D69ay4Il.js:1578:2204
+(anonymous function) — index-D69ay4Il.js:1577:3074
+(anonymous function) — index-D69ay4Il.js:1577:2149
+gr — index-D69ay4Il.js:1573:8138
+Xt — index-D69ay4Il.js:1573:7528
+Va — index-D69ay4Il.js:1580:2129
+(anonymous function) — index-D69ay4Il.js:1580:2030
+(anonymous function) — index-D69ay4Il.js:1580:2007
+Rs — index-D69ay4Il.js:1579
+(anonymous function) — index-D69ay4Il.js:1578:10546
+	(anonymous function) (index-D69ay4Il.js:3561:116585)

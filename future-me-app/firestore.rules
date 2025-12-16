@@ -47,6 +47,16 @@ service cloud.firestore {
       match /metrics/{metricType} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+      
+      // User history snapshots: /users/{uid}/history/{date}
+      match /history/{date} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Micro suggestions: /users/{uid}/microSuggestions/{date}
+      match /microSuggestions/{date} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
 }
