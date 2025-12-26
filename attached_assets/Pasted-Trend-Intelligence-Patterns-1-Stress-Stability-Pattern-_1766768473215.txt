@@ -1,0 +1,67 @@
+Trend Intelligence Patterns
+1. Stress-Stability Pattern
+Trigger: Stress rolling average decreases after at least 5 days of stable sleep improvement.
+Card Text:
+“Your stress stabilizes only after sleep improves consistently for several days.”
+2. Sleep-Recovery Pattern
+Trigger: Sleep quality or duration consistently improves following days with reduced movement or rest periods.
+Card Text:
+“Your sleep quality shows improvement following consistent rest or lighter movement days.”
+3. Movement-Buffer Pattern
+Trigger: High activity days correlate with smaller stress spikes or better sleep quality.
+Card Text:
+“Movement appears to buffer poor sleep and stress more effectively than nutrition alone.”
+4. Consistency-Decay Pattern
+Trigger: Metrics show decline after 2+ consecutive days of missing logs or inconsistent behavior.
+Card Text:
+“Consistency drops after two consecutive days without stable logging or routine activity.”
+5. Nutrition-Impact Pattern
+Trigger: Changes in nutrition metrics correlate with small but observable shifts in energy or focus.
+Card Text:
+“Changes in your nutrition habits are associated with subtle shifts in energy and focus.”
+6. Focus-Stability Pattern
+Trigger: Focus zone remains steady across 5+ days and correlates with improvement in overall metrics.
+Card Text:
+“Progress accelerates when your focus zone remains stable for several consecutive days.”
+7. Stress-Lag Pattern
+Trigger: Stress spikes precede drops in other metrics by 1–2 days.
+Card Text:
+“Stress spikes appear to precede small declines in other daily metrics.”
+8. Recovery-Slope Pattern
+Trigger: Metrics show faster improvement after a period of plateau.
+Card Text:
+“Your recent improvements occurred more quickly following a period of stability.”
+9. Multi-Metric Correlation Pattern
+Trigger: Two or more metrics show a repeatable relationship over the last 28 days.
+Card Text:
+“Your sleep and stress levels consistently move together over the last month.”
+10. Early-Signal Pattern
+Trigger: First detectable improvement in any metric after 3–7 days of logging.
+Card Text:
+“You’ve started to show your first measurable change in this area.”
+11. Plateau Detection Pattern
+Trigger: Metrics remain stable for more than 7 consecutive days.
+Card Text:
+“Your metrics have remained consistent over the past week, indicating a stable trend.”
+12. Focus-Drift Pattern
+Trigger: Focus zone changes frequently (3+ changes in a 7-day window) and coincides with metric volatility.
+Card Text:
+“Frequent changes in your focus zone correspond with more variable metric results.”
+13. Peak-Effect Pattern
+Trigger: Maximum metric values in a week correlate with prior behavior patterns.
+Card Text:
+“Your peak performance aligns with consistent habits earlier in the week.”
+14. Cross-Impact Pattern
+Trigger: One metric improves while another declines, showing compensatory behavior.
+Card Text:
+“Improvements in one area appear linked to small declines in another.”
+15. Momentum Pattern
+Trigger: Sequential improvement across multiple metrics over 7+ days.
+Card Text:
+“Multiple metrics are improving together over the past week, showing a clear momentum trend.”
+Usage Notes for Replit
+Trigger thresholds: Define per metric (rolling average delta, minimum days of data, effect size).
+Card frequency: Maximum 2 per user per week; skip if no pattern meets threshold.
+UI placement: Below NoticingCard, above DailyReasonToReturn or prompts.
+Tone: Neutral, reflective, evidence-first. Never advice, encouragement, or prescriptive.
+Metrics to log: Pattern surfaced rate, dismiss vs revisited, return after insight.
