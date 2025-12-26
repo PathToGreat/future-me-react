@@ -52,6 +52,13 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
     -   **HowPeopleUseThis Card:** Rotating single-sentence social proof on Home screen. No testimonials, no names, no hype. Normalizes use and reduces performance pressure.
     -   **Trust Micro-Copy:** Subtle informational text in three locations: Avatar ("baseline only updates through reassessment"), Insights ("patterns, not diagnoses"), Devices ("prepared but not yet active").
     -   **Clarity Confidence Score (Internal):** Founder metric tracking how often users expand explanations, view/share snapshots, and return after viewing clarity features.
+-   **Trend Intelligence Layer (Phase AB):** Data-driven pattern detection that surfaces neutral, evidence-based insights:
+    -   **Pattern Detection Engine (`trendPatternEngine.js`):** Analyzes daily logged metrics to detect 15 distinct behavioral patterns including stress-stability, sleep-recovery, movement-buffer, consistency-decay, focus-stability, momentum, and multi-metric correlations.
+    -   **PatternCard Component:** Neutral, single-insight cards displayed on Home screen below NoticingCard. Dismissible, non-intrusive, with "More detail" expansion option. Maximum 1-2 patterns per user per week.
+    -   **Confidence Thresholds:** Patterns only surface when confidence threshold (0.7+) is met, requiring minimum data window (7+ days) and observable effect size.
+    -   **Pattern Metrics Tracking (`patternMetrics.js`):** Internally tracks pattern surfaced rate, dismiss vs revisited, and return after pattern seen.
+    -   **Example Pattern Messages:** "Your stress stabilizes only after sleep improves consistently for several days." / "Movement appears to buffer poor sleep and stress more effectively than nutrition alone." / "Multiple metrics are improving together over the past week, showing a clear momentum trend."
+    -   **Design Principles:** No advice, prescriptions, or motivational language. Silence is acceptable if no pattern is detected. All insights are linked to observed data, never speculative.
 
 **Backend & Data Architecture:**
 
