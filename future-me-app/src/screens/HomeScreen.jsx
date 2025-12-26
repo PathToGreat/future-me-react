@@ -20,6 +20,7 @@ import HowPeopleUseThis from '../components/HowPeopleUseThis';
 import PatternCard from '../components/PatternCard';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
+import { trackSilenceSession, trackPatternSession, trackPatternExpanded, trackPatternDismissedWithTiming, trackSessionReturn, trackReflectionResponse } from '../utils/patternValidation';
 import { doc, updateDoc, setDoc, getDoc, increment } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
@@ -70,6 +71,7 @@ export default function HomeScreen() {
       
       try {
         await trackReturnAfterPattern(user.uid);
+        await trackSessionReturn(user.uid);
         
         const lastShown = await getLastShownPatterns(user.uid);
         const patterns = detectPatterns(historyData, liveProfile?.lifeZones);
@@ -78,7 +80,11 @@ export default function HomeScreen() {
         if (selectedPattern) {
           setCurrentPattern(selectedPattern);
           await trackPatternSurfaced(user.uid, selectedPattern.type, selectedPattern);
+          await trackPatternSession(user.uid, selectedPattern.type);
           console.log('📊 Pattern detected and displayed:', selectedPattern.type);
+        } else {
+          await trackSilenceSession(user.uid);
+          console.log('📊 Silence session - no pattern to display');
         }
       } catch (error) {
         console.error('Error detecting patterns:', error);
@@ -88,11 +94,24 @@ export default function HomeScreen() {
     detectAndDisplayPattern();
   }, [user?.uid, historyData, liveProfile?.lifeZones, patternChecked]);
 
-  const handlePatternDismiss = async (patternType) => {
+  const handlePatternDismiss = async (patternType, displayDurationMs) => {
     if (user?.uid) {
       await trackPatternDismissed(user.uid, patternType);
+      await trackPatternDismissedWithTiming(user.uid, patternType, displayDurationMs);
     }
     setCurrentPattern(null);
+  };
+
+  const handlePatternExpand = async (patternType) => {
+    if (user?.uid) {
+      await trackPatternExpanded(user.uid, patternType);
+    }
+  };
+
+  const handlePatternReflection = async (patternType, response) => {
+    if (user?.uid) {
+      await trackReflectionResponse(user.uid, patternType, response);
+    }
   };
 
   const handleOpenSnapshot = async () => {
@@ -134,7 +153,9 @@ export default function HomeScreen() {
       {currentPattern && (
         <PatternCard 
           pattern={currentPattern} 
-          onDismiss={handlePatternDismiss} 
+          onDismiss={handlePatternDismiss}
+          onExpand={handlePatternExpand}
+          onReflection={handlePatternReflection}
         />
       )}
 

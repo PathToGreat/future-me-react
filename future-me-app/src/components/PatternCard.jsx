@@ -1,16 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function PatternCard({ pattern, onDismiss }) {
+export default function PatternCard({ pattern, onDismiss, onExpand, onReflection }) {
   const [isVisible, setIsVisible] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showReflection, setShowReflection] = useState(false);
+  const [reflectionAnswered, setReflectionAnswered] = useState(false);
+  const displayStartTime = useRef(Date.now());
+
+  useEffect(() => {
+    displayStartTime.current = Date.now();
+  }, [pattern?.type]);
 
   if (!pattern || !isVisible) return null;
 
   const handleDismiss = () => {
+    const displayDuration = Date.now() - displayStartTime.current;
     setIsVisible(false);
     if (onDismiss) {
-      onDismiss(pattern.type);
+      onDismiss(pattern.type, displayDuration);
+    }
+  };
+
+  const handleExpand = () => {
+    const newExpanded = !isExpanded;
+    setIsExpanded(newExpanded);
+    
+    if (newExpanded) {
+      setShowReflection(true);
+      if (onExpand) {
+        onExpand(pattern.type);
+      }
+    }
+  };
+
+  const handleReflection = (response) => {
+    setReflectionAnswered(true);
+    if (onReflection) {
+      onReflection(pattern.type, response);
     }
   };
 
@@ -58,17 +85,45 @@ export default function PatternCard({ pattern, onDismiss }) {
                   {pattern.message}
                 </p>
                 
-                {isExpanded && pattern.data && (
+                {isExpanded && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     className="mt-3 pt-3 border-t border-slate-200"
                   >
-                    <p className="text-xs text-slate-500">
-                      Based on your logged data over the past {pattern.data.days || 7}+ days.
+                    <p className="text-xs text-slate-500 mb-3">
+                      Based on your logged data over the past {pattern.data?.days || 7}+ days.
                       This observation is drawn directly from your metrics.
                     </p>
+                    
+                    {showReflection && !reflectionAnswered && (
+                      <div className="mt-3 pt-3 border-t border-slate-100">
+                        <p className="text-xs text-slate-600 mb-2">
+                          Does this reflect your experience?
+                        </p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleReflection('yes')}
+                            className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md transition-colors"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={() => handleReflection('not_quite')}
+                            className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md transition-colors"
+                          >
+                            Not quite
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {reflectionAnswered && (
+                      <p className="text-xs text-slate-400 mt-2">
+                        Response recorded
+                      </p>
+                    )}
                   </motion.div>
                 )}
               </div>
@@ -87,7 +142,7 @@ export default function PatternCard({ pattern, onDismiss }) {
           
           <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-100">
             <button
-              onClick={() => setIsExpanded(!isExpanded)}
+              onClick={handleExpand}
               className="text-xs text-slate-500 hover:text-slate-700 transition-colors"
             >
               {isExpanded ? 'Less detail' : 'More detail'}

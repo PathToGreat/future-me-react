@@ -59,6 +59,13 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
     -   **Pattern Metrics Tracking (`patternMetrics.js`):** Internally tracks pattern surfaced rate, dismiss vs revisited, and return after pattern seen.
     -   **Example Pattern Messages:** "Your stress stabilizes only after sleep improves consistently for several days." / "Movement appears to buffer poor sleep and stress more effectively than nutrition alone." / "Multiple metrics are improving together over the past week, showing a clear momentum trend."
     -   **Design Principles:** No advice, prescriptions, or motivational language. Silence is acceptable if no pattern is detected. All insights are linked to observed data, never speculative.
+-   **Pattern Validation & Language Lock (Phase AB1/2):** Internal evaluation layer to validate patterns and lock language:
+    -   **Silence Validation:** Tracks sessions where no PatternCard appears. Compares return rates for sessions with vs without PatternCards to confirm silence maintains or increases retention.
+    -   **Pattern Trust Scoring (`patternValidation.js`):** Tracks per-pattern metrics including: expansion rate ("More Detail" tapped), immediate dismissal rate (<3 seconds), and return within 48 hours. Generates internal trust score per pattern.
+    -   **Language Lock:** Pattern text is frozen unless trust scores indicate disproportionate dismissal (dismissal rate >40% AND expansion <10% over 7 days). Identifies top 5 most-expanded and top 3 most-dismissed patterns.
+    -   **Optional User Reflection:** When "More Detail" is expanded, shows optional prompt: "Does this reflect your experience?" with Yes/Not quite options. Responses logged internally with no follow-up.
+    -   **Metrics Tracked:** silenceReturnRate, patternReturnRate, silenceVsPatternRetention, perPatternTrustScores, reflectionPositiveRate, patternsNeedingLanguageReview.
+    -   **Design Principles:** No changes to existing PatternCard logic, placement, thresholds, or frequency limits. All metrics are internal only and do not change UI for users.
 
 **Backend & Data Architecture:**
 

@@ -1,0 +1,34 @@
+Phase AB½ – Pattern Validation & Language Lock
+Instruction to System:
+Phase AB½ – Validation, Language Lock, and Silence Testing
+Purpose: Validate the recently implemented Trend Intelligence Layer (Phase AB) over time, ensure trust in surfaced patterns, lock language, and measure silence performance. This is an internal evaluation layer and should not alter existing user-facing logic unless explicitly triggered by data.
+Objectives / Outputs:
+Silence Validation:
+Track sessions where no PatternCard appears.
+Compare return rates for sessions with vs without PatternCards.
+Report if silence sessions maintain or increase retention.
+Pattern Trust Scoring:
+Track the following for each surfaced PatternCard:
+Was it expanded (“More Detail” tapped)?
+Was it dismissed immediately?
+Did the user return within 48 hours?
+Generate a trust score per pattern internally (not shown to users).
+Language Lock:
+Freeze all existing PatternCard text unless trust scores indicate disproportionate dismissal.
+Identify top 5 most-expanded patterns and top 3 most-dismissed patterns.
+Only adjust language if dismissal rate exceeds 40% and expansion < 10% over 7 days.
+Optional User Reflection Test:
+Add a single optional prompt when “More Detail” is expanded:
+Text: “Does this reflect your experience?”
+Options: Yes / Not quite
+Responses logged internally, no follow-up or prompts.
+Constraints / Rules:
+Existing PatternCard appearance logic, placement, confidence thresholds, and frequency limits remain unchanged.
+No advice, motivational language, prescriptions, predictions, or visual changes are allowed.
+Metrics collected are internal only and do not change UI for users.
+Ensure that no additional popups or notifications are triggered outside the current home screen structure.
+Goal:
+Validate that surfaced patterns maintain user trust.
+Confirm that silence is acceptable and does not reduce retention.
+Lock the language to serve as the voice of future layers (Phase AC and avatar).
+Provide internal insight metrics that will guide safe rollout of Personal Operating Style and future avatar features.
