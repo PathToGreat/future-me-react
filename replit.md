@@ -66,6 +66,14 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
     -   **Optional User Reflection:** When "More Detail" is expanded, shows optional prompt: "Does this reflect your experience?" with Yes/Not quite options. Responses logged internally with no follow-up.
     -   **Metrics Tracked:** silenceReturnRate, patternReturnRate, silenceVsPatternRetention, perPatternTrustScores, reflectionPositiveRate, patternsNeedingLanguageReview.
     -   **Design Principles:** No changes to existing PatternCard logic, placement, thresholds, or frequency limits. All metrics are internal only and do not change UI for users.
+-   **Personal Operating Style (Phase AC):** Aggregates trusted patterns into data-driven user profiles:
+    -   **Operating Style Engine (`operatingStyleEngine.js`):** Derives user operating styles by analyzing pattern history. Eight distinct styles: Recovery Sensitive, Stress Reactive, Consistency Responder, Movement Buffered, Nutrition Anchored, Socially Regulated, Momentum Driven, Equilibrium Seeker.
+    -   **Confidence Requirements:** Only assigns an Operating Style when confidence ≥ 0.7 across multiple relevant patterns (minimum 2 matching patterns, 14+ days of data).
+    -   **OperatingStyleCard Component:** Displays derived style on Home screen below PatternCard. Expandable to show "why" explanation, matching patterns, and alternate possible styles. Always subordinate to NoticingCard/PatternCard.
+    -   **Optional User Reflection:** When expanded, prompts "Does this reflect how your behaviors influence your results?" with Yes/Not quite options.
+    -   **Metrics Tracking (`operatingStyleMetrics.js`):** Tracks style surfaced rate, expansion rate, reflection responses, milestones (high confidence, user confirmed).
+    -   **Voice Consistency:** Descriptive, not instructive. No advice, motivational language, or prescriptions. Uses Phase AB language lock as template.
+    -   **Future Self Projection Prep:** Every Operating Style will feed the avatar/projection engine in Phase AD.
 
 **Backend & Data Architecture:**
 

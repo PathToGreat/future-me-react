@@ -18,6 +18,7 @@ import FirstMeaningfulWin from '../components/FirstMeaningfulWin';
 import GentleCommitmentPrompt from '../components/GentleCommitmentPrompt';
 import HowPeopleUseThis from '../components/HowPeopleUseThis';
 import PatternCard from '../components/PatternCard';
+import OperatingStyleCard from '../components/OperatingStyleCard';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
 import { trackSilenceSession, trackPatternSession, trackPatternExpanded, trackPatternDismissedWithTiming, trackSessionReturn, trackReflectionResponse } from '../utils/patternValidation';
@@ -158,6 +159,8 @@ export default function HomeScreen() {
           onReflection={handlePatternReflection}
         />
       )}
+
+      <OperatingStyleCard />
 
       <WeeklyReflectionPrompt />
 
