@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import FutureSelfPreview from '../components/FutureSelfPreview';
@@ -17,10 +17,12 @@ import DailyReasonToReturn from '../components/DailyReasonToReturn';
 import FirstMeaningfulWin from '../components/FirstMeaningfulWin';
 import GentleCommitmentPrompt from '../components/GentleCommitmentPrompt';
 import HowPeopleUseThis from '../components/HowPeopleUseThis';
+import PatternCard from '../components/PatternCard';
+import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
+import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
 import { doc, updateDoc, setDoc, getDoc, increment } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
-import { useEffect } from 'react';
 
 export default function HomeScreen() {
   const {
@@ -36,6 +38,8 @@ export default function HomeScreen() {
   
   const [showSnapshot, setShowSnapshot] = useState(false);
   const [noticingTriggered, setNoticingTriggered] = useState(false);
+  const [currentPattern, setCurrentPattern] = useState(null);
+  const [patternChecked, setPatternChecked] = useState(false);
 
   useEffect(() => {
     const initClarityMetrics = async () => {
@@ -57,6 +61,39 @@ export default function HomeScreen() {
     };
     initClarityMetrics();
   }, [user?.uid]);
+
+  useEffect(() => {
+    const detectAndDisplayPattern = async () => {
+      if (!user?.uid || !historyData || historyData.length < 7 || patternChecked) return;
+      
+      setPatternChecked(true);
+      
+      try {
+        await trackReturnAfterPattern(user.uid);
+        
+        const lastShown = await getLastShownPatterns(user.uid);
+        const patterns = detectPatterns(historyData, liveProfile?.lifeZones);
+        const selectedPattern = selectPatternForDisplay(patterns, lastShown, 2);
+        
+        if (selectedPattern) {
+          setCurrentPattern(selectedPattern);
+          await trackPatternSurfaced(user.uid, selectedPattern.type, selectedPattern);
+          console.log('📊 Pattern detected and displayed:', selectedPattern.type);
+        }
+      } catch (error) {
+        console.error('Error detecting patterns:', error);
+      }
+    };
+    
+    detectAndDisplayPattern();
+  }, [user?.uid, historyData, liveProfile?.lifeZones, patternChecked]);
+
+  const handlePatternDismiss = async (patternType) => {
+    if (user?.uid) {
+      await trackPatternDismissed(user.uid, patternType);
+    }
+    setCurrentPattern(null);
+  };
 
   const handleOpenSnapshot = async () => {
     setShowSnapshot(true);
@@ -93,6 +130,13 @@ export default function HomeScreen() {
       <HowPeopleUseThis />
 
       <NoticingCard onNoticingTriggered={setNoticingTriggered} />
+
+      {currentPattern && (
+        <PatternCard 
+          pattern={currentPattern} 
+          onDismiss={handlePatternDismiss} 
+        />
+      )}
 
       <WeeklyReflectionPrompt />
 
