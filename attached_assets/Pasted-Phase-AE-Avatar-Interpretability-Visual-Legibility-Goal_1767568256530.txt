@@ -1,0 +1,49 @@
+Phase AE – Avatar Interpretability & Visual Legibility
+Goal
+Increase the user’s intuitive understanding of what the avatar is expressing, without adding explanations, labels, tooltips, or narration, and without changing confidence logic, thresholds, or cadence.
+What to Build
+1. Visual Legibility Enhancements
+Refine existing avatar expressions so different states are more distinguishable from one another at a glance.
+This includes:
+Clearer contrast between neutral, stabilizing, improving, and degrading states
+Reduction of ambiguous overlap between adjacent expression bands
+More readable posture and facial distinctions without increasing intensity
+Expression must remain:
+Subtle
+Non-performative
+Calm under mixed signals
+2. Expression Consistency Audit
+Ensure that identical internal states always produce the same visual result.
+The system should:
+Eliminate drift where the same state renders slightly differently across sessions
+Enforce deterministic mapping between state attribution and visual output
+Preserve continuity when reopening the app
+No randomness.
+No stylistic variance.
+3. Cross-State Conflict Resolution
+Improve how the avatar resolves conflicting validated states.
+When signals disagree (for example high consistency with rising stress):
+Prefer composure over exaggeration
+Bias toward neutral or restrained expression
+Avoid “mixed messaging” visuals
+Conflict resolution should be stable and predictable.
+4. Operating Style Visual Boundaries
+Ensure Operating Style influence:
+Never overrides core state expression
+Never introduces new visual meaning
+Only modulates how existing expressions are rendered
+Styles must remain visually secondary.
+5. Trust Preservation Pass
+Confirm that no visual change:
+Feels like a reward or punishment
+Implies judgment
+Suggests future outcome
+Reacts to single-session volatility
+Neutral is always acceptable.
+Non-Goals
+Phase AE must not:
+Add UI explanations
+Add metrics, labels, or legends
+Add animations purely for interest
+Change detection logic
+Increase expressiveness beyond validated confidence

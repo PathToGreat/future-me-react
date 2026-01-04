@@ -4,6 +4,10 @@ import { computeAvatarStateAttribution, getOperatingStyleForAvatar } from '../ut
 import { computeSmoothedState, shouldTransition, interpolateStates, computeTransitionProgress, getStateMemory } from '../utils/avatarTemporalSmoothing';
 import { applyOperatingStyleInfluence, getStyleTransitionBehavior } from '../utils/avatarOperatingStyleInfluence';
 import { computeAvatarEffects } from '../components/avatar/AvatarEffectsEngine';
+import { enhanceStateLegibility } from '../utils/avatarVisualLegibility';
+import { ensureDeterministicOutput, enforceSessionContinuity, createSessionCache, updateSessionCache } from '../utils/avatarExpressionConsistency';
+import { ensureComposure, detectStateConflicts } from '../utils/avatarConflictResolution';
+import { enforceTrustBoundaries, detectVolatility, dampVolatileState, ensureNeutralAcceptable } from '../utils/avatarTrustPreservation';
 
 const DEFAULT_TRANSITION_DURATION = 800;
 
@@ -23,6 +27,8 @@ export function useEnhancedAvatarState(metrics, options = {}) {
   const transitionStartRef = useRef(null);
   const animationFrameRef = useRef(null);
   const previousStateRef = useRef(null);
+  const sessionCacheRef = useRef(createSessionCache());
+  const stateHistoryRef = useRef([]);
 
   useEffect(() => {
     if (user?.uid && enableOperatingStyleInfluence) {
@@ -96,7 +102,7 @@ export function useEnhancedAvatarState(metrics, options = {}) {
       baselineData: metrics.baselineData
     });
 
-    const enhancedState = {
+    let enhancedState = {
       ...attributedState,
       postureScore,
       expressionScore,
@@ -104,6 +110,33 @@ export function useEnhancedAvatarState(metrics, options = {}) {
       operatingStyle,
       timestamp: Date.now()
     };
+
+    enhancedState = ensureNeutralAcceptable(enhancedState);
+
+    if (enhancedState.isReliable && attributedState.stateScores) {
+      enhancedState = ensureComposure(enhancedState, attributedState.stateScores);
+    }
+
+    enhancedState = enforceTrustBoundaries(enhancedState, previousStateRef.current);
+
+    const volatilityInfo = detectVolatility(stateHistoryRef.current);
+    if (volatilityInfo.isVolatile) {
+      enhancedState = dampVolatileState(enhancedState, volatilityInfo);
+    }
+
+    if (enhancedState.isReliable) {
+      enhancedState = enhanceStateLegibility(enhancedState);
+    }
+
+    enhancedState = ensureDeterministicOutput(enhancedState, operatingStyle);
+    enhancedState = enforceSessionContinuity(enhancedState, sessionCacheRef.current);
+
+    sessionCacheRef.current = updateSessionCache(sessionCacheRef.current, enhancedState);
+
+    stateHistoryRef.current = [
+      ...stateHistoryRef.current.slice(-9),
+      { postureScore: enhancedState.postureScore, expressionScore: enhancedState.expressionScore, timestamp: Date.now() }
+    ];
 
     if (!currentState) {
       setCurrentState(enhancedState);

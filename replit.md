@@ -2,7 +2,7 @@
 
 ## Overview
 
-Future Me is a web application designed to visualize a user's future self based on their current lifestyle choices. It collects lifestyle metrics through an interactive questionnaire and dynamically adapts an avatar to reflect health indicators. The core purpose is to engage and motivate users to understand the long-term impact of their daily habits on their well-being. Key capabilities include legal onboarding, 6-step metric collection, dynamic avatar visualization, real-time wellness score calculation, future self projection, user authentication, and a responsive design. The project aims to provide a tool for personal development, growth, and discipline, emphasizing practical guidance over mystical or new-age concepts.
+Future Me is a web application that visualizes a user's future self based on current lifestyle choices. It collects lifestyle metrics via an interactive questionnaire and dynamically adapts an avatar to reflect health indicators. The main goal is to engage and motivate users to understand the long-term impact of their daily habits on their well-being. Key features include legal onboarding, 6-step metric collection, dynamic avatar visualization, real-time wellness scoring, future self projection, user authentication, and a responsive design. The project aims to provide a practical tool for personal development, growth, and discipline, avoiding mystical or new-age concepts.
 
 ## User Preferences
 
@@ -20,87 +20,47 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Motion for animations, and React Router v6 for routing. It employs a component-based architecture with the Context API for authentication and shared state. UI/UX emphasizes a custom color palette, gradients, card-based layouts, and mobile-first responsiveness. The application features a multi-screen mobile architecture with persistent bottom navigation.
+The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Motion for animations, and React Router v6 for routing. It employs a component-based architecture with the Context API for authentication and shared state. UI/UX emphasizes a custom color palette, gradients, card-based layouts, and mobile-first responsiveness, featuring a multi-screen mobile architecture with persistent bottom navigation.
 
 **Key Features and Design Patterns:**
 
--   **Multi-Screen Architecture:** Five main screens (Home, Avatar, Habits, Metrics, Menu) with `BottomNavigation.jsx` and `MainLayout.jsx` for consistent navigation and smooth transitions.
--   **Onboarding & Metric Collection:** A 6-step questionnaire for initial data input, covering various lifestyle aspects. A `OnboardingWalkthrough.jsx` guides new users.
--   **Dynamic Avatar System:** An SVG-based avatar dynamically adjusts visual traits based on wellness scores and metrics. This includes:
-    -   **Current Me vs. Future Me:** "Current Me" is a locked baseline, while "Future Me" is a 90-day projection based on daily trends.
-    -   **Avatar Engines:** Projects future appearance, converts data to visual traits, and applies CSS effects.
-    -   **Visual Overlays:** Posture, facial expressions, gender-specific body morphing, energy glow, and photo effects.
-    -   **Avatar Input Routing Gateway:** Controls which inputs affect "Current Me" versus "Future Me" avatars, ensuring baseline integrity.
+-   **Multi-Screen Architecture:** Five main screens (Home, Avatar, Habits, Metrics, Menu) with consistent navigation.
+-   **Onboarding & Metric Collection:** A 6-step questionnaire for initial data input.
+-   **Dynamic Avatar System:** SVG-based avatar adjusting visual traits based on wellness scores and metrics. Includes "Current Me" (baseline) vs. "Future Me" (90-day projection), avatar engines for visual traits, and visual overlays for posture, expressions, and effects. An Avatar Input Routing Gateway controls which inputs affect each avatar.
 -   **Wellness Score Calculation:** A formula computes a 0-100 score from user inputs.
--   **Daily Tracking & Dashboard:** Allows logging daily metrics with real-time updates and displays avatars, scores, and insights.
--   **Life Zone System:** Tracks progress across 6 predefined zones (Health, Social Emotional, Wealth, Faith, Family, Community) with specific daily inputs and scoring.
--   **Habit Builder & Achievements:** Users can create custom habits, track completions, and earn achievements.
--   **Smart Reassessment & Insights:** The system suggests re-evaluating baselines based on long-term trends and generates personalized insights and pattern recognition.
--   **Micro-Suggestions Engine:** Provides contextual, neutral guidance after daily log submissions using pre-written PTG-style suggestions, comparing current metrics to baselines and averages, with priority ranking for different metrics. Suggestions are stored in Firestore, and a rotation system prevents repetition.
--   **Smart Device Integration Layer:** Enables passive data ingestion from external health devices, prioritizing device data over manual entries.
--   **Progress & Momentum Layer:** Provides features like a personal progress timeline, focus zone indicators, consistency streaks, and weekly reflection prompts, all designed to be supportive and non-judgmental.
--   **Evidence of Value & Signal Clarity:** A system to show users the impact of their actions through "NoticingCard" (personal proof moments), a "Signal Attribution Layer" that explains metric changes, and a "ProgressSnapshot" for sharing.
--   **Commitment & Retention Layer (Phase Z):** Features designed to encourage natural return and psychological commitment without gamification:
-    -   **DailyReasonToReturn:** Shows observations from last data, reflective prompts based on Focus Zone, or continuity messages when user hasn't logged today. No shaming or required action.
-    -   **FirstMeaningfulWin:** Detects first "this is working" moment (3 days logging, first noticing, consistent focus zone). Shows grounded modal once, saved to Firestore milestones.
-    -   **GentleCommitmentPrompt:** Surfaces after 7 days of interaction (not consecutive). Two options: "Commit to 30 days" or "Continue casually". Psychological commitment only, no paywall.
-    -   **Share Without Selling:** NoticingCard and ProgressSnapshot have personal share actions without social branding.
-    -   **Founder Metrics (Phase Z):** firstWinRate, returnAfterMissedDayRate, multipleSnapshotViewRate tracked in InvestorMetricsDashboard.
--   **Clarity, Trust, and Sharability Layer (Phase AA):** Features that help users understand and share their progress with integrity:
-    -   **WhatThisMeans Panel:** Expandable clarity panel beneath insights that explains outcomes in plain cause-effect language. No advice, no instructions. Collapsed by default.
-    -   **ProgressSnapshot "What Changed" View:** Second tab in ProgressSnapshot with a shareable paragraph explaining the most meaningful shift since baseline. Neutral, descriptive language for sharing with spouse, friend, or coach.
-    -   **HowPeopleUseThis Card:** Rotating single-sentence social proof on Home screen. No testimonials, no names, no hype. Normalizes use and reduces performance pressure.
-    -   **Trust Micro-Copy:** Subtle informational text in three locations: Avatar ("baseline only updates through reassessment"), Insights ("patterns, not diagnoses"), Devices ("prepared but not yet active").
-    -   **Clarity Confidence Score (Internal):** Founder metric tracking how often users expand explanations, view/share snapshots, and return after viewing clarity features.
--   **Trend Intelligence Layer (Phase AB):** Data-driven pattern detection that surfaces neutral, evidence-based insights:
-    -   **Pattern Detection Engine (`trendPatternEngine.js`):** Analyzes daily logged metrics to detect 15 distinct behavioral patterns including stress-stability, sleep-recovery, movement-buffer, consistency-decay, focus-stability, momentum, and multi-metric correlations.
-    -   **PatternCard Component:** Neutral, single-insight cards displayed on Home screen below NoticingCard. Dismissible, non-intrusive, with "More detail" expansion option. Maximum 1-2 patterns per user per week.
-    -   **Confidence Thresholds:** Patterns only surface when confidence threshold (0.7+) is met, requiring minimum data window (7+ days) and observable effect size.
-    -   **Pattern Metrics Tracking (`patternMetrics.js`):** Internally tracks pattern surfaced rate, dismiss vs revisited, and return after pattern seen.
-    -   **Example Pattern Messages:** "Your stress stabilizes only after sleep improves consistently for several days." / "Movement appears to buffer poor sleep and stress more effectively than nutrition alone." / "Multiple metrics are improving together over the past week, showing a clear momentum trend."
-    -   **Design Principles:** No advice, prescriptions, or motivational language. Silence is acceptable if no pattern is detected. All insights are linked to observed data, never speculative.
--   **Pattern Validation & Language Lock (Phase AB1/2):** Internal evaluation layer to validate patterns and lock language:
-    -   **Silence Validation:** Tracks sessions where no PatternCard appears. Compares return rates for sessions with vs without PatternCards to confirm silence maintains or increases retention.
-    -   **Pattern Trust Scoring (`patternValidation.js`):** Tracks per-pattern metrics including: expansion rate ("More Detail" tapped), immediate dismissal rate (<3 seconds), and return within 48 hours. Generates internal trust score per pattern.
-    -   **Language Lock:** Pattern text is frozen unless trust scores indicate disproportionate dismissal (dismissal rate >40% AND expansion <10% over 7 days). Identifies top 5 most-expanded and top 3 most-dismissed patterns.
-    -   **Optional User Reflection:** When "More Detail" is expanded, shows optional prompt: "Does this reflect your experience?" with Yes/Not quite options. Responses logged internally with no follow-up.
-    -   **Metrics Tracked:** silenceReturnRate, patternReturnRate, silenceVsPatternRetention, perPatternTrustScores, reflectionPositiveRate, patternsNeedingLanguageReview.
-    -   **Design Principles:** No changes to existing PatternCard logic, placement, thresholds, or frequency limits. All metrics are internal only and do not change UI for users.
--   **Personal Operating Style (Phase AC):** Aggregates trusted patterns into data-driven user profiles:
-    -   **Operating Style Engine (`operatingStyleEngine.js`):** Derives user operating styles by analyzing pattern history. Eight distinct styles: Recovery Sensitive, Stress Reactive, Consistency Responder, Movement Buffered, Nutrition Anchored, Socially Regulated, Momentum Driven, Equilibrium Seeker.
-    -   **Confidence Requirements:** Only assigns an Operating Style when confidence ≥ 0.7 across multiple relevant patterns (minimum 2 matching patterns, 14+ days of data).
-    -   **OperatingStyleCard Component:** Displays derived style on Home screen below PatternCard. Expandable to show "why" explanation, matching patterns, and alternate possible styles. Always subordinate to NoticingCard/PatternCard.
-    -   **Optional User Reflection:** When expanded, prompts "Does this reflect how your behaviors influence your results?" with Yes/Not quite options.
-    -   **Metrics Tracking (`operatingStyleMetrics.js`):** Tracks style surfaced rate, expansion rate, reflection responses, milestones (high confidence, user confirmed).
-    -   **Voice Consistency:** Descriptive, not instructive. No advice, motivational language, or prescriptions. Uses Phase AB language lock as template.
-    -   **Future Self Projection Prep:** Every Operating Style will feed the avatar/projection engine in Phase AD.
--   **Avatar Expressive Resolution & State Attribution (Phase AD):** Enhanced avatar visual vocabulary and state attribution:
-    -   **State Attribution Engine (`avatarStateAttribution.js`):** Maps validated internal states (energy, stressLoad, consistency, recovery, momentum) to visual manifestations. Expanded posture states (confident, upright, relaxed, neutral, fatigued, slumped) and expression states (joyful, happy, content, calm, neutral, weary, tired, strained).
-    -   **Trajectory Detection:** Calculates directional visual cues (improving, stabilizing, fluctuating, degrading) based on rolling data analysis. Confidence-gated - only shows trajectory when sufficient data exists.
-    -   **Temporal Smoothing (`avatarTemporalSmoothing.js`):** Rolling averages with weighted recent data, smooth transitions using easing functions, prevents abrupt visual reversals, respects temporal memory.
-    -   **Operating Style Visual Influence (`avatarOperatingStyleInfluence.js`):** Validated Operating Styles subtly modify how states are visually expressed. Recovery Sensitive users show accelerated visual rebound; Stress Reactive shows more distinct tension; Equilibrium Seeker dampens extremes toward center.
-    -   **Enhanced Avatar Hook (`useEnhancedAvatarState.js`):** React hook integrating state attribution, temporal smoothing, and operating style influence with animated transitions.
-    -   **Confidence Preservation:** All visual changes require confidence ≥ 0.7. Insufficient confidence renders neutral avatar. No exaggeration, reward mechanics, or future prediction visuals.
-    -   **Design Principles:** More readable, more human, more grounded in truth. No spectacle, gamification, or premature prediction. Silence remains acceptable.
+-   **Daily Tracking & Dashboard:** For logging daily metrics, real-time updates, and displaying avatars, scores, and insights.
+-   **Life Zone System:** Tracks progress across 6 zones (Health, Social Emotional, Wealth, Faith, Family, Community).
+-   **Habit Builder & Achievements:** Allows users to create custom habits, track completions, and earn achievements.
+-   **Smart Reassessment & Insights:** Suggests baseline re-evaluation and generates personalized insights.
+-   **Micro-Suggestions Engine:** Provides contextual, neutral guidance after daily logs, comparing metrics to baselines and averages. Suggestions are stored in Firestore.
+-   **Smart Device Integration Layer:** Enables passive data ingestion from external health devices.
+-   **Progress & Momentum Layer:** Features a personal progress timeline, focus zone indicators, consistency streaks, and weekly reflection prompts.
+-   **Commitment & Retention Layer:** Features designed to encourage natural return and psychological commitment without gamification, such as "DailyReasonToReturn," "FirstMeaningfulWin," and "GentleCommitmentPrompt."
+-   **Clarity, Trust, and Sharability Layer:** Features like "WhatThisMeans Panel," "ProgressSnapshot 'What Changed' View," and "HowPeopleUseThis Card" to enhance user understanding and sharing.
+-   **Trend Intelligence Layer:** Data-driven pattern detection via a Pattern Detection Engine, surfacing neutral, evidence-based insights as PatternCards on the Home screen.
+-   **Pattern Validation & Language Lock:** Internal evaluation layer to validate patterns and lock language based on user interaction (expansion/dismissal rates).
+-   **Personal Operating Style:** Aggregates trusted patterns into data-driven user profiles (e.g., Recovery Sensitive, Stress Reactive) and displays them via an OperatingStyleCard.
+-   **Avatar Expressive Resolution & State Attribution:** Enhances avatar visual vocabulary and state attribution, mapping internal states (energy, stressLoad) to visual manifestations (posture, expressions) and trajectory detection. Operating Styles subtly influence visual expression.
+-   **Avatar Interpretability & Visual Legibility:** Refines avatar expressions for clearer distinction between states, ensures consistency, resolves conflicting signals, and maintains trust by avoiding judgmental or speculative visuals.
 
 **Backend & Data Architecture:**
 
-Firebase Authentication v11 manages user authentication. Cloud Firestore is the primary database for all user-related data, including profiles, zone-specific daily logs, habits, and achievements.
+Firebase Authentication manages user authentication. Cloud Firestore is the primary database for all user-related data.
 
 ## External Dependencies
 
 -   **Firebase Services:**
-    -   `firebase`: Core SDK.
-    -   `firebase/auth`: User authentication.
-    -   `firebase/firestore`: Cloud Firestore database.
+    -   `firebase`: Core SDK
+    -   `firebase/auth`: User authentication
+    -   `firebase/firestore`: Cloud Firestore database
 -   **UI & Styling Libraries:**
-    -   `react`: Frontend UI library.
-    -   `react-dom`: React DOM renderer.
-    -   `react-router-dom`: Client-side routing.
-    -   `framer-motion`: Animations and transitions.
-    -   `tailwindcss`: Utility-first CSS framework.
+    -   `react`: Frontend UI library
+    -   `react-dom`: React DOM renderer
+    -   `react-router-dom`: Client-side routing
+    -   `framer-motion`: Animations and transitions
+    -   `tailwindcss`: Utility-first CSS framework
 -   **Build Tools:**
-    -   `vite`: Frontend tooling.
-    -   `@vitejs/plugin-react`: React support for Vite.
-    -   `postcss`: CSS transformation.
-    -   `autoprefixer`: Adds vendor prefixes to CSS.
+    -   `vite`: Frontend tooling
+    -   `@vitejs/plugin-react`: React support for Vite
+    -   `postcss`: CSS transformation
+    -   `autoprefixer`: Adds vendor prefixes to CSS
