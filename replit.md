@@ -74,6 +74,14 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
     -   **Metrics Tracking (`operatingStyleMetrics.js`):** Tracks style surfaced rate, expansion rate, reflection responses, milestones (high confidence, user confirmed).
     -   **Voice Consistency:** Descriptive, not instructive. No advice, motivational language, or prescriptions. Uses Phase AB language lock as template.
     -   **Future Self Projection Prep:** Every Operating Style will feed the avatar/projection engine in Phase AD.
+-   **Avatar Expressive Resolution & State Attribution (Phase AD):** Enhanced avatar visual vocabulary and state attribution:
+    -   **State Attribution Engine (`avatarStateAttribution.js`):** Maps validated internal states (energy, stressLoad, consistency, recovery, momentum) to visual manifestations. Expanded posture states (confident, upright, relaxed, neutral, fatigued, slumped) and expression states (joyful, happy, content, calm, neutral, weary, tired, strained).
+    -   **Trajectory Detection:** Calculates directional visual cues (improving, stabilizing, fluctuating, degrading) based on rolling data analysis. Confidence-gated - only shows trajectory when sufficient data exists.
+    -   **Temporal Smoothing (`avatarTemporalSmoothing.js`):** Rolling averages with weighted recent data, smooth transitions using easing functions, prevents abrupt visual reversals, respects temporal memory.
+    -   **Operating Style Visual Influence (`avatarOperatingStyleInfluence.js`):** Validated Operating Styles subtly modify how states are visually expressed. Recovery Sensitive users show accelerated visual rebound; Stress Reactive shows more distinct tension; Equilibrium Seeker dampens extremes toward center.
+    -   **Enhanced Avatar Hook (`useEnhancedAvatarState.js`):** React hook integrating state attribution, temporal smoothing, and operating style influence with animated transitions.
+    -   **Confidence Preservation:** All visual changes require confidence ≥ 0.7. Insufficient confidence renders neutral avatar. No exaggeration, reward mechanics, or future prediction visuals.
+    -   **Design Principles:** More readable, more human, more grounded in truth. No spectacle, gamification, or premature prediction. Silence remains acceptable.
 
 **Backend & Data Architecture:**
 

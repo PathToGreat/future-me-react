@@ -1,0 +1,66 @@
+Phase AD – Avatar Expressive Resolution & State Attribution
+Context (do not reinterpret):
+The app already contains a functioning, live SVG-based avatar that visually reflects validated user self-state.
+The avatar is already data-driven, confidence-gated, restrained, and integrated with identity and pattern systems.
+Phase AD does not introduce visuals for the first time and does not change trust logic, thresholds, or cadence.
+Goal of Phase AD:
+Increase expressive resolution and visual attribution of avatar states that the system already knows with confidence, without adding spectacle, gamification, or premature prediction.
+What to Build
+1. Expressive Resolution Expansion
+Extend the existing avatar’s visual vocabulary so that already-known states can be expressed with more nuance and clarity.
+This includes:
+More granular posture variation
+Expanded but subtle facial expression states
+Improved body language transitions
+Directional visual cues that clarify trajectory (stabilizing, improving, degrading)
+All expression must remain:
+Confidence-gated
+Earned through sustained data
+Subtle and non-reactive to single inputs
+2. State Attribution Mapping
+Create a clear internal mapping between validated internal states and their visual manifestations.
+The system should be able to:
+Attribute visual changes to specific validated states (energy, stress load, consistency, recovery, momentum)
+Maintain composure when signals conflict
+Prefer restraint over expressiveness when confidence is borderline
+No new states are invented here.
+Only visually express states already derived and trusted.
+3. Temporal Smoothness & Memory
+Ensure visual changes reflect time-weighted reality, not momentary fluctuation.
+Avatar expression should:
+Transition smoothly between states
+Respect temporal memory and rolling averages
+Avoid abrupt visual reversals
+Preserve user trust through visual consistency
+4. Operating Style Visual Influence
+Allow validated Operating Styles (from Phase AC) to subtly influence how states are visually expressed.
+Examples (conceptual only):
+A Recovery Sensitive user may visually rebound differently than a Momentum Driven user
+A Stress Reactive style may show tension differently than an Equilibrium Seeker
+Operating Styles should:
+Modify expression tendencies, not override state truth
+Never introduce prescriptions or judgments
+Remain subordinate to actual validated state data
+5. Confidence & Trust Preservation
+All new avatar expression must obey existing rules:
+No visual change without sufficient confidence
+No exaggeration
+No reward mechanics
+No future prediction visuals
+Silence remains acceptable.
+If confidence is insufficient, the avatar should remain neutral rather than expressive.
+6. Non-Goals (Explicit)
+Phase AD must not:
+Introduce photorealism
+Simulate future body changes
+Alter detection thresholds
+Increase frequency of visual updates
+Add user-facing explanations for visuals
+This phase is refinement, not expansion of scope.
+Outcome Definition:
+At completion of Phase AD, the avatar should feel:
+More readable
+More human
+More grounded in truth
+More aligned with the system’s internal certainty
+Without feeling reactive, performative, or gamified.
