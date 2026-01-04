@@ -6,6 +6,9 @@ import {
   getProjectionLabelStyles
 } from '../utils/counterfactualVisualDifferentiation';
 import { getProjectionModeIndicator, getExitConfirmationContent } from '../utils/counterfactualGuardrails';
+import ProjectionExitReflectionGate from './ProjectionExitReflectionGate';
+import CommitmentPrompt from './CommitmentPrompt';
+import { SCENARIO_TO_FOCUS_TYPE } from '../utils/commitmentIntentSystem';
 
 export function CounterfactualExplorer({
   isActive,
@@ -14,9 +17,14 @@ export function CounterfactualExplorer({
   onEnter,
   onExit,
   onChangeScenario,
+  onCommit,
+  userId,
   children
 }) {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showReflectionGate, setShowReflectionGate] = useState(false);
+  const [showCommitmentPrompt, setShowCommitmentPrompt] = useState(false);
+  const [exitScenarioId, setExitScenarioId] = useState(null);
 
   const handleEnter = (scenarioId) => {
     onEnter(scenarioId);
@@ -29,10 +37,43 @@ export function CounterfactualExplorer({
   const handleExitConfirm = () => {
     setShowExitConfirm(false);
     onExit();
+    setExitScenarioId(activeScenarioId);
+    setShowReflectionGate(true);
   };
 
   const handleExitCancel = () => {
     setShowExitConfirm(false);
+  };
+
+  const handleReflectionProceed = () => {
+    setShowReflectionGate(false);
+    setShowCommitmentPrompt(true);
+  };
+
+  const handleReflectionDismiss = () => {
+    setShowReflectionGate(false);
+  };
+
+  const handleReflectionClose = () => {
+    setShowReflectionGate(false);
+  };
+
+  const handleCommit = (commitment) => {
+    setShowCommitmentPrompt(false);
+    onCommit?.(commitment);
+  };
+
+  const handleCommitDecline = () => {
+    setShowCommitmentPrompt(false);
+  };
+
+  const handleCommitClose = () => {
+    setShowCommitmentPrompt(false);
+  };
+
+  const getScenarioLabel = (scenarioId) => {
+    const scenario = scenarios.find(s => s.id === scenarioId);
+    return scenario?.label || SCENARIO_TO_FOCUS_TYPE[scenarioId] || 'Custom focus';
   };
 
   const indicator = getProjectionModeIndicator();
@@ -93,6 +134,25 @@ export function CounterfactualExplorer({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ProjectionExitReflectionGate
+        isVisible={showReflectionGate}
+        scenarioId={exitScenarioId}
+        scenarioLabel={getScenarioLabel(exitScenarioId)}
+        userId={userId}
+        onProceedToCommitment={handleReflectionProceed}
+        onDismiss={handleReflectionDismiss}
+        onClose={handleReflectionClose}
+      />
+
+      <CommitmentPrompt
+        isVisible={showCommitmentPrompt}
+        scenarioId={exitScenarioId}
+        userId={userId}
+        onCommit={handleCommit}
+        onDecline={handleCommitDecline}
+        onClose={handleCommitClose}
+      />
     </div>
   );
 }

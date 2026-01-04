@@ -1,0 +1,64 @@
+Phase AG – Commitment Translation (Optional, User-Initiated Only)
+Goal
+Allow users who resonate with a projected future state to optionally translate that clarity into a gentle, self-directed commitment, without altering avatar logic, confidence models, or trust boundaries.
+Commitment is never assumed, inferred, or nudged aggressively.
+Silence remains acceptable.
+What to Build
+1. Projection Exit Reflection Gate
+When a user exits Counterfactual Projection Mode, introduce a single optional reflection moment:
+Appears only after exploration
+Never blocks exit
+Never repeats automatically
+Can be dismissed permanently
+Purpose: capture intent, not action.
+2. Optional Commitment Prompt
+Offer a neutral, non-prescriptive option such as:
+“Would you like to commit to exploring this direction for a short period?”
+This prompt must:
+Have a clear “No” path with zero consequence
+Avoid motivational or persuasive language
+Avoid promises, outcomes, or timelines
+3. Commitment Parameters (User-Controlled)
+If the user opts in, allow them to choose:
+Commitment length (for example: 7, 14, or 30 days)
+Focus type (derived from the explored scenario, not invented)
+The system must not:
+Recommend a duration
+Suggest intensity
+Optimize for compliance
+4. Commitment as Intent Marker (Not Enforcement)
+A commitment:
+Does not alter avatar visuals directly
+Does not modify baselines, confidence, or pattern thresholds
+Does not penalize missed days
+Does not unlock rewards
+It functions purely as:
+A contextual lens
+A memory anchor
+A narrative frame for future observations
+5. Avatar Behavior During Commitment
+While a commitment is active:
+Avatar behavior remains fully data-driven
+No visual “boosts” or encouragement effects are allowed
+Neutral and silence remain valid outcomes
+The avatar must never “perform” commitment.
+6. Soft Contextual Acknowledgment
+If meaningful progress occurs during a commitment:
+A single observational Noticing-style card may reference alignment
+Language must remain descriptive, not congratulatory
+No streaks, badges, or success framing
+Example tone:
+“You’re seeing changes consistent with what you chose to focus on.”
+Guardrails
+This phase must not:
+Introduce pressure, urgency, or fear of failure
+Add gamification or behavioral enforcement
+Change avatar expressiveness beyond existing rules
+Create dependency loops
+Replace intrinsic motivation with system validation
+Completion Criteria
+At completion of Phase AG:
+Exploration can optionally become intention
+Intention never becomes obligation
+Trust remains intact even if the user disengages
+The avatar remains a mirror, not a coach
