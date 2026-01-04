@@ -1,0 +1,64 @@
+Phase AF – Counterfactual Future-State Projection (Exploration Mode)
+Goal
+Allow the user to privately explore hypothetical future avatar states based on sustained ideal inputs, without altering their real avatar, data history, confidence scores, or trust model.
+This phase introduces exploration, not commitment.
+What to Build
+1. Counterfactual Projection Mode
+Add a temporary projection mode where users can explore:
+“What would my avatar look like if these conditions were sustained?”
+This mode must:
+Be explicitly non-persistent
+Never write to real user state
+Never affect baselines, patterns, operating style, or confidence
+Exist only for the current session unless re-invoked
+The real avatar state remains untouched at all times.
+2. Ideal Input Scenario Injection
+Allow projection mode to accept a hypothetical input set representing sustained conditions, such as:
+Consistent sleep
+Regular movement
+Stable nutrition
+Low stress
+High logging consistency
+These inputs should:
+Bypass real-world confidence gating
+Be clearly marked internally as counterfactual
+Flow through the same avatar logic pipeline as real data
+No new logic paths.
+Same system, different source flag.
+3. Visual Differentiation Boundary
+Ensure projected avatar visuals:
+Are visually distinguishable from the real avatar state
+Use restraint, not spectacle
+Never imply certainty, promise, or outcome
+Projection visuals must feel:
+Aspirational but grounded
+Calm and plausible
+Clearly “possible,” not “guaranteed”
+4. Entry and Exit Integrity
+Projection mode must:
+Be entered intentionally
+Be exited cleanly
+Fully restore the real avatar state on exit
+Leave no visual residue, drift, or state bleed
+Returning to the real avatar must feel immediate and trustworthy.
+5. Internal Guardrails
+Counterfactual projections must not:
+Use language, visuals, or intensity that implies a timeline
+Show dramatic or exaggerated transformations
+React to short-term inputs
+Override trust-preserving constraints established in Phases AD and AE
+The system should err toward under-expression.
+Non-Goals
+Phase AF must not:
+Commit the user to a plan
+Store hypothetical data
+Adjust baselines or patterns
+Predict outcomes or durations
+Gamify improvement
+Introduce rewards, streaks, or pressure
+Completion Criteria
+At the end of Phase AF:
+Users can safely explore “if I lived this way” scenarios
+The avatar system remains fully trusted
+Real and hypothetical states are impossible to confuse internally
+The feature increases motivation through clarity, not pressure

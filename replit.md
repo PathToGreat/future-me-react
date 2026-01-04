@@ -42,6 +42,7 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
 -   **Personal Operating Style:** Aggregates trusted patterns into data-driven user profiles (e.g., Recovery Sensitive, Stress Reactive) and displays them via an OperatingStyleCard.
 -   **Avatar Expressive Resolution & State Attribution:** Enhances avatar visual vocabulary and state attribution, mapping internal states (energy, stressLoad) to visual manifestations (posture, expressions) and trajectory detection. Operating Styles subtly influence visual expression.
 -   **Avatar Interpretability & Visual Legibility:** Refines avatar expressions for clearer distinction between states, ensures consistency, resolves conflicting signals, and maintains trust by avoiding judgmental or speculative visuals.
+-   **Counterfactual Future-State Projection:** Exploration mode for hypothetical avatar states without altering real data. Session-only state management with preset scenarios (Balanced Wellness, Recovery Focused, Active Lifestyle, Structured Routine, Stress Reduction). Visually differentiates projected state with subtle overlay and restraint. Clean entry/exit with guaranteed state restoration.
 
 **Backend & Data Architecture:**
 
