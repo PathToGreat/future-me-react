@@ -12,7 +12,7 @@ export default function MetricsScreen() {
     handleAchievementsEarned,
   } = useApp();
 
-  const [showDailyTracking, setShowDailyTracking] = useState(true);
+  const [showDailyTracking, setShowDailyTracking] = useState(false);
   const [showZoneDetailsModal, setShowZoneDetailsModal] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
 
