@@ -18,10 +18,10 @@ export default function LandingPage() {
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-4">
-            Visualize Your Future Self
+            See the Person You Are Becoming
           </p>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-            See how your daily choices shape your tomorrow. Transform your lifestyle, transform your future.
+            Your daily choices are shaping your future body, energy, and life. Future Me turns those choices into a visual reflection so you can clearly see where your current path leads.
           </p>
         </motion.div>
 
@@ -44,7 +44,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Track Your Lifestyle</h3>
                 <p className="text-gray-600">
-                  Answer simple questions about your daily habits, sleep, nutrition, and stress levels.
+                  Answer simple questions about how you live today. Sleep, nutrition, movement, stress, and habits that quietly shape your future.
                 </p>
               </motion.div>
 
@@ -59,7 +59,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-800 mb-2">See Your Future</h3>
                 <p className="text-gray-600">
-                  Watch your personalized avatar transform based on your lifestyle choices.
+                  Watch a realistic future version of yourself change based on your current lifestyle patterns, not guesses.
                 </p>
               </motion.div>
 
@@ -74,7 +74,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Take Action</h3>
                 <p className="text-gray-600">
-                  Get motivated by seeing the impact of positive changes on your future self.
+                  Use clarity as motivation. Small changes reveal a different future. Consistent choices compound into transformation.
                 </p>
               </motion.div>
             </div>
@@ -106,11 +106,10 @@ export default function LandingPage() {
         >
           <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-2xl p-8 text-center">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              Your Future Starts Today
+              Your Future Is Already Forming
             </h2>
             <p className="text-gray-600 mb-6">
-              Join thousands of people who are taking control of their health and visualizing 
-              the impact of their daily choices. Small changes today create massive transformations tomorrow.
+              Most people drift into the future without seeing where their habits are leading. Future Me makes the direction visible so you can decide whether to stay the course or change it.
             </p>
             <div className="grid grid-cols-3 gap-6 max-w-xl mx-auto">
               <div>
@@ -119,11 +118,11 @@ export default function LandingPage() {
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary-600">&lt;2min</div>
-                <div className="text-sm text-gray-600">Quick Setup</div>
+                <div className="text-sm text-gray-600">Clarity Setup</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary-600">∞</div>
-                <div className="text-sm text-gray-600">Unlimited Use</div>
+                <div className="text-sm text-gray-600">Unlimited Future Scenarios</div>
               </div>
             </div>
           </div>
