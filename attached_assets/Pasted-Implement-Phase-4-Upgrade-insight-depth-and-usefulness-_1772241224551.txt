@@ -1,0 +1,66 @@
+Implement Phase 4: Upgrade insight depth and usefulness while staying calm, non-gamified, and brief.
+Current state:
+TodaysReflection.jsx selects one highest-priority insight (pattern detected, observed change, daily insight, focus zone, fallback). Each insight may include an expandable “Why this matters” section.
+Goal:
+Make “Why this matters” consistently available for every TodaysReflection insight type, and make it context-aware based on which metrics/zones are implicated.
+Rules:
+No emojis.
+No praise language.
+No shame language.
+No hype.
+No “crush it” tone.
+Keep the Why text to 1–2 sentences max.
+The Why must teach a cause-effect relationship that increases awareness and return behavior.
+Deliverables:
+Create an InsightExplanationMap (or similar) that returns:
+headline
+supporting sentence
+whyThisMatters (1–2 sentences)
+for each insight type:
+a) PATTERN_DETECTED
+b) OBSERVED_CHANGE
+c) DAILY_INSIGHT
+d) CURRENT_FOCUS
+e) CONTINUITY_FALLBACK
+Context awareness:
+For each insight, tailor “whyThisMatters” to the implicated metric(s):
+Sleep
+Stress
+Activity
+Nutrition
+Consistency
+Examples of acceptable “Why this matters” lines (use similar tone, not necessarily exact text):
+Sleep: “Sleep consistency stabilizes recovery signals, which makes energy and stress regulation more predictable.”
+Stress: “Lower baseline stress improves decision quality and makes healthy habits easier to sustain.”
+Activity: “Steady movement supports mood regulation and improves sleep pressure at night.”
+Nutrition: “Stable nutrition reduces energy volatility and supports recovery.”
+Consistency: “Consistency reduces friction. When the routine is predictable, change requires less willpower.”
+Stress inversion reminder:
+When stress improves (lower), explain it as stability and recovery, not “winning.”
+Improve the “Learn More” / expansion behavior:
+Default view: show headline + one supporting sentence.
+Expansion: reveals “Why this matters” and optionally one “Try this” micro-suggestion that is also calm and non-prescriptive.
+The “Try this” suggestion should be optional and short (one line), and only included when relevant and safe.
+Examples:
+Sleep focus: “Try keeping wake time within a 60-minute window for a few days.”
+Stress focus: “Try a short decompression block after work before family time.”
+Activity focus: “Try a 10-minute walk earlier in the day.”
+Nutrition focus: “Try keeping the first meal consistent for a few days.”
+Consistency: “Try logging at the same time each day to reduce friction.”
+No medical claims. No absolute promises.
+Make sharing reflect the philosophy:
+If “Share this reflection” exists, ensure it shares the short reflection (headline + supporting sentence) and does NOT share score or streak language.
+Ensure the Today’s Reflection remains the dominant card, and the expansion does not push the rest of the dashboard too far down. Keep spacing tight and clean.
+Do not alter:
+Avatar engine logic
+Scoring logic
+DirectionIndicator thresholds
+Only improve the insight copy system and ensure consistent depth.
+Implementation notes:
+Keep the mapping system simple and maintainable.
+If you already have insight objects, enrich them with whyThisMatters and optional tryThis fields at creation time.
+Testing checklist:
+Each insight type shows an expandable “Why this matters.”
+The text changes depending on which metric(s) are involved.
+Tone remains calm and descriptive.
+No emojis, praise, hype, or shame.

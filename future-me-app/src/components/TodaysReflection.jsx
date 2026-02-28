@@ -4,8 +4,135 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
-import { getLastShownPatterns } from '../utils/patternMetrics';
+
+const METRIC_EXPLANATIONS = {
+  sleep: {
+    why: 'Sleep consistency stabilizes recovery signals, which makes energy and stress regulation more predictable.',
+    tryThis: 'Try keeping wake time within a 60-minute window for a few days.'
+  },
+  stress: {
+    why: 'Lower baseline stress improves decision quality and makes healthy habits easier to sustain.',
+    tryThis: 'Try a short decompression block after work before family time.'
+  },
+  activity: {
+    why: 'Steady movement supports mood regulation and improves sleep pressure at night.',
+    tryThis: 'Try a 10-minute walk earlier in the day.'
+  },
+  nutrition: {
+    why: 'Stable nutrition reduces energy volatility and supports recovery.',
+    tryThis: 'Try keeping the first meal consistent for a few days.'
+  },
+  consistency: {
+    why: 'Consistency reduces friction. When the routine is predictable, change requires less willpower.',
+    tryThis: 'Try logging at the same time each day to reduce friction.'
+  }
+};
+
+const PATTERN_EXPLANATIONS = {
+  stress_stability: {
+    metrics: ['sleep', 'stress'],
+    why: 'Sustained sleep consistency lowers baseline stress load and improves emotional resilience. Your data shows this connection over time.',
+    tryThis: 'Try keeping wake time within a 60-minute window for a few days.'
+  },
+  sleep_recovery: {
+    metrics: ['sleep'],
+    why: 'When your body gets consistent rest, recovery becomes more efficient. Your metrics reflect this pattern in your recent history.',
+    tryThis: 'Try reducing screen exposure in the last hour before sleep.'
+  },
+  movement_buffer: {
+    metrics: ['activity', 'stress'],
+    why: 'Physical activity creates a physiological buffer against the effects of poor sleep or elevated stress. Your data confirms this for your patterns.',
+    tryThis: 'Try a 10-minute walk earlier in the day.'
+  },
+  consistency_decay: {
+    metrics: ['consistency'],
+    why: 'Behavioral consistency tends to erode after disruptions. Recognizing the trigger point helps you anticipate and prepare.',
+    tryThis: 'Try logging at the same time each day to reduce friction.'
+  },
+  nutrition_impact: {
+    metrics: ['nutrition'],
+    why: 'Nutritional changes take time to show measurable effects on energy and focus. Your data is beginning to reflect these shifts.',
+    tryThis: 'Try keeping the first meal consistent for a few days.'
+  },
+  focus_stability: {
+    metrics: ['consistency'],
+    why: 'When attention stays directed at one area long enough, measurable improvements accumulate. Frequent shifts scatter the effect.',
+    tryThis: null
+  },
+  stress_lag: {
+    metrics: ['stress'],
+    why: 'Stress effects often appear in other metrics 1-2 days later. Your data shows this delayed response pattern.',
+    tryThis: 'Try a short decompression block after work before family time.'
+  },
+  recovery_slope: {
+    metrics: ['sleep', 'activity'],
+    why: 'After a period of stability, your system responds to improvements more quickly. This is visible in your recent trajectory.',
+    tryThis: null
+  },
+  multi_metric_correlation: {
+    metrics: ['sleep', 'stress'],
+    why: 'When two metrics consistently move together, it suggests a shared underlying driver. Your data reveals this connection.',
+    tryThis: null
+  },
+  early_signal: {
+    metrics: ['consistency'],
+    why: 'First measurable changes are significant because they indicate your system is responding. This is an early data point, not a conclusion.',
+    tryThis: null
+  },
+  plateau_detection: {
+    metrics: ['consistency'],
+    why: 'Stability in your metrics is not stagnation. It can indicate a new baseline forming or a period of consolidation.',
+    tryThis: null
+  },
+  focus_drift: {
+    metrics: ['consistency'],
+    why: 'Changing focus frequently makes it harder to see the effect of any single change. Your data reflects more variability during these periods.',
+    tryThis: null
+  },
+  peak_effect: {
+    metrics: ['activity', 'consistency'],
+    why: 'Your highest-performing days tend to follow consistent behavior earlier in the week. The preparation period matters.',
+    tryThis: null
+  },
+  cross_impact: {
+    metrics: ['activity', 'nutrition'],
+    why: 'Gains in one area sometimes correspond with small dips in another. This is a common tradeoff visible in your data.',
+    tryThis: null
+  },
+  momentum: {
+    metrics: ['consistency'],
+    why: 'When multiple metrics improve simultaneously, it suggests a systemic shift rather than isolated change.',
+    tryThis: null
+  }
+};
+
+const OBSERVATION_EXPLANATIONS = {
+  baseline_stress_lower: {
+    metrics: ['stress'],
+    why: 'Lower baseline stress improves decision quality and makes healthy habits easier to sustain.',
+    tryThis: 'Try a short decompression block after work before family time.'
+  },
+  sleep_improved: {
+    metrics: ['sleep'],
+    why: 'Sleep consistency stabilizes recovery signals, which makes energy and stress regulation more predictable.',
+    tryThis: 'Try keeping wake time within a 60-minute window for a few days.'
+  },
+  activity_increase: {
+    metrics: ['activity'],
+    why: 'Steady movement supports mood regulation and improves sleep pressure at night.',
+    tryThis: 'Try a 10-minute walk earlier in the day.'
+  },
+  stress_stabilized: {
+    metrics: ['stress'],
+    why: 'When stress variance decreases, your system can allocate resources more efficiently toward recovery and adaptation.',
+    tryThis: null
+  },
+  nutrition_consistency: {
+    metrics: ['nutrition'],
+    why: 'Stable nutrition reduces energy volatility and supports recovery.',
+    tryThis: 'Try keeping the first meal consistent for a few days.'
+  }
+};
 
 const FOCUS_AREAS = {
   sleep: { label: 'Sleep Consistency', icon: '💤', benefit: 'would support energy and stress recovery' },
@@ -14,23 +141,45 @@ const FOCUS_AREAS = {
   nutrition: { label: 'Nutrition Habits', icon: '❤️', benefit: 'would enhance overall energy and recovery' }
 };
 
-const PATTERN_LEARN_MORE = {
-  stress_stability: 'Sustained sleep consistency lowers baseline stress load and improves emotional resilience. Your data shows this connection over time.',
-  sleep_recovery: 'When your body gets consistent rest, recovery becomes more efficient. Your metrics reflect this pattern in your recent history.',
-  movement_buffer: 'Physical activity creates a physiological buffer against the effects of poor sleep or elevated stress. Your data confirms this for your patterns.',
-  consistency_decay: 'Behavioral consistency tends to erode after disruptions. Recognizing the trigger point helps you anticipate and prepare.',
-  nutrition_impact: 'Nutritional changes take time to show measurable effects on energy and focus. Your data is beginning to reflect these shifts.',
-  focus_stability: 'When attention stays directed at one area long enough, measurable improvements accumulate. Frequent shifts scatter the effect.',
-  stress_lag: 'Stress effects often appear in other metrics 1-2 days later. Your data shows this delayed response pattern.',
-  recovery_slope: 'After a period of stability, your system responds to improvements more quickly. This is visible in your recent trajectory.',
-  multi_metric_correlation: 'When two metrics consistently move together, it suggests a shared underlying driver. Your data reveals this connection.',
-  early_signal: 'First measurable changes are significant because they indicate your system is responding. This is an early data point, not a conclusion.',
-  plateau_detection: 'Stability in your metrics is not stagnation. It can indicate a new baseline forming or a period of consolidation.',
-  focus_drift: 'Changing focus frequently makes it harder to see the effect of any single change. Your data reflects more variability during these periods.',
-  peak_effect: 'Your highest-performing days tend to follow consistent behavior earlier in the week. The preparation period matters.',
-  cross_impact: 'Gains in one area sometimes correspond with small dips in another. This is a common tradeoff visible in your data.',
-  momentum: 'When multiple metrics improve simultaneously, it suggests a systemic shift rather than isolated change.'
-};
+function getExplanationForInsight(type, context) {
+  if (type === 'pattern' && context.patternType) {
+    const entry = PATTERN_EXPLANATIONS[context.patternType];
+    if (entry) return { why: entry.why, tryThis: entry.tryThis };
+    return { why: 'This pattern is drawn directly from your logged data. Continued tracking will clarify whether it persists.', tryThis: null };
+  }
+
+  if (type === 'observation' && context.observationId) {
+    const entry = OBSERVATION_EXPLANATIONS[context.observationId];
+    if (entry) return { why: entry.why, tryThis: entry.tryThis };
+  }
+
+  if (type === 'insight' && context.category) {
+    const metricEntry = METRIC_EXPLANATIONS[context.category];
+    if (metricEntry) return { why: metricEntry.why, tryThis: metricEntry.tryThis };
+    return { why: 'This observation is based on your most recent log compared to your history. It reflects what your data shows today.', tryThis: null };
+  }
+
+  if (type === 'focus' && context.focusArea) {
+    const metricEntry = METRIC_EXPLANATIONS[context.focusArea];
+    if (metricEntry) return { why: metricEntry.why, tryThis: metricEntry.tryThis };
+  }
+
+  if (type === 'continuity') {
+    return {
+      why: 'Consistency reduces friction. When the routine is predictable, change requires less willpower.',
+      tryThis: 'Try logging at the same time each day to reduce friction.'
+    };
+  }
+
+  if (type === 'welcome') {
+    return {
+      why: 'Tracking builds a data foundation. Even a few days of logging creates enough signal to surface meaningful patterns.',
+      tryThis: null
+    };
+  }
+
+  return { why: null, tryThis: null };
+}
 
 function calculateNoticingData(historyData, baseline, liveProfile) {
   if (!historyData || historyData.length < 7) return null;
@@ -65,36 +214,31 @@ const OBSERVATION_CHECKS = [
     id: 'baseline_stress_lower',
     condition: (d) => d.currentStress < d.baselineStress - 0.5,
     headline: 'Your stress baseline has shifted downward.',
-    supporting: 'Current stress readings are consistently below where you started.',
-    learnMore: 'A lower stress baseline suggests your system is adapting. This shift became visible after sustained changes in your logged behavior.'
+    supporting: 'Current stress readings are consistently below where you started.'
   },
   {
     id: 'sleep_improved',
     condition: (d) => d.currentSleep > d.baselineSleep + 0.3,
     headline: 'Your sleep quality has shifted above your starting point.',
-    supporting: 'Average sleep quality over the past week is higher than your initial baseline.',
-    learnMore: 'Sleep quality improvements often precede changes in other metrics. Your data shows this upward movement is sustained, not isolated.'
+    supporting: 'Average sleep quality over the past week is higher than your initial baseline.'
   },
   {
     id: 'activity_increase',
     condition: (d) => d.currentActivity > d.baselineActivity + 0.4,
     headline: 'Your activity levels are higher than your initial baseline.',
-    supporting: 'Recent movement data exceeds where you started when you first began tracking.',
-    learnMore: 'Increased activity creates downstream effects on stress regulation and sleep quality. These connections may become visible in your patterns over time.'
+    supporting: 'Recent movement data exceeds where you started when you first began tracking.'
   },
   {
     id: 'stress_stabilized',
     condition: (d) => d.stressVariance < 0.5 && d.historyLength >= 10,
     headline: 'Your stress levels have become more stable over time.',
-    supporting: 'Day-to-day stress variation has narrowed compared to earlier in your tracking.',
-    learnMore: 'Lower stress variance indicates your system is regulating more consistently. This stability often supports improvements in other areas.'
+    supporting: 'Day-to-day stress variation has narrowed compared to earlier in your tracking.'
   },
   {
     id: 'nutrition_consistency',
     condition: (d) => d.nutritionConsistency > 0.7,
     headline: 'Your nutrition patterns show increased consistency.',
-    supporting: 'Day-to-day variation in nutrition quality has decreased in recent entries.',
-    learnMore: 'Consistent nutrition supports stable energy levels and recovery. The effect accumulates over weeks rather than days.'
+    supporting: 'Day-to-day variation in nutrition quality has decreased in recent entries.'
   }
 ];
 
@@ -122,68 +266,86 @@ function determineFocusArea(historyData, baseline) {
 
 function selectReflection(pattern, observation, dailyInsight, focusArea, historyData) {
   if (pattern) {
+    const explanation = getExplanationForInsight('pattern', { patternType: pattern.type });
     return {
       type: 'pattern',
       icon: getPatternIcon(pattern.type),
       label: 'Pattern Detected',
       headline: pattern.message,
       supporting: `Based on ${pattern.data?.days || 7}+ days of your logged data. This observation is drawn directly from your metrics.`,
-      learnMore: PATTERN_LEARN_MORE[pattern.type] || null
+      whyThisMatters: explanation.why,
+      tryThis: explanation.tryThis,
+      context: { patternType: pattern.type }
     };
   }
 
   if (observation) {
+    const explanation = getExplanationForInsight('observation', { observationId: observation.id });
     return {
       type: 'observation',
       icon: '📊',
       label: 'Observed Change',
       headline: observation.headline,
       supporting: observation.supporting,
-      learnMore: observation.learnMore
+      whyThisMatters: explanation.why,
+      tryThis: explanation.tryThis,
+      context: { observationId: observation.id }
     };
   }
 
   if (dailyInsight) {
+    const explanation = getExplanationForInsight('insight', { category: dailyInsight.category });
     return {
       type: 'insight',
       icon: getCategoryIcon(dailyInsight.category),
       label: 'Today',
       headline: dailyInsight.title,
       supporting: dailyInsight.message,
-      learnMore: null
+      whyThisMatters: explanation.why,
+      tryThis: explanation.tryThis,
+      context: { category: dailyInsight.category }
     };
   }
 
   if (focusArea) {
     const config = FOCUS_AREAS[focusArea];
+    const explanation = getExplanationForInsight('focus', { focusArea });
     return {
       type: 'focus',
       icon: config.icon,
       label: 'Current Focus',
       headline: `This week, ${config.label.toLowerCase()} ${config.benefit}.`,
       supporting: 'Based on the gap between your recent averages and your baseline.',
-      learnMore: null
+      whyThisMatters: explanation.why,
+      tryThis: explanation.tryThis,
+      context: { focusArea }
     };
   }
 
   if (!historyData || historyData.length === 0) {
+    const explanation = getExplanationForInsight('welcome', {});
     return {
       type: 'welcome',
       icon: '📊',
       label: 'Getting Started',
       headline: 'Log your first day to begin building your reflection.',
       supporting: 'Once you have a few days of data, patterns and observations will appear here.',
-      learnMore: null
+      whyThisMatters: explanation.why,
+      tryThis: explanation.tryThis,
+      context: {}
     };
   }
 
+  const explanation = getExplanationForInsight('continuity', {});
   return {
     type: 'continuity',
     icon: '📊',
     label: 'Status',
     headline: 'Your data is being observed.',
     supporting: 'Patterns and changes will surface here as your history grows.',
-    learnMore: null
+    whyThisMatters: explanation.why,
+    tryThis: explanation.tryThis,
+    context: {}
   };
 }
 
@@ -249,6 +411,8 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
     return selectReflection(currentPattern, observation, dailyInsight, focusArea, historyData);
   }, [currentPattern, observation, dailyInsight, focusArea, historyData]);
 
+  const hasExpansion = reflection.whyThisMatters || reflection.tryThis;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -283,7 +447,7 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
           </div>
         </div>
 
-        {reflection.learnMore && (
+        {hasExpansion && (
           <div className="mt-4 pt-3 border-t border-gray-50">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
@@ -309,9 +473,16 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  <p className="text-sm text-gray-500 leading-relaxed mt-3 pl-4 border-l-2 border-slate-100">
-                    {reflection.learnMore}
-                  </p>
+                  {reflection.whyThisMatters && (
+                    <p className="text-sm text-gray-500 leading-relaxed mt-3 pl-4 border-l-2 border-slate-100">
+                      {reflection.whyThisMatters}
+                    </p>
+                  )}
+                  {reflection.tryThis && (
+                    <p className="text-xs text-slate-400 leading-relaxed mt-2 pl-4 border-l-2 border-slate-50">
+                      <span className="text-slate-500">Try this:</span> {reflection.tryThis}
+                    </p>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -319,16 +490,7 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
         )}
 
         {reflection.type === 'pattern' && currentPattern && (
-          <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between">
-            <button
-              onClick={() => {
-                if (onPatternExpand) onPatternExpand(currentPattern.type);
-                setIsExpanded(!isExpanded);
-              }}
-              className="text-xs text-slate-500 hover:text-slate-700 transition-colors"
-            >
-              {isExpanded ? 'Less detail' : 'More detail'}
-            </button>
+          <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-end">
             <button
               onClick={() => {
                 if (onPatternDismiss) onPatternDismiss(currentPattern.type, Date.now());
