@@ -1,0 +1,81 @@
+Implement Phase 5: Monthly Snapshot Memory.
+Goal:
+Create a once-per-month reflective snapshot that users can view anytime. This increases retention through identity continuity, not dopamine.
+What a Monthly Snapshot is:
+A saved monthly record containing:
+Avatar snapshot (start-of-month state and end-of-month/current state)
+Top pattern shift (one meaningful pattern detected or observed change over the month)
+Strongest zone + weakest zone (calmly framed, not as “best/worst”)
+A short monthly reflection summary (1–2 sentences)
+No streak language.
+No badges.
+No “level up.”
+No confetti.
+No celebratory hype.
+User Experience:
+On Home, under Weekly Summary or near “Monthly Review Available,” add a simple entry:
+“Monthly Snapshot”
+If available: “View this month’s snapshot”
+If not enough data: “Log a few days this month to generate a snapshot”
+When tapped, it opens a MonthlySnapshot screen/modal.
+Data requirements:
+A snapshot should generate when:
+The month has at least 7 logged days (or reasonable minimum you choose)
+Enough data exists to compute a stable summary
+It should store snapshots by month (YYYY-MM), so past months are accessible via a simple list.
+Snapshot content details:
+A) Avatar:
+Capture the avatar traits/effects object used for rendering at:
+Month start (first log day of month)
+Month end (most recent day in month or current day)
+Store these lightweight objects (not images), then render them in the snapshot view using existing SVG render pipeline.
+B) Top pattern shift:
+Pick one:
+Most confident PATTERN_DETECTED this month (if any)
+Else:
+Strongest OBSERVED_CHANGE vs baseline within the month
+Else:
+A calm continuity insight: “Your patterns stayed steady this month.”
+C) Zone summary (strongest and weakest):
+We currently track Health strongly. For other zones if data is limited, be conservative:
+If only Health is real data, then:
+Strongest zone: Health (if stable or improving)
+Other zones should be “Not enough data yet” rather than guessing
+If other zones exist in data model, compute:
+Zone score changes or consistency within each zone for the month
+Then pick:
+Strongest = most stable/improving
+Weakest = most inconsistent/declining OR least logged
+Rename weak framing to:
+“Needs Attention” or “Most Sensitive Right Now”
+Avoid “weakest” wording in UI.
+D) Monthly reflection summary (1–2 sentences):
+Generate calm summary based on direction and top pattern shift:
+Examples:
+“This month, sleep consistency became a stabilizer for stress. Your overall direction held steady.”
+“Your activity remained consistent and supported mood and sleep pressure. Direction strengthened slightly.”
+UI Components:
+MonthlySnapshotCard or MonthlySnapshotLink on Home (simple row/card)
+MonthlySnapshotScreen.jsx (or modal)
+MonthlySnapshotList.jsx to browse previous months
+Storage:
+Use existing storage approach (local storage / db / user profile state).
+Store snapshots keyed by month.
+Important constraints:
+No medical promises
+No motivational hype
+No judgment tone
+Keep text brief
+Navigation:
+Add entry point on Home: “Monthly Snapshot” near Monthly Review
+Allow viewing older snapshots from within snapshot screen
+Testing:
+New month with insufficient logs shows gentle prompt
+With enough logs, snapshot is generated and persisted
+Past month snapshots remain accessible
+Avatar renders for start and end states correctly
+Do not modify:
+Avatar engine logic
+Scoring logic
+DirectionIndicator thresholds
+Only add snapshot creation, storage, and UI.

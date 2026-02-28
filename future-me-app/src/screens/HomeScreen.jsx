@@ -21,6 +21,8 @@ import TodaysReflection from '../components/TodaysReflection';
 import RecentObservations from '../components/RecentObservations';
 import MiniAvatarPreview from '../components/MiniAvatarPreview';
 import DirectionIndicator from '../components/DirectionIndicator';
+import MonthlySnapshotCard from '../components/MonthlySnapshotCard';
+import MonthlySnapshotScreen from '../components/MonthlySnapshotScreen';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
 import { trackSilenceSession, trackPatternSession, trackPatternExpanded, trackPatternDismissedWithTiming, trackSessionReturn, trackReflectionResponse } from '../utils/patternValidation';
@@ -41,6 +43,7 @@ export default function HomeScreen({ onNavigate }) {
   const { user } = useAuth();
   
   const [showSnapshot, setShowSnapshot] = useState(false);
+  const [showMonthlySnapshot, setShowMonthlySnapshot] = useState(false);
   const [noticingTriggered, setNoticingTriggered] = useState(false);
   const [currentPattern, setCurrentPattern] = useState(null);
   const [patternChecked, setPatternChecked] = useState(false);
@@ -158,6 +161,8 @@ export default function HomeScreen({ onNavigate }) {
 
       <WeeklyReflectionPrompt />
 
+      <MonthlySnapshotCard onOpenSnapshot={() => setShowMonthlySnapshot(true)} />
+
       <motion.button
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -239,6 +244,11 @@ export default function HomeScreen({ onNavigate }) {
 
       <FirstMeaningfulWin noticingTriggered={noticingTriggered} />
       <GentleCommitmentPrompt />
+
+      <MonthlySnapshotScreen
+        isOpen={showMonthlySnapshot}
+        onClose={() => setShowMonthlySnapshot(false)}
+      />
     </div>
   );
 }
