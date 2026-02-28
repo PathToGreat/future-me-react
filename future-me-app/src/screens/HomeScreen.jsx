@@ -2,28 +2,22 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import FutureSelfPreview from '../components/FutureSelfPreview';
-import DailyInsight from '../components/DailyInsight';
-import JourneyMeter from '../components/JourneyMeter';
 import MicroSuggestionCard from '../components/MicroSuggestionCard';
 import ReassessmentBanner from '../components/ReassessmentBanner';
-import InsightsPanel from '../components/InsightsPanel';
 import ProgressTimeline from '../components/ProgressTimeline';
 import ConsistencyStreaks from '../components/ConsistencyStreaks';
 import WeeklyReflectionPrompt from '../components/WeeklyReflectionPrompt';
-import NoticingCard from '../components/NoticingCard';
 import ProgressSnapshot from '../components/ProgressSnapshot';
-import DailyReasonToReturn from '../components/DailyReasonToReturn';
 import FirstMeaningfulWin from '../components/FirstMeaningfulWin';
 import GentleCommitmentPrompt from '../components/GentleCommitmentPrompt';
-import HowPeopleUseThis from '../components/HowPeopleUseThis';
 import OperatingStyleCard from '../components/OperatingStyleCard';
 import TodaysReflection from '../components/TodaysReflection';
-import RecentObservations from '../components/RecentObservations';
 import MiniAvatarPreview from '../components/MiniAvatarPreview';
 import DirectionIndicator from '../components/DirectionIndicator';
 import MonthlySnapshotCard from '../components/MonthlySnapshotCard';
 import MonthlySnapshotScreen from '../components/MonthlySnapshotScreen';
 import ProgressDetails from '../components/ProgressDetails';
+import InsightsFeed from '../components/InsightsFeed';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
 import { trackSilenceSession, trackPatternSession, trackPatternExpanded, trackPatternDismissedWithTiming, trackSessionReturn, trackReflectionResponse } from '../utils/patternValidation';
@@ -45,7 +39,6 @@ export default function HomeScreen({ onNavigate }) {
   
   const [showSnapshot, setShowSnapshot] = useState(false);
   const [showMonthlySnapshot, setShowMonthlySnapshot] = useState(false);
-  const [noticingTriggered, setNoticingTriggered] = useState(false);
   const [currentPattern, setCurrentPattern] = useState(null);
   const [patternChecked, setPatternChecked] = useState(false);
 
@@ -215,24 +208,14 @@ export default function HomeScreen({ onNavigate }) {
         )}
       </ProgressDetails>
 
-      <RecentObservations>
-        <DailyReasonToReturn />
-        <NoticingCard onNoticingTriggered={setNoticingTriggered} />
-        <HowPeopleUseThis />
-        <div data-section="insights">
-          <InsightsPanel 
-            profile={liveProfile}
-            historyData={historyData}
-          />
-        </div>
-      </RecentObservations>
+      <InsightsFeed />
 
       <ProgressSnapshot 
         isOpen={showSnapshot} 
         onClose={() => setShowSnapshot(false)} 
       />
 
-      <FirstMeaningfulWin noticingTriggered={noticingTriggered} />
+      <FirstMeaningfulWin />
       <GentleCommitmentPrompt />
 
       <MonthlySnapshotScreen

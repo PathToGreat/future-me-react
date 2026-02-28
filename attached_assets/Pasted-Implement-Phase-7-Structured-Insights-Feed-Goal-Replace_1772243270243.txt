@@ -1,0 +1,56 @@
+Implement Phase 7: Structured Insights Feed.
+
+Goal:
+Replace the current mixed "Recent Observations" block with a dedicated Insights Feed system that increases retention through curiosity and clarity, not stimulation.
+
+Create:
+1) InsightsFeed.jsx
+2) InsightItem.jsx
+
+Behavior:
+- Insights are displayed in a calm feed, newest first.
+- Each item shows: date, category, headline, and one supporting sentence.
+- Each item is expandable to show: "Why this matters" and optional "Try this" (both already calm and non-gamified).
+- When expanded, mark the insight as read.
+- Add a subtle unread indicator (small dot) only, no badges, no bright colors.
+
+Categories:
+- Pattern (long-term correlations and high-confidence relationships)
+- Change (baseline shifts and meaningful month/week deltas)
+- Reflection (daily/weekly contextual insights)
+
+Data:
+Normalize every insight into this shape:
+{
+  id,
+  type,
+  category,
+  headline,
+  supporting,
+  whyThisMatters,
+  tryThis,
+  date,
+  read
+}
+
+Home integration:
+- Replace the "Recent Observations" collapsible section with a single collapsible section labeled "Insights".
+- If there are new/unread insights from the last 7 days, show a subtle count in the header (example: "Insights (2 new)").
+- If none, show just "Insights".
+- Home must remain calm and short by default.
+
+Persistence:
+- Insights must persist so users can return to past insights.
+- Store insights per user in Firestore: users/{uid}/insights/{insightId}
+- Avoid duplicating identical insights day-to-day. If the newly generated insight content matches a recent existing one, do not create a new entry.
+
+Constraints:
+- Do not alter the avatar engine, scoring logic, DirectionIndicator math, or monthly snapshot system.
+- Only implement the feed, normalization, persistence, and UI replacement of the old Recent Observations block.
+
+Tone:
+- No emojis, no praise, no shame, no hype, no urgency, no moral coloring.
+- Calm, reflective, informative.
+
+Outcome:
+The app should feel like it “notices” patterns and preserves them, giving users a reason to return without addictive mechanics.
