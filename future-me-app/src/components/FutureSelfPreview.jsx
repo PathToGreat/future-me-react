@@ -32,15 +32,15 @@ export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = 
     const strongHabits = habits.filter(h => h.streak >= 7);
 
     if (strongHabits.length > 0) {
-      return `🔥 ${strongHabits.length} ${strongHabits.length === 1 ? 'habit has' : 'habits have'} streaks of 7+ days. Excellent consistency!`;
+      return `${strongHabits.length} ${strongHabits.length === 1 ? 'habit has' : 'habits have'} been consistent for 7+ days.`;
     } else if (activeHabits.length === habits.length) {
-      return `✓ All habits completed today. Building strong patterns!`;
+      return `All habits completed today.`;
     } else if (activeHabits.length > 0) {
-      return `${activeHabits.length} of ${habits.length} ${activeHabits.length === 1 ? 'habit' : 'habits'} completed today. Keep going!`;
+      return `${activeHabits.length} of ${habits.length} ${activeHabits.length === 1 ? 'habit' : 'habits'} completed today.`;
     } else if (avgStreak >= 3) {
-      return `Your habits have an average streak of ${avgStreak} days. Don't break the chain!`;
+      return `Your habits have an average consistency of ${avgStreak} days.`;
     } else {
-      return `Stay consistent with your habits to strengthen your Life Zones.`;
+      return `Habit consistency contributes to your Life Zone scores over time.`;
     }
   };
 
@@ -94,23 +94,23 @@ export default function FutureSelfPreview({ lifestyleScore, lifeZones, habits = 
     const hasExcellence = achievements.some(a => a.id === 'excellence_seeker');
 
     if (hasMonthStreak) {
-      return `🏆 Month Master unlocked! Your 30-day streak shows exceptional discipline and consistency.`;
+      return `30 consecutive days of tracking recorded. This level of consistency provides reliable data for pattern detection.`;
     } else if (hasExcellence) {
-      return `⭐ Excellence Seeker achieved! Your dedication to growth is shaping a remarkable future.`;
+      return `Multiple metrics have reached elevated levels. Your data reflects sustained attention across areas.`;
     } else if (hasBalancedLife) {
-      return `⚖️ Balanced Life earned! All 6 zones above 60 - you're building a well-rounded life.`;
+      return `All 6 zones are above 60. Your data shows activity across each area of focus.`;
     } else if (hasWeekStreak) {
-      return `🔥 Week Strong! Your 7-day streak demonstrates commitment to lasting change.`;
+      return `7 consecutive days of tracking recorded. A week of data strengthens pattern reliability.`;
     } else if (hasConsistentLogger) {
-      return `📊 Consistent Logger! 7 consecutive days of tracking shows dedication to self-awareness.`;
+      return `7 consecutive days of logging completed. Your data now supports initial trend analysis.`;
     } else if (habitAchievements.length > 0) {
-      return `🌱 ${habitAchievements.length} habit ${habitAchievements.length === 1 ? 'milestone' : 'milestones'} achieved! Building strong foundations.`;
+      return `${habitAchievements.length} habit ${habitAchievements.length === 1 ? 'milestone' : 'milestones'} recorded based on consistency.`;
     } else if (zoneAchievements.length > 0) {
-      return `🏆 ${zoneAchievements.length} Life Zone ${zoneAchievements.length === 1 ? 'achievement' : 'achievements'} unlocked! Excellence across multiple areas.`;
+      return `${zoneAchievements.length} Life Zone ${zoneAchievements.length === 1 ? 'threshold' : 'thresholds'} reached based on logged data.`;
     } else if (trackingAchievements.length > 0) {
-      return `📈 ${trackingAchievements.length} tracking ${trackingAchievements.length === 1 ? 'milestone' : 'milestones'} reached! Consistency builds futures.`;
+      return `${trackingAchievements.length} tracking ${trackingAchievements.length === 1 ? 'milestone' : 'milestones'} recorded. Consistent tracking supports clearer analysis.`;
     } else if (achievements.length > 0) {
-      return `🎯 ${achievements.length} ${achievements.length === 1 ? 'achievement' : 'achievements'} earned! Every milestone strengthens your journey.`;
+      return `${achievements.length} ${achievements.length === 1 ? 'milestone' : 'milestones'} recorded based on your logged data.`;
     }
 
     return null;

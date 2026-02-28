@@ -51,11 +51,11 @@ function calculateLoggingStreak(historyData) {
   let message = '';
   
   if (streak >= 7) {
-    message = 'A week of consistent awareness';
+    message = 'Logged consistently for a week';
   } else if (streak >= 3) {
-    message = 'Building momentum';
+    message = 'Logging pattern forming';
   } else if (streak >= 1) {
-    message = 'Staying present';
+    message = 'Tracking in progress';
   } else {
     message = 'Ready to begin';
   }
@@ -123,13 +123,13 @@ export default function ConsistencyStreaks() {
       className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"
     >
       <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-        ✓ Consistency
+        Logging Consistency
       </h3>
       
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-700">Logging Streak</p>
+            <p className="text-sm font-medium text-gray-700">Consecutive Days</p>
             <p className="text-xs text-gray-500">{loggingStreak.message}</p>
           </div>
           <div className="text-right">

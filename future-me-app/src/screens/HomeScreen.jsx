@@ -23,6 +23,7 @@ import MiniAvatarPreview from '../components/MiniAvatarPreview';
 import DirectionIndicator from '../components/DirectionIndicator';
 import MonthlySnapshotCard from '../components/MonthlySnapshotCard';
 import MonthlySnapshotScreen from '../components/MonthlySnapshotScreen';
+import ProgressDetails from '../components/ProgressDetails';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
 import { trackSilenceSession, trackPatternSession, trackPatternExpanded, trackPatternDismissedWithTiming, trackSessionReturn, trackReflectionResponse } from '../utils/patternValidation';
@@ -87,10 +88,8 @@ export default function HomeScreen({ onNavigate }) {
           setCurrentPattern(selectedPattern);
           await trackPatternSurfaced(user.uid, selectedPattern.type, selectedPattern);
           await trackPatternSession(user.uid, selectedPattern.type);
-          console.log('📊 Pattern detected and displayed:', selectedPattern.type);
         } else {
           await trackSilenceSession(user.uid);
-          console.log('📊 Silence session - no pattern to display');
         }
       } catch (error) {
         console.error('Error detecting patterns:', error);
@@ -174,50 +173,52 @@ export default function HomeScreen({ onNavigate }) {
         <span>Log Today's Metrics</span>
       </motion.button>
 
-      <FutureSelfPreview 
-        lifestyleScore={liveProfile.lifestyleScore || 50} 
-        lifeZones={liveProfile.lifeZones}
-        habits={habits}
-        achievements={achievements}
-      />
+      <ProgressDetails>
+        <FutureSelfPreview 
+          lifestyleScore={liveProfile.lifestyleScore || 50} 
+          lifeZones={liveProfile.lifeZones}
+          habits={habits}
+          achievements={achievements}
+        />
 
-      <ReassessmentBanner
-        isVisible={showReassessmentBanner}
-        improvements={reassessmentAnalysis?.improvements || []}
-        declines={reassessmentAnalysis?.declines || []}
-        summary={reassessmentAnalysis?.summary}
-        onDismiss={dismissReassessmentBanner}
-      />
+        <ReassessmentBanner
+          isVisible={showReassessmentBanner}
+          improvements={reassessmentAnalysis?.improvements || []}
+          declines={reassessmentAnalysis?.declines || []}
+          summary={reassessmentAnalysis?.summary}
+          onDismiss={dismissReassessmentBanner}
+        />
 
-      <OperatingStyleCard />
+        <OperatingStyleCard />
 
-      <MicroSuggestionCard 
-        onViewInsights={() => {
-          const insightsSection = document.querySelector('[data-section="insights"]');
-          if (insightsSection) {
-            insightsSection.scrollIntoView({ behavior: 'smooth' });
-          }
-        }}
-      />
+        <MicroSuggestionCard 
+          onViewInsights={() => {
+            const insightsSection = document.querySelector('[data-section="insights"]');
+            if (insightsSection) {
+              insightsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+        />
 
-      <div className="grid md:grid-cols-2 gap-6">
         <ProgressTimeline />
         <ConsistencyStreaks />
-      </div>
+
+        {historyData && historyData.length >= 3 && (
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={handleOpenSnapshot}
+              className="text-sm text-slate-500 hover:text-slate-700 font-medium flex items-center gap-2 transition-colors"
+            >
+              View Progress Snapshot
+            </button>
+          </div>
+        )}
+      </ProgressDetails>
 
       <RecentObservations>
         <DailyReasonToReturn />
         <NoticingCard onNoticingTriggered={setNoticingTriggered} />
         <HowPeopleUseThis />
-        <div className="grid md:grid-cols-2 gap-4">
-          <DailyInsight
-            activity={liveProfile.activity}
-            nutrition={liveProfile.nutrition}
-            sleep={liveProfile.sleep}
-            stress={liveProfile.stress}
-          />
-          <JourneyMeter onboardingCompleted={liveProfile.onboardingCompleted} />
-        </div>
         <div data-section="insights">
           <InsightsPanel 
             profile={liveProfile}
@@ -225,17 +226,6 @@ export default function HomeScreen({ onNavigate }) {
           />
         </div>
       </RecentObservations>
-
-      {historyData && historyData.length >= 3 && (
-        <div className="flex justify-center">
-          <button
-            onClick={handleOpenSnapshot}
-            className="text-sm text-slate-500 hover:text-slate-700 font-medium flex items-center gap-2 transition-colors"
-          >
-            📊 View Progress Snapshot
-          </button>
-        </div>
-      )}
 
       <ProgressSnapshot 
         isOpen={showSnapshot} 

@@ -1,0 +1,59 @@
+Implement Phase 6: Reduce redundancy and consolidate secondary sections on the Home Dashboard.
+Current state:
+Top hierarchy is strong:
+MiniAvatarPreview
+TodaysReflection
+DirectionIndicator
+Weekly Reflection (weekends)
+Monthly Snapshot
+Quick Log
+But the lower sections still include multiple status and progress components (timeline, streaks, awareness days, assessment complete, profile active, operating style, micro suggestions, etc.) that can compete for attention and make Home feel dense.
+Goal:
+Keep Home calm and focused. Preserve retention features but reduce cognitive load by consolidating redundant items into a single secondary area.
+Deliverables:
+Create a single consolidated section on Home called:
+“Progress & Details”
+Collapsible
+Collapsed by default
+Calm, minimal header row
+Contains secondary components currently shown on Home below Quick Log
+Move these items into “Progress & Details” (or whichever are present in current code):
+ProgressTimeline
+ConsistencyStreaks / LoggingStreak / AwarenessDays
+AssessmentComplete / ProfileActive indicators
+ReassessmentBanner (if not urgent; if urgent keep visible but minimal)
+OperatingStyleCard (unless it is central to reflection)
+MicroSuggestionCard (only if it isn’t already integrated into Today’s Reflection)
+Rule: Home should not show more than ONE “consistency/streak” concept at a time outside the collapsible section.
+Prefer to keep streak language out of the Home main surface. If any streak is shown, rename it to:
+“Logging Consistency”
+and present it neutrally (no “🔥 Week Strong!” tone).
+Consolidate “status” items into a single compact row inside Progress & Details:
+Example:
+“Profile: Active”
+“Assessment: Complete”
+“Tracking: 28 days”
+Make these informational, not celebratory.
+Replace any hype-y or gamified copy still visible on Home (outside collapsibles):
+Remove “Week Strong!” type phrases if still present anywhere
+Remove flame icons or celebration tones
+If a message is motivational, rewrite it as reflective and descriptive
+Keep “Recent Observations” as a separate collapsible section, but ensure it does not duplicate content found in Today’s Reflection.
+If any component inside Recent Observations repeats identical insight copy, remove duplication.
+Ensure Home default view is short:
+Top stack + Quick Log, plus optional Weekly/Monthly entry points.
+Everything else should be behind collapsibles.
+Add a bottom navigation entry or settings entry point if needed:
+If users still need access to “history,” “insights,” “progress,” etc., ensure those are reachable without cluttering Home.
+Constraints:
+Do not change:
+Avatar engine logic
+Monthly snapshot logic
+Direction indicator math
+Firestore structure
+Only restructure layout, consolidate, rename copy, and reduce redundancy.
+Acceptance criteria:
+Home opens and feels calm with minimal scrolling required.
+Users can still access progress, history, and details via collapsible sections.
+No streak/celebration language appears on the main Home surface.
+Duplicate insight messaging is eliminated.
