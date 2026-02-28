@@ -6,6 +6,7 @@ import ImageUpload from '../components/ImageUpload';
 import GenderSelector from '../components/GenderSelector';
 import { getFutureAvatarDescription } from '../utils/futureAvatarModel';
 import { getCurrentMeDescription } from '../utils/currentMeAvatarModel';
+import VisualInfluences from '../components/VisualInfluences';
 
 function MetricBar({ label, value, max, color, reverse = false }) {
   const displayValue = reverse ? max - value + 1 : value;
@@ -206,6 +207,10 @@ export default function AvatarScreen() {
 
           <div className="mt-4 w-full max-w-xs">
             <GenderSelector onGenderChange={handleGenderChange} />
+          </div>
+
+          <div className="mt-4 w-full">
+            <VisualInfluences lifeZones={liveProfile.lifeZones} />
           </div>
         </motion.div>
 

@@ -4,6 +4,7 @@ import { computeAvatarStateAttribution, getOperatingStyleForAvatar } from '../ut
 import { computeSmoothedState, shouldTransition, interpolateStates, computeTransitionProgress, getStateMemory } from '../utils/avatarTemporalSmoothing';
 import { applyOperatingStyleInfluence, getStyleTransitionBehavior } from '../utils/avatarOperatingStyleInfluence';
 import { computeAvatarEffects } from '../components/avatar/AvatarEffectsEngine';
+import { computeZoneInfluences, applyZoneInfluencesToEffects } from '../utils/zoneInfluenceEngine';
 import { enhanceStateLegibility } from '../utils/avatarVisualLegibility';
 import { ensureDeterministicOutput, enforceSessionContinuity, createSessionCache, updateSessionCache } from '../utils/avatarExpressionConsistency';
 import { ensureComposure, detectStateConflicts } from '../utils/avatarConflictResolution';
@@ -92,7 +93,7 @@ export function useEnhancedAvatarState(metrics, options = {}) {
       };
     }
 
-    const baseEffects = computeAvatarEffects({
+    let baseEffects = computeAvatarEffects({
       activityScore: metrics.activityScore || metrics.activity || 3,
       nutritionScore: metrics.nutritionScore || metrics.nutrition || 3,
       sleepScore: metrics.sleepScore || metrics.sleep || 3,
@@ -101,6 +102,11 @@ export function useEnhancedAvatarState(metrics, options = {}) {
       gender: metrics.gender || 'male',
       baselineData: metrics.baselineData
     });
+
+    if (metrics.lifeZoneScores) {
+      const zoneInfluences = computeZoneInfluences(metrics.lifeZoneScores);
+      baseEffects = applyZoneInfluencesToEffects(baseEffects, zoneInfluences);
+    }
 
     let enhancedState = {
       ...attributedState,

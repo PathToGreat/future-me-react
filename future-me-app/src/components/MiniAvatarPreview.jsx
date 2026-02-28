@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { calculateAvatarTraits } from '../utils/avatarTraitEngine';
 import { computeAvatarEffects } from './avatar/AvatarEffectsEngine';
+import { computeZoneInfluences, applyZoneInfluencesToEffects } from '../utils/zoneInfluenceEngine';
 
 function hasRecentLogs(historyData) {
   if (!historyData || historyData.length === 0) return false;
@@ -70,7 +71,7 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
   }, [habitStreaks]);
 
   const avatarEffects = useMemo(() => {
-    return computeAvatarEffects({
+    const baseEffects = computeAvatarEffects({
       activityScore: activity,
       nutritionScore: nutrition,
       sleepScore: sleep,
@@ -81,7 +82,9 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
       gender: selectedGender || 'male',
       baselineData: liveProfile?.baselineData || null
     });
-  }, [activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, selectedGender, liveProfile?.baselineData]);
+    const zoneInfluences = computeZoneInfluences(lifeZoneScores);
+    return applyZoneInfluencesToEffects(baseEffects, zoneInfluences);
+  }, [activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, selectedGender, liveProfile?.baselineData, lifeZoneScores]);
 
   const colors = useMemo(() => {
     const energyScore = avatarTraits.glowEnergy.score;

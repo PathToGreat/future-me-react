@@ -1,0 +1,83 @@
+Implement Phase 9: Multi-Zone Visual Integration Layer for the Avatar.
+
+Goal:
+Expand the avatar engine so it can reflect influence from multiple life zones beyond Health, without adding visual clutter or symbolic overlays.
+
+Important:
+This must remain subtle and clean. No icons, no floating symbols, no exaggerated animations.
+
+Step 1: Define Zones
+Ensure the system can support these zones:
+- Health (existing)
+- Wealth
+- Faith
+- Family
+- Community
+- SocialEmotional
+
+If some zones do not yet have full data tracking, scaffold them in a neutral way so future data can influence avatar traits.
+
+Step 2: Influence Mapping Layer
+Create a new module:
+zoneInfluenceEngine.js
+
+This layer should:
+- Take zone-level scores or stability indicators
+- Convert them into subtle avatar trait modifiers
+
+Examples of acceptable subtle influences:
+
+Wealth:
+- Slight grounding posture shift when stable
+- Slight forward tension when unstable
+
+SocialEmotional:
+- Micro facial tension vs softness
+- Slight shoulder lift/drop
+
+Family/Community:
+- Subtle openness in torso posture vs contraction
+
+Faith:
+- Stability indicator reflected in reduced micro-variance of posture
+
+Health:
+- Remains primary driver of energy color and physical tone
+
+Step 3: Integration
+Modify avatar rendering pipeline to:
+- First compute health-based traits (existing system)
+- Then pass through zoneInfluenceEngine to apply subtle trait offsets
+- Ensure changes are small enough that they do not distort the avatar
+
+Step 4: Constraints
+- No new colors introduced
+- No symbolic graphics
+- No labels on avatar itself
+- No exaggerated movement
+- If zone data is insufficient, do not fabricate signals
+
+Step 5: Performance
+- No heavy rendering changes
+- Maintain SVG-based system
+- No WebGL or 3D
+
+Step 6: Transparency
+In the Avatar screen (not Home), add a subtle expandable section:
+“Visual Influences”
+When expanded, show:
+- Health: influencing posture + tone
+- SocialEmotional: influencing expression
+- etc.
+Short descriptive text only. No scores displayed.
+
+Do NOT:
+- Change scoring logic
+- Alter DirectionIndicator
+- Modify Snapshot logic
+- Add gamification
+
+Outcome:
+The avatar should feel deeper and more life-integrated, without becoming visually busy.
+
+It should still look clean and intentional.

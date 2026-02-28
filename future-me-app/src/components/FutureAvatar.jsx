@@ -6,6 +6,7 @@ import {
   getDarknessOverlayStyle, 
   getGlowOverlayStyle 
 } from './avatar/AvatarEffectsEngine';
+import { computeZoneInfluences, applyZoneInfluencesToEffects } from '../utils/zoneInfluenceEngine';
 import PostureLayer from './avatar/posture/PostureLayer';
 import FacialExpressionLayer from './avatar/FacialExpressionLayer';
 import BodyCompositionLayer from './avatar/BodyCompositionLayer';
@@ -79,7 +80,7 @@ export default function FutureAvatar({
   }, [habitStreaks]);
 
   const avatarEffects = useMemo(() => {
-    return computeAvatarEffects({
+    const baseEffects = computeAvatarEffects({
       activityScore: dailyMetrics.activity,
       nutritionScore: dailyMetrics.nutrition,
       sleepScore: dailyMetrics.sleep,
@@ -90,7 +91,9 @@ export default function FutureAvatar({
       gender: gender,
       baselineData: baselineData
     });
-  }, [dailyMetrics, disciplineScore, maxStreak, consistencyScore, gender, baselineData]);
+    const zoneInfluences = computeZoneInfluences(lifeZoneScores);
+    return applyZoneInfluencesToEffects(baseEffects, zoneInfluences);
+  }, [dailyMetrics, disciplineScore, maxStreak, consistencyScore, gender, baselineData, lifeZoneScores]);
 
   if (!futureMetrics) {
     return (

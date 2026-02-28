@@ -6,6 +6,7 @@ import {
   getDarknessOverlayStyle, 
   getGlowOverlayStyle 
 } from './avatar/AvatarEffectsEngine';
+import { computeZoneInfluences, applyZoneInfluencesToEffects } from '../utils/zoneInfluenceEngine';
 import PostureLayer from './avatar/posture/PostureLayer';
 import FacialExpressionLayer from './avatar/FacialExpressionLayer';
 import BodyCompositionLayer from './avatar/BodyCompositionLayer';
@@ -70,7 +71,7 @@ export default function FutureMeAvatar({
   }, [habitStreaks]);
 
   const avatarEffects = useMemo(() => {
-    return computeAvatarEffects({
+    const baseEffects = computeAvatarEffects({
       activityScore: activity || 3,
       nutritionScore: nutrition || 3,
       sleepScore: sleep || 3,
@@ -81,7 +82,9 @@ export default function FutureMeAvatar({
       gender: gender,
       baselineData: baselineData
     });
-  }, [activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, gender, baselineData]);
+    const zoneInfluences = computeZoneInfluences(lifeZoneScores);
+    return applyZoneInfluencesToEffects(baseEffects, zoneInfluences);
+  }, [activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, gender, baselineData, lifeZoneScores]);
 
   console.log('🎨 FutureMeAvatar rendered with traits:', avatarTraits.summary);
   console.log('🎨 Avatar effects applied:', {
