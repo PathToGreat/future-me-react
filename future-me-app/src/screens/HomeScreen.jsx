@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import FutureSelfPreview from '../components/FutureSelfPreview';
 import DailyInsight from '../components/DailyInsight';
@@ -20,6 +19,7 @@ import HowPeopleUseThis from '../components/HowPeopleUseThis';
 import OperatingStyleCard from '../components/OperatingStyleCard';
 import TodaysReflection from '../components/TodaysReflection';
 import RecentObservations from '../components/RecentObservations';
+import MiniAvatarPreview from '../components/MiniAvatarPreview';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
 import { trackSilenceSession, trackPatternSession, trackPatternExpanded, trackPatternDismissedWithTiming, trackSessionReturn, trackReflectionResponse } from '../utils/patternValidation';
@@ -27,7 +27,7 @@ import { doc, updateDoc, setDoc, getDoc, increment } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 
-export default function HomeScreen() {
+export default function HomeScreen({ onNavigate }) {
   const {
     liveProfile,
     habits,
@@ -38,7 +38,6 @@ export default function HomeScreen() {
     historyData,
   } = useApp();
   const { user } = useAuth();
-  const navigate = useNavigate();
   
   const [showSnapshot, setShowSnapshot] = useState(false);
   const [noticingTriggered, setNoticingTriggered] = useState(false);
@@ -145,6 +144,8 @@ export default function HomeScreen() {
         <p className="text-gray-500 text-sm">Daily overview</p>
       </div>
 
+      <MiniAvatarPreview onNavigateToAvatar={onNavigate} />
+
       <TodaysReflection
         currentPattern={currentPattern}
         onPatternDismiss={handlePatternDismiss}
@@ -158,7 +159,7 @@ export default function HomeScreen() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
-        onClick={() => navigate('/metrics')}
+        onClick={() => onNavigate && onNavigate('metrics')}
         className="w-full py-4 px-6 bg-gradient-to-r from-slate-700 to-slate-800 text-white font-semibold rounded-xl shadow-sm hover:shadow-md hover:from-slate-800 hover:to-slate-900 transition-all flex items-center justify-center gap-2"
       >
         <span className="text-lg">📊</span>

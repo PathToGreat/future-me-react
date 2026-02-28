@@ -23,7 +23,7 @@ function MainLayoutContent() {
   const renderScreen = () => {
     switch (activeTab) {
       case 'home':
-        return <HomeScreen />;
+        return <HomeScreen onNavigate={setActiveTab} />;
       case 'avatar':
         return <AvatarScreen />;
       case 'habits':

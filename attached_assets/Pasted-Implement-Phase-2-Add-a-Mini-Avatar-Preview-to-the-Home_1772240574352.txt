@@ -1,0 +1,50 @@
+Implement Phase 2: Add a Mini Avatar Preview to the Home Dashboard to improve retention through emotional anchoring, without adding overstimulation.
+Current state:
+Phase 1 created TodaysReflection.jsx as the dominant insight card at the top. The avatar currently lives in its own bottom navigation tab/section.
+Goal:
+Add a "Mini Avatar Preview" component to the Home dashboard ABOVE Today’s Reflection.
+Functional Requirements:
+The mini avatar preview should display the user's current avatar state using the existing avatar engine output (no new avatar engine logic required).
+It must be small, clean, and calm. It should not feel like a game character or animation-heavy widget.
+It should be tappable/clickable and navigate to the full Avatar section/tab.
+The mini preview must reflect the same current state as the full avatar (energy tone, posture, expression state as applicable).
+Keep it lightweight (SVG render only, no heavy effects, no external calls).
+UI Requirements:
+Component name: MiniAvatarPreview.jsx
+Placement order on Home:
+MiniAvatarPreview (new)
+TodaysReflection (existing)
+Remaining hierarchy stays as is
+MiniAvatarPreview layout:
+Left: small avatar render (or centered if that fits better)
+Right (or below): 1–2 lines of grounded text that reinforces reflection, not praise
+Copy examples (choose one style and keep it consistent):
+Option A (minimal):
+Title: “Your Current Self”
+Subtitle: “A visual reflection based on recent patterns.”
+Option B (slightly more direct):
+Title: “Today’s State”
+Subtitle: “Based on your last 7 days.”
+No emojis. No “great job.” No streak language. No gamified reinforcement.
+Interaction:
+On click/tap: route to the Avatar screen/route (use existing navigation patterns).
+Motion/Animation:
+Default: none.
+If you already have subtle idle animation in avatar engine, keep it extremely subtle.
+Do not add new animations in this phase.
+Data Logic:
+Use the same computed avatar state object currently used in the Avatar section.
+If state is missing (new user), show a neutral default avatar and a gentle prompt:
+“Log once to begin shaping your visual baseline.”
+Edge Cases:
+If the user is paused or has no recent logs, reflect that in the subtitle:
+“Resume logging to update your reflection.”
+Implementation Notes:
+Do NOT change scoring logic.
+Do NOT change insight logic.
+Do NOT redesign the avatar engine.
+Only surface the current avatar state in a compact component on Home and wire navigation.
+After implementing:
+Ensure Home still feels calm and uncluttered.
+MiniAvatarPreview should not compete visually with TodaysReflection.
+TodaysReflection remains the dominant element, MiniAvatarPreview is the emotional anchor.
