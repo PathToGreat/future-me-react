@@ -20,6 +20,7 @@ import OperatingStyleCard from '../components/OperatingStyleCard';
 import TodaysReflection from '../components/TodaysReflection';
 import RecentObservations from '../components/RecentObservations';
 import MiniAvatarPreview from '../components/MiniAvatarPreview';
+import DirectionIndicator from '../components/DirectionIndicator';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
 import { trackSilenceSession, trackPatternSession, trackPatternExpanded, trackPatternDismissedWithTiming, trackSessionReturn, trackReflectionResponse } from '../utils/patternValidation';
@@ -152,6 +153,8 @@ export default function HomeScreen({ onNavigate }) {
         onPatternExpand={handlePatternExpand}
         onPatternReflection={handlePatternReflection}
       />
+
+      <DirectionIndicator />
 
       <WeeklyReflectionPrompt />
 

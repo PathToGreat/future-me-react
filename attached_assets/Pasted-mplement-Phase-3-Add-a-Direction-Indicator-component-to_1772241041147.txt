@@ -1,0 +1,73 @@
+mplement Phase 3: Add a Direction Indicator component to the Home Dashboard to improve retention through clarity of trajectory (not gamification).
+Placement:
+Insert DirectionIndicator.jsx on Home BELOW Today’s Reflection and ABOVE Weekly Reflection / Quick Log area (or directly below Today’s Reflection if that is visually clean). It should be visually smaller than Today’s Reflection and roughly comparable to MiniAvatarPreview in weight.
+Component:
+Create DirectionIndicator.jsx
+Purpose:
+Show the user a calm, non-judgmental readout of their overall direction based on trends, not on raw score.
+Output format:
+Label: “Direction”
+Status (one of three):
+“Strengthening”
+“Stable”
+“Declining”
+Optional 1-line explanation in grounded tone:
+Example:
+Strengthening: “Your recent patterns are trending more consistent than your baseline.”
+Stable: “Your recent patterns are holding steady.”
+Declining: “Your recent patterns have softened compared to your baseline.”
+No emojis.
+No praise (“great job”), no shame (“bad”), no urgency language.
+Data logic:
+Use existing logged metrics already displayed on Home:
+Sleep, Activity, Stress, Nutrition, Consistency.
+Compute a direction score using one of these acceptable approaches (pick the simplest given current code):
+Option A (Preferred if you have baseline and 7-day average already):
+For each metric, compute delta = (7-day avg - baseline)
+Normalize direction impact so that:
+Higher is better for Sleep, Activity, Nutrition, Consistency
+Lower is better for Stress (invert stress delta)
+Sum weighted deltas (weights can be equal in Phase 3 unless you already have weights)
+Option B (If baseline is unreliable early on):
+Compare last 7 days vs prior 7 days
+Same polarity rules (stress inverted)
+Use percent change thresholds
+Classification thresholds:
+Keep thresholds conservative to avoid noisy flipping.
+Example:
+Strengthening if total_direction_score >= +X
+Declining if total_direction_score <= -X
+Stable otherwise
+Choose X based on your metric scales. The classification should not change day-to-day unless there is a meaningful shift.
+Stability requirement:
+Add basic smoothing to prevent frequent switching:
+Use a rolling window (7-day) and require at least 5 logs in last 7 days to compute
+If insufficient data, show “Stable” and subtitle:
+“Log a few more days to clarify direction.”
+UI style:
+Calm card or inline row, minimal design.
+Avoid strong color coding that implies moral judgment.
+If you use any color, keep it subtle and neutral.
+Include a small “i” tooltip or “How this is calculated” link that opens a lightweight explanation modal or collapsible text:
+Explanation text (short):
+“Direction reflects your recent patterns compared to your baseline. It updates as you log, and it is meant to guide awareness, not grade you.”
+Integration:
+Add DirectionIndicator to Home component layout.
+Do not change scoring logic or FutureSelfPreview score.
+This is a separate indicator focused on trajectory.
+Edge cases:
+No logs or paused: show “Stable” with:
+“Resume logging to update direction.”
+Data exists but < 5 logs in 7 days:
+“Log a few more days to clarify direction.”
+After implementing:
+Ensure the visual hierarchy remains:
+MiniAvatarPreview
+Today’s Reflection
+DirectionIndicator (new)
+Weekly Reflection (weekends)
+Quick Log Button
+The rest
+Deliverable:
+Phase 3 completed with DirectionIndicator.jsx and integrated into Home.
+Why this helps retention
