@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
+import { checkDirectionChange } from '../utils/reminderEngine';
 
 function computeDirection(historyData, baseline) {
   if (!historyData || historyData.length === 0) {
@@ -95,13 +97,24 @@ const STATUS_CONFIG = {
 
 export default function DirectionIndicator() {
   const { historyData, liveProfile } = useApp();
+  const { user } = useAuth();
   const [showExplanation, setShowExplanation] = useState(false);
+  const prevDirectionRef = useRef(null);
 
   const baseline = liveProfile?.onboardingBaseline || {};
 
   const direction = useMemo(() => {
     return computeDirection(historyData, baseline);
   }, [historyData, baseline]);
+
+  useEffect(() => {
+    if (!user?.uid || direction.insufficient) return;
+    const prev = prevDirectionRef.current;
+    if (prev && prev !== direction.status) {
+      checkDirectionChange(user.uid, direction.status, prev);
+    }
+    prevDirectionRef.current = direction.status;
+  }, [user?.uid, direction.status, direction.insufficient]);
 
   const config = STATUS_CONFIG[direction.status];
 

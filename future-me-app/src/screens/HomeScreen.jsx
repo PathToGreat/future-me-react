@@ -18,7 +18,9 @@ import MonthlySnapshotCard from '../components/MonthlySnapshotCard';
 import MonthlySnapshotScreen from '../components/MonthlySnapshotScreen';
 import ProgressDetails from '../components/ProgressDetails';
 import InsightsFeed from '../components/InsightsFeed';
+import ReminderBanner from '../components/ReminderBanner';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
+import { checkNewPattern } from '../utils/reminderEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
 import { trackSilenceSession, trackPatternSession, trackPatternExpanded, trackPatternDismissedWithTiming, trackSessionReturn, trackReflectionResponse } from '../utils/patternValidation';
 import { doc, updateDoc, setDoc, getDoc, increment } from 'firebase/firestore';
@@ -81,6 +83,7 @@ export default function HomeScreen({ onNavigate }) {
           setCurrentPattern(selectedPattern);
           await trackPatternSurfaced(user.uid, selectedPattern.type, selectedPattern);
           await trackPatternSession(user.uid, selectedPattern.type);
+          await checkNewPattern(user.uid, selectedPattern.type);
         } else {
           await trackSilenceSession(user.uid);
         }
@@ -139,6 +142,8 @@ export default function HomeScreen({ onNavigate }) {
         <h1 className="text-2xl font-bold text-gray-800">Your Dashboard</h1>
         <p className="text-gray-500 text-sm">Daily overview</p>
       </div>
+
+      <ReminderBanner />
 
       <MiniAvatarPreview onNavigateToAvatar={onNavigate} />
 

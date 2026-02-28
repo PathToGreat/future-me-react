@@ -5,9 +5,11 @@ import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import ConnectedDevicesPanel from '../components/ConnectedDevicesPanel';
 import InvestorMetricsDashboard from '../components/InvestorMetricsDashboard';
+import ReminderSettings from '../components/ReminderSettings';
 
 const MENU_ITEMS = [
   { id: 'devices', label: 'Connected Devices', icon: '📱', description: 'Manage health device integrations' },
+  { id: 'reminders', label: 'Reflection Reminders', icon: '📊', description: 'Choose when to be notified of meaningful changes' },
   { id: 'retake', label: 'Retake Assessment', icon: '📋', description: 'Update your baseline metrics' },
   { id: 'walkthrough', label: 'Replay Walkthrough', icon: '🎓', description: 'View the app introduction again' },
   { id: 'settings', label: 'Account Settings', icon: '⚙️', description: 'Manage your profile and preferences' },
@@ -20,6 +22,7 @@ export default function MenuScreen() {
   const { replayWalkthrough } = useApp();
   const navigate = useNavigate();
   const [showDevicesPanel, setShowDevicesPanel] = useState(false);
+  const [showReminderSettings, setShowReminderSettings] = useState(false);
   const [showFounderMetrics, setShowFounderMetrics] = useState(false);
   const [versionTapCount, setVersionTapCount] = useState(0);
   
@@ -42,6 +45,9 @@ export default function MenuScreen() {
     switch (itemId) {
       case 'devices':
         setShowDevicesPanel(true);
+        break;
+      case 'reminders':
+        setShowReminderSettings(true);
         break;
       case 'retake':
         navigate('/onboarding');
@@ -126,6 +132,11 @@ export default function MenuScreen() {
           <ConnectedDevicesPanel onClose={() => setShowDevicesPanel(false)} />
         )}
       </AnimatePresence>
+
+      <ReminderSettings
+        isOpen={showReminderSettings}
+        onClose={() => setShowReminderSettings(false)}
+      />
 
       <AnimatePresence>
         {showFounderMetrics && (

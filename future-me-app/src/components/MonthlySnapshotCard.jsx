@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { generateMonthlySnapshot, saveSnapshot, getCurrentMonthKey } from '../utils/monthlySnapshotEngine';
+import { checkMonthlySnapshot } from '../utils/reminderEngine';
 
 export default function MonthlySnapshotCard({ onOpenSnapshot }) {
   const { liveProfile, historyData, habits, achievements } = useApp();
@@ -19,6 +20,7 @@ export default function MonthlySnapshotCard({ onOpenSnapshot }) {
 
     if (snapshot.available && user?.uid) {
       saveSnapshot(user.uid, snapshot);
+      checkMonthlySnapshot(user.uid);
     }
   }, [historyData, liveProfile, habits, achievements, currentMonthKey, user?.uid]);
 
