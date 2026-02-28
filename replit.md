@@ -29,6 +29,7 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
 -   **Dynamic Avatar System:** SVG-based avatar adjusting visual traits based on wellness scores and metrics. Includes "Current Me" (baseline) vs. "Future Me" (90-day projection), avatar engines for visual traits, and visual overlays for posture, expressions, and effects. An Avatar Input Routing Gateway controls which inputs affect each avatar.
 -   **Wellness Score Calculation:** A formula computes a 0-100 score from user inputs.
 -   **Daily Tracking & Dashboard:** For logging daily metrics, real-time updates, and displaying avatars, scores, and insights.
+-   **Home Dashboard Hierarchy:** Restructured for clarity and emotional impact. Visual hierarchy: Today's Reflection (dominant card) → Weekly Trend Summary → Quick Log Button → Secondary sections. "Today's Reflection" dynamically selects the highest-priority insight from pattern detection, observed changes, daily insights, and focus zone data. Displays ONE insight at a time with icon, headline, supporting sentence, and optional expandable "Why this matters" section. "Recent Observations" is a collapsible section housing historical insights (DailyReasonToReturn, NoticingCard, HowPeopleUseThis, DailyInsight, InsightsPanel). All small rectangular insight popups removed from top of screen.
 -   **Life Zone System:** Tracks progress across 6 zones (Health, Social Emotional, Wealth, Faith, Family, Community).
 -   **Habit Builder & Achievements:** Allows users to create custom habits, track completions, and earn achievements.
 -   **Smart Reassessment & Insights:** Suggests baseline re-evaluation and generates personalized insights.
@@ -37,7 +38,7 @@ The frontend uses React 18.3, Vite 7.1.9, TailwindCSS 3 for styling, Framer Moti
 -   **Progress & Momentum Layer:** Features a personal progress timeline, focus zone indicators, consistency streaks, and weekly reflection prompts.
 -   **Commitment & Retention Layer:** Features designed to encourage natural return and psychological commitment without gamification, such as "DailyReasonToReturn," "FirstMeaningfulWin," and "GentleCommitmentPrompt."
 -   **Clarity, Trust, and Sharability Layer:** Features like "WhatThisMeans Panel," "ProgressSnapshot 'What Changed' View," and "HowPeopleUseThis Card" to enhance user understanding and sharing.
--   **Trend Intelligence Layer:** Data-driven pattern detection via a Pattern Detection Engine, surfacing neutral, evidence-based insights as PatternCards on the Home screen.
+-   **Trend Intelligence Layer:** Data-driven pattern detection via a Pattern Detection Engine, surfacing neutral, evidence-based insights via the TodaysReflection card on the Home screen.
 -   **Pattern Validation & Language Lock:** Internal evaluation layer to validate patterns and lock language based on user interaction (expansion/dismissal rates).
 -   **Personal Operating Style:** Aggregates trusted patterns into data-driven user profiles (e.g., Recovery Sensitive, Stress Reactive) and displays them via an OperatingStyleCard.
 -   **Avatar Expressive Resolution & State Attribution:** Enhances avatar visual vocabulary and state attribution, mapping internal states (energy, stressLoad) to visual manifestations (posture, expressions) and trajectory detection. Operating Styles subtly influence visual expression.

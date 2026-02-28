@@ -1,0 +1,61 @@
+We are restructuring the Home Dashboard for clarity, retention, and emotional impact.
+Current problem:
+There are multiple small rectangular insight popups at the top of the screen (Current Focus, Observed Change, Pattern Detected, etc.). This creates visual fragmentation and weakens psychological impact.
+Goal:
+Replace these multiple top-of-screen insight rectangles with ONE dominant card called:
+“Today’s Reflection”
+This card should:
+Pull the highest priority insight dynamically from:
+Pattern detected
+Observed change
+Current focus
+Trend insight
+Only display ONE insight at a time.
+Rotate daily OR when a more meaningful insight becomes available.
+Be visually larger and calmer than current small rectangles.
+Include:
+Icon (subtle, not emoji-heavy)
+Headline (short, strong)
+One supporting sentence
+Optional expandable “Learn More” section
+Design Requirements:
+Clean
+Minimal
+No gamified language
+No confetti
+No overstimulation
+Should feel reflective, not promotional
+Example structure:
+Title: Today’s Reflection
+Headline:
+Your stress stabilizes when sleep improves consistently.
+Supporting:
+When sleep becomes consistent for several days, your recovery system regulates more efficiently.
+Expandable Section (optional):
+Why this matters:
+Sustained sleep consistency lowers baseline stress load and improves emotional resilience.
+Below this card:
+Move remaining insights into a new section called:
+“Recent Observations”
+This section should:
+Be collapsible
+Show historical insights
+Not compete visually with Today’s Reflection
+Remove all multiple small insight rectangles from the top.
+Visual hierarchy of Home should now be:
+Mini Avatar Preview (we will implement in Phase 2)
+Today’s Reflection (dominant card)
+Direction Indicator (we will implement in Phase 3)
+Weekly Trend Summary
+Quick Log Button
+Secondary sections
+The emotional tone must feel:
+Grounded.
+Intelligent.
+Calm.
+Insight-driven.
+Not dopamine-driven.
+Do not alter avatar engine logic.
+Do not alter scoring logic.
+Only restructure dashboard hierarchy and insight presentation.
+Implement using existing React structure and state logic.

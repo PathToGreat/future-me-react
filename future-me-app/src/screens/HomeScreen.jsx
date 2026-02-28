@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import FutureSelfPreview from '../components/FutureSelfPreview';
 import DailyInsight from '../components/DailyInsight';
@@ -8,7 +9,6 @@ import MicroSuggestionCard from '../components/MicroSuggestionCard';
 import ReassessmentBanner from '../components/ReassessmentBanner';
 import InsightsPanel from '../components/InsightsPanel';
 import ProgressTimeline from '../components/ProgressTimeline';
-import FocusZoneIndicator from '../components/FocusZoneIndicator';
 import ConsistencyStreaks from '../components/ConsistencyStreaks';
 import WeeklyReflectionPrompt from '../components/WeeklyReflectionPrompt';
 import NoticingCard from '../components/NoticingCard';
@@ -17,8 +17,9 @@ import DailyReasonToReturn from '../components/DailyReasonToReturn';
 import FirstMeaningfulWin from '../components/FirstMeaningfulWin';
 import GentleCommitmentPrompt from '../components/GentleCommitmentPrompt';
 import HowPeopleUseThis from '../components/HowPeopleUseThis';
-import PatternCard from '../components/PatternCard';
 import OperatingStyleCard from '../components/OperatingStyleCard';
+import TodaysReflection from '../components/TodaysReflection';
+import RecentObservations from '../components/RecentObservations';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
 import { trackSilenceSession, trackPatternSession, trackPatternExpanded, trackPatternDismissedWithTiming, trackSessionReturn, trackReflectionResponse } from '../utils/patternValidation';
@@ -37,6 +38,7 @@ export default function HomeScreen() {
     historyData,
   } = useApp();
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   const [showSnapshot, setShowSnapshot] = useState(false);
   const [noticingTriggered, setNoticingTriggered] = useState(false);
@@ -139,30 +141,29 @@ export default function HomeScreen() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
-        <p className="text-gray-600">Your daily overview</p>
+        <h1 className="text-2xl font-bold text-gray-800">Your Dashboard</h1>
+        <p className="text-gray-500 text-sm">Daily overview</p>
       </div>
 
-      <DailyReasonToReturn />
-
-      <FocusZoneIndicator />
-
-      <HowPeopleUseThis />
-
-      <NoticingCard onNoticingTriggered={setNoticingTriggered} />
-
-      {currentPattern && (
-        <PatternCard 
-          pattern={currentPattern} 
-          onDismiss={handlePatternDismiss}
-          onExpand={handlePatternExpand}
-          onReflection={handlePatternReflection}
-        />
-      )}
-
-      <OperatingStyleCard />
+      <TodaysReflection
+        currentPattern={currentPattern}
+        onPatternDismiss={handlePatternDismiss}
+        onPatternExpand={handlePatternExpand}
+        onPatternReflection={handlePatternReflection}
+      />
 
       <WeeklyReflectionPrompt />
+
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        onClick={() => navigate('/metrics')}
+        className="w-full py-4 px-6 bg-gradient-to-r from-slate-700 to-slate-800 text-white font-semibold rounded-xl shadow-sm hover:shadow-md hover:from-slate-800 hover:to-slate-900 transition-all flex items-center justify-center gap-2"
+      >
+        <span className="text-lg">📊</span>
+        <span>Log Today's Metrics</span>
+      </motion.button>
 
       <FutureSelfPreview 
         lifestyleScore={liveProfile.lifestyleScore || 50} 
@@ -179,6 +180,8 @@ export default function HomeScreen() {
         onDismiss={dismissReassessmentBanner}
       />
 
+      <OperatingStyleCard />
+
       <MicroSuggestionCard 
         onViewInsights={() => {
           const insightsSection = document.querySelector('[data-section="insights"]');
@@ -193,28 +196,32 @@ export default function HomeScreen() {
         <ConsistencyStreaks />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <DailyInsight
-          activity={liveProfile.activity}
-          nutrition={liveProfile.nutrition}
-          sleep={liveProfile.sleep}
-          stress={liveProfile.stress}
-        />
-        <JourneyMeter onboardingCompleted={liveProfile.onboardingCompleted} />
-      </div>
-
-      <div data-section="insights">
-        <InsightsPanel 
-          profile={liveProfile}
-          historyData={historyData}
-        />
-      </div>
+      <RecentObservations>
+        <DailyReasonToReturn />
+        <NoticingCard onNoticingTriggered={setNoticingTriggered} />
+        <HowPeopleUseThis />
+        <div className="grid md:grid-cols-2 gap-4">
+          <DailyInsight
+            activity={liveProfile.activity}
+            nutrition={liveProfile.nutrition}
+            sleep={liveProfile.sleep}
+            stress={liveProfile.stress}
+          />
+          <JourneyMeter onboardingCompleted={liveProfile.onboardingCompleted} />
+        </div>
+        <div data-section="insights">
+          <InsightsPanel 
+            profile={liveProfile}
+            historyData={historyData}
+          />
+        </div>
+      </RecentObservations>
 
       {historyData && historyData.length >= 3 && (
         <div className="flex justify-center">
           <button
             onClick={handleOpenSnapshot}
-            className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-2"
+            className="text-sm text-slate-500 hover:text-slate-700 font-medium flex items-center gap-2 transition-colors"
           >
             📊 View Progress Snapshot
           </button>
