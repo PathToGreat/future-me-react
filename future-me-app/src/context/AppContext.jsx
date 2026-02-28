@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useHistoryData, saveDailySnapshot } from '../hooks/useHistoryData';
 import { projectFutureMetrics } from '../utils/futureAvatarModel';
@@ -33,39 +33,40 @@ export function AppProvider({ children }) {
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
   useEffect(() => {
-    if (user?.uid && liveProfile) {
+    if (!user?.uid || !liveProfile) return;
+
+    const checkWalkthrough = async () => {
       const walkthroughKey = `walkthrough_completed_${user.uid}`;
-      const completedTimestamp = localStorage.getItem(walkthroughKey);
-      const wasCompleted = !!completedTimestamp;
-      setWalkthroughCompleted(wasCompleted);
-      
+      const localCompleted = !!localStorage.getItem(walkthroughKey);
+
+      let firestoreCompleted = false;
+      try {
+        const profileRef = doc(db, 'users', user.uid);
+        const profileSnap = await getDoc(profileRef);
+        if (profileSnap.exists()) {
+          firestoreCompleted = !!profileSnap.data().walkthroughCompleted;
+        }
+      } catch (e) {}
+
+      const wasCompleted = localCompleted || firestoreCompleted;
+
       if (wasCompleted) {
+        if (!localCompleted) {
+          localStorage.setItem(walkthroughKey, 'true');
+        }
+        setWalkthroughCompleted(true);
         return;
       }
-      
-      const shouldShowWalkthrough = () => {
-        if (!historyData || historyData.length === 0) return true;
-        
-        if (historyData.length > 0) {
-          const lastLog = historyData[0];
-          if (lastLog?.date) {
-            const lastLogDate = new Date(lastLog.date);
-            const today = new Date();
-            const daysSinceLastLog = Math.floor((today - lastLogDate) / (1000 * 60 * 60 * 24));
-            if (daysSinceLastLog > 7) return true;
-          }
-        }
-        return true;
-      };
-      
-      if (shouldShowWalkthrough()) {
-        const timer = setTimeout(() => {
-          setShowWalkthrough(true);
-        }, 1000);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [user?.uid, liveProfile, historyData]);
+
+      setWalkthroughCompleted(false);
+      const timer = setTimeout(() => {
+        setShowWalkthrough(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    };
+
+    checkWalkthrough();
+  }, [user?.uid, liveProfile?.onboardingCompleted]);
 
   useEffect(() => {
     if (liveProfile && historyData) {
@@ -228,13 +229,26 @@ export function AppProvider({ children }) {
       const walkthroughKey = `walkthrough_completed_${user.uid}`;
       localStorage.setItem(walkthroughKey, 'true');
       setWalkthroughCompleted(true);
+      try {
+        const profileRef = doc(db, 'users', user.uid);
+        updateDoc(profileRef, { walkthroughCompleted: true }).catch(() => {});
+      } catch (e) {}
     }
     setShowWalkthrough(false);
   }, [user?.uid]);
 
   const dismissWalkthrough = useCallback(() => {
+    if (user?.uid) {
+      const walkthroughKey = `walkthrough_completed_${user.uid}`;
+      localStorage.setItem(walkthroughKey, 'true');
+      setWalkthroughCompleted(true);
+      try {
+        const profileRef = doc(db, 'users', user.uid);
+        updateDoc(profileRef, { walkthroughCompleted: true }).catch(() => {});
+      } catch (e) {}
+    }
     setShowWalkthrough(false);
-  }, []);
+  }, [user?.uid]);
 
   const replayWalkthrough = useCallback(() => {
     setShowWalkthrough(true);
