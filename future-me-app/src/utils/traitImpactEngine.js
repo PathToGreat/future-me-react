@@ -77,7 +77,7 @@ export function findStrongestLever(actionKeys, currentTraitState, targetTraitId)
   return best;
 }
 
-export function computeTrajectoryIntensity(traitState, projections, earlyStage) {
+export function computeTrajectoryIntensity(traitState, projections, earlyStage, historyDepth) {
   if (!traitState || !projections) {
     return { intensityScore: 0, toneState: 'stable' };
   }
@@ -126,12 +126,15 @@ export function computeTrajectoryIntensity(traitState, projections, earlyStage) 
   if (intensityScore >= strengtheningThreshold && positiveCount > negativeCount) {
     toneState = 'strengthening';
   } else if (intensityScore >= driftingThreshold && negativeCount > positiveCount) {
-    if (earlyStage) {
-      const historyDepth = Object.values(traitState)[0]?.historyDepth;
-      if (historyDepth != null && historyDepth <= 3 && intensityScore < 50) {
-        toneState = 'stable';
-      } else {
+    const depth = historyDepth ?? 0;
+    if (depth <= 2) {
+      toneState = 'stable';
+    } else if (earlyStage && depth <= 6) {
+      const strongNegCount = traitIds.filter(id => (traitState[id]?.velocity ?? 0) < -3).length;
+      if (strongNegCount >= 2 && intensityScore >= 50) {
         toneState = 'drifting';
+      } else {
+        toneState = 'stable';
       }
     } else {
       toneState = 'drifting';

@@ -53,11 +53,11 @@ export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineDat
 
   const visualDelta = computeVisualDelta(traits, projection12Month);
 
-  const { toneState } = computeTrajectoryIntensity(traits, projection12Month, earlyStage);
+  const historyDepth = historyData?.length || 0;
+  const { toneState } = computeTrajectoryIntensity(traits, projection12Month, earlyStage, historyDepth);
+  const narrative = generateIdentityNarrative(traits, projection12Month, projection5Year, toneState, earlyStage, historyDepth);
 
-  const narrative = generateIdentityNarrative(traits, projection12Month, projection5Year, toneState, earlyStage);
-
-  const iteResultForContrast = { traits, projection12Month, toneState };
+  const iteResultForContrast = { traits, projection12Month, toneState, earlyStage, historyDepth };
   const contrast = computeIdentityContrast(iteResultForContrast);
 
   return {

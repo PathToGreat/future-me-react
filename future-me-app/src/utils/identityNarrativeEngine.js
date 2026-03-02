@@ -99,11 +99,11 @@ function getTrend(trait) {
   return 'stable';
 }
 
-export function generateIdentityNarrative(traitState, projections12Month, projections5Year, toneState, earlyStage) {
-  const tone = toneState || 'stable';
-  const currentSummary = generateCurrentSummary(traitState, tone, earlyStage);
-  const projection12Summary = generate12MonthSummary(traitState, projections12Month, tone, earlyStage);
-  const projection5Summary = generate5YearSummary(traitState, projections5Year, tone, earlyStage);
+export function generateIdentityNarrative(traitState, projections12Month, projections5Year, toneState, earlyStage, historyDepth) {
+  const effectiveTone = resolveEffectiveTone(toneState, earlyStage, historyDepth);
+  const currentSummary = generateCurrentSummary(traitState, effectiveTone, earlyStage, historyDepth);
+  const projection12Summary = generate12MonthSummary(traitState, projections12Month, effectiveTone, earlyStage);
+  const projection5Summary = generate5YearSummary(traitState, projections5Year, effectiveTone, earlyStage);
 
   return {
     currentSummary,
@@ -112,6 +112,14 @@ export function generateIdentityNarrative(traitState, projections12Month, projec
     projectionConfidence: earlyStage ? 'early' : 'standard',
     timestamp: new Date().toISOString()
   };
+}
+
+function resolveEffectiveTone(toneState, earlyStage, historyDepth) {
+  const tone = toneState || 'stable';
+  const depth = historyDepth ?? 0;
+  if (depth <= 2) return 'stable';
+  if (depth < 7 && tone === 'drifting') return 'stable';
+  return tone;
 }
 
 function getToneConnector(tone) {
@@ -127,7 +135,8 @@ function getEarlyMovingTraits(traitState) {
     .map(([id, t]) => ({ id, ...t }));
 }
 
-function generateCurrentSummary(traitState, tone, earlyStage) {
+function generateCurrentSummary(traitState, tone, earlyStage, historyDepth) {
+  const depth = historyDepth ?? 0;
   const strongest = getTopTraits(traitState, 2, (a, b) => b.currentScore - a.currentScore);
   const moving = earlyStage ? getEarlyMovingTraits(traitState) : getMovingTraits(traitState);
 
@@ -139,11 +148,18 @@ function generateCurrentSummary(traitState, tone, earlyStage) {
       const meta = getTraitMeta(top.id);
       parts.push(`Early signals show ${meta.label.toLowerCase()} as your strongest starting trait.`);
     }
-    if (moving.length > 0) {
+    if (moving.length > 0 && depth > 2) {
       const topMover = moving[0];
       const meta = getTraitMeta(topMover.id);
-      const dir = topMover.velocity > 0 ? 'initial upward movement' : 'initial downward movement';
-      parts.push(`${meta.label} shows ${dir} from baseline.`);
+      if (topMover.velocity > 0) {
+        parts.push(`${meta.label} shows initial upward movement from baseline.`);
+      } else {
+        parts.push(`${meta.label} is showing early activity. Signals are still forming.`);
+      }
+    } else if (moving.length > 0 && depth <= 2) {
+      const topMover = moving[0];
+      const meta = getTraitMeta(topMover.id);
+      parts.push(`${meta.label} is your most responsive trait so far.`);
     }
     if (parts.length === 0) {
       parts.push('Initial patterns are forming. Your first entries are establishing a baseline.');

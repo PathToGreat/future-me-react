@@ -13,7 +13,8 @@ function formatSign(delta) {
 export function computeIdentityContrast(iteResult) {
   if (!iteResult?.traits || !iteResult?.projection12Month) return null;
 
-  const { traits, projection12Month, toneState = 'stable' } = iteResult;
+  const { traits, projection12Month, toneState = 'stable', earlyStage = false, historyDepth = 0 } = iteResult;
+  const effectiveTone = resolveContrastTone(toneState, earlyStage, historyDepth);
   const traitIds = getTraitIds();
 
   const deltas = traitIds.map(id => {
@@ -46,13 +47,34 @@ export function computeIdentityContrast(iteResult) {
     ? getTraitMeta(velocitySorted[0].id)?.label || velocitySorted[0].id
     : null;
 
-  const contrastSummaryCurrentToFuture = buildCurrentToFutureSummary(topGains, topLosses, toneState);
-  const contrastSummaryFutureToCurrent = buildFutureToCurrentSummary(topGains, topLosses, mostSensitiveTrait, toneState);
+  if (historyDepth <= 2) {
+    const mostResponsive = allSorted.slice(0, 2).map(d => d.trait);
+    const responsiveLine = mostResponsive.length === 2
+      ? `${mostResponsive[0]} and ${mostResponsive[1]} are the most responsive traits in your early data.`
+      : mostResponsive.length === 1
+        ? `${mostResponsive[0]} is the most responsive trait in your early data.`
+        : 'Your traits are still forming initial readings.';
+
+    return {
+      toneState: effectiveTone,
+      topGains: [],
+      topLosses: [],
+      mostSensitiveTrait,
+      contrastSummaryCurrentToFuture: responsiveLine + ' Direction will clarify as more data builds.',
+      contrastSummaryFutureToCurrent: mostSensitiveTrait
+        ? `${mostSensitiveTrait} is showing the most early activity. These are initial readings, not established patterns.`
+        : 'Signals are still forming. Your trajectory will take shape over the coming days.',
+      deltaList: null
+    };
+  }
+
+  const contrastSummaryCurrentToFuture = buildCurrentToFutureSummary(topGains, topLosses, effectiveTone);
+  const contrastSummaryFutureToCurrent = buildFutureToCurrentSummary(topGains, topLosses, mostSensitiveTrait, effectiveTone);
 
   const deltaList = buildDeltaList(topGains, topLosses);
 
   return {
-    toneState,
+    toneState: effectiveTone,
     topGains,
     topLosses,
     mostSensitiveTrait,
@@ -60,6 +82,13 @@ export function computeIdentityContrast(iteResult) {
     contrastSummaryFutureToCurrent,
     deltaList
   };
+}
+
+function resolveContrastTone(toneState, earlyStage, historyDepth) {
+  const tone = toneState || 'stable';
+  if (historyDepth <= 2) return 'stable';
+  if (historyDepth < 7 && tone === 'drifting') return 'stable';
+  return tone;
 }
 
 function buildCurrentToFutureSummary(topGains, topLosses, toneState) {
