@@ -1,0 +1,132 @@
+Implement PHASE 13: Action-to-Identity Consequence Wiring.
+
+This is NOT a UI expansion phase.
+Do NOT add new screens or tabs.
+This is wiring: Action → Trait impact → Velocity influence → Projection delta interpretation.
+
+Goal:
+Make logging and suggested actions feel like levers on identity trajectory.
+
+------------------------------------------------------------
+PART 1 — ACTION / HABIT MAPPING TABLE
+------------------------------------------------------------
+
+Create actionTraitMappingTable.js.
+
+Define a set of standard actions that correspond to what users already log or can reasonably infer from logging fields:
+
+Examples (align to current logged metrics and any existing habit toggles):
+- SleepConsistencyImproved
+- SleepDurationImproved
+- StressDecompressionBlock
+- MorningMovement
+- StrengthTraining
+- DailyWalk
+- ProteinFirstMeal (or NutritionStability)
+- ProcessedFoodReduced (or NutritionQuality)
+- SocialConnectionTouchpoint
+- FamilyConnectionBlock
+- FaithPracticeConsistency
+- LoggingConsistency
+
+Each action must map to:
+- one or more identity traits
+- a weight per trait (0–1)
+- polarity
+- expected time-to-effect (short/medium/long)
+- confidence rule (based on whether the app can infer this action from actual logs)
+
+This table must be extendable.
+
+------------------------------------------------------------
+PART 2 — IMPACT CALCULATOR
+------------------------------------------------------------
+
+Create traitImpactEngine.js.
+
+Function:
+computeActionTraitImpact(actionKey, currentTraitState)
+
+Return:
+- impactedTraits list
+- estimatedImpactMagnitude (small, conservative)
+- narrative consequence line (1 sentence)
+
+Example outputs:
+- “This supports Discipline by reducing friction and increasing behavioral reliability.”
+- “This supports Resilience by stabilizing recovery inputs.”
+
+Magnitude must be conservative and uncertainty-aware.
+
+------------------------------------------------------------
+PART 3 — LOGGING CONSEQUENCE INFERENCE
+------------------------------------------------------------
+
+When user logs today’s metrics (existing log flow):
+- infer 0–3 actionKeys based on what changed or what is consistent
+Examples:
+If sleep score increased and consistency improved → SleepConsistencyImproved
+If stress score decreased vs recent avg → StressDecompressionBlock (only if app has evidence)
+If logging time is consistent → LoggingConsistency
+
+Do not guess aggressively.
+If inference confidence is low, do not assign the action.
+
+Store inferred actions for that day as lightweight metadata for later insights.
+
+No new UI required.
+
+------------------------------------------------------------
+PART 4 — UPGRADE "TRY THIS" TO SHOW TRAIT CONSEQUENCE
+------------------------------------------------------------
+
+Trait insights already optionally include tryThis.
+
+Update traitInsightsEngine.js so that when it generates tryThis:
+- attach a linked actionKey where appropriate
+- include one additional short consequence line that names the trait(s) it affects
+Example:
+Try this: “Keep wake time within a 60-minute window for a few days.”
+Consequence line: “Most directly supports Resilience and Discipline.”
+
+This must remain calm and non-gamified.
+No promises.
+No hype.
+
+------------------------------------------------------------
+PART 5 — OPTIONAL FUTURE DELTA TEXT (NO NEW UI)
+------------------------------------------------------------
+
+Wherever the Future Me screen already shows projection narrative (from Phase 12),
+append a short optional line when an inferred action exists recently:
+
+Example:
+“Your recent sleep consistency is the strongest lever moving your projected Vitality upward.”
+
+Do not add a new card.
+Only append 1 line to existing narrative text areas if space allows.
+
+------------------------------------------------------------
+CONSTRAINTS
+------------------------------------------------------------
+
+Do NOT:
+- Add new screens
+- Add new UI sections
+- Add badges or streak hype
+- Change the avatar visuals
+- Change DirectionIndicator math
+- Change Snapshot logic
+
+This phase is meaning wiring:
+Actions → trait impacts → narrative consequence.
+
+------------------------------------------------------------
+SUCCESS CRITERIA
+------------------------------------------------------------
+
+- The system can map key user actions to trait impacts.
+- TryThis suggestions identify which traits they influence.
+- Logging can infer a small set of actions when confidence is high.
+- Future Me narrative can reference the strongest “lever” shaping projection.
+- Everything remains grounded and conservative.

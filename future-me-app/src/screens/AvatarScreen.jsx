@@ -10,6 +10,7 @@ import { getCurrentMeDescription } from '../utils/currentMeAvatarModel';
 import VisualInfluences from '../components/VisualInfluences';
 import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
 import { canRunITE } from '../utils/iteAvatarAdapter';
+import { inferActionsFromLog, findStrongestInferredLever } from '../utils/loggingConsequenceInference';
 
 function MetricBar({ label, value, max, color, reverse = false }) {
   const displayValue = reverse ? max - value + 1 : value;
@@ -71,7 +72,16 @@ export default function AvatarScreen() {
         habits: []
       };
       const iteResult = runIdentityTrajectoryEngine(rawMetrics, historyData, baseline);
-      return iteResult.narrative || null;
+      const narrative = iteResult.narrative || null;
+
+      let leverLine = null;
+      try {
+        const inferredActions = inferActionsFromLog(latestMetrics, historyData, liveProfile?.lifeZones);
+        const lever = findStrongestInferredLever(inferredActions, iteResult);
+        if (lever) leverLine = lever.narrative;
+      } catch (e) {}
+
+      return narrative ? { ...narrative, leverLine } : null;
     } catch (e) {
       return null;
     }
@@ -210,6 +220,11 @@ export default function AvatarScreen() {
                       <p className="text-sm text-gray-700 font-medium mb-2">
                         {iteNarrative.projection12MonthSummary}
                       </p>
+                      {iteNarrative.leverLine && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {iteNarrative.leverLine}
+                        </p>
+                      )}
                     </>
                   );
                 }

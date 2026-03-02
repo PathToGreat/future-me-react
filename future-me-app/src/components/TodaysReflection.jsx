@@ -512,6 +512,11 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
                       <span className="text-slate-500">Try this:</span> {reflection.tryThis}
                     </p>
                   )}
+                  {reflection.consequence && (
+                    <p className="text-xs text-slate-400 leading-relaxed mt-1.5 pl-4 border-l-2 border-slate-50 italic">
+                      {reflection.consequence}
+                    </p>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

@@ -1,4 +1,6 @@
 import { getTraitMeta, getTraitIds } from './identityTraits';
+import { getActionsForTrait } from './actionTraitMappingTable';
+import { computeActionTraitImpact } from './traitImpactEngine';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
@@ -84,6 +86,19 @@ function metricContext(traitId) {
   return readable.join(' and ');
 }
 
+function enrichTryThis(baseTryThis, traitId, currentTraitState) {
+  const actions = getActionsForTrait(traitId);
+  if (!actions || actions.length === 0) return { tryThis: baseTryThis, actionKey: null, consequence: null };
+  const topAction = actions[0];
+  const impact = computeActionTraitImpact(topAction.actionKey, currentTraitState);
+  if (!impact) return { tryThis: baseTryThis, actionKey: null, consequence: null };
+  return {
+    tryThis: baseTryThis,
+    actionKey: topAction.actionKey,
+    consequence: impact.consequenceLine
+  };
+}
+
 function generatePatternInsights(iteResult, historyData) {
   const insights = [];
   const rising = getMovingTraits(iteResult, 'positive');
@@ -92,6 +107,10 @@ function generatePatternInsights(iteResult, historyData) {
   if (rising.length >= 2) {
     const top2 = rising.slice(0, 2);
     const conf = confidenceFromData(historyData, top2[0].magnitude);
+    const enriched = enrichTryThis(
+      `Maintain the routines contributing to ${metricContext(top2[0].id)} — these appear to be driving the shift.`,
+      top2[0].id, iteResult.traits
+    );
     insights.push({
       type: 'pattern',
       category: 'pattern',
@@ -100,7 +119,9 @@ function generatePatternInsights(iteResult, historyData) {
       headline: `${top2[0].label} and ${top2[1].label} are strengthening in parallel.`,
       supporting: `Your recent data shows both traits trending upward. This suggests a systemic shift rather than isolated improvement.`,
       whyThisMatters: `When multiple identity traits move together, it indicates that underlying behavioral patterns are reinforcing each other. Continued consistency will compound this effect.`,
-      tryThis: `Maintain the routines contributing to ${metricContext(top2[0].id)} — these appear to be driving the shift.`,
+      tryThis: enriched.tryThis,
+      actionKey: enriched.actionKey,
+      consequence: enriched.consequence,
       implicatedTraits: top2.map(t => t.id),
       confidence: conf
     });
@@ -127,6 +148,8 @@ function generatePatternInsights(iteResult, historyData) {
     const t = falling[0];
     const conf = confidenceFromData(historyData, t.magnitude);
     if (t.magnitude !== 'low') {
+      const baseTryThis = rising.length > 0 ? `The patterns driving ${rising[0].label} may also benefit ${t.label} if applied consistently.` : null;
+      const enriched = enrichTryThis(baseTryThis, t.id, iteResult.traits);
       insights.push({
         type: 'pattern',
         category: 'pattern',
@@ -135,7 +158,9 @@ function generatePatternInsights(iteResult, historyData) {
         headline: `${t.label} is showing a downward trend.`,
         supporting: `Recent ${metricContext(t.id)} data is pulling this trait lower compared to your baseline.`,
         whyThisMatters: `This does not indicate failure. It indicates that current patterns are producing a different trajectory than earlier. The data is reflecting what is happening, not judging it.`,
-        tryThis: rising.length > 0 ? `The patterns driving ${rising[0].label} may also benefit ${t.label} if applied consistently.` : null,
+        tryThis: enriched.tryThis,
+        actionKey: enriched.actionKey,
+        consequence: enriched.consequence,
         implicatedTraits: [t.id],
         confidence: conf
       });
@@ -236,6 +261,11 @@ function generateFocusInsight(iteResult) {
 
   if (!focusTrait || focusTrait.score > 60) return null;
 
+  const enriched = enrichTryThis(
+    `Prioritize consistency in ${metricContext(focusTrait.id)} over intensity.`,
+    focusTrait.id, iteResult.traits
+  );
+
   return {
     type: 'focus',
     category: 'reflection',
@@ -244,7 +274,9 @@ function generateFocusInsight(iteResult) {
     headline: `${focusTrait.label} would benefit most from consistent attention.`,
     supporting: `This trait is currently at ${Math.round(focusTrait.score || focusTrait.currentScore)} points. Small improvements in ${metricContext(focusTrait.id)} would produce the most visible trajectory shift here.`,
     whyThisMatters: `Focusing effort where the gap is widest produces the most measurable change per unit of effort.`,
-    tryThis: `Prioritize consistency in ${metricContext(focusTrait.id)} over intensity.`,
+    tryThis: enriched.tryThis,
+    actionKey: enriched.actionKey,
+    consequence: enriched.consequence,
     implicatedTraits: [focusTrait.id],
     confidence: 0.6
   };
