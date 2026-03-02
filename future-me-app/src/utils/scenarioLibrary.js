@@ -101,8 +101,11 @@ export function getEligibleScenarios(historyDepth) {
   return Object.values(SCENARIOS).filter(s => historyDepth >= s.confidenceMinHistory);
 }
 
-export function selectDefaultScenario(mostSensitiveTrait, strongestLever, historyDepth) {
-  const eligible = getEligibleScenarios(historyDepth);
+export function selectDefaultScenario(mostSensitiveTrait, strongestLever, historyDepth, earlyStage) {
+  let eligible = getEligibleScenarios(historyDepth);
+  if (eligible.length === 0 && earlyStage) {
+    eligible = Object.values(SCENARIOS).filter(s => s.direction === 'positive');
+  }
   if (eligible.length === 0) return null;
 
   const positiveEligible = eligible.filter(s => s.direction === 'positive');

@@ -15,7 +15,7 @@ function applyVisualDeltaOffset(base, delta, scale = 1) {
 }
 
 function canRunITE(historyData, baselineData) {
-  if (!historyData || historyData.length < 3) return false;
+  if (!historyData || historyData.length < 1) return false;
   if (!baselineData) return false;
   return true;
 }

@@ -99,16 +99,17 @@ function getTrend(trait) {
   return 'stable';
 }
 
-export function generateIdentityNarrative(traitState, projections12Month, projections5Year, toneState) {
+export function generateIdentityNarrative(traitState, projections12Month, projections5Year, toneState, earlyStage) {
   const tone = toneState || 'stable';
-  const currentSummary = generateCurrentSummary(traitState, tone);
-  const projection12Summary = generate12MonthSummary(traitState, projections12Month, tone);
-  const projection5Summary = generate5YearSummary(traitState, projections5Year, tone);
+  const currentSummary = generateCurrentSummary(traitState, tone, earlyStage);
+  const projection12Summary = generate12MonthSummary(traitState, projections12Month, tone, earlyStage);
+  const projection5Summary = generate5YearSummary(traitState, projections5Year, tone, earlyStage);
 
   return {
     currentSummary,
     projection12MonthSummary: projection12Summary,
     projection5YearSummary: projection5Summary,
+    projectionConfidence: earlyStage ? 'early' : 'standard',
     timestamp: new Date().toISOString()
   };
 }
@@ -119,11 +120,36 @@ function getToneConnector(tone) {
   return '';
 }
 
-function generateCurrentSummary(traitState, tone) {
+function getEarlyMovingTraits(traitState) {
+  return Object.entries(traitState)
+    .filter(([_, t]) => t && Math.abs(t.velocity) > 0.8)
+    .sort(([, a], [, b]) => Math.abs(b.velocity) - Math.abs(a.velocity))
+    .map(([id, t]) => ({ id, ...t }));
+}
+
+function generateCurrentSummary(traitState, tone, earlyStage) {
   const strongest = getTopTraits(traitState, 2, (a, b) => b.currentScore - a.currentScore);
-  const moving = getMovingTraits(traitState);
+  const moving = earlyStage ? getEarlyMovingTraits(traitState) : getMovingTraits(traitState);
 
   const parts = [];
+
+  if (earlyStage) {
+    if (strongest.length > 0) {
+      const top = strongest[0];
+      const meta = getTraitMeta(top.id);
+      parts.push(`Early signals show ${meta.label.toLowerCase()} as your strongest starting trait.`);
+    }
+    if (moving.length > 0) {
+      const topMover = moving[0];
+      const meta = getTraitMeta(topMover.id);
+      const dir = topMover.velocity > 0 ? 'initial upward movement' : 'initial downward movement';
+      parts.push(`${meta.label} shows ${dir} from baseline.`);
+    }
+    if (parts.length === 0) {
+      parts.push('Initial patterns are forming. Your first entries are establishing a baseline.');
+    }
+    return parts.join(' ');
+  }
 
   if (strongest.length > 0) {
     const top = strongest[0];
@@ -150,20 +176,31 @@ function generateCurrentSummary(traitState, tone) {
   return parts.join(' ');
 }
 
-function generate12MonthSummary(traitState, projections, tone) {
+function generate12MonthSummary(traitState, projections, tone, earlyStage) {
   if (!projections) return 'Insufficient data for 12-month projection.';
+
+  const shiftThreshold = earlyStage ? 1.5 : 3;
+  const significantThreshold = earlyStage ? 5 : 10;
 
   const shifts = [];
   for (const traitId of getTraitIds()) {
     const current = traitState[traitId]?.currentScore ?? 50;
     const projected = projections[traitId] ?? current;
-    const shift = classifyShift(current, projected);
+    const diff = projected - current;
+    let shift = 'stable';
+    if (diff > significantThreshold) shift = 'significant_gain';
+    else if (diff > shiftThreshold) shift = 'gradual_gain';
+    else if (diff < -significantThreshold) shift = 'significant_decline';
+    else if (diff < -shiftThreshold) shift = 'gradual_decline';
     if (shift !== 'stable') {
       shifts.push({ traitId, current, projected, shift });
     }
   }
 
   if (shifts.length === 0) {
+    if (earlyStage) {
+      return 'Initial patterns suggest a stable trajectory. Each additional day adds clarity to these projections.';
+    }
     if (tone === 'drifting') {
       return 'Your identity traits are projected to remain in their current range, though recent velocity shifts may alter this if they continue.';
     }
@@ -174,6 +211,15 @@ function generate12MonthSummary(traitState, projections, tone) {
   const topShift = shifts[0];
   const meta = getTraitMeta(topShift.traitId);
   const direction = topShift.shift.includes('gain') ? 'strengthening' : 'softening';
+
+  if (earlyStage) {
+    let narrative = `Initial patterns indicate ${meta.label.toLowerCase()} is projected toward ${direction} over the next 12 months.`;
+    if (shifts.length > 1) {
+      const secondMeta = getTraitMeta(shifts[1].traitId);
+      narrative += ` Early signals also show movement in ${secondMeta.label.toLowerCase()}.`;
+    }
+    return narrative;
+  }
 
   let narrative = `Over the next 12 months, ${meta.label.toLowerCase()} is projected to continue ${direction}.`;
 
@@ -192,8 +238,9 @@ function generate12MonthSummary(traitState, projections, tone) {
   return narrative;
 }
 
-function generate5YearSummary(traitState, projections, tone) {
+function generate5YearSummary(traitState, projections, tone, earlyStage) {
   if (!projections) return 'Insufficient data for 5-year projection.';
+  if (earlyStage) return 'Five-year projections will develop as your data builds. You are at the beginning of shaping this trajectory.';
 
   const traitIds = getTraitIds();
   let totalCurrent = 0;

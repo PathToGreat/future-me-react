@@ -1,0 +1,121 @@
+Implement PHASE 16: First Week Acceleration Engine.
+
+This phase ensures meaningful identity feedback starting Day 1.
+
+This is NOT a UI expansion phase.
+Do NOT add new screens.
+Do NOT add hype language.
+This modifies gating, weighting, and interpretation during the first 7 days.
+
+------------------------------------------------------------
+PART 1 — EARLY STAGE DETECTION
+------------------------------------------------------------
+
+Inside identityTrajectoryEngine or a new earlyStageEngine:
+
+Detect early-stage users:
+- history length < 7 days
+- OR days since first log < 7
+
+Add:
+earlyStage = true/false
+
+------------------------------------------------------------
+PART 2 — EARLY TRAIT CALCULATION ADJUSTMENTS
+------------------------------------------------------------
+
+When earlyStage is true:
+
+- Reduce minimum gating requirement from 3 logs to 1 log.
+- Increase baseline weighting when computing velocity.
+- Reduce 30-day smoothing weight.
+- Allow smaller deltas to register as visible trait movement (but cap projections conservatively).
+
+Velocity must still be real math.
+No fabricated values.
+But allow sensitivity to small initial shifts.
+
+------------------------------------------------------------
+PART 3 — PROVISIONAL PROJECTION MODE
+------------------------------------------------------------
+
+When earlyStage:
+
+- Run projection12Month using a simplified slope derived primarily from baseline delta and most recent log.
+- Apply stronger damping.
+- Label internally:
+  projectionConfidence = "early"
+
+Do not expose "early" label in UI explicitly.
+Instead adjust tone.
+
+------------------------------------------------------------
+PART 4 — EARLY TONE CALIBRATION
+------------------------------------------------------------
+
+Update identityNarrativeEngine:
+
+If earlyStage:
+
+- Tone must reflect emergence:
+  “Early signals suggest…”
+  “Initial patterns indicate…”
+  “You are at the beginning of shaping…”
+
+Do NOT use confrontation tone during first 3 days unless extreme negative drift exists.
+
+Encouragement must feel grounded, not inflated.
+
+------------------------------------------------------------
+PART 5 — EARLY SCENARIO PRIORITIZATION
+------------------------------------------------------------
+
+When earlyStage:
+
+- Always generate one default positive scenario line.
+- Ensure it references the most sensitive trait.
+Example:
+  “If held for 14 days, this would most directly strengthen Discipline.”
+
+This ensures something meaningful appears on Day 1.
+
+------------------------------------------------------------
+PART 6 — TRAJECTORY INTENSITY ADJUSTMENT
+------------------------------------------------------------
+
+During earlyStage:
+
+- Lower intensity thresholds slightly so toneState can become "strengthening" with smaller velocity.
+- Do NOT allow strong confrontation tone in first 3 days.
+- After day 3, allow neutral/stable/drifting based strictly on math.
+
+------------------------------------------------------------
+CONSTRAINTS
+------------------------------------------------------------
+
+Do NOT:
+- Fabricate data
+- Exaggerate projections
+- Add new UI
+- Add celebratory effects
+- Add fear messaging
+
+This phase adjusts sensitivity, not honesty.
+
+------------------------------------------------------------
+SUCCESS CRITERIA
+------------------------------------------------------------
+
+After first log:
+- Traits populate.
+- Projection exists.
+- Future avatar shows subtle difference.
+- Narrative feels alive.
+- Scenario line appears.
+- User feels: “Something started.”
+
+By day 3:
+- Tone begins alternating based on trajectory.
+- Confrontation only appears if negative patterns are clear.
+
+The experience must feel like a hook — not fireworks, but motion.

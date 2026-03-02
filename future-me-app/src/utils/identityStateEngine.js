@@ -128,27 +128,43 @@ function buildSourceMapFromEntry(entry, fallbackSources) {
   return sources;
 }
 
-function computeVelocity(sevenDayAvg, thirtyDayAvg, baselineScore) {
+function computeVelocity(sevenDayAvg, thirtyDayAvg, baselineScore, earlyStage) {
   if (sevenDayAvg === null || thirtyDayAvg === null) {
+    if (earlyStage && sevenDayAvg !== null) {
+      const baselineDelta = sevenDayAvg - baselineScore;
+      const rawVelocity = baselineDelta * 0.55;
+      const smoothed = clamp(rawVelocity * 0.6, -15, 15);
+      const absVelocity = Math.abs(smoothed);
+      return {
+        raw: Math.round(smoothed * 100) / 100,
+        direction: smoothed > 1.0 ? 'positive' : smoothed < -1.0 ? 'negative' : 'neutral',
+        magnitude: absVelocity > 8 ? 'strong' : absVelocity > 2.5 ? 'moderate' : 'low'
+      };
+    }
     return { raw: 0, direction: 'neutral', magnitude: 'low' };
   }
+
+  const shortTermWeight = earlyStage ? 0.4 : 0.65;
+  const baselineWeight = earlyStage ? 0.6 : 0.35;
 
   const shortTermDelta = sevenDayAvg - thirtyDayAvg;
   const baselineDelta = sevenDayAvg - baselineScore;
 
-  const rawVelocity = (shortTermDelta * 0.65) + (baselineDelta * 0.35);
+  const rawVelocity = (shortTermDelta * shortTermWeight) + (baselineDelta * baselineWeight);
 
   const dampened = rawVelocity * 0.6;
   const smoothed = clamp(dampened, -15, 15);
 
+  const dirThreshold = earlyStage ? 1.0 : 1.5;
   let direction = 'neutral';
-  if (smoothed > 1.5) direction = 'positive';
-  else if (smoothed < -1.5) direction = 'negative';
+  if (smoothed > dirThreshold) direction = 'positive';
+  else if (smoothed < -dirThreshold) direction = 'negative';
 
+  const modThreshold = earlyStage ? 2.5 : 3;
   let magnitude = 'low';
   const absVelocity = Math.abs(smoothed);
   if (absVelocity > 8) magnitude = 'strong';
-  else if (absVelocity > 3) magnitude = 'moderate';
+  else if (absVelocity > modThreshold) magnitude = 'moderate';
 
   return {
     raw: Math.round(smoothed * 100) / 100,
@@ -187,7 +203,7 @@ function extractBaselineScore(traitId, baselineData) {
   return count > 0 ? clamp(sum / count, 0, 100) : 50;
 }
 
-export function computeIdentityState(rawMetrics, historyData, baselineData) {
+export function computeIdentityState(rawMetrics, historyData, baselineData, earlyStage) {
   const sources = buildSourceMap(rawMetrics, historyData, baselineData);
   const traitIds = getTraitIds();
   const traitState = {};
@@ -196,16 +212,17 @@ export function computeIdentityState(rawMetrics, historyData, baselineData) {
     const currentScore = computeTraitCurrentScore(traitId, sources);
     const baselineScore = extractBaselineScore(traitId, baselineData);
     const sevenDayAvg = computeHistoricalAverage(traitId, historyData, sources, 7) ?? currentScore;
-    const thirtyDayAvg = computeHistoricalAverage(traitId, historyData, sources, 30) ?? currentScore;
+    const thirtyDayAvgRaw = computeHistoricalAverage(traitId, historyData, sources, 30);
+    const thirtyDayAvg = earlyStage && thirtyDayAvgRaw === null ? null : (thirtyDayAvgRaw ?? currentScore);
 
-    const velocity = computeVelocity(sevenDayAvg, thirtyDayAvg, baselineScore);
+    const velocity = computeVelocity(sevenDayAvg, thirtyDayAvg, baselineScore, earlyStage);
 
     traitState[traitId] = {
       traitId,
       currentScore: Math.round(currentScore * 10) / 10,
       baselineScore: Math.round(baselineScore * 10) / 10,
       sevenDayAvg: Math.round(sevenDayAvg * 10) / 10,
-      thirtyDayAvg: Math.round(thirtyDayAvg * 10) / 10,
+      thirtyDayAvg: thirtyDayAvg !== null ? Math.round(thirtyDayAvg * 10) / 10 : Math.round(currentScore * 10) / 10,
       velocity: velocity.raw,
       velocityDirection: velocity.direction,
       velocityMagnitude: velocity.magnitude,

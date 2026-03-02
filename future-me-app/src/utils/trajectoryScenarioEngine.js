@@ -110,7 +110,8 @@ export function simulateScenario(iteResult, scenarioKey) {
   if (!scenario) return null;
 
   const historyDepth = iteResult._meta?.historyDepth || 0;
-  if (historyDepth < scenario.confidenceMinHistory) return null;
+  const isEarly = iteResult._meta?.earlyStage || iteResult.earlyStage || false;
+  if (!isEarly && historyDepth < scenario.confidenceMinHistory) return null;
 
   const velocityAdjustments = computeScenarioVelocityAdjustment(scenario);
 
@@ -184,8 +185,9 @@ export function simulateScenario(iteResult, scenarioKey) {
 
 export function simulateDefaultScenario(iteResult, mostSensitiveTrait, strongestLever) {
   const historyDepth = iteResult?._meta?.historyDepth || 0;
+  const earlyStage = iteResult?._meta?.earlyStage || iteResult?.earlyStage || false;
 
-  const scenario = selectDefaultScenario(mostSensitiveTrait, strongestLever, historyDepth);
+  const scenario = selectDefaultScenario(mostSensitiveTrait, strongestLever, historyDepth, earlyStage);
   if (!scenario) return null;
 
   return simulateScenario(iteResult, scenario.key);

@@ -77,7 +77,7 @@ export function findStrongestLever(actionKeys, currentTraitState, targetTraitId)
   return best;
 }
 
-export function computeTrajectoryIntensity(traitState, projections) {
+export function computeTrajectoryIntensity(traitState, projections, earlyStage) {
   if (!traitState || !projections) {
     return { intensityScore: 0, toneState: 'stable' };
   }
@@ -92,17 +92,19 @@ export function computeTrajectoryIntensity(traitState, projections) {
     ? top3Velocities.reduce((sum, t) => sum + t.velocity, 0) / top3Velocities.length
     : 0;
 
+  const dirThreshold = earlyStage ? 1.0 : 1.5;
   let convergenceCount = 0;
   const directions = traitIds.map(id => {
     const v = traitState[id]?.velocity ?? 0;
-    if (v > 1.5) return 'positive';
-    if (v < -1.5) return 'negative';
+    if (v > dirThreshold) return 'positive';
+    if (v < -dirThreshold) return 'negative';
     return 'neutral';
   });
   const positiveCount = directions.filter(d => d === 'positive').length;
   const negativeCount = directions.filter(d => d === 'negative').length;
-  if (positiveCount >= 3) convergenceCount = positiveCount;
-  if (negativeCount >= 3) convergenceCount = Math.max(convergenceCount, negativeCount);
+  const convergenceMin = earlyStage ? 2 : 3;
+  if (positiveCount >= convergenceMin) convergenceCount = positiveCount;
+  if (negativeCount >= convergenceMin) convergenceCount = Math.max(convergenceCount, negativeCount);
 
   let totalSlopeStrength = 0;
   for (const traitId of traitIds) {
@@ -117,11 +119,23 @@ export function computeTrajectoryIntensity(traitState, projections) {
   const slopeComponent = clamp(avgSlopeStrength / 10, 0, 1) * 30;
   const intensityScore = clamp(velocityComponent + convergenceComponent + slopeComponent, 0, 100);
 
+  const strengtheningThreshold = earlyStage ? 30 : 40;
+  const driftingThreshold = earlyStage ? 28 : 35;
+
   let toneState = 'stable';
-  if (intensityScore >= 40 && positiveCount > negativeCount) {
+  if (intensityScore >= strengtheningThreshold && positiveCount > negativeCount) {
     toneState = 'strengthening';
-  } else if (intensityScore >= 35 && negativeCount > positiveCount) {
-    toneState = 'drifting';
+  } else if (intensityScore >= driftingThreshold && negativeCount > positiveCount) {
+    if (earlyStage) {
+      const historyDepth = Object.values(traitState)[0]?.historyDepth;
+      if (historyDepth != null && historyDepth <= 3 && intensityScore < 50) {
+        toneState = 'stable';
+      } else {
+        toneState = 'drifting';
+      }
+    } else {
+      toneState = 'drifting';
+    }
   }
 
   return { intensityScore, toneState };

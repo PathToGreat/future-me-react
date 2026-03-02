@@ -6,8 +6,28 @@ import { getTraitIds } from './identityTraits';
 import { computeTrajectoryIntensity } from './traitImpactEngine';
 import { computeIdentityContrast } from './identityContrastEngine';
 
+function detectEarlyStage(historyData) {
+  const historyLength = historyData?.length || 0;
+  if (historyLength < 7) return true;
+
+  if (historyData && historyData.length > 0) {
+    const dates = historyData
+      .map(e => new Date(e.date))
+      .filter(d => !isNaN(d.getTime()));
+    if (dates.length > 0) {
+      const earliest = new Date(Math.min(...dates.map(d => d.getTime())));
+      const daysSinceFirst = (Date.now() - earliest.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceFirst < 7) return true;
+    }
+  }
+
+  return false;
+}
+
 export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineData) {
-  const traits = computeIdentityState(rawMetrics, historyData, baselineData);
+  const earlyStage = detectEarlyStage(historyData);
+
+  const traits = computeIdentityState(rawMetrics, historyData, baselineData, earlyStage);
 
   const velocity = {};
   for (const traitId of getTraitIds()) {
@@ -21,8 +41,8 @@ export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineDat
     }
   }
 
-  const projection12Month = project12Months(traits);
-  const projection5Year = project5Years(traits);
+  const projection12Month = project12Months(traits, earlyStage);
+  const projection5Year = project5Years(traits, earlyStage);
 
   for (const traitId of getTraitIds()) {
     if (traits[traitId]) {
@@ -33,9 +53,9 @@ export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineDat
 
   const visualDelta = computeVisualDelta(traits, projection12Month);
 
-  const { toneState } = computeTrajectoryIntensity(traits, projection12Month);
+  const { toneState } = computeTrajectoryIntensity(traits, projection12Month, earlyStage);
 
-  const narrative = generateIdentityNarrative(traits, projection12Month, projection5Year, toneState);
+  const narrative = generateIdentityNarrative(traits, projection12Month, projection5Year, toneState, earlyStage);
 
   const iteResultForContrast = { traits, projection12Month, toneState };
   const contrast = computeIdentityContrast(iteResultForContrast);
@@ -49,10 +69,12 @@ export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineDat
     narrative,
     toneState,
     contrast,
+    earlyStage,
     _meta: {
       generatedAt: new Date().toISOString(),
       traitCount: getTraitIds().length,
-      historyDepth: historyData?.length || 0
+      historyDepth: historyData?.length || 0,
+      earlyStage
     }
   };
 }
