@@ -11,6 +11,7 @@ import VisualInfluences from '../components/VisualInfluences';
 import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
 import { canRunITE } from '../utils/iteAvatarAdapter';
 import { inferActionsFromLog, findStrongestInferredLever } from '../utils/loggingConsequenceInference';
+import { simulateDefaultScenario } from '../utils/trajectoryScenarioEngine';
 
 function MetricBar({ label, value, max, color, reverse = false }) {
   const displayValue = reverse ? max - value + 1 : value;
@@ -90,7 +91,19 @@ export default function AvatarScreen() {
         contrast.strongestLever = strongestLeverLabel;
       }
 
-      return narrative ? { ...narrative, leverLine, contrast } : null;
+      let scenarioLine = null;
+      try {
+        const scenarioResult = simulateDefaultScenario(
+          iteResult,
+          contrast?.mostSensitiveTrait || null,
+          strongestLeverLabel
+        );
+        if (scenarioResult?.scenarioNarrative) {
+          scenarioLine = scenarioResult.scenarioNarrative;
+        }
+      } catch (e) {}
+
+      return narrative ? { ...narrative, leverLine, contrast, scenarioLine } : null;
     } catch (e) {
       return null;
     }
@@ -255,6 +268,11 @@ export default function AvatarScreen() {
                       {futureContrast?.deltaList && (
                         <p className="text-xs text-gray-400 mt-1">
                           {futureContrast.deltaList}
+                        </p>
+                      )}
+                      {iteNarrative.scenarioLine && (
+                        <p className="text-xs text-gray-500 mt-2 italic">
+                          ➡️ {iteNarrative.scenarioLine}
                         </p>
                       )}
                     </>

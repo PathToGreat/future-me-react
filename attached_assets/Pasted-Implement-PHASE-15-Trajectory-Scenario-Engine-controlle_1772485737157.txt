@@ -1,0 +1,119 @@
+Implement PHASE 15: Trajectory Scenario Engine (controlled counterfactual projections).
+
+This is NOT a UI expansion phase.
+Do NOT add new screens or major UI sections.
+This phase builds scenario projections and surfaces them minimally where space already exists.
+
+Goal:
+Allow the system to simulate “If this pattern holds for 14 days…” outcomes that alter projected identity traits and future avatar delta in a controlled, math-respectful way.
+
+------------------------------------------------------------
+PART 1 — SCENARIO DEFINITIONS
+------------------------------------------------------------
+
+Create scenarioLibrary.js.
+
+Define a small set of default scenarios (start with 6–8 max), each one being a controlled modification to inputs for a short duration window.
+
+Examples:
+- SleepConsistency14d
+- DailyWalk14d
+- NutritionStability14d
+- StressDecompression10d
+- LoggingPause10d (negative scenario)
+- LateNights7d (negative scenario)
+- SocialConnection7d
+- StrengthTraining14d
+
+Each scenario must define:
+- durationDays
+- actionKeys involved (reuse actionTraitMappingTable)
+- intended trait directions (positive/negative)
+- confidence constraints (only show if enough data exists)
+
+------------------------------------------------------------
+PART 2 — SCENARIO SIMULATION ENGINE
+------------------------------------------------------------
+
+Create trajectoryScenarioEngine.js.
+
+Function:
+simulateScenario(iteResult, scenarioKey)
+
+It must:
+- Start from current ITE traitState and velocity
+- Apply a conservative velocity adjustment derived from the scenario’s actionKeys and traitImpactEngine
+- Recompute projected12Month and projected5Year under scenario (with damping)
+- Output scenarioProjection with:
+  - scenarioKey
+  - deltaFromBaseProjection (trait deltas vs normal projection)
+  - updated visualDelta (optional)
+  - scenarioNarrative (1 sentence)
+  - scenarioTone (encouraging/confrontational/neutral based on resulting projection delta)
+
+This must remain realistic:
+- Use small effect sizes
+- Respect diminishing returns
+- Avoid dramatic leaps
+
+------------------------------------------------------------
+PART 3 — BASELINE COMPARISON OUTPUT
+------------------------------------------------------------
+
+For each scenario simulation, compute and return:
+- Top 2 trait improvements vs base projection
+- Top 1 trait risk reduction vs base projection (if applicable)
+- A compact summary line:
+Example:
+“If held for 14 days, this most directly strengthens Discipline and Resilience.”
+
+------------------------------------------------------------
+PART 4 — MINIMAL SURFACING (NO NEW SCREEN)
+------------------------------------------------------------
+
+Surface scenarios in ONE minimal location only, using an existing UI region:
+
+Preferred surface:
+Future Me view on AvatarScreen, near the existing narrative text.
+
+Requirement:
+- Show a small “Scenario” selector if a suitable existing control exists (dropdown or chips).
+- If not, show only ONE default scenario suggestion line based on the user’s mostSensitiveTrait and strongestLever:
+  Example:
+  “Scenario: If sleep consistency improves for 14 days, projected Resilience strengthens slightly.”
+
+Do not add a new card.
+Do not add a new panel.
+Keep it a single line or a small inline control.
+
+------------------------------------------------------------
+PART 5 — STORE SCENARIO RESULTS FOR INSIGHTS USE
+------------------------------------------------------------
+
+Persist scenario selections and the last computed scenario result so it can be reused in:
+- insights feed entries
+- reminders
+without recomputing excessively.
+
+Do not spam storage.
+Keep it minimal.
+
+------------------------------------------------------------
+CONSTRAINTS
+------------------------------------------------------------
+
+Do NOT:
+- Add new screens
+- Add extensive UI
+- Add gamification
+- Change core ITE math
+Only build scenario simulation as a layer on top of ITE outputs.
+
+------------------------------------------------------------
+SUCCESS CRITERIA
+------------------------------------------------------------
+
+- User can see at least one scenario-based “if-then” projection line on Future Me.
+- Scenarios are conservative and math-backed.
+- The scenario output clearly states which traits it moves.
+- The experience increases emotional grip without UI clutter.

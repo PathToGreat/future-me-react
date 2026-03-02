@@ -49,6 +49,7 @@ The frontend is built with React 18.3, Vite, TailwindCSS, Framer Motion, and Rea
 -   **Trait-Based Reflections & Insights:** Shifts insights and reflections from raw metric reporting to identity trajectory interpretation, framing them in identity trait language.
 -   **Action-to-Identity Consequence Wiring:** Maps user actions to identity trait impacts, providing conservative impact estimates and generating consequence lines for "Try This" suggestions.
 -   **Current vs Future Identity Contrast Engine:** Computes and displays identity contrast when toggling between "Current Me" and "Future Me" on the Avatar screen, highlighting top gains/losses and sensitive traits.
+-   **Trajectory Scenario Engine (Phase 15):** `scenarioLibrary.js` defines 8 controlled counterfactual scenarios (SleepConsistency14d, DailyWalk14d, NutritionStability14d, StressDecompression10d, StrengthTraining14d, SocialConnection7d, LoggingPause10d, LateNights7d). `trajectoryScenarioEngine.js` simulates conservative velocity adjustments on ITE outputs, producing scenario narratives and trait deltas. AvatarScreen Future Me view shows one default scenario suggestion line. No new UI sections.
 
 **Backend & Data Architecture:** Firebase Authentication is used for user authentication, and Cloud Firestore serves as the primary database for all user data.
 
