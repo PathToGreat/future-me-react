@@ -86,12 +86,14 @@ function metricContext(traitId) {
   return readable.join(' and ');
 }
 
-function enrichTryThis(baseTryThis, traitId, currentTraitState) {
+function enrichTryThis(baseTryThis, traitId, currentTraitState, historyData) {
   const actions = getActionsForTrait(traitId);
   if (!actions || actions.length === 0) return { tryThis: baseTryThis, actionKey: null, consequence: null };
   const topAction = actions[0];
   const impact = computeActionTraitImpact(topAction.actionKey, currentTraitState);
-  if (!impact) return { tryThis: baseTryThis, actionKey: null, consequence: null };
+  if (!impact || !impact.consequenceLine) return { tryThis: baseTryThis, actionKey: null, consequence: null };
+  const histLen = historyData?.length || 0;
+  if (histLen < 3) return { tryThis: baseTryThis, actionKey: null, consequence: null };
   return {
     tryThis: baseTryThis,
     actionKey: topAction.actionKey,
@@ -99,7 +101,12 @@ function enrichTryThis(baseTryThis, traitId, currentTraitState) {
   };
 }
 
+const MIN_PATTERN_HISTORY = 7;
+
 function generatePatternInsights(iteResult, historyData) {
+  const histLen = historyData?.length || 0;
+  if (histLen < MIN_PATTERN_HISTORY) return [];
+
   const insights = [];
   const rising = getMovingTraits(iteResult, 'positive');
   const falling = getMovingTraits(iteResult, 'negative');
@@ -109,7 +116,7 @@ function generatePatternInsights(iteResult, historyData) {
     const conf = confidenceFromData(historyData, top2[0].magnitude);
     const enriched = enrichTryThis(
       `Maintain the routines contributing to ${metricContext(top2[0].id)} — these appear to be driving the shift.`,
-      top2[0].id, iteResult.traits
+      top2[0].id, iteResult.traits, historyData
     );
     insights.push({
       type: 'pattern',
@@ -149,7 +156,7 @@ function generatePatternInsights(iteResult, historyData) {
     const conf = confidenceFromData(historyData, t.magnitude);
     if (t.magnitude !== 'low') {
       const baseTryThis = rising.length > 0 ? `The patterns driving ${rising[0].label} may also benefit ${t.label} if applied consistently.` : null;
-      const enriched = enrichTryThis(baseTryThis, t.id, iteResult.traits);
+      const enriched = enrichTryThis(baseTryThis, t.id, iteResult.traits, historyData);
       insights.push({
         type: 'pattern',
         category: 'pattern',
@@ -173,6 +180,8 @@ function generatePatternInsights(iteResult, historyData) {
 function generateObservedChangeInsights(iteResult, historyData, baselineData) {
   const insights = [];
   const { traits } = iteResult;
+  const histLen = historyData?.length || 0;
+  const isEarly = histLen < MIN_PATTERN_HISTORY;
 
   for (const traitId of getTraitIds()) {
     const trait = traits[traitId];
@@ -181,28 +190,97 @@ function generateObservedChangeInsights(iteResult, historyData, baselineData) {
     if (Math.abs(baselineDiff) < 5) continue;
 
     const direction = baselineDiff > 0 ? 'above' : 'below';
-    const shift = baselineDiff > 0 ? 'strengthened' : 'shifted lower';
     const conf = confidenceFromData(historyData, Math.abs(baselineDiff) > 10 ? 'strong' : 'moderate');
 
-    insights.push({
-      type: 'observation',
-      category: 'change',
-      icon: '📊',
-      label: 'Observed Change',
-      headline: `${traitLabel(traitId)} has ${shift} compared to your starting point.`,
-      supporting: `Current ${traitLabel(traitId).toLowerCase()} is ${Math.abs(Math.round(baselineDiff))} points ${direction} your baseline. This reflects changes in ${metricContext(traitId)}.`,
-      whyThisMatters: `Baseline shifts indicate that your daily patterns have produced a measurable structural change, not just a temporary fluctuation.`,
-      tryThis: null,
-      implicatedTraits: [traitId],
-      confidence: conf
-    });
+    if (isEarly) {
+      const earlyDirection = baselineDiff > 0 ? 'higher than' : 'lower than';
+      insights.push({
+        type: 'observation',
+        category: 'change',
+        icon: '📊',
+        label: 'Early Signal',
+        headline: `${traitLabel(traitId)} is reading ${earlyDirection} your starting point.`,
+        supporting: `Initial ${traitLabel(traitId).toLowerCase()} is ${Math.abs(Math.round(baselineDiff))} points ${direction} your baseline. This is an early reading, not a confirmed shift.`,
+        whyThisMatters: `Early readings show where your data is starting relative to your assessment. These will stabilize as more days are logged.`,
+        tryThis: null,
+        implicatedTraits: [traitId],
+        confidence: conf
+      });
+    } else {
+      const shift = baselineDiff > 0 ? 'strengthened' : 'shifted lower';
+      insights.push({
+        type: 'observation',
+        category: 'change',
+        icon: '📊',
+        label: 'Observed Change',
+        headline: `${traitLabel(traitId)} has ${shift} compared to your starting point.`,
+        supporting: `Current ${traitLabel(traitId).toLowerCase()} is ${Math.abs(Math.round(baselineDiff))} points ${direction} your baseline. This reflects changes in ${metricContext(traitId)}.`,
+        whyThisMatters: `Baseline shifts indicate that your daily patterns have produced a measurable structural change, not just a temporary fluctuation.`,
+        tryThis: null,
+        implicatedTraits: [traitId],
+        confidence: conf
+      });
+    }
   }
 
   insights.sort((a, b) => b.confidence - a.confidence);
   return insights.slice(0, 2);
 }
 
+function generateEarlySignalInsight(iteResult, historyData) {
+  const histLen = historyData?.length || 0;
+  const strongest = getStrongestTraits(iteResult, 1)[0];
+
+  if (histLen === 0) {
+    return {
+      type: 'earlySignal',
+      category: 'reflection',
+      icon: '📊',
+      label: 'Starting Point',
+      headline: 'Your assessment has established a starting point.',
+      supporting: 'As you log your first days, initial readings will appear here based on your data.',
+      whyThisMatters: 'The assessment creates a reference point. Logging builds on it.',
+      tryThis: null,
+      implicatedTraits: [],
+      confidence: 0.1
+    };
+  }
+
+  if (strongest) {
+    return {
+      type: 'earlySignal',
+      category: 'reflection',
+      icon: '📊',
+      label: 'Early Reading',
+      headline: `${strongest.label} is your strongest initial reading at ${Math.round(strongest.score)} points.`,
+      supporting: `This is based on ${histLen} ${histLen === 1 ? 'entry' : 'entries'} and your assessment. Direction will clarify as you log a few more days.`,
+      whyThisMatters: 'Early readings reflect where your data starts. They are not trends — trends require more days of tracking.',
+      tryThis: null,
+      implicatedTraits: [strongest.id],
+      confidence: 0.2
+    };
+  }
+
+  return {
+    type: 'earlySignal',
+    category: 'reflection',
+    icon: '📊',
+    label: 'Early Reading',
+    headline: 'Your identity traits are being measured.',
+    supporting: `Based on ${histLen} ${histLen === 1 ? 'entry' : 'entries'}. Direction will clarify as you log a few more days.`,
+    whyThisMatters: 'Each logged day adds signal. Patterns and direction will surface once enough data exists.',
+    tryThis: null,
+    implicatedTraits: [],
+    confidence: 0.15
+  };
+}
+
 function generateDailyInsight(iteResult, historyData) {
+  const histLen = historyData?.length || 0;
+  if (histLen < MIN_PATTERN_HISTORY) {
+    return generateEarlySignalInsight(iteResult, historyData);
+  }
+
   const strongest = getStrongestTraits(iteResult, 1)[0];
   const weakest = getWeakestTraits(iteResult, 1)[0];
   const shifts = getProjectionShifts(iteResult);
@@ -254,16 +332,19 @@ function generateDailyInsight(iteResult, historyData) {
   };
 }
 
-function generateFocusInsight(iteResult) {
+function generateFocusInsight(iteResult, historyData) {
+  const histLen = historyData?.length || 0;
   const weakest = getWeakestTraits(iteResult, 1)[0];
   const falling = getMovingTraits(iteResult, 'negative');
   const focusTrait = falling.length > 0 ? falling[0] : weakest;
 
   if (!focusTrait || focusTrait.score > 60) return null;
 
+  if (histLen < MIN_PATTERN_HISTORY) return null;
+
   const enriched = enrichTryThis(
     `Prioritize consistency in ${metricContext(focusTrait.id)} over intensity.`,
-    focusTrait.id, iteResult.traits
+    focusTrait.id, iteResult.traits, historyData
   );
 
   return {
@@ -285,10 +366,11 @@ function generateFocusInsight(iteResult) {
 export function generateTraitInsights(iteResult, historyData, baselineData) {
   if (!iteResult || !iteResult.traits) return { available: false, insights: [] };
 
+  const histLen = historyData?.length || 0;
   const patterns = generatePatternInsights(iteResult, historyData);
   const changes = generateObservedChangeInsights(iteResult, historyData, baselineData);
   const daily = generateDailyInsight(iteResult, historyData);
-  const focus = generateFocusInsight(iteResult);
+  const focus = generateFocusInsight(iteResult, historyData);
 
   const all = [...patterns, ...changes];
   if (daily) all.push(daily);
@@ -301,6 +383,7 @@ export function generateTraitInsights(iteResult, historyData, baselineData) {
     changes,
     daily,
     focus,
+    isEarly: histLen < MIN_PATTERN_HISTORY,
     narrative: iteResult.narrative || null
   };
 }
@@ -308,7 +391,13 @@ export function generateTraitInsights(iteResult, historyData, baselineData) {
 export function selectBestTraitReflection(traitInsightResult) {
   if (!traitInsightResult || !traitInsightResult.available) return null;
 
-  const { patterns, changes, daily, focus } = traitInsightResult;
+  const { patterns, changes, daily, focus, isEarly } = traitInsightResult;
+
+  if (isEarly) {
+    if (daily) return daily;
+    if (changes && changes.length > 0) return changes[0];
+    return null;
+  }
 
   if (patterns && patterns.length > 0) return patterns[0];
   if (changes && changes.length > 0) return changes[0];

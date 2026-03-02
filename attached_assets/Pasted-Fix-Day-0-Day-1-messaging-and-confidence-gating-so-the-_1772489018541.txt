@@ -1,0 +1,28 @@
+Fix Day-0/Day-1 messaging and confidence gating so the app never implies multi-day trend evidence when it does not exist.
+
+Observed problem:
+On a brand-new account immediately after completing the assessment, Today’s Reflection can show “PATTERN DETECTED” and language like “downward trend” and “recent daily consistency and habit follow-through data,” even when the user has not logged enough days to support a trend vs baseline.
+
+Required behavior changes:
+
+1) Pattern Detected must NEVER appear for new users unless there is sufficient evidence.
+   - Require an explicit minimum history threshold for PATTERN_DETECTED (ex: 7+ logged days OR whatever the system defines as “pattern confidence”).
+   - If threshold is not met, PATTERN_DETECTED cannot be selected as Today’s Reflection.
+
+2) Observed Change / Baseline comparisons must be honest about data stage.
+   - If the user has only completed the assessment and has 0–2 logs, the reflection must use “early signals” language and must not claim trend, baseline shift, or “recent daily consistency” as evidence.
+   - Replace “trend” phrasing with “initial signal” phrasing until sufficient logs exist.
+
+3) Direction and trait movement labels must not imply certainty early.
+   - If insufficient logs exist, keep Direction as “Early” or “Stable (early)” with a neutral line like “Direction will clarify as you log a few more days.”
+   - Do not show “downward trend” unless the system has enough history to justify it.
+
+4) Any consequence lines (like “This measurably supports Discipline and Confidence”) must not appear unless an actual inferred action exists with confidence above threshold.
+   - If no inferred action exists (or confidence is low), omit the consequence line entirely.
+
+5) Update Today’s Reflection priority logic for early users:
+   - For Day 0–Day 3, the default reflection should be a “Starting Point / Early Signals” reflection derived from assessment + first log, not Pattern Detected.
+   - Pattern Detected and baseline shift language should only unlock after minimum evidence is reached.
+
+Goal:
+A brand-new user should immediately feel “alive engine” without any language that suggests history-based patterns before they exist. Trust must be preserved.

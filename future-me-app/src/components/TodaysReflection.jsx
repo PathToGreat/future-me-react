@@ -174,6 +174,13 @@ function getExplanationForInsight(type, context) {
     };
   }
 
+  if (type === 'earlySignal') {
+    return {
+      why: 'Early readings reflect where your data starts relative to your assessment. These are not trends — trends require more days of tracking.',
+      tryThis: null
+    };
+  }
+
   if (type === 'welcome') {
     return {
       why: 'Tracking builds a data foundation. Even a few days of logging creates enough signal to surface meaningful patterns.',
