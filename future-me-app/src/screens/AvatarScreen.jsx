@@ -73,15 +73,24 @@ export default function AvatarScreen() {
       };
       const iteResult = runIdentityTrajectoryEngine(rawMetrics, historyData, baseline);
       const narrative = iteResult.narrative || null;
+      const contrast = iteResult.contrast || null;
 
       let leverLine = null;
+      let strongestLeverLabel = null;
       try {
         const inferredActions = inferActionsFromLog(latestMetrics, historyData, liveProfile?.lifeZones);
         const lever = findStrongestInferredLever(inferredActions, iteResult);
-        if (lever) leverLine = lever.narrative;
+        if (lever) {
+          leverLine = lever.narrative;
+          strongestLeverLabel = lever.actionLabel || null;
+        }
       } catch (e) {}
 
-      return narrative ? { ...narrative, leverLine } : null;
+      if (contrast && strongestLeverLabel) {
+        contrast.strongestLever = strongestLeverLabel;
+      }
+
+      return narrative ? { ...narrative, leverLine, contrast } : null;
     } catch (e) {
       return null;
     }
@@ -194,6 +203,11 @@ export default function AvatarScreen() {
                       <p className="text-sm text-gray-700 font-medium mb-2">
                         {iteNarrative.currentSummary}
                       </p>
+                      {iteNarrative.contrast?.contrastSummaryCurrentToFuture && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {iteNarrative.contrast.contrastSummaryCurrentToFuture}
+                        </p>
+                      )}
                     </>
                   );
                 }
@@ -215,6 +229,14 @@ export default function AvatarScreen() {
             ) : futureMetrics ? (
               (() => {
                 if (iteNarrative?.projection12MonthSummary) {
+                  const futureContrast = iteNarrative.contrast;
+                  const influenceParts = [];
+                  if (futureContrast?.strongestLever) influenceParts.push(futureContrast.strongestLever);
+                  if (futureContrast?.mostSensitiveTrait) influenceParts.push(futureContrast.mostSensitiveTrait);
+                  const influenceLine = influenceParts.length > 0
+                    ? `This projection is most influenced by: ${influenceParts.join(' and ')}.`
+                    : futureContrast?.contrastSummaryFutureToCurrent || null;
+
                   return (
                     <>
                       <p className="text-sm text-gray-700 font-medium mb-2">
@@ -223,6 +245,16 @@ export default function AvatarScreen() {
                       {iteNarrative.leverLine && (
                         <p className="text-xs text-gray-500 mt-1">
                           {iteNarrative.leverLine}
+                        </p>
+                      )}
+                      {influenceLine && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {influenceLine}
+                        </p>
+                      )}
+                      {futureContrast?.deltaList && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          {futureContrast.deltaList}
                         </p>
                       )}
                     </>

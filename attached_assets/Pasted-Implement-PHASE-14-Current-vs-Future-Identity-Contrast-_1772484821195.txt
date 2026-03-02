@@ -1,0 +1,133 @@
+Implement PHASE 14: Current vs Future Identity Contrast Engine.
+
+This is NOT a UI expansion phase.
+No new screens, tabs, or layout changes.
+This is a contrast computation and narrative upgrade that makes the Current ↔ Future toggle emotionally gripping.
+
+Goal:
+When a user toggles Current Me → Future Me:
+- Generate a clear identity contrast
+- Surface the top trait deltas
+- Interpret them in a grounded, emotionally resonant way
+- Alternate encouragement vs confrontation based on toneState (already computed)
+
+------------------------------------------------------------
+PART 1 — CONTRAST ENGINE
+------------------------------------------------------------
+
+Create identityContrastEngine.js.
+
+Function:
+computeIdentityContrast(iteResult)
+
+Inputs:
+- iteResult.traits (current)
+- iteResult.projection12Month (projected)
+- iteResult.toneState
+
+Outputs:
+A contrast object:
+
+{
+  toneState,
+  topGains: [{ trait, delta, magnitudeLabel }],
+  topLosses: [{ trait, delta, magnitudeLabel }],
+  mostSensitiveTrait,
+  strongestLever (if available from inferred actions),
+  contrastSummaryCurrentToFuture (1–2 sentences),
+  contrastSummaryFutureToCurrent (1–2 sentences)
+}
+
+Rules:
+- Use 12-month projection as the default future comparison.
+- Select top 2 gains and top 2 losses by absolute delta.
+- magnitudeLabel is qualitative: slight / moderate / strong (based on delta thresholds).
+- If deltas are small overall, still return a meaningful summary emphasizing stability and compounding or stability and drift risk depending on toneState.
+
+------------------------------------------------------------
+PART 2 — INTERPRETATION LAYER (EMOTION WITHOUT HYPE)
+------------------------------------------------------------
+
+Contrast summaries must be tone-aware:
+
+If toneState = strengthening:
+- The language should feel encouraging and compounding:
+  “If these patterns hold, Discipline and Resilience are projected to strengthen meaningfully.”
+  “Your future self reflects stability that is being built quietly through repetition.”
+
+If toneState = drifting:
+- The language should be gently confrontational, factual, and clear:
+  “If these patterns hold, Resilience is projected to soften and Emotional Stability may become more sensitive.”
+  “Your future self reflects drift, not failure. Small levers could change this trajectory.”
+
+If toneState = stable:
+- The language should be neutral clarity:
+  “Your trajectory is steady. The next shift will come from consistency in one or two key levers.”
+
+No shame.
+No fear tactics.
+No fake drama.
+No guaranteed outcomes.
+
+------------------------------------------------------------
+PART 3 — ROUTE CONTRAST INTO EXISTING AVATARSCREEN TEXT
+------------------------------------------------------------
+
+Update AvatarScreen (or the existing narrative display logic) to include contrast summaries without adding new UI sections:
+
+- On Current Me view:
+  Append a single line after the existing current narrative:
+  “Compared to your projected future, the biggest shifts are: [Trait A] and [Trait B].”
+
+- On Future Me view:
+  Append a single line after the existing future narrative:
+  “This projection is most influenced by: [Strongest Lever] and [Most Sensitive Trait].”
+
+Keep it one line each.
+No new cards.
+No new blocks.
+
+If strongest lever is unavailable, omit it and only reference mostSensitiveTrait.
+
+------------------------------------------------------------
+PART 4 — OPTIONAL MINI DELTA LIST (ONLY IF SPACE EXISTS)
+------------------------------------------------------------
+
+If there is already an expandable area or existing small text region on AvatarScreen (no new layout):
+- Add a compact inline list of topGains/topLosses:
+Example format:
+“Projected shifts: +Discipline (moderate), +Resilience (slight), -Emotional Stability (slight).”
+
+If no suitable existing space, do not add this.
+
+------------------------------------------------------------
+PART 5 — STORE CONTRAST FOR INSIGHTS USE
+------------------------------------------------------------
+
+Expose the contrast object in the ITE output or adapter return so it can be used later by:
+- traitInsightsEngine
+- reminders
+- insights feed
+without any UI changes now.
+
+------------------------------------------------------------
+CONSTRAINTS
+------------------------------------------------------------
+
+Do NOT:
+- Add new screens or sections
+- Alter avatar visuals
+- Change DirectionIndicator math
+- Change Snapshot logic
+- Add gamification
+
+This phase is contrast computation + narrative integration only.
+
+------------------------------------------------------------
+SUCCESS CRITERIA
+------------------------------------------------------------
+
+- Switching Current ↔ Future produces a perceivable emotional difference via language and trait deltas.
+- The user sees which traits are moving most and what lever is driving the projection.
+- Tone alternates based on toneState.
+- No UI expansion occurred.
