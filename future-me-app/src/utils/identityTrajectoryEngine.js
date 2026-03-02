@@ -3,6 +3,7 @@ import { project12Months, project5Years } from './projectionEngine';
 import { computeVisualDelta } from './identityVisualDeltaEngine';
 import { generateIdentityNarrative } from './identityNarrativeEngine';
 import { getTraitIds } from './identityTraits';
+import { computeTrajectoryIntensity } from './traitImpactEngine';
 
 export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineData) {
   const traits = computeIdentityState(rawMetrics, historyData, baselineData);
@@ -31,7 +32,9 @@ export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineDat
 
   const visualDelta = computeVisualDelta(traits, projection12Month);
 
-  const narrative = generateIdentityNarrative(traits, projection12Month, projection5Year);
+  const { toneState } = computeTrajectoryIntensity(traits, projection12Month);
+
+  const narrative = generateIdentityNarrative(traits, projection12Month, projection5Year, toneState);
 
   return {
     traits,
@@ -40,6 +43,7 @@ export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineDat
     projection5Year,
     visualDelta,
     narrative,
+    toneState,
     _meta: {
       generatedAt: new Date().toISOString(),
       traitCount: getTraitIds().length,

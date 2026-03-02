@@ -99,10 +99,11 @@ function getTrend(trait) {
   return 'stable';
 }
 
-export function generateIdentityNarrative(traitState, projections12Month, projections5Year) {
-  const currentSummary = generateCurrentSummary(traitState);
-  const projection12Summary = generate12MonthSummary(traitState, projections12Month);
-  const projection5Summary = generate5YearSummary(traitState, projections5Year);
+export function generateIdentityNarrative(traitState, projections12Month, projections5Year, toneState) {
+  const tone = toneState || 'stable';
+  const currentSummary = generateCurrentSummary(traitState, tone);
+  const projection12Summary = generate12MonthSummary(traitState, projections12Month, tone);
+  const projection5Summary = generate5YearSummary(traitState, projections5Year, tone);
 
   return {
     currentSummary,
@@ -112,7 +113,13 @@ export function generateIdentityNarrative(traitState, projections12Month, projec
   };
 }
 
-function generateCurrentSummary(traitState) {
+function getToneConnector(tone) {
+  if (tone === 'strengthening') return 'These patterns are building on each other.';
+  if (tone === 'drifting') return 'Several areas are shifting in ways worth noticing.';
+  return '';
+}
+
+function generateCurrentSummary(traitState, tone) {
   const strongest = getTopTraits(traitState, 2, (a, b) => b.currentScore - a.currentScore);
   const moving = getMovingTraits(traitState);
 
@@ -120,7 +127,6 @@ function generateCurrentSummary(traitState) {
 
   if (strongest.length > 0) {
     const top = strongest[0];
-    const meta = getTraitMeta(top.id);
     const level = classifyScore(top.currentScore);
     parts.push(getTraitFragment(top.id, level));
   }
@@ -138,10 +144,13 @@ function generateCurrentSummary(traitState) {
     parts.push('Your identity metrics are holding within a stable range.');
   }
 
+  const connector = getToneConnector(tone);
+  if (connector) parts.push(connector);
+
   return parts.join(' ');
 }
 
-function generate12MonthSummary(traitState, projections) {
+function generate12MonthSummary(traitState, projections, tone) {
   if (!projections) return 'Insufficient data for 12-month projection.';
 
   const shifts = [];
@@ -155,6 +164,9 @@ function generate12MonthSummary(traitState, projections) {
   }
 
   if (shifts.length === 0) {
+    if (tone === 'drifting') {
+      return 'Your identity traits are projected to remain in their current range, though recent velocity shifts may alter this if they continue.';
+    }
     return 'At current pace, your identity traits are projected to remain within their current range over the next 12 months.';
   }
 
@@ -171,10 +183,16 @@ function generate12MonthSummary(traitState, projections) {
     narrative += ` ${secondMeta.label} also shows projected ${secondDir}.`;
   }
 
+  if (tone === 'strengthening') {
+    narrative += ' Multiple traits are moving in the same direction, which tends to compound over time.';
+  } else if (tone === 'drifting') {
+    narrative += ' The data shows several traits moving away from baseline — this is the trajectory if current patterns hold.';
+  }
+
   return narrative;
 }
 
-function generate5YearSummary(traitState, projections) {
+function generate5YearSummary(traitState, projections, tone) {
   if (!projections) return 'Insufficient data for 5-year projection.';
 
   const traitIds = getTraitIds();
@@ -199,6 +217,9 @@ function generate5YearSummary(traitState, projections) {
   const overallShift = avgProjected - avgCurrent;
 
   if (Math.abs(overallShift) < 2 && majorShifts.length === 0) {
+    if (tone === 'drifting') {
+      return 'Five-year projections show near-baseline stability, but recent movement in several traits may begin to diverge this trajectory if sustained.';
+    }
     return 'Five-year projections suggest identity trait stability at current levels. Sustained changes in daily patterns would shift this trajectory.';
   }
 

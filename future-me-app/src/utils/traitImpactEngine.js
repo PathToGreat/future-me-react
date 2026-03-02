@@ -1,5 +1,5 @@
 import { getActionMapping } from './actionTraitMappingTable';
-import { getTraitMeta } from './identityTraits';
+import { getTraitMeta, getTraitIds } from './identityTraits';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
@@ -75,4 +75,54 @@ export function findStrongestLever(actionKeys, currentTraitState, targetTraitId)
   }
 
   return best;
+}
+
+export function computeTrajectoryIntensity(traitState, projections) {
+  if (!traitState || !projections) {
+    return { intensityScore: 0, toneState: 'stable' };
+  }
+
+  const traitIds = getTraitIds();
+  const velocities = traitIds
+    .map(id => ({ id, velocity: Math.abs(traitState[id]?.velocity ?? 0) }))
+    .sort((a, b) => b.velocity - a.velocity);
+
+  const top3Velocities = velocities.slice(0, 3);
+  const avgTopVelocity = top3Velocities.length > 0
+    ? top3Velocities.reduce((sum, t) => sum + t.velocity, 0) / top3Velocities.length
+    : 0;
+
+  let convergenceCount = 0;
+  const directions = traitIds.map(id => {
+    const v = traitState[id]?.velocity ?? 0;
+    if (v > 1.5) return 'positive';
+    if (v < -1.5) return 'negative';
+    return 'neutral';
+  });
+  const positiveCount = directions.filter(d => d === 'positive').length;
+  const negativeCount = directions.filter(d => d === 'negative').length;
+  if (positiveCount >= 3) convergenceCount = positiveCount;
+  if (negativeCount >= 3) convergenceCount = Math.max(convergenceCount, negativeCount);
+
+  let totalSlopeStrength = 0;
+  for (const traitId of traitIds) {
+    const current = traitState[traitId]?.currentScore ?? 50;
+    const projected = projections[traitId] ?? current;
+    totalSlopeStrength += Math.abs(projected - current);
+  }
+  const avgSlopeStrength = totalSlopeStrength / traitIds.length;
+
+  const velocityComponent = clamp(avgTopVelocity / 15, 0, 1) * 40;
+  const convergenceComponent = clamp(convergenceCount / 5, 0, 1) * 30;
+  const slopeComponent = clamp(avgSlopeStrength / 10, 0, 1) * 30;
+  const intensityScore = clamp(velocityComponent + convergenceComponent + slopeComponent, 0, 100);
+
+  let toneState = 'stable';
+  if (intensityScore >= 40 && positiveCount > negativeCount) {
+    toneState = 'strengthening';
+  } else if (intensityScore >= 35 && negativeCount > positiveCount) {
+    toneState = 'drifting';
+  }
+
+  return { intensityScore, toneState };
 }
