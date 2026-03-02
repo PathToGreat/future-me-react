@@ -1,0 +1,271 @@
+Implement PHASE 10: Identity Trajectory Engine (ITE).
+
+This is a foundational architecture addition.
+This is NOT a UI change.
+This is NOT a cosmetic update.
+This builds the predictive spine of the product.
+
+Goal:
+Create a centralized engine that transforms raw metrics into identity traits, computes velocity, and produces long-term projections.
+
+------------------------------------------------------------
+PART 1 — TRAIT LAYER DEFINITION
+------------------------------------------------------------
+
+Create identityTraits.js (or similar).
+
+Define core identity traits:
+
+- Vitality
+- Resilience
+- EmotionalStability
+- Discipline
+- Confidence
+- SocialConnectedness
+- PurposeAlignment
+
+Each trait must have:
+- currentScore (0–100)
+- baselineScore
+- sevenDayAvg
+- thirtyDayAvg
+- velocity
+- projected12Month
+- projected5Year
+
+These traits are NOT directly logged by the user.
+They are derived.
+
+------------------------------------------------------------
+PART 2 — TRAIT MAPPING TABLE
+------------------------------------------------------------
+
+Create traitMappingTable.js.
+
+Map life zones + metrics to identity traits.
+
+Example directionally (do not simplify into 1:1):
+
+Health metrics influence:
+- Vitality
+- Resilience
+- Discipline
+
+Stress + sleep influence:
+- EmotionalStability
+- Resilience
+
+Consistency influences:
+- Discipline
+- Confidence
+
+Social/Community metrics influence:
+- SocialConnectedness
+
+Faith-related inputs influence:
+- PurposeAlignment
+- EmotionalStability
+
+Each mapping must include:
+- weight (0–1)
+- polarity (positive/negative influence)
+- smoothing factor
+
+This table must be structured and extendable.
+
+------------------------------------------------------------
+PART 3 — TRAIT STATE CALCULATION
+------------------------------------------------------------
+
+Create identityStateEngine.js.
+
+Function:
+computeIdentityState(rawMetrics, historyData, baselineData)
+
+This must:
+1. Normalize relevant metrics
+2. Apply traitMappingTable weights
+3. Produce a currentScore per trait (0–100)
+4. Compute:
+   - 7-day average
+   - 30-day average
+   - baseline delta
+5. Store all values in a traitState object
+
+Do NOT change scoring logic used elsewhere.
+This is a parallel identity layer.
+
+------------------------------------------------------------
+PART 4 — VELOCITY CALCULATION
+------------------------------------------------------------
+
+Inside identityStateEngine:
+
+For each trait compute:
+
+velocity =
+  (sevenDayAvg - thirtyDayAvg)
+  + (sevenDayAvg - baselineScore weighted)
+
+Use conservative scaling.
+Velocity must be smoothed to avoid daily volatility.
+
+Velocity output must include:
+- direction (positive, neutral, negative)
+- magnitude (low, moderate, strong)
+
+No UI yet.
+Just return structured data.
+
+------------------------------------------------------------
+PART 5 — PROJECTION FUNCTIONS
+------------------------------------------------------------
+
+Create projectionEngine.js.
+
+Functions:
+project12Months(traitState)
+project5Years(traitState)
+
+Projection logic (initial version):
+Linear continuation of velocity with damping factor.
+Include cap at realistic bounds (0–100).
+
+Projection must:
+- Use velocity
+- Use currentScore
+- Use 30-day slope
+- Apply diminishing returns at extremes
+
+Output:
+For each trait:
+- projected12MonthScore
+- projected5YearScore
+
+------------------------------------------------------------
+PART 6 — VISUAL DELTA OUTPUT
+------------------------------------------------------------
+
+Create identityVisualDeltaEngine.js.
+
+This does NOT modify avatar directly yet.
+
+It must:
+- Convert projected trait changes into visual delta parameters.
+- Output small scalar adjustments for:
+   postureAngle
+   shoulderAlignment
+   jawTension
+   facialBrightness
+   eyeOpenness
+   energyIntensity
+   stanceWidth
+
+Values should be small floats (e.g., -0.1 to +0.1).
+
+Do NOT connect this to rendering yet.
+Just compute and return the delta object.
+
+------------------------------------------------------------
+PART 7 — NARRATIVE INTERPRETATION LAYER
+------------------------------------------------------------
+
+Create identityNarrativeEngine.js.
+
+Function:
+generateIdentityNarrative(traitState, projections)
+
+It must produce:
+
+1. Current Identity Summary (1–2 sentences)
+2. 12-Month Projection Summary
+3. 5-Year Projection Summary
+
+Tone must:
+- Interpret identity shift
+- Avoid hype
+- Avoid shame
+- Avoid exaggeration
+- Be grounded in math
+
+Example directionally:
+Instead of:
+"Stress decreased."
+
+Interpret as:
+"Your nervous system is stabilizing. Emotional reactivity is trending downward."
+
+Instead of:
+"Consistency improved."
+
+Interpret as:
+"You are building behavioral reliability."
+
+No dramatic fear messaging.
+No guaranteed outcomes.
+
+------------------------------------------------------------
+PART 8 — MASTER PIPELINE
+------------------------------------------------------------
+
+Create identityTrajectoryEngine.js.
+
+Function:
+runIdentityTrajectoryEngine(rawMetrics, historyData, baselineData)
+
+Pipeline:
+1. computeIdentityState
+2. computeVelocity
+3. run projections
+4. compute visual deltas
+5. generate narrative
+
+Return one object:
+
+{
+  traits,
+  velocity,
+  projection12Month,
+  projection5Year,
+  visualDelta,
+  narrative
+}
+
+Do NOT:
+- Modify UI yet
+- Connect to avatar yet
+- Replace existing dashboard logic yet
+
+This engine must exist first before integration.
+
+------------------------------------------------------------
+CONSTRAINTS
+------------------------------------------------------------
+
+Do NOT:
+- Add new screens
+- Change current avatar rendering
+- Alter DirectionIndicator
+- Alter Snapshot logic
+- Add gamification
+- Add dramatic projection visuals
+
+This phase is internal architecture only.
+
+------------------------------------------------------------
+SUCCESS CRITERIA
+------------------------------------------------------------
+
+The engine should:
+- Accept real metric data
+- Produce stable trait scores
+- Produce non-noisy velocity
+- Produce realistic 12-month and 5-year projections
+- Produce structured visual deltas
+- Produce grounded identity narrative text
+
+No UI changes yet.
+No cosmetic updates.
+This is a structural pivot.
+
+End of Phase 10 implementation.
