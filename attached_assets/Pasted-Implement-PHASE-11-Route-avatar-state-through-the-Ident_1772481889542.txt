@@ -1,0 +1,119 @@
+Implement PHASE 11: Route avatar state through the Identity Trajectory Engine (ITE).
+
+This phase is integration, not UI expansion.
+
+Goal:
+Stop driving the avatar directly from raw metrics.
+Instead, drive the avatar (current and future) from ITE trait state and projections.
+
+No new screens.
+No new features.
+No visual redesign.
+Just rerouting the brain signals.
+
+------------------------------------------------------------
+PART 1 — CREATE AN AVATAR INPUT ADAPTER
+------------------------------------------------------------
+
+Create a new adapter module:
+iteAvatarAdapter.js
+
+Purpose:
+Convert ITE outputs into the existing avatar input format used by calculateAvatarTraits and computeAvatarEffects.
+
+It must support two modes:
+1) CURRENT mode: uses ITE current trait scores
+2) FUTURE mode: uses ITE projected12Month and projected5Year trait scores
+
+Adapter output should map identity traits into avatar-driving signals such as:
+- energy / vitality proxy
+- posture / stance proxy
+- facial tension / calmness proxy
+- confidence stance proxy
+- brightness / vibrancy proxy
+
+Do not invent new avatar properties.
+Map into what the current avatar engine already expects.
+
+------------------------------------------------------------
+PART 2 — CURRENT AVATAR ROUTING
+------------------------------------------------------------
+
+Update the current avatar pipeline used in:
+- FutureMeAvatar.jsx
+- MiniAvatarPreview.jsx
+- any hook like useEnhancedAvatarState.js
+
+Required behavior:
+- If enough data exists to compute ITE (baseline + history), run runIdentityTrajectoryEngine() and feed the adapter output into the avatar engine.
+- If not enough data exists, fall back to the existing raw-metric approach (do not break the app for new users).
+- The avatar should still appear identical in style, but changes should now reflect identity traits rather than direct metric values.
+
+------------------------------------------------------------
+PART 3 — FUTURE AVATAR ROUTING
+------------------------------------------------------------
+
+Update the future projection avatar pipeline used in:
+- FutureAvatar.jsx (90-day / projection avatar)
+
+Required behavior:
+- Future avatar must be driven by ITE projected trait state, not by raw metric deltas.
+- Use projected12Month as the default “future self” target unless the screen explicitly shows a different horizon.
+- If the UI already supports a 90-day view, use a scaled subset of the 12-month projection (interpolated), but do not change UI labels yet.
+
+------------------------------------------------------------
+PART 4 — VISUAL DELTA CONNECTION (LIMITED)
+------------------------------------------------------------
+
+You already compute visualDelta in identityVisualDeltaEngine.js.
+
+In this phase:
+- Apply the visualDelta output only inside the adapter mapping layer, as subtle offsets.
+- Keep impact conservative.
+- No new visuals.
+- No new animations.
+- Just ensure the ITE produces a perceivable but subtle shift between current and future avatar when trajectory differs.
+
+------------------------------------------------------------
+PART 5 — KEEP ZONE INFLUENCE COMPATIBILITY
+------------------------------------------------------------
+
+Ensure Phase 9 zoneInfluenceEngine continues to work:
+- Zone influences should apply after the ITE-based base effects are computed.
+- If zone data is absent, do nothing.
+- Do not fabricate zone influence.
+
+------------------------------------------------------------
+PART 6 — NARRATIVE INTEGRATION (MINIMAL)
+------------------------------------------------------------
+
+No UI changes, but:
+- Ensure the narrative outputs from identityNarrativeEngine.js are accessible in state where needed later.
+- Do not display them yet unless there is an existing place that already shows narrative text and can safely switch to identity language without layout changes.
+
+------------------------------------------------------------
+CONSTRAINTS
+------------------------------------------------------------
+
+Do NOT:
+- Add new UI
+- Add new tabs
+- Add new sections
+- Change existing navigation
+- Change DirectionIndicator math
+- Change Snapshot logic
+- Add gamification
+
+This phase is strictly:
+ITE → Adapter → Avatar pipeline rerouting.
+
+------------------------------------------------------------
+SUCCESS CRITERIA
+------------------------------------------------------------
+
+- Current avatar is now identity-driven when data exists.
+- Future avatar is projection-driven when data exists.
+- New users still see a functional avatar via fallback.
+- No UI changes required.
+- Visual difference between Current and Future is now meaningful when trait velocity is strong.
+- App remains stable and performance is not degraded.

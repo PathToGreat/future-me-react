@@ -132,6 +132,7 @@ export default function AvatarScreen() {
                 emotionalProfile: liveProfile?.emotionalProfile,
                 faithPurpose: liveProfile?.faithPurpose
               }}
+              historyData={historyData}
             />
           ) : (
             <FutureAvatar
@@ -147,6 +148,7 @@ export default function AvatarScreen() {
                 emotionalProfile: liveProfile?.emotionalProfile,
                 faithPurpose: liveProfile?.faithPurpose
               }}
+              historyData={historyData}
             />
           )}
 

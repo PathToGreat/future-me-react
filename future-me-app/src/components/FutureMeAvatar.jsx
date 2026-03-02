@@ -7,6 +7,7 @@ import {
   getGlowOverlayStyle 
 } from './avatar/AvatarEffectsEngine';
 import { computeZoneInfluences, applyZoneInfluencesToEffects } from '../utils/zoneInfluenceEngine';
+import { computeITECurrentAdapter } from '../utils/iteAvatarAdapter';
 import PostureLayer from './avatar/posture/PostureLayer';
 import FacialExpressionLayer from './avatar/FacialExpressionLayer';
 import BodyCompositionLayer from './avatar/BodyCompositionLayer';
@@ -26,7 +27,8 @@ export default function FutureMeAvatar({
   achievements = [],
   lifeZones = null,
   gender = 'male',
-  baselineData = null
+  baselineData = null,
+  historyData = null
 }) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
   
@@ -42,7 +44,33 @@ export default function FutureMeAvatar({
     return scores;
   }, [lifeZones]);
 
+  const iteAdapter = useMemo(() => {
+    return computeITECurrentAdapter(
+      { activity, nutrition, sleep, stress },
+      historyData,
+      baselineData,
+      lifeZoneScores,
+      habits
+    );
+  }, [activity, nutrition, sleep, stress, historyData, baselineData, lifeZoneScores, habits]);
+
+  const effectiveMetrics = useMemo(() => {
+    if (iteAdapter.available && iteAdapter.adapted) {
+      return iteAdapter.adapted;
+    }
+    return null;
+  }, [iteAdapter]);
+
   const avatarTraits = useMemo(() => {
+    if (effectiveMetrics) {
+      return calculateAvatarTraits({
+        dailyMetrics: effectiveMetrics.dailyMetrics,
+        wellnessScore: effectiveMetrics.wellnessScore,
+        lifeZones: lifeZoneScores,
+        habitStreaks,
+        achievements
+      });
+    }
     return calculateAvatarTraits({
       dailyMetrics,
       wellnessScore: lifestyleScore || 50,
@@ -50,14 +78,15 @@ export default function FutureMeAvatar({
       habitStreaks,
       achievements
     });
-  }, [dailyMetrics, lifestyleScore, lifeZoneScores, habitStreaks, achievements]);
+  }, [effectiveMetrics, dailyMetrics, lifestyleScore, lifeZoneScores, habitStreaks, achievements]);
 
   const disciplineScore = useMemo(() => {
+    if (effectiveMetrics) return effectiveMetrics.disciplineScore;
     const avgStreak = habitStreaks.length > 0 
       ? habitStreaks.reduce((sum, s) => sum + s, 0) / habitStreaks.length 
       : 0;
     return Math.min(5, 1 + (avgStreak / 10) * 4);
-  }, [habitStreaks]);
+  }, [effectiveMetrics, habitStreaks]);
 
   const maxStreak = useMemo(() => {
     return habitStreaks.length > 0 ? Math.max(...habitStreaks) : 0;
@@ -71,7 +100,17 @@ export default function FutureMeAvatar({
   }, [habitStreaks]);
 
   const avatarEffects = useMemo(() => {
-    const baseEffects = computeAvatarEffects({
+    const metricsInput = effectiveMetrics ? {
+      activityScore: effectiveMetrics.activityScore,
+      nutritionScore: effectiveMetrics.nutritionScore,
+      sleepScore: effectiveMetrics.sleepScore,
+      stressScore: effectiveMetrics.stressScore,
+      disciplineScore: effectiveMetrics.disciplineScore,
+      streakDays: maxStreak,
+      consistencyScore: consistencyScore,
+      gender: gender,
+      baselineData: baselineData
+    } : {
       activityScore: activity || 3,
       nutritionScore: nutrition || 3,
       sleepScore: sleep || 3,
@@ -81,10 +120,11 @@ export default function FutureMeAvatar({
       consistencyScore: consistencyScore,
       gender: gender,
       baselineData: baselineData
-    });
+    };
+    const baseEffects = computeAvatarEffects(metricsInput);
     const zoneInfluences = computeZoneInfluences(lifeZoneScores);
     return applyZoneInfluencesToEffects(baseEffects, zoneInfluences);
-  }, [activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, gender, baselineData, lifeZoneScores]);
+  }, [effectiveMetrics, activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, gender, baselineData, lifeZoneScores]);
 
   console.log('🎨 FutureMeAvatar rendered with traits:', avatarTraits.summary);
   console.log('🎨 Avatar effects applied:', {

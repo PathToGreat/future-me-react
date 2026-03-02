@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { calculateAvatarTraits } from '../utils/avatarTraitEngine';
 import { computeAvatarEffects } from './avatar/AvatarEffectsEngine';
 import { computeZoneInfluences, applyZoneInfluencesToEffects } from '../utils/zoneInfluenceEngine';
+import { computeITECurrentAdapter } from '../utils/iteAvatarAdapter';
 
 function hasRecentLogs(historyData) {
   if (!historyData || historyData.length === 0) return false;
@@ -47,7 +48,31 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
     return scores;
   }, [lifeZones]);
 
+  const iteAdapter = useMemo(() => {
+    return computeITECurrentAdapter(
+      { activity, nutrition, sleep, stress },
+      historyData,
+      liveProfile?.baselineData || liveProfile?.onboardingBaseline || null,
+      lifeZoneScores,
+      habits
+    );
+  }, [activity, nutrition, sleep, stress, historyData, liveProfile?.baselineData, liveProfile?.onboardingBaseline, lifeZoneScores, habits]);
+
+  const effectiveMetrics = useMemo(() => {
+    if (iteAdapter.available && iteAdapter.adapted) return iteAdapter.adapted;
+    return null;
+  }, [iteAdapter]);
+
   const avatarTraits = useMemo(() => {
+    if (effectiveMetrics) {
+      return calculateAvatarTraits({
+        dailyMetrics: effectiveMetrics.dailyMetrics,
+        wellnessScore: effectiveMetrics.wellnessScore,
+        lifeZones: lifeZoneScores,
+        habitStreaks,
+        achievements: achievements || []
+      });
+    }
     return calculateAvatarTraits({
       dailyMetrics: { activity, nutrition, sleep, stress },
       wellnessScore: lifestyleScore,
@@ -55,7 +80,7 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
       habitStreaks,
       achievements: achievements || []
     });
-  }, [activity, nutrition, sleep, stress, lifestyleScore, lifeZoneScores, habitStreaks, achievements]);
+  }, [effectiveMetrics, activity, nutrition, sleep, stress, lifestyleScore, lifeZoneScores, habitStreaks, achievements]);
 
   const maxStreak = useMemo(() => habitStreaks.length > 0 ? Math.max(...habitStreaks) : 0, [habitStreaks]);
   const consistencyScore = useMemo(() => {
@@ -64,14 +89,25 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
     return Math.min(1, (total / habitStreaks.length) / 14);
   }, [habitStreaks]);
   const disciplineScore = useMemo(() => {
+    if (effectiveMetrics) return effectiveMetrics.disciplineScore;
     const avgStreak = habitStreaks.length > 0
       ? habitStreaks.reduce((sum, s) => sum + s, 0) / habitStreaks.length
       : 0;
     return Math.min(5, 1 + (avgStreak / 10) * 4);
-  }, [habitStreaks]);
+  }, [effectiveMetrics, habitStreaks]);
 
   const avatarEffects = useMemo(() => {
-    const baseEffects = computeAvatarEffects({
+    const metricsInput = effectiveMetrics ? {
+      activityScore: effectiveMetrics.activityScore,
+      nutritionScore: effectiveMetrics.nutritionScore,
+      sleepScore: effectiveMetrics.sleepScore,
+      stressScore: effectiveMetrics.stressScore,
+      disciplineScore: effectiveMetrics.disciplineScore,
+      streakDays: maxStreak,
+      consistencyScore,
+      gender: selectedGender || 'male',
+      baselineData: liveProfile?.baselineData || null
+    } : {
       activityScore: activity,
       nutritionScore: nutrition,
       sleepScore: sleep,
@@ -81,10 +117,11 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
       consistencyScore,
       gender: selectedGender || 'male',
       baselineData: liveProfile?.baselineData || null
-    });
+    };
+    const baseEffects = computeAvatarEffects(metricsInput);
     const zoneInfluences = computeZoneInfluences(lifeZoneScores);
     return applyZoneInfluencesToEffects(baseEffects, zoneInfluences);
-  }, [activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, selectedGender, liveProfile?.baselineData, lifeZoneScores]);
+  }, [effectiveMetrics, activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, selectedGender, liveProfile?.baselineData, lifeZoneScores]);
 
   const colors = useMemo(() => {
     const energyScore = avatarTraits.glowEnergy.score;

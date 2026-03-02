@@ -9,6 +9,7 @@ import { enhanceStateLegibility } from '../utils/avatarVisualLegibility';
 import { ensureDeterministicOutput, enforceSessionContinuity, createSessionCache, updateSessionCache } from '../utils/avatarExpressionConsistency';
 import { ensureComposure, detectStateConflicts } from '../utils/avatarConflictResolution';
 import { enforceTrustBoundaries, detectVolatility, dampVolatileState, ensureNeutralAcceptable } from '../utils/avatarTrustPreservation';
+import { computeITECurrentAdapter } from '../utils/iteAvatarAdapter';
 
 const DEFAULT_TRANSITION_DURATION = 800;
 
@@ -51,12 +52,37 @@ export function useEnhancedAvatarState(metrics, options = {}) {
   useEffect(() => {
     if (!metrics) return;
 
+    let effectiveMetrics = metrics;
+    const iteResult = computeITECurrentAdapter(
+      {
+        activity: metrics.activityScore || metrics.activity || 3,
+        nutrition: metrics.nutritionScore || metrics.nutrition || 3,
+        sleep: metrics.sleepScore || metrics.sleep || 3,
+        stress: metrics.stressScore || metrics.stress || 3
+      },
+      historyData,
+      metrics.baselineData,
+      metrics.lifeZoneScores,
+      []
+    );
+
+    if (iteResult.available && iteResult.adapted) {
+      effectiveMetrics = {
+        ...metrics,
+        activityScore: iteResult.adapted.activityScore,
+        nutritionScore: iteResult.adapted.nutritionScore,
+        sleepScore: iteResult.adapted.sleepScore,
+        stressScore: iteResult.adapted.stressScore,
+        disciplineScore: iteResult.adapted.disciplineScore
+      };
+    }
+
     const normalizedMetrics = {
-      sleepNorm: normalize(metrics.sleepScore || metrics.sleep || 3),
-      stressNorm: normalize(metrics.stressScore || metrics.stress || 3),
-      activityNorm: normalize(metrics.activityScore || metrics.activity || 3),
-      nutritionNorm: normalize(metrics.nutritionScore || metrics.nutrition || 3),
-      disciplineNorm: normalize(metrics.disciplineScore || metrics.discipline || 3)
+      sleepNorm: normalize(effectiveMetrics.sleepScore || effectiveMetrics.sleep || 3),
+      stressNorm: normalize(effectiveMetrics.stressScore || effectiveMetrics.stress || 3),
+      activityNorm: normalize(effectiveMetrics.activityScore || effectiveMetrics.activity || 3),
+      nutritionNorm: normalize(effectiveMetrics.nutritionScore || effectiveMetrics.nutrition || 3),
+      disciplineNorm: normalize(effectiveMetrics.disciplineScore || effectiveMetrics.discipline || 3)
     };
 
     let attributedState = computeAvatarStateAttribution(normalizedMetrics, {
@@ -94,13 +120,13 @@ export function useEnhancedAvatarState(metrics, options = {}) {
     }
 
     let baseEffects = computeAvatarEffects({
-      activityScore: metrics.activityScore || metrics.activity || 3,
-      nutritionScore: metrics.nutritionScore || metrics.nutrition || 3,
-      sleepScore: metrics.sleepScore || metrics.sleep || 3,
-      stressScore: metrics.stressScore || metrics.stress || 3,
-      disciplineScore: metrics.disciplineScore || metrics.discipline || 3,
-      gender: metrics.gender || 'male',
-      baselineData: metrics.baselineData
+      activityScore: effectiveMetrics.activityScore || effectiveMetrics.activity || 3,
+      nutritionScore: effectiveMetrics.nutritionScore || effectiveMetrics.nutrition || 3,
+      sleepScore: effectiveMetrics.sleepScore || effectiveMetrics.sleep || 3,
+      stressScore: effectiveMetrics.stressScore || effectiveMetrics.stress || 3,
+      disciplineScore: effectiveMetrics.disciplineScore || effectiveMetrics.discipline || 3,
+      gender: effectiveMetrics.gender || 'male',
+      baselineData: effectiveMetrics.baselineData
     });
 
     if (metrics.lifeZoneScores) {
