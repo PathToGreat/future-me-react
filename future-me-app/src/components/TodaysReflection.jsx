@@ -4,6 +4,9 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
+import { generateTraitInsights, selectBestTraitReflection } from '../utils/traitInsightsEngine';
+import { canRunITE } from '../utils/iteAvatarAdapter';
 
 const METRIC_EXPLANATIONS = {
   sleep: {
@@ -407,9 +410,35 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
     return determineFocusArea(historyData, baseline);
   }, [historyData, baseline]);
 
+  const traitReflection = useMemo(() => {
+    if (!historyData || !canRunITE(historyData, baseline)) return null;
+    try {
+      const latestMetrics = historyData[0] || {};
+      const rawMetrics = {
+        activity: latestMetrics.activity ?? 3,
+        nutrition: latestMetrics.nutrition ?? 3,
+        sleep: latestMetrics.sleep ?? 3,
+        stress: latestMetrics.stress ?? 3,
+        lifeZones: liveProfile?.lifeZones || {},
+        habits: []
+      };
+      const iteResult = runIdentityTrajectoryEngine(rawMetrics, historyData, baseline);
+      const traitInsightResult = generateTraitInsights(iteResult, historyData, baseline);
+      return selectBestTraitReflection(traitInsightResult);
+    } catch (e) {
+      return null;
+    }
+  }, [historyData, baseline, liveProfile?.lifeZones]);
+
   const reflection = useMemo(() => {
+    if (traitReflection) {
+      return {
+        ...traitReflection,
+        context: { traitBased: true, implicatedTraits: traitReflection.implicatedTraits || [] }
+      };
+    }
     return selectReflection(currentPattern, observation, dailyInsight, focusArea, historyData);
-  }, [currentPattern, observation, dailyInsight, focusArea, historyData]);
+  }, [traitReflection, currentPattern, observation, dailyInsight, focusArea, historyData]);
 
   const hasExpansion = reflection.whyThisMatters || reflection.tryThis;
 

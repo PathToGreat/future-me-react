@@ -9,9 +9,13 @@ import {
   markInsightRead,
   countUnreadRecent,
   isDuplicateInsight,
-  generateInsightsFromSources
+  generateInsightsFromSources,
+  normalizeInsight
 } from '../utils/insightsFeedEngine';
 import { detectPatterns } from '../utils/trendPatternEngine';
+import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
+import { generateTraitInsights } from '../utils/traitInsightsEngine';
+import { canRunITE } from '../utils/iteAvatarAdapter';
 
 const METRIC_EXPLANATIONS = {
   sleep: {
@@ -140,7 +144,37 @@ export default function InsightsFeed() {
       explanationMap
     });
 
-    const uniqueNew = newInsights.filter(ni => !isDuplicateInsight(feedInsights, ni));
+    let traitInsights = [];
+    if (canRunITE(historyData, baseline)) {
+      try {
+        const latestMetrics = historyData[0] || {};
+        const rawMetrics = {
+          activity: latestMetrics.activity ?? 3,
+          nutrition: latestMetrics.nutrition ?? 3,
+          sleep: latestMetrics.sleep ?? 3,
+          stress: latestMetrics.stress ?? 3,
+          lifeZones: liveProfile?.lifeZones || {},
+          habits: []
+        };
+        const iteResult = runIdentityTrajectoryEngine(rawMetrics, historyData, baseline);
+        const traitResult = generateTraitInsights(iteResult, historyData, baseline);
+        if (traitResult.available) {
+          traitInsights = traitResult.insights.map(ti => normalizeInsight({
+            type: ti.type,
+            category: ti.category,
+            headline: ti.headline,
+            supporting: ti.supporting,
+            whyThisMatters: ti.whyThisMatters,
+            tryThis: ti.tryThis,
+            date: new Date().toISOString().split('T')[0],
+            metric: ti.implicatedTraits?.[0] || null
+          }));
+        }
+      } catch (e) {}
+    }
+
+    const allNew = [...traitInsights, ...newInsights];
+    const uniqueNew = allNew.filter(ni => !isDuplicateInsight(feedInsights, ni));
 
     if (uniqueNew.length > 0) {
       saveInsightsBatch(user.uid, uniqueNew).then(() => {

@@ -1,0 +1,134 @@
+Implement PHASE 12: Trait-based reflections and insight generation using the Identity Trajectory Engine (ITE).
+
+This is NOT a UI expansion phase.
+This is NOT a new feature phase.
+This is interpretation and intelligence pivot.
+
+Goal:
+Shift the app’s reflections and insights from metric reporting to identity trajectory interpretation.
+
+------------------------------------------------------------
+PART 1 — TRAIT INSIGHT GENERATION ENGINE
+------------------------------------------------------------
+
+Create traitInsightsEngine.js.
+
+It must generate insight objects derived from ITE output:
+Input:
+- iteResult (traits, velocity, projections, narrative, visualDelta)
+- historyData
+- baselineData
+
+Output:
+A set of trait-based insight objects compatible with the existing reflection/insight system:
+- PATTERN_DETECTED
+- OBSERVED_CHANGE
+- DAILY_INSIGHT
+- CURRENT_FOCUS
+
+But rewritten to be trait-first.
+
+Examples of trait framing:
+Instead of:
+"Sleep affected your morning"
+Use:
+"Your recovery patterns are shaping Vitality and Emotional Stability."
+
+Instead of:
+"Stress baseline shifted downward"
+Use:
+"Emotional Stability is strengthening as your stress patterns stabilize."
+
+Instead of:
+"Improve sleep consistency"
+Use:
+"Discipline and Resilience will strengthen most if your recovery becomes more consistent."
+
+Each trait insight must include:
+- headline (short)
+- supporting sentence (1 line)
+- whyThisMatters (1–2 sentences, calm cause-effect)
+- optional tryThis (one line, gentle, non-prescriptive)
+- implicatedTraits list (1–3 traits)
+- confidence score (based on data sufficiency and velocity magnitude)
+
+------------------------------------------------------------
+PART 2 — UPDATE TODAY’S REFLECTION TO PREFER TRAIT INSIGHTS
+------------------------------------------------------------
+
+Update TodaysReflection.jsx (or its data source) so that:
+- If ITE is available for the user, the reflection is selected from traitInsightsEngine outputs first.
+- If ITE is not available, fall back to the existing metric-based insights.
+
+Priority order should remain:
+Pattern detected
+Observed change
+Daily insight
+Current focus
+Fallback continuity
+
+But trait-first when possible.
+
+No layout changes.
+Only swap the insight source.
+
+------------------------------------------------------------
+PART 3 — UPDATE INSIGHTS FEED TO STORE TRAIT INSIGHTS
+------------------------------------------------------------
+
+Update insightsFeedEngine.js so that:
+- If ITE is available, generate and normalize trait-based insights into the feed in addition to existing sources.
+- Deduplication must still prevent repeated identical insights.
+- The feed items should clearly categorize trait insights under:
+Pattern / Change / Reflection
+
+Keep the same UI.
+Only update what the feed contains.
+
+------------------------------------------------------------
+PART 4 — KEEP METRICS AS SECONDARY CONTEXT
+------------------------------------------------------------
+
+Trait insights may optionally reference metrics as supporting context,
+but the headline must remain identity-driven.
+
+Example acceptable supporting line:
+"Improved sleep consistency is contributing to higher Resilience."
+
+Metrics should not be the primary identity language anymore.
+
+------------------------------------------------------------
+PART 5 — MINIMAL NARRATIVE LAYER USAGE
+------------------------------------------------------------
+
+Wherever the app currently displays descriptive text summaries (without adding new UI):
+- Replace metric-centric language with ITE narrative language when available.
+
+Do not add new sections.
+Do not add new long copy blocks.
+Only replace existing summary text with identity interpretation.
+
+------------------------------------------------------------
+CONSTRAINTS
+------------------------------------------------------------
+
+Do NOT:
+- Add new screens
+- Add new UI sections
+- Add new tabs
+- Add badges or gamification
+- Change DirectionIndicator math
+- Change Monthly Snapshot logic
+
+This phase is:
+ITE → trait insight generation → reflection + feed content pivot.
+
+------------------------------------------------------------
+SUCCESS CRITERIA
+------------------------------------------------------------
+
+- Users with sufficient data see Today’s Reflection written in identity trait language.
+- Insights feed begins storing trait-based insights (deduped).
+- New users still get metric-based reflections until ITE is available.
+- Tone remains grounded, calm, and math-respectful.
+- App feels like “becoming,” not “logging.”

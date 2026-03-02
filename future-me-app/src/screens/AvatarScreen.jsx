@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import FutureMeAvatar from '../components/FutureMeAvatar';
@@ -7,6 +8,8 @@ import GenderSelector from '../components/GenderSelector';
 import { getFutureAvatarDescription } from '../utils/futureAvatarModel';
 import { getCurrentMeDescription } from '../utils/currentMeAvatarModel';
 import VisualInfluences from '../components/VisualInfluences';
+import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
+import { canRunITE } from '../utils/iteAvatarAdapter';
 
 function MetricBar({ label, value, max, color, reverse = false }) {
   const displayValue = reverse ? max - value + 1 : value;
@@ -53,6 +56,26 @@ export default function AvatarScreen() {
     trendAnalysis,
     handleGenderChange,
   } = useApp();
+
+  const iteNarrative = useMemo(() => {
+    const baseline = liveProfile?.onboardingBaseline || liveProfile?.baselineState;
+    if (!canRunITE(historyData, baseline)) return null;
+    try {
+      const latestMetrics = historyData?.[0] || {};
+      const rawMetrics = {
+        activity: latestMetrics.activity ?? 3,
+        nutrition: latestMetrics.nutrition ?? 3,
+        sleep: latestMetrics.sleep ?? 3,
+        stress: latestMetrics.stress ?? 3,
+        lifeZones: liveProfile?.lifeZones || {},
+        habits: []
+      };
+      const iteResult = runIdentityTrajectoryEngine(rawMetrics, historyData, baseline);
+      return iteResult.narrative || null;
+    } catch (e) {
+      return null;
+    }
+  }, [historyData, liveProfile]);
 
   if (!liveProfile) {
     return (
@@ -155,6 +178,15 @@ export default function AvatarScreen() {
           <div className="mt-4 text-center">
             {!showFutureAvatar ? (
               (() => {
+                if (iteNarrative?.currentSummary) {
+                  return (
+                    <>
+                      <p className="text-sm text-gray-700 font-medium mb-2">
+                        {iteNarrative.currentSummary}
+                      </p>
+                    </>
+                  );
+                }
                 const description = getCurrentMeDescription(
                   currentMeMetrics || liveProfile.onboardingBaseline,
                   { slowDriftApplied: currentMeMetrics?.slowDriftApplied }
@@ -172,6 +204,15 @@ export default function AvatarScreen() {
               })()
             ) : futureMetrics ? (
               (() => {
+                if (iteNarrative?.projection12MonthSummary) {
+                  return (
+                    <>
+                      <p className="text-sm text-gray-700 font-medium mb-2">
+                        {iteNarrative.projection12MonthSummary}
+                      </p>
+                    </>
+                  );
+                }
                 const description = getFutureAvatarDescription(futureMetrics, trendAnalysis);
                 return (
                   <>
