@@ -1,0 +1,333 @@
+import { useMemo } from 'react';
+import { motion } from 'framer-motion';
+
+const lerp = (a, b, t) => a + (b - a) * t;
+
+function computeBodyGeometry(params) {
+  const {
+    gender,
+    shoulderWidth,
+    chestSize,
+    waistTaper,
+    hipWidth,
+    armThickness,
+    legThickness,
+    neckThickness,
+    postureLean,
+    headScale
+  } = params;
+
+  const cx = 100;
+  const isMale = gender !== 'female';
+
+  const headRx = lerp(22, 28, headScale);
+  const headRy = lerp(26, 32, headScale);
+  const headCy = 52;
+
+  const neckW = lerp(8, 16, neckThickness);
+  const neckTop = headCy + headRy - 4;
+  const neckBottom = neckTop + 18;
+
+  const shoulderY = neckBottom - 2;
+  const shoulderHalf = lerp(28, 55, shoulderWidth);
+  const chestY = shoulderY + lerp(18, 28, chestSize);
+
+  const waistY = chestY + 32;
+  const taperFactor = lerp(0.95, 0.55, waistTaper);
+  const waistHalf = shoulderHalf * taperFactor;
+
+  const hipY = waistY + 18;
+  const hipHalf = lerp(22, 48, hipWidth);
+  if (!isMale) {
+    // already adjusted by preset
+  }
+
+  const crotchY = hipY + 12;
+
+  const armW = lerp(7, 18, armThickness);
+  const armLen = lerp(60, 75, 0.5);
+
+  const legW = lerp(10, 22, legThickness);
+  const legLen = 80;
+
+  const postureOffset = postureLean * -4;
+  const postureRotate = postureLean * -2.5;
+
+  return {
+    cx, headRx, headRy, headCy,
+    neckW, neckTop, neckBottom,
+    shoulderY, shoulderHalf, chestY, chestSize,
+    waistY, waistHalf,
+    hipY, hipHalf, crotchY,
+    armW, armLen,
+    legW, legLen,
+    postureOffset, postureRotate,
+    isMale
+  };
+}
+
+function buildTorsoPath(g) {
+  const { cx, shoulderHalf, shoulderY, chestY, chestSize, waistHalf, waistY, hipHalf, hipY, crotchY, isMale } = g;
+
+  const chestBulge = isMale ? lerp(0, 4, chestSize) : lerp(0, 6, chestSize);
+  const shoulderRound = isMale ? 6 : 3;
+
+  return `
+    M ${cx - shoulderHalf} ${shoulderY}
+    Q ${cx - shoulderHalf - shoulderRound} ${shoulderY + 6} ${cx - shoulderHalf + 1} ${(shoulderY + chestY) / 2}
+    Q ${cx - shoulderHalf + chestBulge} ${chestY} ${cx - waistHalf} ${waistY}
+    Q ${cx - waistHalf - 1} ${(waistY + hipY) / 2} ${cx - hipHalf} ${hipY}
+    L ${cx - hipHalf + 4} ${crotchY}
+    L ${cx + hipHalf - 4} ${crotchY}
+    L ${cx + hipHalf} ${hipY}
+    Q ${cx + waistHalf + 1} ${(waistY + hipY) / 2} ${cx + waistHalf} ${waistY}
+    Q ${cx + shoulderHalf - chestBulge} ${chestY} ${cx + shoulderHalf - 1} ${(shoulderY + chestY) / 2}
+    Q ${cx + shoulderHalf + shoulderRound} ${shoulderY + 6} ${cx + shoulderHalf} ${shoulderY}
+    Z
+  `;
+}
+
+function buildArmPath(g, side) {
+  const { cx, shoulderHalf, shoulderY, armW, armLen } = g;
+  const sign = side === 'left' ? -1 : 1;
+  const sx = cx + sign * shoulderHalf;
+  const sy = shoulderY + 3;
+  const hw = armW / 2;
+
+  const elbowY = sy + armLen * 0.45;
+  const wristY = sy + armLen;
+  const handY = wristY + 8;
+
+  const elbowOut = sign * 6;
+  const handShrink = hw * 0.7;
+
+  return `
+    M ${sx - hw} ${sy}
+    Q ${sx - hw + elbowOut * 0.3} ${(sy + elbowY) / 2} ${sx - hw + elbowOut} ${elbowY}
+    L ${sx - handShrink + elbowOut * 0.5} ${wristY}
+    Q ${sx + elbowOut * 0.3} ${handY + 2} ${sx + handShrink + elbowOut * 0.5} ${wristY}
+    L ${sx + hw + elbowOut} ${elbowY}
+    Q ${sx + hw + elbowOut * 0.3} ${(sy + elbowY) / 2} ${sx + hw} ${sy}
+    Z
+  `;
+}
+
+function buildLegPath(g, side) {
+  const { cx, hipHalf, crotchY, legW, legLen } = g;
+  const sign = side === 'left' ? -1 : 1;
+  const legCx = cx + sign * (hipHalf * 0.45);
+  const hw = legW / 2;
+  const topY = crotchY - 2;
+  const kneeY = topY + legLen * 0.48;
+  const ankleY = topY + legLen;
+  const footY = ankleY + 6;
+
+  const kneeBulge = 2;
+
+  return `
+    M ${legCx - hw} ${topY}
+    Q ${legCx - hw - 1} ${(topY + kneeY) / 2} ${legCx - hw + kneeBulge} ${kneeY}
+    L ${legCx - hw * 0.85} ${ankleY}
+    Q ${legCx - hw * 0.5} ${footY + 2} ${legCx + hw * 0.9} ${footY}
+    L ${legCx + hw * 0.85} ${ankleY}
+    L ${legCx + hw - kneeBulge} ${kneeY}
+    Q ${legCx + hw + 1} ${(topY + kneeY) / 2} ${legCx + hw} ${topY}
+    Z
+  `;
+}
+
+function buildNeckPath(g) {
+  const { cx, neckW, neckTop, neckBottom } = g;
+  const hw = neckW / 2;
+  return `
+    M ${cx - hw} ${neckTop}
+    Q ${cx - hw - 1} ${(neckTop + neckBottom) / 2} ${cx - hw + 1} ${neckBottom}
+    L ${cx + hw - 1} ${neckBottom}
+    Q ${cx + hw + 1} ${(neckTop + neckBottom) / 2} ${cx + hw} ${neckTop}
+    Z
+  `;
+}
+
+function FaceFeatures({ g, facialTension, vibrancy }) {
+  const { cx, headCy, headRx } = g;
+  const eyeY = headCy - 3;
+  const eyeSpacing = headRx * 0.42;
+  const browY = eyeY - 7;
+
+  const tension = facialTension || 0;
+  const browAngle = tension * 4;
+  const eyeOpenness = lerp(5, 3.5, tension);
+  const mouthY = headCy + 10;
+
+  const mouthCurve = lerp(3, -2, tension);
+
+  const skinTone = vibrancy > 0.6 ? '#e8c4a0' : vibrancy > 0.3 ? '#d4a882' : '#c49878';
+
+  return (
+    <g>
+      <line
+        x1={cx - eyeSpacing - 5} y1={browY + browAngle * 0.5}
+        x2={cx - eyeSpacing + 5} y2={browY - browAngle * 0.5}
+        stroke="#5a4a3a" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"
+      />
+      <line
+        x1={cx + eyeSpacing - 5} y1={browY - browAngle * 0.5}
+        x2={cx + eyeSpacing + 5} y2={browY + browAngle * 0.5}
+        stroke="#5a4a3a" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"
+      />
+
+      <ellipse cx={cx - eyeSpacing} cy={eyeY} rx="4" ry={eyeOpenness} fill="white" />
+      <ellipse cx={cx + eyeSpacing} cy={eyeY} rx="4" ry={eyeOpenness} fill="white" />
+      <circle cx={cx - eyeSpacing} cy={eyeY + 0.5} r="2.2" fill="#3a3028" />
+      <circle cx={cx + eyeSpacing} cy={eyeY + 0.5} r="2.2" fill="#3a3028" />
+      <circle cx={cx - eyeSpacing + 0.8} cy={eyeY - 0.8} r="0.8" fill="white" opacity="0.8" />
+      <circle cx={cx + eyeSpacing + 0.8} cy={eyeY - 0.8} r="0.8" fill="white" opacity="0.8" />
+
+      <path
+        d={`M ${cx - 5} ${mouthY} Q ${cx} ${mouthY + mouthCurve} ${cx + 5} ${mouthY}`}
+        stroke="#7a5a4a" strokeWidth="1.5" fill="none" strokeLinecap="round"
+      />
+
+      <ellipse cx={cx} cy={eyeY + 3} rx="2" ry="1.5" fill={skinTone} opacity="0.4" />
+    </g>
+  );
+}
+
+function ShadingLayer({ g, clipId, vibrancy }) {
+  const { cx, shoulderHalf, shoulderY, waistHalf, waistY, hipY } = g;
+  const shadingOpacity = lerp(0.12, 0.04, vibrancy);
+
+  return (
+    <g clipPath={`url(#${clipId})`} opacity={shadingOpacity}>
+      <ellipse
+        cx={cx - shoulderHalf * 0.3} cy={(shoulderY + waistY) / 2}
+        rx={shoulderHalf * 0.4} ry={(waistY - shoulderY) * 0.5}
+        fill="#000"
+      />
+      <ellipse
+        cx={cx + shoulderHalf * 0.3} cy={(shoulderY + waistY) / 2}
+        rx={shoulderHalf * 0.4} ry={(waistY - shoulderY) * 0.5}
+        fill="#000"
+      />
+      <rect
+        x={cx - waistHalf * 0.6} y={waistY - 5}
+        width={waistHalf * 1.2} height={hipY - waistY + 10}
+        rx="8" fill="#000" opacity="0.5"
+      />
+    </g>
+  );
+}
+
+function GlowLayer({ g, energyGlow, color }) {
+  if (energyGlow < 0.15) return null;
+  const { cx } = g;
+  const glowOpacity = lerp(0, 0.25, energyGlow);
+  const glowRadius = lerp(30, 60, energyGlow);
+
+  return (
+    <ellipse
+      cx={cx} cy={140}
+      rx={glowRadius} ry={glowRadius * 1.3}
+      fill={color}
+      opacity={glowOpacity}
+      filter="url(#avatarGlow)"
+    />
+  );
+}
+
+export default function HumanAvatarRenderer({ params, color = '#6366f1', className = '' }) {
+  const p = params || {};
+
+  const g = useMemo(() => computeBodyGeometry(p), [
+    p.gender, p.shoulderWidth, p.chestSize, p.waistTaper, p.hipWidth,
+    p.armThickness, p.legThickness, p.neckThickness, p.postureLean, p.headScale
+  ]);
+
+  const torsoPath = useMemo(() => buildTorsoPath(g), [g]);
+  const leftArmPath = useMemo(() => buildArmPath(g, 'left'), [g]);
+  const rightArmPath = useMemo(() => buildArmPath(g, 'right'), [g]);
+  const leftLegPath = useMemo(() => buildLegPath(g, 'left'), [g]);
+  const rightLegPath = useMemo(() => buildLegPath(g, 'right'), [g]);
+  const neckPath = useMemo(() => buildNeckPath(g), [g]);
+
+  const vibrancy = p.vibrancy ?? 0.5;
+  const energyGlow = p.energyGlow ?? 0.4;
+  const facialTension = p.facialTension ?? 0.3;
+
+  const skinBase = vibrancy > 0.6 ? '#e8c4a0' : vibrancy > 0.3 ? '#d4a882' : '#c49878';
+  const bodyFill = color;
+
+  const clipId = 'humanBodyClip';
+
+  return (
+    <svg
+      viewBox="0 0 200 300"
+      className={`w-full max-w-[200px] h-auto ${className}`}
+      style={{ overflow: 'visible' }}
+    >
+      <defs>
+        <filter id="avatarGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="12" />
+        </filter>
+        <linearGradient id="skinGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+          <stop offset="0%" stopColor={skinBase} stopOpacity="1" />
+          <stop offset="100%" stopColor={skinBase} stopOpacity="0.85" />
+        </linearGradient>
+        <linearGradient id="bodyGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+          <stop offset="0%" stopColor={bodyFill} stopOpacity="0.9" />
+          <stop offset="60%" stopColor={bodyFill} stopOpacity="0.75" />
+          <stop offset="100%" stopColor={bodyFill} stopOpacity="0.6" />
+        </linearGradient>
+        <clipPath id={clipId}>
+          <path d={torsoPath} />
+          <path d={leftArmPath} />
+          <path d={rightArmPath} />
+          <path d={leftLegPath} />
+          <path d={rightLegPath} />
+          <path d={neckPath} />
+        </clipPath>
+      </defs>
+
+      <motion.g
+        animate={{ y: g.postureOffset, rotate: g.postureRotate }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        style={{ transformOrigin: '100px 150px' }}
+      >
+        <GlowLayer g={g} energyGlow={energyGlow} color={bodyFill} />
+
+        <motion.path d={leftLegPath} fill="url(#bodyGrad)" />
+        <motion.path d={rightLegPath} fill="url(#bodyGrad)" />
+
+        <motion.path d={torsoPath} fill="url(#bodyGrad)" />
+
+        <motion.path d={leftArmPath} fill="url(#bodyGrad)" />
+        <motion.path d={rightArmPath} fill="url(#bodyGrad)" />
+
+        <path d={neckPath} fill="url(#skinGrad)" />
+
+        <ellipse
+          cx={g.cx} cy={g.headCy}
+          rx={g.headRx} ry={g.headRy}
+          fill="url(#skinGrad)"
+        />
+
+        <ShadingLayer g={g} clipId={clipId} vibrancy={vibrancy} />
+
+        <FaceFeatures g={g} facialTension={facialTension} vibrancy={vibrancy} />
+
+        {energyGlow > 0.5 && (
+          <motion.ellipse
+            cx={g.cx} cy={140}
+            rx={65} ry={90}
+            fill="none"
+            stroke={bodyFill}
+            strokeWidth="0.8"
+            opacity={lerp(0, 0.2, energyGlow - 0.5) * 2}
+            animate={{ opacity: [0.05, lerp(0, 0.15, (energyGlow - 0.5) * 2), 0.05] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        )}
+      </motion.g>
+    </svg>
+  );
+}

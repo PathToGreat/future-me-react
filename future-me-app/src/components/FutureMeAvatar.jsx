@@ -13,6 +13,10 @@ import FacialExpressionLayer from './avatar/FacialExpressionLayer';
 import BodyCompositionLayer from './avatar/BodyCompositionLayer';
 import EnergyGlowLayer from './avatar/EnergyGlowLayer';
 import PhotoEffectsLayer from './avatar/photo/PhotoEffectsLayer';
+import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
+import { mapFromAvatarEffects } from '../avatar/mapTraitsToAvatarParams';
+
+const USE_HUMAN_AVATAR_V2 = true;
 
 export default function FutureMeAvatar({ 
   lifestyleScore, 
@@ -125,6 +129,11 @@ export default function FutureMeAvatar({
     const zoneInfluences = computeZoneInfluences(lifeZoneScores);
     return applyZoneInfluencesToEffects(baseEffects, zoneInfluences);
   }, [effectiveMetrics, activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, gender, baselineData, lifeZoneScores]);
+
+  const humanAvatarParams = useMemo(() => {
+    if (!USE_HUMAN_AVATAR_V2) return null;
+    return mapFromAvatarEffects(avatarEffects, avatarTraits, gender);
+  }, [avatarEffects, avatarTraits, gender]);
 
   console.log('🎨 FutureMeAvatar rendered with traits:', avatarTraits.summary);
   console.log('🎨 Avatar effects applied:', {
@@ -412,185 +421,192 @@ export default function FutureMeAvatar({
         ) : (
           <div className="relative z-10">
             <div style={getGlowOverlayStyle(avatarEffects.glowIntensity, colors.glow)} />
-            <svg
-              className="w-full max-w-[200px] h-auto"
-              viewBox="0 0 200 300"
-              style={{ filter: `${avatarEffects.cssFilter} brightness(${trendBrightness})` }}
-            >
-            <motion.g
-              animate={{
-                y: posture.y,
-                rotate: posture.rotate,
-              }}
-              transition={{ duration: 0.5 }}
-              style={{ transformOrigin: '100px 150px' }}
-            >
-              <motion.ellipse
-                cx="100"
-                cy="70"
-                rx="45"
-                ry="50"
-                fill={colors.body}
-                animate={{
-                  ry: [50, 50 + breathing.intensity, 50],
-                }}
-                transition={{
-                  duration: breathing.rate,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
+            {USE_HUMAN_AVATAR_V2 && humanAvatarParams ? (
+              <HumanAvatarRenderer
+                params={humanAvatarParams}
+                color={colors.body}
               />
+            ) : (
+              <svg
+                className="w-full max-w-[200px] h-auto"
+                viewBox="0 0 200 300"
+                style={{ filter: `${avatarEffects.cssFilter} brightness(${trendBrightness})` }}
+              >
+              <motion.g
+                animate={{
+                  y: posture.y,
+                  rotate: posture.rotate,
+                }}
+                transition={{ duration: 0.5 }}
+                style={{ transformOrigin: '100px 150px' }}
+              >
+                <motion.ellipse
+                  cx="100"
+                  cy="70"
+                  rx="45"
+                  ry="50"
+                  fill={colors.body}
+                  animate={{
+                    ry: [50, 50 + breathing.intensity, 50],
+                  }}
+                  transition={{
+                    duration: breathing.rate,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                />
 
-              <motion.g animate={eyeShape.happy ? { y: [0, -2, 0] } : {}} transition={{ duration: 2, repeat: Infinity }}>
-                {eyeShape.squint ? (
+                <motion.g animate={eyeShape.happy ? { y: [0, -2, 0] } : {}} transition={{ duration: 2, repeat: Infinity }}>
+                  {eyeShape.squint ? (
+                    <>
+                      <line x1="75" y1="65" x2="95" y2="68" stroke="#1f2937" strokeWidth="3" strokeLinecap="round" />
+                      <line x1="105" y1="68" x2="125" y2="65" stroke="#1f2937" strokeWidth="3" strokeLinecap="round" />
+                    </>
+                  ) : (
+                    <>
+                      <ellipse cx="85" cy="65" rx="8" ry={eyeShape.happy ? 6 : 10} fill="white" />
+                      <ellipse cx="115" cy="65" rx="8" ry={eyeShape.happy ? 6 : 10} fill="white" />
+                      <motion.circle 
+                        cx="85" 
+                        cy="67" 
+                        r="5" 
+                        fill="#1f2937"
+                        animate={eyeShape.happy ? { cy: [67, 65, 67] } : {}}
+                        transition={{ duration: 3, repeat: Infinity }}
+                      />
+                      <motion.circle 
+                        cx="115" 
+                        cy="67" 
+                        r="5" 
+                        fill="#1f2937"
+                        animate={eyeShape.happy ? { cy: [67, 65, 67] } : {}}
+                        transition={{ duration: 3, repeat: Infinity }}
+                      />
+                      {eyeShape.happy && (
+                        <>
+                          <circle cx="87" cy="64" r="2" fill="white" />
+                          <circle cx="117" cy="64" r="2" fill="white" />
+                        </>
+                      )}
+                    </>
+                  )}
+                </motion.g>
+
+                <motion.path
+                  d={mouthPath}
+                  stroke="#1f2937"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+
+                {avatarTraits.facialExpression.score >= 75 && (
                   <>
-                    <line x1="75" y1="65" x2="95" y2="68" stroke="#1f2937" strokeWidth="3" strokeLinecap="round" />
-                    <line x1="105" y1="68" x2="125" y2="65" stroke="#1f2937" strokeWidth="3" strokeLinecap="round" />
-                  </>
-                ) : (
-                  <>
-                    <ellipse cx="85" cy="65" rx="8" ry={eyeShape.happy ? 6 : 10} fill="white" />
-                    <ellipse cx="115" cy="65" rx="8" ry={eyeShape.happy ? 6 : 10} fill="white" />
-                    <motion.circle 
-                      cx="85" 
-                      cy="67" 
-                      r="5" 
-                      fill="#1f2937"
-                      animate={eyeShape.happy ? { cy: [67, 65, 67] } : {}}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    />
-                    <motion.circle 
-                      cx="115" 
-                      cy="67" 
-                      r="5" 
-                      fill="#1f2937"
-                      animate={eyeShape.happy ? { cy: [67, 65, 67] } : {}}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    />
-                    {eyeShape.happy && (
-                      <>
-                        <circle cx="87" cy="64" r="2" fill="white" />
-                        <circle cx="117" cy="64" r="2" fill="white" />
-                      </>
-                    )}
+                    <circle cx="65" cy="80" r="6" fill="#fca5a5" opacity="0.5" />
+                    <circle cx="135" cy="80" r="6" fill="#fca5a5" opacity="0.5" />
                   </>
                 )}
+
+                <motion.rect
+                  x={(200 - bodyWidth) / 2}
+                  y="120"
+                  width={bodyWidth}
+                  height="100"
+                  rx="20"
+                  fill={colors.body}
+                  animate={{
+                    height: [100, 100 + breathing.intensity, 100],
+                  }}
+                  transition={{
+                    duration: breathing.rate,
+                    repeat: Infinity,
+                  }}
+                />
+
+                <motion.rect
+                  x="55"
+                  y="120"
+                  width="18"
+                  height="80"
+                  rx="10"
+                  fill={colors.body}
+                  animate={{
+                    rotate: armAnim.rotate,
+                  }}
+                  transition={{
+                    duration: armAnim.duration,
+                    repeat: armAnim.duration > 0 ? Infinity : 0,
+                  }}
+                  style={{ transformOrigin: '64px 120px' }}
+                />
+
+                <motion.rect
+                  x="127"
+                  y="120"
+                  width="18"
+                  height="80"
+                  rx="10"
+                  fill={colors.body}
+                  animate={{
+                    rotate: armAnim.rotate.map(r => -r),
+                  }}
+                  transition={{
+                    duration: armAnim.duration,
+                    repeat: armAnim.duration > 0 ? Infinity : 0,
+                  }}
+                  style={{ transformOrigin: '136px 120px' }}
+                />
+
+                <rect x="75" y="220" width="20" height="70" rx="10" fill={colors.body} />
+                <rect x="105" y="220" width="20" height="70" rx="10" fill={colors.body} />
               </motion.g>
 
-              <motion.path
-                d={mouthPath}
-                stroke="#1f2937"
-                strokeWidth="3"
-                fill="none"
-                strokeLinecap="round"
-              />
-
-              {avatarTraits.facialExpression.score >= 75 && (
+              {particleCount > 0 && (
                 <>
-                  <circle cx="65" cy="80" r="6" fill="#fca5a5" opacity="0.5" />
-                  <circle cx="135" cy="80" r="6" fill="#fca5a5" opacity="0.5" />
+                  {[...Array(particleCount)].map((_, i) => (
+                    <motion.circle
+                      key={`particle-${i}`}
+                      cx={100 + Math.cos((i * 360 / particleCount) * Math.PI / 180) * 90}
+                      cy={150 + Math.sin((i * 360 / particleCount) * Math.PI / 180) * 90}
+                      r={3 + (avatarTraits.glowEnergy.score / 50)}
+                      fill={colors.accent}
+                      animate={{
+                        scale: [0, 1.2, 0],
+                        opacity: [0, 0.9, 0],
+                      }}
+                      transition={{
+                        duration: 1.5 + (i % 3) * 0.3,
+                        repeat: Infinity,
+                        delay: i * (1.5 / particleCount),
+                      }}
+                    />
+                  ))}
                 </>
               )}
 
-              <motion.rect
-                x={(200 - bodyWidth) / 2}
-                y="120"
-                width={bodyWidth}
-                height="100"
-                rx="20"
-                fill={colors.body}
-                animate={{
-                  height: [100, 100 + breathing.intensity, 100],
-                }}
-                transition={{
-                  duration: breathing.rate,
-                  repeat: Infinity,
-                }}
-              />
-
-              <motion.rect
-                x="55"
-                y="120"
-                width="18"
-                height="80"
-                rx="10"
-                fill={colors.body}
-                animate={{
-                  rotate: armAnim.rotate,
-                }}
-                transition={{
-                  duration: armAnim.duration,
-                  repeat: armAnim.duration > 0 ? Infinity : 0,
-                }}
-                style={{ transformOrigin: '64px 120px' }}
-              />
-
-              <motion.rect
-                x="127"
-                y="120"
-                width="18"
-                height="80"
-                rx="10"
-                fill={colors.body}
-                animate={{
-                  rotate: armAnim.rotate.map(r => -r),
-                }}
-                transition={{
-                  duration: armAnim.duration,
-                  repeat: armAnim.duration > 0 ? Infinity : 0,
-                }}
-                style={{ transformOrigin: '136px 120px' }}
-              />
-
-              <rect x="75" y="220" width="20" height="70" rx="10" fill={colors.body} />
-              <rect x="105" y="220" width="20" height="70" rx="10" fill={colors.body} />
-            </motion.g>
-
-            {particleCount > 0 && (
-              <>
-                {[...Array(particleCount)].map((_, i) => (
-                  <motion.circle
-                    key={`particle-${i}`}
-                    cx={100 + Math.cos((i * 360 / particleCount) * Math.PI / 180) * 90}
-                    cy={150 + Math.sin((i * 360 / particleCount) * Math.PI / 180) * 90}
-                    r={3 + (avatarTraits.glowEnergy.score / 50)}
-                    fill={colors.accent}
-                    animate={{
-                      scale: [0, 1.2, 0],
-                      opacity: [0, 0.9, 0],
-                    }}
-                    transition={{
-                      duration: 1.5 + (i % 3) * 0.3,
-                      repeat: Infinity,
-                      delay: i * (1.5 / particleCount),
-                    }}
-                  />
-                ))}
-              </>
+              {avatarTraits.auraPresence.score >= 70 && (
+                <motion.ellipse
+                  cx="100"
+                  cy="150"
+                  rx="95"
+                  ry="140"
+                  fill="none"
+                  stroke={colors.glow}
+                  strokeWidth="2"
+                  strokeDasharray="10 5"
+                  opacity="0.3"
+                  animate={{
+                    strokeDashoffset: [0, -30, 0],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                />
+              )}
+            </svg>
             )}
-
-            {avatarTraits.auraPresence.score >= 70 && (
-              <motion.ellipse
-                cx="100"
-                cy="150"
-                rx="95"
-                ry="140"
-                fill="none"
-                stroke={colors.glow}
-                strokeWidth="2"
-                strokeDasharray="10 5"
-                opacity="0.3"
-                animate={{
-                  strokeDashoffset: [0, -30, 0],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-              />
-            )}
-          </svg>
             <div style={getDarknessOverlayStyle(avatarEffects.darknessOverlay)} className="absolute inset-0 rounded-2xl pointer-events-none" />
           </div>
         )}

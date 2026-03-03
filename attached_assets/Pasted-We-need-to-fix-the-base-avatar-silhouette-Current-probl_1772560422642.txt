@@ -1,0 +1,168 @@
+We need to fix the base avatar silhouette.
+
+Current problem:
+The current SVG avatar reads as a blob/robot even when the user is in peak condition (lean, muscular, athletic). That prevents connection and undermines the “Future Me” concept.
+
+Goal:
+Replace the current SVG avatar renderer with a semi-realistic, human-shaped SVG rig that supports body-type variation (lean, athletic, muscular, overweight) and expression cues without messy overlay lines.
+
+Constraints:
+- Keep using SVG (do NOT introduce 3D).
+- Avoid drawing random line details over a single shape (this caused visual crowding before).
+- Do NOT change layout or restructure the Avatar screen UI.
+- Photo upload remains optional. The base avatar must look good without photos.
+- The new avatar must remain lightweight and performant on mobile web.
+
+-----------------------------------------
+DELIVERABLES
+-----------------------------------------
+
+1) NEW MODULES
+Create:
+- src/avatar/HumanAvatarRenderer.jsx (or .tsx depending on current stack)
+- src/avatar/avatarParams.js
+- src/avatar/avatarPresets.js
+- src/avatar/mapTraitsToAvatarParams.js
+
+2) PARAMETERIZED HUMAN AVATAR (SVG RIG)
+Build the avatar from modular SVG layers with deterministic z-order.
+
+Avatar parameters (normalized 0–1 unless noted):
+{
+  gender: "male" | "female",
+  shoulderWidth,
+  chestSize,
+  waistTaper,
+  hipWidth,
+  armThickness,
+  legThickness,
+  neckThickness,
+  postureLean,     // range -1 to +1
+  headScale,
+  energyGlow,      // 0–1
+  facialTension,   // 0–1 (higher = more tense)
+  vibrancy         // 0–1
+}
+
+3) PRESETS
+Create body-type presets that look HUMAN at a glance:
+- LeanAthletic
+- MuscularAthletic
+- AverageFit
+- Soft
+- Overweight
+
+Each preset should set proportions in a believable way:
+- MuscularAthletic: wider shoulders, thicker arms/legs, stronger V-taper
+- LeanAthletic: V-taper but less thickness than muscular
+- Soft/Overweight: lower taper, thicker midsection, less definition
+
+4) SVG LAYER STRUCTURE (NO CROWDING)
+Render layers in this exact order inside ONE SVG:
+1. Background glow layer (optional, subtle)
+2. Legs base
+3. Torso base
+4. Arms base
+5. Neck base
+6. Head base
+7. Shading layer (soft gradients only, minimal)
+8. Face features (minimal and semi-realistic, not cartoony)
+9. Indicators (very subtle, optional)
+
+Important:
+- Do NOT add extra DOM elements behind the SVG.
+- All details must be inside the same SVG.
+- Use SVG clipPath masking so shading and overlays never spill outside the body regions.
+- Avoid outlines as the main detail. Use subtle shading and shape to convey form.
+
+5) SIMPLE EXPRESSION + POSTURE (SUBTLE)
+FacialTension should affect:
+- eyebrow angle or slight brow compression
+- mouth curvature (neutral to slightly downturned)
+- eye openness (slightly tighter under tension)
+
+PostureLean should affect:
+- a slight forward slump for negative values
+- a slight upright stance for positive values
+
+Keep changes subtle. No exaggerated cartoon emotions.
+
+6) TRAIT / METRIC MAPPING (FOR NOW)
+Even if the full Identity Trajectory Engine is built elsewhere, we need a simple mapping function now for the avatar:
+
+Create:
+mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics)
+
+Mapping rules:
+- Vitality -> vibrancy + energyGlow
+- EmotionalStability (inverse) -> facialTension
+- Confidence + Discipline -> postureLean (upright vs slumped)
+- If trait objects are not available, fallback to existing lifestyle metrics (activity, nutrition, sleep, stress) to compute approximate params.
+
+Keep mapping conservative and believable.
+
+-----------------------------------------
+CLEAN MIGRATION PATH (MINIMIZE BREAKAGE)
+-----------------------------------------
+
+We do NOT rip out the existing avatar system immediately.
+We introduce the new renderer in parallel and switch safely.
+
+Step 1: Locate current avatar rendering code
+- Find the component that renders the SVG avatar (likely in Avatar page or a component like AvatarFigure, CurrentAvatar, etc).
+- Keep it intact.
+
+Step 2: Add a feature-flag style switch (temporary)
+- Add a constant at the top of the avatar render file:
+  const USE_HUMAN_AVATAR_V2 = true;
+- If true, render <HumanAvatarRenderer params={...} />
+- If false, render the existing SVG avatar component.
+
+Step 3: Keep existing UI controls untouched
+- The “Show Avatar” button should now route to the new renderer, but keep the same state logic.
+- Do not change the layout, cards, or metrics UI.
+
+Step 4: Match the existing API surface
+- If the current avatar component expects props like { mood, color, shape, etc }, create an adapter function that converts those into the new avatarParams.
+- This avoids rewriting upstream logic.
+
+Step 5: Remove old only after parity
+- Once the new avatar looks correct across presets and mappings, we can remove the old renderer and the feature flag in a later step.
+- For now, leave both so we can compare quickly.
+
+-----------------------------------------
+DEFINITION OF DONE
+-----------------------------------------
+
+1) With a “peak condition” user state, the avatar must visibly read as:
+- athletic human silhouette
+- defined shoulders/chest taper
+- non-robotic proportions
+
+2) No visual crowding:
+- no stray lines behind the figure
+- no overlapping artifacts outside the body
+- overlays are clipped to body
+
+3) The avatar must respond to parameter changes:
+- muscular preset looks muscular
+- lean preset looks lean
+- posture changes are visible but subtle
+- facial tension changes are visible but subtle
+
+4) Performance:
+- smooth on mobile web (no heavy redraw loops)
+
+-----------------------------------------
+NOTES
+-----------------------------------------
+- Keep everything SVG.
+- Use clipPath for shading.
+- Prefer shape/proportion changes over line detail.
+- Photo mode stays separate; do not attempt to transform the photo in this task.
+
+Implement this and return:
+- File list changed
+- Where the new renderer is called
+- A short summary of how presets and params work
+- Any TODOs for next phase
