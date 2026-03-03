@@ -112,7 +112,8 @@ export default function AvatarScreen() {
         }
       } catch (e) {}
 
-      return narrative ? { ...narrative, leverLine, contrast, scenarioLine } : null;
+      const projectionConfidence = iteResult.projectionConfidence?.tier || 'LOW';
+      return narrative ? { ...narrative, leverLine, contrast, scenarioLine, projectionConfidence } : null;
     } catch (e) {
       return null;
     }
@@ -254,6 +255,7 @@ export default function AvatarScreen() {
               })()
             ) : futureMetrics ? (
               (() => {
+                const showConfidenceBanner = iteNarrative?.projectionConfidence === 'LOW';
                 if (iteNarrative?.projection12MonthSummary) {
                   const futureContrast = iteNarrative.contrast;
                   const influenceParts = [];
@@ -265,6 +267,11 @@ export default function AvatarScreen() {
 
                   return (
                     <>
+                      {showConfidenceBanner && (
+                        <p className="text-xs text-slate-400 mb-2">
+                          Future projection is refining as more data is logged.
+                        </p>
+                      )}
                       <p className="text-sm text-gray-700 font-medium mb-2">
                         {iteNarrative.projection12MonthSummary}
                       </p>

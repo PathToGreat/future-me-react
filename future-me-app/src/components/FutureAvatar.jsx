@@ -150,10 +150,10 @@ export default function FutureAvatar({
   const humanAvatarParams = useMemo(() => {
     if (!USE_HUMAN_AVATAR_V2) return null;
     const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
-    const params = mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, resolvedSkinTone);
+    const params = mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, resolvedSkinTone, historyData);
     params.hairStyle = resolvedHairStyle;
     return params;
-  }, [avatarEffects, avatarTraits, iteAdapter, gender, resolvedSkinTone, resolvedHairStyle]);
+  }, [avatarEffects, avatarTraits, iteAdapter, gender, resolvedSkinTone, resolvedHairStyle, historyData]);
 
   const photoOverlayState = useMemo(() => {
     const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;

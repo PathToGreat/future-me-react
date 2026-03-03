@@ -99,17 +99,18 @@ function getTrend(trait) {
   return 'stable';
 }
 
-export function generateIdentityNarrative(traitState, projections12Month, projections5Year, toneState, earlyStage, historyDepth) {
+export function generateIdentityNarrative(traitState, projections12Month, projections5Year, toneState, earlyStage, historyDepth, confidenceTier) {
   const effectiveTone = resolveEffectiveTone(toneState, earlyStage, historyDepth);
+  const resolvedConfidence = confidenceTier || (earlyStage ? 'LOW' : historyDepth >= 30 ? 'HIGH' : historyDepth >= 14 ? 'MEDIUM' : 'LOW');
   const currentSummary = generateCurrentSummary(traitState, effectiveTone, earlyStage, historyDepth);
-  const projection12Summary = generate12MonthSummary(traitState, projections12Month, effectiveTone, earlyStage);
+  const projection12Summary = generate12MonthSummary(traitState, projections12Month, effectiveTone, earlyStage, resolvedConfidence);
   const projection5Summary = generate5YearSummary(traitState, projections5Year, effectiveTone, earlyStage);
 
   return {
     currentSummary,
     projection12MonthSummary: projection12Summary,
     projection5YearSummary: projection5Summary,
-    projectionConfidence: earlyStage ? 'early' : 'standard',
+    projectionConfidence: resolvedConfidence,
     timestamp: new Date().toISOString()
   };
 }
@@ -192,7 +193,7 @@ function generateCurrentSummary(traitState, tone, earlyStage, historyDepth) {
   return parts.join(' ');
 }
 
-function generate12MonthSummary(traitState, projections, tone, earlyStage) {
+function generate12MonthSummary(traitState, projections, tone, earlyStage, confidenceTier) {
   if (!projections) return 'Insufficient data for 12-month projection.';
 
   const shiftThreshold = earlyStage ? 1.5 : 3;
@@ -214,7 +215,7 @@ function generate12MonthSummary(traitState, projections, tone, earlyStage) {
   }
 
   if (shifts.length === 0) {
-    if (earlyStage) {
+    if (earlyStage || confidenceTier === 'LOW') {
       return 'Initial patterns suggest a stable trajectory. Each additional day adds clarity to these projections.';
     }
     if (tone === 'drifting') {
@@ -226,9 +227,10 @@ function generate12MonthSummary(traitState, projections, tone, earlyStage) {
   shifts.sort((a, b) => Math.abs(b.projected - b.current) - Math.abs(a.projected - a.current));
   const topShift = shifts[0];
   const meta = getTraitMeta(topShift.traitId);
-  const direction = topShift.shift.includes('gain') ? 'strengthening' : 'softening';
+  const isGain = topShift.shift.includes('gain');
 
-  if (earlyStage) {
+  if (earlyStage || confidenceTier === 'LOW') {
+    const direction = isGain ? 'strengthening' : 'softening';
     let narrative = `Initial patterns indicate ${meta.label.toLowerCase()} is projected toward ${direction} over the next 12 months.`;
     if (shifts.length > 1) {
       const secondMeta = getTraitMeta(shifts[1].traitId);
@@ -237,15 +239,26 @@ function generate12MonthSummary(traitState, projections, tone, earlyStage) {
     return narrative;
   }
 
-  let narrative = `Over the next 12 months, ${meta.label.toLowerCase()} is projected to continue ${direction}.`;
+  const bodyDirection = isGain ? 'strengthening' : 'softening';
+  let narrative = `Over the next 12 months, ${meta.label.toLowerCase()} is projected to continue ${bodyDirection}.`;
 
   if (shifts.length > 1) {
-    const secondMeta = getTraitMeta(shifts[1].traitId);
-    const secondDir = shifts[1].shift.includes('gain') ? 'gains' : 'shifts';
-    narrative += ` ${secondMeta.label} also shows projected ${secondDir}.`;
+    const secondShift = shifts[1];
+    const secondMeta = getTraitMeta(secondShift.traitId);
+    const secondIsGain = secondShift.shift.includes('gain');
+    if (secondShift.traitId === 'emotionalStability' || secondShift.traitId === 'resilience') {
+      narrative += secondIsGain
+        ? ` ${secondMeta.label} is moving toward greater steadiness.`
+        : ` ${secondMeta.label} shows signs of increased reactivity.`;
+    } else {
+      const secondDir = secondIsGain ? 'gains' : 'shifts';
+      narrative += ` ${secondMeta.label} also shows projected ${secondDir}.`;
+    }
   }
 
-  if (tone === 'strengthening') {
+  if (confidenceTier === 'MEDIUM') {
+    narrative += ' These patterns are developing — continued logging will sharpen the projection.';
+  } else if (tone === 'strengthening') {
     narrative += ' Multiple traits are moving in the same direction, which tends to compound over time.';
   } else if (tone === 'drifting') {
     narrative += ' The data shows several traits moving away from baseline — this is the trajectory if current patterns hold.';

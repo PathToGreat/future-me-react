@@ -1,0 +1,170 @@
+PHASE 21: Projection Credibility, Early-User Guardrails, and Release Stabilization
+
+Context:
+Avatar V2 is structurally sound.
+Physical composition is separated from emotional traits.
+Projection blending exists.
+Photo mode differentiates Current vs Future.
+Skin tone and gender logic are robust.
+
+Before publishing, we must ensure:
+1) Projections are credible and not misleading.
+2) Early users (limited data) do not receive unstable future bodies.
+3) Current vs Future visual shifts are intentional and explainable.
+4) Narrative output matches visible changes.
+5) The system has a clean stopping point suitable for release.
+
+This phase is refinement and guardrails only.
+No new features.
+No UI redesign.
+
+-----------------------------------------
+A) PROJECTION CONFIDENCE GATING
+-----------------------------------------
+
+Problem:
+New users with insufficient history may get arbitrary projections.
+
+Requirement:
+Introduce ProjectionConfidence logic.
+
+Implement:
+1) Create a function:
+   computeProjectionConfidence(traitHistory)
+
+2) Define confidence tiers:
+   - LOW: < 14 days of meaningful data
+   - MEDIUM: 14–30 days
+   - HIGH: 30+ days with consistent logging
+
+3) Behavior rules:
+   LOW:
+     - Future body geometry change limited to max ±8% from current.
+     - Emotional projection dampened to 50%.
+     - Narrative must include gentle qualifier tone.
+   MEDIUM:
+     - Allow moderate projection deltas (±15%).
+   HIGH:
+     - Full projection effect allowed.
+
+ProjectionConfidence must affect:
+- Body geometry delta scaling
+- Emotional delta scaling
+- Narrative tone strength
+
+-----------------------------------------
+B) DELTA VISIBILITY FLOOR
+-----------------------------------------
+
+Problem:
+Small projection changes can look visually identical.
+
+Requirement:
+If projectionConfidence is MEDIUM or HIGH and there is measurable positive or negative trajectory,
+ensure a minimum perceptible shift.
+
+Implement:
+- If projected PhysicalCompositionScore differs by ≥5 points,
+  enforce at least a subtle visible taper or thickness shift.
+- If projected EmotionalStability differs by ≥5 points,
+  enforce subtle facial tension change.
+
+This must remain believable.
+No exaggeration.
+
+-----------------------------------------
+C) CURRENT vs FUTURE VISUAL CONSISTENCY CHECK
+-----------------------------------------
+
+Requirement:
+Add internal consistency validation:
+
+validateProjectionDifference(currentParams, projectedParams)
+
+Ensure:
+- If projectionConfidence HIGH and trait delta > threshold,
+  Current and Future avatars are not identical.
+- If LOW confidence,
+  Future never deviates drastically.
+
+Log internal warnings (no console spam in production).
+
+-----------------------------------------
+D) NARRATIVE ALIGNMENT PASS
+-----------------------------------------
+
+Requirement:
+Narrative tone must align with visual direction.
+
+If:
+- Body improves visually → narrative emphasizes strengthening, growth.
+- Body declines visually → narrative emphasizes erosion risk.
+- Emotional stability improves → mention resilience or steadiness.
+- Emotional declines → mention reactivity or instability gently.
+
+Rules:
+- No hype.
+- No shame.
+- No deterministic language.
+- No medical claims.
+
+Narrative must reference identity movement, not raw metrics.
+
+-----------------------------------------
+E) EARLY USER SAFE MODE (OPTIONAL BANNER)
+-----------------------------------------
+
+If ProjectionConfidence LOW:
+Display subtle text near Future view:
+
+"Future projection is refining as more data is logged."
+
+Keep small and non-alarmist.
+No modal.
+No blocking UI.
+
+-----------------------------------------
+F) RELEASE HARDENING CHECKLIST
+-----------------------------------------
+
+Before marking complete:
+
+1) Toggle Current vs Future on:
+   - Low activity user
+   - High activity user
+   - Emotional decline user
+   - Emotional growth user
+
+2) Verify:
+   - No extreme body distortions.
+   - No face glitches.
+   - No gender regressions.
+   - No projection exceeding anatomical constraints.
+   - Photo overlays subtle and believable.
+
+3) Ensure:
+   - No console logs.
+   - No debug flags left enabled.
+   - Feature flags default to V2 active.
+   - Performance stable on mobile viewport.
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+
+1) New users do not get unrealistic future bodies.
+2) Established users see meaningful but believable differentiation.
+3) Narrative matches visual movement.
+4) ProjectionConfidence protects credibility.
+5) System is stable and publish-ready.
+6) No UI redesign required.
+7) No new engine refactors required.
+
+Return:
+- Files changed/added
+- Explanation of ProjectionConfidence logic
+- Confirmation of confidence scaling rules
+- Any limitations intentionally deferred
+- Confirmation system is ready for release freeze
+
+This concludes stabilization for this release cycle.

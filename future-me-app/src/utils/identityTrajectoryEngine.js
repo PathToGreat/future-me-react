@@ -5,6 +5,7 @@ import { generateIdentityNarrative } from './identityNarrativeEngine';
 import { getTraitIds } from './identityTraits';
 import { computeTrajectoryIntensity } from './traitImpactEngine';
 import { computeIdentityContrast } from './identityContrastEngine';
+import { computeProjectionConfidence } from '../avatar/projectionConfidence';
 
 function detectEarlyStage(historyData) {
   const historyLength = historyData?.length || 0;
@@ -54,8 +55,9 @@ export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineDat
   const visualDelta = computeVisualDelta(traits, projection12Month);
 
   const historyDepth = historyData?.length || 0;
+  const projectionConfidence = computeProjectionConfidence(historyData);
   const { toneState } = computeTrajectoryIntensity(traits, projection12Month, earlyStage, historyDepth);
-  const narrative = generateIdentityNarrative(traits, projection12Month, projection5Year, toneState, earlyStage, historyDepth);
+  const narrative = generateIdentityNarrative(traits, projection12Month, projection5Year, toneState, earlyStage, historyDepth, projectionConfidence.tier);
 
   const iteResultForContrast = { traits, projection12Month, toneState, earlyStage, historyDepth };
   const contrast = computeIdentityContrast(iteResultForContrast);
@@ -70,11 +72,13 @@ export function runIdentityTrajectoryEngine(rawMetrics, historyData, baselineDat
     toneState,
     contrast,
     earlyStage,
+    projectionConfidence,
     _meta: {
       generatedAt: new Date().toISOString(),
       traitCount: getTraitIds().length,
       historyDepth: historyData?.length || 0,
-      earlyStage
+      earlyStage,
+      confidenceTier: projectionConfidence.tier
     }
   };
 }

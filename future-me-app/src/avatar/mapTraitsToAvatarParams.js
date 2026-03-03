@@ -1,6 +1,12 @@
 import { getPreset, getTierInterpolation, interpolatePresets } from './avatarPresets';
 import { normalizeParams } from './avatarParams';
 import { enforceBodyConstraints } from './bodyConstraints';
+import {
+  computeProjectionConfidence,
+  applyConfidenceScaling,
+  applyDeltaVisibilityFloor,
+  CONFIDENCE_TIERS
+} from './projectionConfidence';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
@@ -58,7 +64,7 @@ function buildBodyParams(physicalScore, emotionalParams, gender, skinTone) {
   return normalizeParams(constrained);
 }
 
-export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone) {
+export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone, historyData) {
   const g = gender === 'female' ? 'female' : 'male';
 
   const hasCurrentTraits = currentTraits && typeof currentTraits === 'object' &&
@@ -98,6 +104,8 @@ export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbac
   }
 
   if (hasProjectionTraits) {
+    const confidence = computeProjectionConfidence(historyData);
+
     const projEmotional = computeEmotionalVisualParams(projectionTraits);
     const t = PROJECTION_BLEND;
 
@@ -118,7 +126,16 @@ export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbac
       postureLean: clamp(emotionalParams.postureLean + (projEmotional.postureLean - emotionalParams.postureLean) * t, -1, 1)
     };
 
-    return buildBodyParams(blendedPhysical, blendedEmotional, g, skinTone);
+    const currentParams = buildBodyParams(physicalScore, emotionalParams, g, skinTone);
+    const projectedParams = buildBodyParams(blendedPhysical, blendedEmotional, g, skinTone);
+
+    const physicalDelta = blendedPhysical - physicalScore;
+    const emotionalDelta = (extractTraitScore(projectionTraits.emotionalStability) - extractTraitScore(currentTraits?.emotionalStability ?? 50));
+
+    let scaledParams = applyConfidenceScaling(currentParams, projectedParams, confidence);
+    scaledParams = applyDeltaVisibilityFloor(currentParams, scaledParams, physicalDelta, emotionalDelta, confidence);
+
+    return scaledParams;
   }
 
   return buildBodyParams(physicalScore, emotionalParams, g, skinTone);
@@ -144,10 +161,10 @@ export function mapFromAvatarEffects(avatarEffects, avatarTraits, gender, skinTo
     };
   }
 
-  return mapTraitsToAvatarParams(currentTraits, null, fallbackMetrics, gender, skinTone);
+  return mapTraitsToAvatarParams(currentTraits, null, fallbackMetrics, gender, skinTone, null);
 }
 
-export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, skinTone) {
+export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, skinTone, historyData) {
   const fallbackMetrics = {
     activity: avatarEffects?.activityScore ?? 3,
     nutrition: avatarEffects?.nutritionScore ?? 3,
@@ -181,7 +198,7 @@ export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteRe
     };
   }
 
-  return mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone);
+  return mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone, historyData);
 }
 
 export function computePhotoOverlayState(iteResult, isFuture) {
