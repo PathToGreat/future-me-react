@@ -1,16 +1,18 @@
-import { getPreset, selectPresetFromScore, interpolatePresets } from './avatarPresets';
+import { getPreset, getTierInterpolation, interpolatePresets } from './avatarPresets';
 import { normalizeParams } from './avatarParams';
+import { enforceBodyConstraints } from './bodyConstraints';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
 const PROJECTION_BLEND = 0.35;
 
-function scoreFromMetrics(activity, nutrition, sleep, stress) {
-  const actNorm = clamp((activity - 1) / 4, 0, 1);
-  const nutNorm = clamp((nutrition - 1) / 4, 0, 1);
-  const sleepNorm = clamp((sleep - 1) / 4, 0, 1);
-  const stressNorm = clamp(1 - (stress - 1) / 4, 0, 1);
-  return (actNorm * 0.3 + nutNorm * 0.2 + sleepNorm * 0.25 + stressNorm * 0.25) * 100;
+function computePhysicalCompositionScore(metrics) {
+  const act = clamp((metrics.activity - 1) / 4, 0, 1);
+  const nut = clamp((metrics.nutrition - 1) / 4, 0, 1);
+  const slp = clamp((metrics.sleep - 1) / 4, 0, 1);
+  const consistency = clamp(metrics.consistency ?? 0.5, 0, 1);
+
+  return (act * 0.40 + nut * 0.25 + consistency * 0.25 + slp * 0.10) * 100;
 }
 
 function extractTraitScore(trait) {
@@ -19,44 +21,41 @@ function extractTraitScore(trait) {
   return trait.currentScore ?? trait.score ?? 50;
 }
 
-function computeVisualParams(traits) {
-  const vit = extractTraitScore(traits.vitality);
+function computeEmotionalVisualParams(traits) {
   const emo = extractTraitScore(traits.emotionalStability);
   const conf = extractTraitScore(traits.confidence);
   const disc = extractTraitScore(traits.discipline);
   const res = extractTraitScore(traits.resilience);
+  const vit = extractTraitScore(traits.vitality);
 
   return {
     vibrancy: clamp(vit / 100, 0, 1),
     energyGlow: clamp((vit * 0.6 + res * 0.4) / 100, 0, 1),
     facialTension: clamp(1 - emo / 100, 0, 1),
-    postureLean: clamp(((conf + disc) / 2 - 50) / 50, -1, 1),
-    compositeScore: (vit + emo + conf + disc + res) / 5
+    postureLean: clamp(((conf + disc) / 2 - 50) / 50, -1, 1)
   };
 }
 
-function buildBodyParams(compositeScore, visualParams, gender, skinTone) {
+function buildBodyParams(physicalScore, emotionalParams, gender, skinTone) {
   const g = gender === 'female' ? 'female' : 'male';
-  const presetName = selectPresetFromScore(compositeScore);
-  const preset = getPreset(presetName, g);
 
-  const neighborScore = compositeScore >= 80 ? 65 : compositeScore >= 65 ? 80
-    : compositeScore >= 45 ? 65 : compositeScore >= 30 ? 45 : 30;
-  const neighborPresetName = selectPresetFromScore(neighborScore);
-  const neighborPreset = getPreset(neighborPresetName, g);
+  const { lowerTier, upperTier, t } = getTierInterpolation(physicalScore);
+  const lowerPreset = getPreset(lowerTier, g);
+  const upperPreset = getPreset(upperTier, g);
+  const blended = interpolatePresets(lowerPreset, upperPreset, t);
 
-  const scoreInRange = getInterpolationT(compositeScore);
-  const blended = interpolatePresets(preset, neighborPreset, scoreInRange);
-
-  return normalizeParams({
+  const raw = {
     gender: g,
     ...blended,
-    postureLean: visualParams.postureLean,
-    energyGlow: visualParams.energyGlow,
-    facialTension: visualParams.facialTension,
-    vibrancy: visualParams.vibrancy,
+    postureLean: emotionalParams.postureLean,
+    energyGlow: emotionalParams.energyGlow,
+    facialTension: emotionalParams.facialTension,
+    vibrancy: emotionalParams.vibrancy,
     skinTone: skinTone || null
-  });
+  };
+
+  const constrained = enforceBodyConstraints(raw);
+  return normalizeParams(constrained);
 }
 
 export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone) {
@@ -68,55 +67,61 @@ export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbac
   const hasProjectionTraits = projectionTraits && typeof projectionTraits === 'object' &&
     (projectionTraits.vitality != null || projectionTraits.confidence != null);
 
-  let currentVisual;
-  let compositeScore;
+  let emotionalParams;
+  let physicalScore;
 
   if (hasCurrentTraits) {
-    currentVisual = computeVisualParams(currentTraits);
-    compositeScore = currentVisual.compositeScore;
-  } else if (fallbackMetrics) {
+    emotionalParams = computeEmotionalVisualParams(currentTraits);
+  } else {
+    emotionalParams = { vibrancy: 0.5, energyGlow: 0.4, facialTension: 0.3, postureLean: 0 };
+  }
+
+  if (fallbackMetrics) {
     const act = fallbackMetrics.activity ?? 3;
     const nut = fallbackMetrics.nutrition ?? 3;
     const slp = fallbackMetrics.sleep ?? 3;
-    const str = fallbackMetrics.stress ?? 3;
+    const consistency = fallbackMetrics.consistency ?? 0.5;
 
-    compositeScore = scoreFromMetrics(act, nut, slp, str);
-    currentVisual = {
-      vibrancy: clamp(compositeScore / 100, 0, 1),
-      energyGlow: clamp((act - 1) / 4, 0, 1) * 0.7 + clamp((slp - 1) / 4, 0, 1) * 0.3,
-      facialTension: clamp((str - 1) / 4, 0, 1),
-      postureLean: clamp(((clamp((act - 1) / 4, 0, 1) + clamp((nut - 1) / 4, 0, 1)) / 2) * 2 - 1, -1, 1),
-      compositeScore
-    };
+    physicalScore = computePhysicalCompositionScore({ activity: act, nutrition: nut, sleep: slp, consistency });
+
+    if (!hasCurrentTraits) {
+      const str = fallbackMetrics.stress ?? 3;
+      emotionalParams = {
+        vibrancy: clamp(physicalScore / 100, 0, 1),
+        energyGlow: clamp((act - 1) / 4, 0, 1) * 0.7 + clamp((slp - 1) / 4, 0, 1) * 0.3,
+        facialTension: clamp((str - 1) / 4, 0, 1),
+        postureLean: clamp(((clamp((act - 1) / 4, 0, 1) + clamp((nut - 1) / 4, 0, 1)) / 2) * 2 - 1, -1, 1)
+      };
+    }
   } else {
-    currentVisual = { vibrancy: 0.5, energyGlow: 0.4, facialTension: 0.3, postureLean: 0, compositeScore: 50 };
-    compositeScore = 50;
+    physicalScore = 50;
   }
 
   if (hasProjectionTraits) {
-    const projVisual = computeVisualParams(projectionTraits);
+    const projEmotional = computeEmotionalVisualParams(projectionTraits);
     const t = PROJECTION_BLEND;
 
-    const blendedVisual = {
-      vibrancy: clamp(currentVisual.vibrancy + (projVisual.vibrancy - currentVisual.vibrancy) * t, 0, 1),
-      energyGlow: clamp(currentVisual.energyGlow + (projVisual.energyGlow - currentVisual.energyGlow) * t, 0, 1),
-      facialTension: clamp(currentVisual.facialTension + (projVisual.facialTension - currentVisual.facialTension) * t, 0, 1),
-      postureLean: clamp(currentVisual.postureLean + (projVisual.postureLean - currentVisual.postureLean) * t, -1, 1),
-      compositeScore: compositeScore + (projVisual.compositeScore - compositeScore) * t
+    const projPhysical = fallbackMetrics
+      ? computePhysicalCompositionScore({
+          activity: (fallbackMetrics.activity ?? 3) * (1 + (extractTraitScore(projectionTraits.vitality) - 50) * 0.005),
+          nutrition: (fallbackMetrics.nutrition ?? 3) * (1 + (extractTraitScore(projectionTraits.discipline) - 50) * 0.003),
+          sleep: fallbackMetrics.sleep ?? 3,
+          consistency: (fallbackMetrics.consistency ?? 0.5) * (1 + (extractTraitScore(projectionTraits.discipline) - 50) * 0.004)
+        })
+      : physicalScore;
+
+    const blendedPhysical = physicalScore + (projPhysical - physicalScore) * t;
+    const blendedEmotional = {
+      vibrancy: clamp(emotionalParams.vibrancy + (projEmotional.vibrancy - emotionalParams.vibrancy) * t, 0, 1),
+      energyGlow: clamp(emotionalParams.energyGlow + (projEmotional.energyGlow - emotionalParams.energyGlow) * t, 0, 1),
+      facialTension: clamp(emotionalParams.facialTension + (projEmotional.facialTension - emotionalParams.facialTension) * t, 0, 1),
+      postureLean: clamp(emotionalParams.postureLean + (projEmotional.postureLean - emotionalParams.postureLean) * t, -1, 1)
     };
 
-    return buildBodyParams(blendedVisual.compositeScore, blendedVisual, g, skinTone);
+    return buildBodyParams(blendedPhysical, blendedEmotional, g, skinTone);
   }
 
-  return buildBodyParams(compositeScore, currentVisual, g, skinTone);
-}
-
-function getInterpolationT(score) {
-  if (score >= 80) return clamp((score - 80) / 20, 0, 0.3);
-  if (score >= 65) return clamp((80 - score) / 15, 0, 0.4);
-  if (score >= 45) return clamp((65 - score) / 20, 0, 0.4);
-  if (score >= 30) return clamp((45 - score) / 15, 0, 0.4);
-  return clamp((30 - score) / 30, 0, 0.3);
+  return buildBodyParams(physicalScore, emotionalParams, g, skinTone);
 }
 
 export function mapFromAvatarEffects(avatarEffects, avatarTraits, gender, skinTone) {
@@ -124,7 +129,8 @@ export function mapFromAvatarEffects(avatarEffects, avatarTraits, gender, skinTo
     activity: avatarEffects?.activityScore ?? 3,
     nutrition: avatarEffects?.nutritionScore ?? 3,
     sleep: avatarEffects?.sleepScore ?? 3,
-    stress: avatarEffects?.stressScore ?? 3
+    stress: avatarEffects?.stressScore ?? 3,
+    consistency: avatarEffects?.consistencyScore ?? 0.5
   };
 
   let currentTraits = null;
@@ -146,7 +152,8 @@ export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteRe
     activity: avatarEffects?.activityScore ?? 3,
     nutrition: avatarEffects?.nutritionScore ?? 3,
     sleep: avatarEffects?.sleepScore ?? 3,
-    stress: avatarEffects?.stressScore ?? 3
+    stress: avatarEffects?.stressScore ?? 3,
+    consistency: avatarEffects?.consistencyScore ?? 0.5
   };
 
   let currentTraits = null;
@@ -236,3 +243,5 @@ export function computePhotoOverlayState(iteResult, isFuture) {
     underEyeIntensity: clamp((100 - futRes) / 250 - Math.max(0, resDelta * 0.002), 0, 0.15)
   };
 }
+
+export { computePhysicalCompositionScore };

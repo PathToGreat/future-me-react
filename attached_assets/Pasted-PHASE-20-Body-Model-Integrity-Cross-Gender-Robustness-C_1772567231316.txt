@@ -1,0 +1,154 @@
+PHASE 20: Body Model Integrity & Cross-Gender Robustness
+
+Context:
+Avatar V2 is live and Phase 19 is adding projection + photo overlays.
+Before moving further, we must harden the body modeling system to ensure:
+
+1) Preset interpolation is mathematically correct and intuitive.
+2) Muscular, lean, soft, and overweight bodies are clearly distinguishable.
+3) Male and female bodies can represent all body types without distortion.
+4) Emotional traits do not unintentionally drive physical composition.
+5) No preset blending artifacts occur at tier boundaries.
+
+This phase is strictly structural refinement of body modeling.
+
+-----------------------------------------
+A) FIX PRESET INTERPOLATION LOGIC
+-----------------------------------------
+
+Current issue:
+Preset neighbor selection and interpolation appear non-linear and may blend toward incorrect tiers.
+
+Requirement:
+Replace neighborScore-based logic with a clean tier-based interpolation model.
+
+Implement:
+1) Define ordered tiers:
+   Overweight → Soft → AverageFit → LeanAthletic → MuscularAthletic
+
+2) Determine which two tiers the composite physical score falls between.
+3) Compute interpolation factor linearly within that band.
+4) Blend ONLY between adjacent tiers.
+5) Ensure full range 0–100 produces smooth transitions.
+
+Result:
+- No bouncing between distant presets.
+- Smooth proportional change.
+- Athletic bodies clearly emerge at high scores.
+
+-----------------------------------------
+B) SEPARATE PHYSICAL COMPOSITION FROM EMOTIONAL TRAITS
+-----------------------------------------
+
+Current risk:
+Composite score includes emotional stability, resilience, etc.
+This can incorrectly influence body mass or muscularity.
+
+Requirement:
+Create a dedicated PhysicalCompositionScore separate from IdentityCompositeScore.
+
+PhysicalCompositionScore should be derived from:
+- Activity
+- Nutrition
+- Consistency
+- Sleep (minor influence)
+- Optional: body assessment inputs if available
+
+Emotional traits should influence:
+- postureLean
+- facialTension
+- vibrancy
+- energyGlow
+
+But NOT:
+- shoulderWidth
+- chestSize
+- armThickness
+- legThickness
+- waistTaper
+- hipWidth
+
+Result:
+A disciplined but sedentary person does not appear muscular.
+A resilient but inactive person does not gain taper.
+
+-----------------------------------------
+C) ENSURE ALL BODY TYPES WORK FOR BOTH MALE AND FEMALE
+-----------------------------------------
+
+Current risk:
+Female adjustments always reduce shoulders and arms.
+This can distort muscular female presets.
+
+Requirement:
+1) Allow every preset (including MuscularAthletic) to apply to both genders fully.
+2) Female adjustments must preserve muscular potential.
+3) Gender should adjust proportional distribution, not suppress strength.
+
+Rules:
+- Female muscular preset must still look athletic and strong.
+- Overweight male and overweight female must both render realistically.
+- Waist taper logic must respect both masculine and feminine shapes without caricature.
+
+-----------------------------------------
+D) ADD BODY VALIDATION TEST MATRIX
+-----------------------------------------
+
+Implement a simple internal validation function:
+
+validateBodyModel()
+
+It should simulate:
+- All 5 presets
+- Both genders
+- Extreme physical scores (0, 25, 50, 75, 100)
+- High emotional stability vs low emotional stability
+
+Ensure:
+- No broken geometry
+- No inverted shapes
+- No overlapping limbs
+- No unnatural distortion
+- No arms disconnected from torso
+- No hips exceeding shoulder constraints unnaturally
+
+This does not require visual screenshots.
+Just ensure parameter outputs remain valid and bounded.
+
+-----------------------------------------
+E) LOCK BODY GEOMETRY CONSTRAINTS
+-----------------------------------------
+
+Add hard internal constraints:
+
+- Shoulders must always be wider than neck.
+- Waist cannot exceed hipWidth + defined buffer.
+- Arms must scale proportionally with chestSize.
+- Legs must scale proportionally with hipWidth.
+- HeadScale must not exceed anatomical realism.
+
+Ensure all geometry math clamps inside realistic human bounds.
+
+-----------------------------------------
+F) OUTPUT SUMMARY AFTER BUILD
+-----------------------------------------
+
+Return:
+- Updated interpolation approach explanation
+- How PhysicalCompositionScore is computed
+- How gender adjustments now behave
+- Any constraints added
+- Confirmation that male and female muscular bodies both render correctly
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+
+1) MuscularAthletic at 90–100 score clearly looks muscular for both genders.
+2) LeanAthletic clearly differs from MuscularAthletic.
+3) Overweight does not look cartoonish.
+4) Emotional state changes face/posture but does NOT distort body mass.
+5) No visual glitches across full score range.
+6) No regressions in existing Avatar V2 wiring.
+
+This phase ensures the avatar system is structurally correct for all body types before further identity projection enhancements.
