@@ -1,0 +1,147 @@
+PHASE 19: Avatar V2 Differentiation + Photo Future Overlays
+
+Current status:
+Avatar V2 is wired and stable (HumanAvatarRenderer + presets + mapping + feature flag).
+However, two critical gaps remain:
+
+1) Current You and Future You can still render too similarly because projectionTraits is not used.
+2) Photo mode shows no visual difference between Current and Future (static image), undermining the “Future Me” effect.
+
+Goal:
+Make the Future You view visually distinct in BOTH:
+- Avatar mode (SVG)
+- Photo mode (uploaded image)
+
+Constraints:
+- Do NOT redesign screens or add new UI pages.
+- Keep current UI layout intact.
+- Do NOT introduce heavy AI transformations.
+- Keep changes subtle, believable, and performance-safe.
+
+-----------------------------------------
+A) USE projectionTraits FOR FUTURE BODY DIFFERENCE (SVG AVATAR MODE)
+-----------------------------------------
+
+Update mapping so that FutureAvatar uses projected inputs rather than the same current mapping.
+
+1) Update mapTraitsToAvatarParams to actually use projectionTraits when provided.
+2) In FutureAvatar.jsx, pass both:
+   - currentTraits (or existing ITE adapter output)
+   - projectionTraits (future traits)
+   into mapTraitsToAvatarParams.
+3) Result:
+   - Current view renders from currentTraits
+   - Future view renders from projectionTraits
+   - This must change body proportions and expression slightly when trajectory changes.
+
+Rules:
+- Future avatar changes must be conservative, not dramatic.
+- Use trait deltas to adjust:
+  shoulderWidth, chestSize, waistTaper, armThickness, legThickness, postureLean, facialTension, vibrancy
+- Clamp so it never produces extreme cartoon bodies.
+
+Definition of done:
+Switching Current vs Future in Avatar mode should produce visible differences when trajectory changes, especially for:
+- Vitality up/down (vibrancy, energy glow, posture)
+- Discipline/confidence up/down (posture, taper)
+- Emotional stability up/down (facial tension)
+
+-----------------------------------------
+B) PHOTO MODE MUST VISUALLY CHANGE FOR FUTURE VIEW (LIGHTWEIGHT OVERLAYS)
+-----------------------------------------
+
+Problem:
+In photo mode, Current and Future show the same static photo, killing emotional impact.
+
+Requirement:
+Add a lightweight photo overlay system so Future You looks different in photo mode, without editing the photo itself via AI.
+
+Implement:
+1) Create a PhotoFutureOverlay component that applies subtle filters and overlays based on identity deltas.
+2) Wire it so:
+   - Current You photo uses "current" overlay state
+   - Future You photo uses "projected" overlay state
+
+Overlay parameters (subtle):
+- vibrancy shift
+- saturation shift
+- contrast shift
+- warmth shift
+- slight vignette intensity
+- subtle under-eye shadow intensity (sleep/stress driven)
+- subtle skin dullness vs glow (vitality driven)
+
+Rules:
+- No unrealistic body shape warping.
+- No exaggerated aging.
+- Keep it believable and reversible.
+
+Definition of done:
+If Future traits improve, Future photo should look subtly more vibrant and energized.
+If Future traits decline, Future photo should look subtly dulled and tense.
+
+-----------------------------------------
+C) ADD BASIC USER APPEARANCE OPTIONS (MINIMUM: SKIN TONE PALETTE)
+-----------------------------------------
+
+Known gap:
+HumanAvatarRenderer currently uses vibrancy-derived skin tone selection (3 fixed tones), which limits personalization and can feel wrong.
+
+Requirement:
+Add a basic user-selectable skin tone option for Avatar V2 that overrides the automatic tone selection.
+
+Constraints:
+- Do NOT build a full profile editor UI.
+- Add the smallest UI control necessary inside the existing Avatar page (preferably inside the existing "Visual Influences" collapsible area).
+
+Implement:
+1) Add a skinTone setting stored per user (local storage is acceptable for now if no user profile persistence exists).
+2) Provide 5–7 tone options as a simple selector.
+3) HumanAvatarRenderer must use selected skin tone as base and still apply vibrancy as a modifier (glow/brightness), not as tone switching.
+
+Optional stretch:
+Add an optional "hair style: none/short/medium" with 2–3 minimal shapes.
+If not feasible quickly, skip hair for now.
+
+Definition of done:
+User can choose a skin tone and the avatar respects it consistently across Current and Future, while vibrancy still changes “life” in the face/body.
+
+-----------------------------------------
+D) CLEANUP: MINIAVATARPREVIEW PARITY
+-----------------------------------------
+
+Known gap:
+MiniAvatarPreview not updated.
+
+Requirement:
+Update MiniAvatarPreview so it can render V2 avatar in miniature format using the same params mapping.
+Do NOT change the rest of the UI.
+
+-----------------------------------------
+FILES EXPECTED TO CHANGE / ADD
+-----------------------------------------
+
+Likely changes:
+- mapTraitsToAvatarParams.js (use projectionTraits properly)
+- FutureAvatar.jsx (pass projectionTraits for Future view)
+- FutureMeAvatar.jsx (ensure current uses currentTraits only)
+- HumanAvatarRenderer.jsx (skinTone override support; optional hair)
+- New: PhotoFutureOverlay.jsx (or similar)
+- Avatar screen component(s) where photo is shown (wire overlay)
+- MiniAvatarPreview component (V2 support)
+- User preference storage (skinTone)
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+
+1) Current vs Future looks meaningfully different in Avatar mode when projections differ.
+2) Current vs Future looks meaningfully different in Photo mode via subtle overlays/filters.
+3) User can select skin tone and it persists.
+4) No UI redesign. No heavy AI. No performance issues.
+5) Build passes with no errors.
+
+After completion, return:
+- List of files changed/added
+- Short summary of each change
+- Any known limitations for next phase

@@ -11,7 +11,8 @@ const AVATAR_PARAM_DEFAULTS = {
   headScale: 0.5,
   energyGlow: 0.5,
   facialTension: 0.3,
-  vibrancy: 0.5
+  vibrancy: 0.5,
+  skinTone: null
 };
 
 const PARAM_RANGES = {
@@ -29,6 +30,16 @@ const PARAM_RANGES = {
   vibrancy: { min: 0, max: 1 }
 };
 
+const SKIN_TONE_PALETTE = [
+  { id: 'fair', label: 'Fair', base: '#f5dcc3', shadow: '#e8c8a8' },
+  { id: 'light', label: 'Light', base: '#e8c4a0', shadow: '#d4aa80' },
+  { id: 'medium', label: 'Medium', base: '#c99e6c', shadow: '#b48a58' },
+  { id: 'tan', label: 'Tan', base: '#a8784a', shadow: '#956838' },
+  { id: 'brown', label: 'Brown', base: '#8b5e3c', shadow: '#7a4e2e' },
+  { id: 'dark', label: 'Dark', base: '#5c3a1e', shadow: '#4a2e14' },
+  { id: 'deep', label: 'Deep', base: '#3d2510', shadow: '#2e1a0a' }
+];
+
 function clampParam(value, paramName) {
   const range = PARAM_RANGES[paramName];
   if (!range) return value;
@@ -40,6 +51,8 @@ export function normalizeParams(rawParams) {
   for (const key of Object.keys(rawParams)) {
     if (key === 'gender') {
       result.gender = rawParams.gender === 'female' ? 'female' : 'male';
+    } else if (key === 'skinTone') {
+      result.skinTone = rawParams.skinTone || null;
     } else if (PARAM_RANGES[key]) {
       result[key] = clampParam(rawParams[key], key);
     }
@@ -47,4 +60,8 @@ export function normalizeParams(rawParams) {
   return result;
 }
 
-export { AVATAR_PARAM_DEFAULTS, PARAM_RANGES };
+export function getSkinToneById(id) {
+  return SKIN_TONE_PALETTE.find(t => t.id === id) || null;
+}
+
+export { AVATAR_PARAM_DEFAULTS, PARAM_RANGES, SKIN_TONE_PALETTE };

@@ -1,7 +1,25 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { getSkinToneById } from './avatarParams';
 
 const lerp = (a, b, t) => a + (b - a) * t;
+
+function resolveSkinColor(skinToneId, vibrancy) {
+  if (skinToneId) {
+    const tone = getSkinToneById(skinToneId);
+    if (tone) {
+      const glow = vibrancy > 0.5 ? 1 + (vibrancy - 0.5) * 0.12 : 1 - (0.5 - vibrancy) * 0.08;
+      return {
+        base: tone.base,
+        shadow: tone.shadow,
+        brightnessMod: glow
+      };
+    }
+  }
+  const base = vibrancy > 0.6 ? '#e8c4a0' : vibrancy > 0.3 ? '#d4a882' : '#c49878';
+  const shadow = vibrancy > 0.6 ? '#d4aa80' : vibrancy > 0.3 ? '#c09468' : '#b08860';
+  return { base, shadow, brightnessMod: 1 };
+}
 
 function computeBodyGeometry(params) {
   const {
@@ -38,9 +56,6 @@ function computeBodyGeometry(params) {
 
   const hipY = waistY + 18;
   const hipHalf = lerp(22, 48, hipWidth);
-  if (!isMale) {
-    // already adjusted by preset
-  }
 
   const crotchY = hipY + 12;
 
@@ -148,7 +163,56 @@ function buildNeckPath(g) {
   `;
 }
 
-function FaceFeatures({ g, facialTension, vibrancy }) {
+function HairLayer({ g, hairStyle, skinColors }) {
+  if (!hairStyle || hairStyle === 'none') return null;
+  const { cx, headCy, headRx, headRy } = g;
+  const hairColor = '#3a2a1a';
+
+  if (hairStyle === 'short') {
+    return (
+      <g>
+        <ellipse
+          cx={cx} cy={headCy - headRy * 0.2}
+          rx={headRx + 2} ry={headRy * 0.55}
+          fill={hairColor}
+        />
+        <rect
+          x={cx - headRx - 1} y={headCy - headRy * 0.6}
+          width={(headRx + 1) * 2} height={headRy * 0.35}
+          rx={headRx * 0.3}
+          fill={hairColor}
+        />
+      </g>
+    );
+  }
+
+  if (hairStyle === 'medium') {
+    const topY = headCy - headRy;
+    const sideY = headCy + headRy * 0.3;
+    return (
+      <g>
+        <path
+          d={`
+            M ${cx - headRx - 3} ${headCy - headRy * 0.1}
+            Q ${cx - headRx - 4} ${topY - 4} ${cx} ${topY - 6}
+            Q ${cx + headRx + 4} ${topY - 4} ${cx + headRx + 3} ${headCy - headRy * 0.1}
+            Q ${cx + headRx + 5} ${sideY} ${cx + headRx} ${sideY + 4}
+            L ${cx + headRx - 2} ${headCy + headRy * 0.1}
+            Q ${cx} ${topY + 2} ${cx - headRx + 2} ${headCy + headRy * 0.1}
+            L ${cx - headRx} ${sideY + 4}
+            Q ${cx - headRx - 5} ${sideY} ${cx - headRx - 3} ${headCy - headRy * 0.1}
+            Z
+          `}
+          fill={hairColor}
+        />
+      </g>
+    );
+  }
+
+  return null;
+}
+
+function FaceFeatures({ g, facialTension, skinColors }) {
   const { cx, headCy, headRx } = g;
   const eyeY = headCy - 3;
   const eyeSpacing = headRx * 0.42;
@@ -160,8 +224,6 @@ function FaceFeatures({ g, facialTension, vibrancy }) {
   const mouthY = headCy + 10;
 
   const mouthCurve = lerp(3, -2, tension);
-
-  const skinTone = vibrancy > 0.6 ? '#e8c4a0' : vibrancy > 0.3 ? '#d4a882' : '#c49878';
 
   return (
     <g>
@@ -188,7 +250,7 @@ function FaceFeatures({ g, facialTension, vibrancy }) {
         stroke="#7a5a4a" strokeWidth="1.5" fill="none" strokeLinecap="round"
       />
 
-      <ellipse cx={cx} cy={eyeY + 3} rx="2" ry="1.5" fill={skinTone} opacity="0.4" />
+      <ellipse cx={cx} cy={eyeY + 3} rx="2" ry="1.5" fill={skinColors.shadow} opacity="0.4" />
     </g>
   );
 }
@@ -235,7 +297,7 @@ function GlowLayer({ g, energyGlow, color }) {
   );
 }
 
-export default function HumanAvatarRenderer({ params, color = '#6366f1', className = '' }) {
+export default function HumanAvatarRenderer({ params, color = '#6366f1', className = '', mini = false }) {
   const p = params || {};
 
   const g = useMemo(() => computeBodyGeometry(p), [
@@ -253,11 +315,49 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
   const vibrancy = p.vibrancy ?? 0.5;
   const energyGlow = p.energyGlow ?? 0.4;
   const facialTension = p.facialTension ?? 0.3;
+  const hairStyle = p.hairStyle || 'none';
 
-  const skinBase = vibrancy > 0.6 ? '#e8c4a0' : vibrancy > 0.3 ? '#d4a882' : '#c49878';
+  const skinColors = useMemo(() => resolveSkinColor(p.skinTone, vibrancy), [p.skinTone, vibrancy]);
   const bodyFill = color;
 
-  const clipId = 'humanBodyClip';
+  const clipId = mini ? 'miniBodyClip' : 'humanBodyClip';
+  const glowId = mini ? 'miniGlow' : 'avatarGlow';
+  const skinGradId = mini ? 'miniSkinGrad' : 'skinGrad';
+  const bodyGradId = mini ? 'miniBodyGrad' : 'bodyGrad';
+
+  const skinFilterStyle = skinColors.brightnessMod !== 1
+    ? { filter: `brightness(${skinColors.brightnessMod.toFixed(3)})` }
+    : {};
+
+  if (mini) {
+    return (
+      <svg viewBox="0 0 200 300" className={className}>
+        <defs>
+          <linearGradient id={skinGradId} x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%" stopColor={skinColors.base} stopOpacity="1" />
+            <stop offset="100%" stopColor={skinColors.base} stopOpacity="0.85" />
+          </linearGradient>
+          <linearGradient id={bodyGradId} x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%" stopColor={bodyFill} stopOpacity="0.9" />
+            <stop offset="100%" stopColor={bodyFill} stopOpacity="0.6" />
+          </linearGradient>
+        </defs>
+        <g transform={`translate(0, ${g.postureOffset})`} style={{ transformOrigin: '100px 150px' }}>
+          <path d={leftLegPath} fill={`url(#${bodyGradId})`} />
+          <path d={rightLegPath} fill={`url(#${bodyGradId})`} />
+          <path d={torsoPath} fill={`url(#${bodyGradId})`} />
+          <path d={leftArmPath} fill={`url(#${bodyGradId})`} />
+          <path d={rightArmPath} fill={`url(#${bodyGradId})`} />
+          <g style={skinFilterStyle}>
+            <path d={neckPath} fill={`url(#${skinGradId})`} />
+            <ellipse cx={g.cx} cy={g.headCy} rx={g.headRx} ry={g.headRy} fill={`url(#${skinGradId})`} />
+          </g>
+          <HairLayer g={g} hairStyle={hairStyle} skinColors={skinColors} />
+          <FaceFeatures g={g} facialTension={facialTension} skinColors={skinColors} />
+        </g>
+      </svg>
+    );
+  }
 
   return (
     <svg
@@ -266,14 +366,14 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
       style={{ overflow: 'visible' }}
     >
       <defs>
-        <filter id="avatarGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur in="SourceGraphic" stdDeviation="12" />
         </filter>
-        <linearGradient id="skinGrad" x1="0.5" y1="0" x2="0.5" y2="1">
-          <stop offset="0%" stopColor={skinBase} stopOpacity="1" />
-          <stop offset="100%" stopColor={skinBase} stopOpacity="0.85" />
+        <linearGradient id={skinGradId} x1="0.5" y1="0" x2="0.5" y2="1">
+          <stop offset="0%" stopColor={skinColors.base} stopOpacity="1" />
+          <stop offset="100%" stopColor={skinColors.base} stopOpacity="0.85" />
         </linearGradient>
-        <linearGradient id="bodyGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+        <linearGradient id={bodyGradId} x1="0.5" y1="0" x2="0.5" y2="1">
           <stop offset="0%" stopColor={bodyFill} stopOpacity="0.9" />
           <stop offset="60%" stopColor={bodyFill} stopOpacity="0.75" />
           <stop offset="100%" stopColor={bodyFill} stopOpacity="0.6" />
@@ -295,25 +395,28 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
       >
         <GlowLayer g={g} energyGlow={energyGlow} color={bodyFill} />
 
-        <motion.path d={leftLegPath} fill="url(#bodyGrad)" />
-        <motion.path d={rightLegPath} fill="url(#bodyGrad)" />
+        <motion.path d={leftLegPath} fill={`url(#${bodyGradId})`} />
+        <motion.path d={rightLegPath} fill={`url(#${bodyGradId})`} />
 
-        <motion.path d={torsoPath} fill="url(#bodyGrad)" />
+        <motion.path d={torsoPath} fill={`url(#${bodyGradId})`} />
 
-        <motion.path d={leftArmPath} fill="url(#bodyGrad)" />
-        <motion.path d={rightArmPath} fill="url(#bodyGrad)" />
+        <motion.path d={leftArmPath} fill={`url(#${bodyGradId})`} />
+        <motion.path d={rightArmPath} fill={`url(#${bodyGradId})`} />
 
-        <path d={neckPath} fill="url(#skinGrad)" />
+        <g style={skinFilterStyle}>
+          <path d={neckPath} fill={`url(#${skinGradId})`} />
+          <ellipse
+            cx={g.cx} cy={g.headCy}
+            rx={g.headRx} ry={g.headRy}
+            fill={`url(#${skinGradId})`}
+          />
+        </g>
 
-        <ellipse
-          cx={g.cx} cy={g.headCy}
-          rx={g.headRx} ry={g.headRy}
-          fill="url(#skinGrad)"
-        />
+        <HairLayer g={g} hairStyle={hairStyle} skinColors={skinColors} />
 
         <ShadingLayer g={g} clipId={clipId} vibrancy={vibrancy} />
 
-        <FaceFeatures g={g} facialTension={facialTension} vibrancy={vibrancy} />
+        <FaceFeatures g={g} facialTension={facialTension} skinColors={skinColors} />
 
         {energyGlow > 0.5 && (
           <motion.ellipse

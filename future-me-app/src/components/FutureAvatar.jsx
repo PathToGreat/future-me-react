@@ -14,7 +14,9 @@ import BodyCompositionLayer from './avatar/BodyCompositionLayer';
 import EnergyGlowLayer from './avatar/EnergyGlowLayer';
 import AvatarViewToggle, { VIEW_MODES } from './avatar/AvatarViewToggle';
 import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
-import { mapFromAvatarEffects } from '../avatar/mapTraitsToAvatarParams';
+import { mapFromAvatarEffectsProjected, computePhotoOverlayState } from '../avatar/mapTraitsToAvatarParams';
+import PhotoFutureOverlay from './avatar/photo/PhotoFutureOverlay';
+import { loadSkinTone, loadHairStyle } from './SkinToneSelector';
 
 const USE_HUMAN_AVATAR_V2 = true;
 
@@ -26,7 +28,9 @@ export default function FutureAvatar({
   lifeZones = null,
   gender = 'male',
   baselineData = null,
-  historyData = null
+  historyData = null,
+  skinTone = null,
+  hairStyle = null
 }) {
   const [viewMode, setViewMode] = useState(VIEW_MODES.PHOTO);
   const hasImages = images && images.length > 0;
@@ -140,10 +144,21 @@ export default function FutureAvatar({
     return applyZoneInfluencesToEffects(baseEffects, zoneInfluences);
   }, [effectiveMetrics, dailyMetrics, disciplineScore, maxStreak, consistencyScore, gender, baselineData, lifeZoneScores]);
 
+  const resolvedSkinTone = skinTone || loadSkinTone();
+  const resolvedHairStyle = hairStyle || loadHairStyle();
+
   const humanAvatarParams = useMemo(() => {
     if (!USE_HUMAN_AVATAR_V2) return null;
-    return mapFromAvatarEffects(avatarEffects, avatarTraits, gender);
-  }, [avatarEffects, avatarTraits, gender]);
+    const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
+    const params = mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, resolvedSkinTone);
+    params.hairStyle = resolvedHairStyle;
+    return params;
+  }, [avatarEffects, avatarTraits, iteAdapter, gender, resolvedSkinTone, resolvedHairStyle]);
+
+  const photoOverlayState = useMemo(() => {
+    const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
+    return computePhotoOverlayState(iteResult, true);
+  }, [iteAdapter]);
 
   if (!futureMetrics) {
     return (
@@ -242,15 +257,6 @@ export default function FutureAvatar({
 
   const showSvgAvatar = viewMode === VIEW_MODES.AVATAR;
 
-  console.log('📊 FutureAvatar rendered with:', {
-    viewMode,
-    lifestyleScore: futureMetrics.lifestyleScore,
-    traits: avatarTraits.summary,
-    effects: {
-      brightness: avatarEffects.brightnessLevel.toFixed(2),
-      posture: avatarEffects.postureState
-    }
-  });
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -372,6 +378,8 @@ export default function FutureAvatar({
                 }}
               />
               
+              <PhotoFutureOverlay overlayState={photoOverlayState} />
+
               {particleCount > 0 && (
                 <>
                   {[...Array(particleCount)].map((_, i) => (

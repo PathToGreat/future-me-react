@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
+import { loadSkinTone, loadHairStyle } from '../components/SkinToneSelector';
 import FutureMeAvatar from '../components/FutureMeAvatar';
 import FutureAvatar from '../components/FutureAvatar';
 import ImageUpload from '../components/ImageUpload';
@@ -58,6 +59,14 @@ export default function AvatarScreen() {
     trendAnalysis,
     handleGenderChange,
   } = useApp();
+
+  const [skinTone, setSkinTone] = useState(() => loadSkinTone());
+  const [hairStyle, setHairStyle] = useState(() => loadHairStyle());
+
+  const handleAppearanceChange = useCallback((changes) => {
+    if (changes.skinTone !== undefined) setSkinTone(changes.skinTone);
+    if (changes.hairStyle !== undefined) setHairStyle(changes.hairStyle);
+  }, []);
 
   const iteNarrative = useMemo(() => {
     const baseline = liveProfile?.onboardingBaseline || liveProfile?.baselineState;
@@ -188,6 +197,8 @@ export default function AvatarScreen() {
                 faithPurpose: liveProfile?.faithPurpose
               }}
               historyData={historyData}
+              skinTone={skinTone}
+              hairStyle={hairStyle}
             />
           ) : (
             <FutureAvatar
@@ -204,6 +215,8 @@ export default function AvatarScreen() {
                 faithPurpose: liveProfile?.faithPurpose
               }}
               historyData={historyData}
+              skinTone={skinTone}
+              hairStyle={hairStyle}
             />
           )}
 
@@ -318,7 +331,7 @@ export default function AvatarScreen() {
           </div>
 
           <div className="mt-4 w-full">
-            <VisualInfluences lifeZones={liveProfile.lifeZones} />
+            <VisualInfluences lifeZones={liveProfile.lifeZones} onAppearanceChange={handleAppearanceChange} />
           </div>
         </motion.div>
 

@@ -15,6 +15,7 @@ import EnergyGlowLayer from './avatar/EnergyGlowLayer';
 import PhotoEffectsLayer from './avatar/photo/PhotoEffectsLayer';
 import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
 import { mapFromAvatarEffects } from '../avatar/mapTraitsToAvatarParams';
+import { loadSkinTone, loadHairStyle } from './SkinToneSelector';
 
 const USE_HUMAN_AVATAR_V2 = true;
 
@@ -32,7 +33,9 @@ export default function FutureMeAvatar({
   lifeZones = null,
   gender = 'male',
   baselineData = null,
-  historyData = null
+  historyData = null,
+  skinTone = null,
+  hairStyle = null
 }) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
   
@@ -130,27 +133,16 @@ export default function FutureMeAvatar({
     return applyZoneInfluencesToEffects(baseEffects, zoneInfluences);
   }, [effectiveMetrics, activity, nutrition, sleep, stress, disciplineScore, maxStreak, consistencyScore, gender, baselineData, lifeZoneScores]);
 
+  const resolvedSkinTone = skinTone || loadSkinTone();
+  const resolvedHairStyle = hairStyle || loadHairStyle();
+
   const humanAvatarParams = useMemo(() => {
     if (!USE_HUMAN_AVATAR_V2) return null;
-    return mapFromAvatarEffects(avatarEffects, avatarTraits, gender);
-  }, [avatarEffects, avatarTraits, gender]);
+    const params = mapFromAvatarEffects(avatarEffects, avatarTraits, gender, resolvedSkinTone);
+    params.hairStyle = resolvedHairStyle;
+    return params;
+  }, [avatarEffects, avatarTraits, gender, resolvedSkinTone, resolvedHairStyle]);
 
-  console.log('🎨 FutureMeAvatar rendered with traits:', avatarTraits.summary);
-  console.log('🎨 Avatar effects applied:', {
-    brightness: avatarEffects.brightnessLevel.toFixed(2),
-    contrast: avatarEffects.contrastLevel.toFixed(2),
-    saturation: avatarEffects.saturationLevel.toFixed(2),
-    glow: avatarEffects.glowIntensity.toFixed(2),
-    posture: avatarEffects.postureState
-  });
-
-  useEffect(() => {
-    if (trendAnalysis) {
-      console.log('📊 Avatar adapting to trend analysis:');
-      console.log(`  - Direction: ${trendAnalysis.direction}`);
-      console.log(`  - Change: ${trendAnalysis.changePercentage}%`);
-    }
-  }, [trendAnalysis]);
 
   const getAvatarColor = () => {
     const energyScore = avatarTraits.glowEnergy.score;
