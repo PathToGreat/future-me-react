@@ -12,9 +12,9 @@ import PostureLayer from './avatar/posture/PostureLayer';
 import FacialExpressionLayer from './avatar/FacialExpressionLayer';
 import BodyCompositionLayer from './avatar/BodyCompositionLayer';
 import EnergyGlowLayer from './avatar/EnergyGlowLayer';
-import PhotoEffectsLayer from './avatar/photo/PhotoEffectsLayer';
+import PhotoTransformLayer, { getPhotoFramingStyle } from './avatar/photo/PhotoTransformLayer';
 import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
-import { mapFromAvatarEffects } from '../avatar/mapTraitsToAvatarParams';
+import { mapFromAvatarEffects, computePhotoOverlayState } from '../avatar/mapTraitsToAvatarParams';
 import { loadSkinTone, loadHairStyle, loadHairColor } from './SkinToneSelector';
 
 const USE_HUMAN_AVATAR_V2 = true;
@@ -146,6 +146,12 @@ export default function FutureMeAvatar({
     return params;
   }, [avatarEffects, avatarTraits, gender, resolvedSkinTone, resolvedHairStyle, resolvedHairColor]);
 
+  const photoOverlayState = useMemo(() => {
+    const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
+    const rawMetrics = { activity, nutrition, sleep, stress };
+    const pl = humanAvatarParams?.postureLean ?? 0;
+    return computePhotoOverlayState(iteResult, false, rawMetrics, pl);
+  }, [iteAdapter, activity, nutrition, sleep, stress, humanAvatarParams?.postureLean]);
 
   const getAvatarColor = () => {
     const energyScore = avatarTraits.glowEnergy.score;
@@ -359,62 +365,16 @@ export default function FutureMeAvatar({
         )}
 
         {!showSvgAvatar && images && images.length > 0 ? (
-          <div className="relative z-10">
-            <div style={getGlowOverlayStyle(avatarEffects.glowIntensity, colors.glow)} />
+          <div className="relative z-10 overflow-hidden rounded-2xl">
             <motion.img
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               src={images[images.length - 1]}
               alt="Your uploaded image"
               className="w-full max-w-[200px] aspect-[2/3] object-cover rounded-2xl shadow-2xl"
-              style={{
-                filter: `${avatarEffects.cssFilter} brightness(${trendBrightness})`,
-              }}
+              style={getPhotoFramingStyle(photoOverlayState)}
             />
-            <div style={getDarknessOverlayStyle(avatarEffects.darknessOverlay)} className="rounded-2xl" />
-            
-            <PhotoEffectsLayer effects={avatarEffects} />
-            
-            <motion.div 
-              className="absolute inset-0 rounded-2xl pointer-events-none"
-              animate={{
-                opacity: [0.1, 0.3, 0.1]
-              }}
-              transition={{
-                duration: glowAnim.duration,
-                repeat: Infinity
-              }}
-              style={{
-                background: `linear-gradient(180deg, ${colors.glow}40 0%, transparent 50%, ${colors.glow}20 100%)`,
-                mixBlendMode: 'overlay'
-              }}
-            />
-            
-            {particleCount > 0 && (
-              <>
-                {[...Array(particleCount)].map((_, i) => (
-                  <motion.div
-                    key={`photo-particle-${i}`}
-                    className="absolute w-2 h-2 rounded-full"
-                    style={{
-                      backgroundColor: colors.accent,
-                      left: `${10 + (i * 80 / particleCount)}%`,
-                      top: '50%',
-                    }}
-                    animate={{
-                      y: [-100, -150, -100],
-                      opacity: [0, 1, 0],
-                      scale: [0.5, 1, 0.5],
-                    }}
-                    transition={{
-                      duration: 2 + (i % 3) * 0.5,
-                      repeat: Infinity,
-                      delay: i * 0.3,
-                    }}
-                  />
-                ))}
-              </>
-            )}
+            <PhotoTransformLayer overlayState={photoOverlayState} isFuture={false} />
           </div>
         ) : (
           <div className="relative z-10">

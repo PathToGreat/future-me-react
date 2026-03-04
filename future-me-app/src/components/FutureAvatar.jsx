@@ -15,7 +15,7 @@ import EnergyGlowLayer from './avatar/EnergyGlowLayer';
 import AvatarViewToggle, { VIEW_MODES } from './avatar/AvatarViewToggle';
 import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
 import { mapFromAvatarEffectsProjected, computePhotoOverlayState } from '../avatar/mapTraitsToAvatarParams';
-import PhotoFutureOverlay from './avatar/photo/PhotoFutureOverlay';
+import PhotoTransformLayer, { getPhotoFramingStyle } from './avatar/photo/PhotoTransformLayer';
 import { loadSkinTone, loadHairStyle, loadHairColor } from './SkinToneSelector';
 
 const USE_HUMAN_AVATAR_V2 = true;
@@ -160,8 +160,15 @@ export default function FutureAvatar({
 
   const photoOverlayState = useMemo(() => {
     const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
-    return computePhotoOverlayState(iteResult, true);
-  }, [iteAdapter]);
+    const rawMetrics = {
+      activity: effectiveMetrics?.activityScore ?? futureMetrics?.activity ?? 3,
+      nutrition: effectiveMetrics?.nutritionScore ?? futureMetrics?.nutrition ?? 3,
+      sleep: effectiveMetrics?.sleepScore ?? futureMetrics?.sleep ?? 3,
+      stress: effectiveMetrics?.stressScore ?? futureMetrics?.stress ?? 3
+    };
+    const pl = humanAvatarParams?.postureLean ?? 0;
+    return computePhotoOverlayState(iteResult, true, rawMetrics, pl);
+  }, [iteAdapter, effectiveMetrics, futureMetrics, humanAvatarParams?.postureLean]);
 
   if (!futureMetrics) {
     return (
@@ -354,63 +361,15 @@ export default function FutureAvatar({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
-              className="relative z-10"
+              className="relative z-10 overflow-hidden rounded-2xl"
             >
-              <div style={getGlowOverlayStyle(avatarEffects.glowIntensity, colors.glow)} />
               <motion.img
                 src={images[images.length - 1]}
                 alt="Your future self projection"
                 className="w-full max-w-[200px] aspect-[2/3] object-cover rounded-2xl shadow-2xl"
-                style={{
-                  filter: avatarEffects.cssFilter,
-                }}
+                style={getPhotoFramingStyle(photoOverlayState)}
               />
-              <div 
-                style={getDarknessOverlayStyle(avatarEffects.darknessOverlay)} 
-                className="rounded-2xl" 
-              />
-              <motion.div 
-                className="absolute inset-0 rounded-2xl pointer-events-none"
-                animate={{
-                  opacity: [0.1, 0.3, 0.1]
-                }}
-                transition={{
-                  duration: glowAnim.duration,
-                  repeat: Infinity
-                }}
-                style={{
-                  background: `linear-gradient(180deg, ${colors.glow}40 0%, transparent 50%, ${colors.glow}20 100%)`,
-                  mixBlendMode: 'overlay'
-                }}
-              />
-              
-              <PhotoFutureOverlay overlayState={photoOverlayState} />
-
-              {particleCount > 0 && (
-                <>
-                  {[...Array(particleCount)].map((_, i) => (
-                    <motion.div
-                      key={`photo-particle-${i}`}
-                      className="absolute w-2 h-2 rounded-full"
-                      style={{
-                        backgroundColor: colors.accent,
-                        left: `${10 + (i * 80 / particleCount)}%`,
-                        top: '50%',
-                      }}
-                      animate={{
-                        y: [-100, -150, -100],
-                        opacity: [0, 1, 0],
-                        scale: [0.5, 1, 0.5],
-                      }}
-                      transition={{
-                        duration: 2 + (i % 3) * 0.5,
-                        repeat: Infinity,
-                        delay: i * 0.3,
-                      }}
-                    />
-                  ))}
-                </>
-              )}
+              <PhotoTransformLayer overlayState={photoOverlayState} isFuture={true} />
             </motion.div>
           ) : (
             <motion.div

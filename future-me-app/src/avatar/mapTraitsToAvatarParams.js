@@ -215,16 +215,43 @@ export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteRe
   return mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone, historyData);
 }
 
-export function computePhotoOverlayState(iteResult, isFuture) {
+export function computePhotoOverlayState(iteResult, isFuture, rawMetrics, postureLean) {
+  const pl = postureLean ?? 0;
+  const framingScale = 1 + clamp(pl * 0.015, -0.015, 0.015);
+  const framingTranslateY = clamp(pl * -1.5, -1.5, 1.5);
+  const framingRotate = clamp(pl * -0.4, -0.4, 0.4);
+
+  const baseOverlay = {
+    saturation: 1,
+    brightness: 1,
+    contrast: 1,
+    warmth: 0,
+    vignetteIntensity: 0,
+    skinGlow: 0,
+    underEyeIntensity: 0,
+    framingScale,
+    framingTranslateY,
+    framingRotate
+  };
+
   if (!iteResult?.traits) {
+    if (!rawMetrics) return baseOverlay;
+
+    const act = clamp((rawMetrics.activity ?? 3) - 1, 0, 4) / 4;
+    const slp = clamp((rawMetrics.sleep ?? 3) - 1, 0, 4) / 4;
+    const str = clamp((rawMetrics.stress ?? 3) - 1, 0, 4) / 4;
+    const nut = clamp((rawMetrics.nutrition ?? 3) - 1, 0, 4) / 4;
+    const energy = (act * 0.5 + nut * 0.3 + slp * 0.2);
+
     return {
-      saturation: 1,
-      brightness: 1,
-      contrast: 1,
-      warmth: 0,
-      vignetteIntensity: 0,
-      skinGlow: 0,
-      underEyeIntensity: 0
+      ...baseOverlay,
+      saturation: clamp(0.88 + energy * 0.24, 0.82, 1.12),
+      brightness: clamp(0.94 + energy * 0.12, 0.9, 1.06),
+      contrast: clamp(1 + (slp - 0.5) * 0.04, 0.96, 1.04),
+      warmth: clamp((energy - 0.5) * 0.12, -0.06, 0.06),
+      vignetteIntensity: clamp(str * 0.16, 0, 0.14),
+      skinGlow: clamp((energy - 0.3) * 0.2, 0, 0.12),
+      underEyeIntensity: clamp((1 - slp) * 0.12, 0, 0.1)
     };
   }
 
@@ -234,16 +261,17 @@ export function computePhotoOverlayState(iteResult, isFuture) {
   const res = traits.resilience?.currentScore ?? 50;
 
   if (!isFuture) {
-    const satBase = 0.9 + (vit / 100) * 0.2;
-    const brightnessBase = 0.95 + (vit / 100) * 0.1;
+    const satBase = 0.88 + (vit / 100) * 0.24;
+    const brightnessBase = 0.94 + (vit / 100) * 0.12;
     return {
-      saturation: clamp(satBase, 0.8, 1.1),
-      brightness: clamp(brightnessBase, 0.9, 1.05),
-      contrast: 1,
-      warmth: 0,
-      vignetteIntensity: clamp((100 - emo) / 200, 0, 0.12),
-      skinGlow: clamp((vit - 40) / 80, 0, 0.15),
-      underEyeIntensity: clamp((100 - res) / 250, 0, 0.1)
+      ...baseOverlay,
+      saturation: clamp(satBase, 0.82, 1.12),
+      brightness: clamp(brightnessBase, 0.9, 1.06),
+      contrast: clamp(1 + (res - 50) / 2500, 0.96, 1.04),
+      warmth: clamp((vit - 50) * 0.002, -0.06, 0.06),
+      vignetteIntensity: clamp((100 - emo) / 160, 0, 0.16),
+      skinGlow: clamp((vit - 30) / 60, 0, 0.18),
+      underEyeIntensity: clamp((100 - res) / 200, 0, 0.12)
     };
   }
 
@@ -256,23 +284,34 @@ export function computePhotoOverlayState(iteResult, isFuture) {
   const emoDelta = futEmo - emo;
   const resDelta = futRes - res;
 
-  const satShift = clamp(vitDelta * 0.003, -0.12, 0.12);
-  const brightnessShift = clamp(vitDelta * 0.002, -0.08, 0.08);
-  const contrastShift = clamp(resDelta * 0.001, -0.05, 0.05);
-  const warmthShift = clamp(vitDelta * 0.005, -0.15, 0.15);
+  const satShift = clamp(vitDelta * 0.004, -0.14, 0.14);
+  const brightnessShift = clamp(vitDelta * 0.003, -0.10, 0.10);
+  const contrastShift = clamp(resDelta * 0.0015, -0.06, 0.06);
+  const warmthShift = clamp(vitDelta * 0.006, -0.18, 0.18);
 
-  const baseSat = 0.9 + (futVit / 100) * 0.2;
-  const baseBright = 0.95 + (futVit / 100) * 0.1;
+  const baseSat = 0.88 + (futVit / 100) * 0.24;
+  const baseBright = 0.94 + (futVit / 100) * 0.12;
 
-  return {
-    saturation: clamp(baseSat + satShift, 0.75, 1.2),
-    brightness: clamp(baseBright + brightnessShift, 0.85, 1.12),
+  const result = {
+    ...baseOverlay,
+    saturation: clamp(baseSat + satShift, 0.75, 1.22),
+    brightness: clamp(baseBright + brightnessShift, 0.85, 1.14),
     contrast: clamp(1 + contrastShift, 0.92, 1.08),
     warmth: warmthShift,
-    vignetteIntensity: clamp((100 - futEmo) / 200 - Math.max(0, emoDelta * 0.002), 0, 0.18),
-    skinGlow: clamp((futVit - 40) / 80 + Math.max(0, vitDelta * 0.003), 0, 0.25),
-    underEyeIntensity: clamp((100 - futRes) / 250 - Math.max(0, resDelta * 0.002), 0, 0.15)
+    vignetteIntensity: clamp((100 - futEmo) / 160 - Math.max(0, emoDelta * 0.003), 0, 0.20),
+    skinGlow: clamp((futVit - 30) / 60 + Math.max(0, vitDelta * 0.004), 0, 0.28),
+    underEyeIntensity: clamp((100 - futRes) / 200 - Math.max(0, resDelta * 0.003), 0, 0.16)
   };
+
+  const hasMeaningfulDelta = Math.abs(vitDelta) > 5 || Math.abs(emoDelta) > 5 || Math.abs(resDelta) > 5;
+  if (hasMeaningfulDelta) {
+    const satDiff = Math.abs(result.saturation - 1);
+    if (satDiff < 0.03) result.saturation = vitDelta >= 0 ? 1.03 : 0.97;
+    const brightDiff = Math.abs(result.brightness - 1);
+    if (brightDiff < 0.02) result.brightness = vitDelta >= 0 ? 1.02 : 0.98;
+  }
+
+  return result;
 }
 
 export function diagnosticAvatarProfile(metrics, gender, label) {

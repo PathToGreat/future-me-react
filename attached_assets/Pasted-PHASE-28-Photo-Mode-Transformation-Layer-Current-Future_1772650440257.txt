@@ -1,0 +1,121 @@
+PHASE 28: Photo Mode Transformation Layer (Current + Future) Using Traits
+
+Problem:
+Uploaded photos still look unchanged in practice. The "Show Photo" mode does not deliver the Future Me effect, because either:
+- overlays are only applied to Future view, not Current
+- overlays are too subtle to perceive
+- overlays are not wired into the photo rendering path consistently
+
+Goal:
+When users choose "Show Photo", both Current and Future views should show subtle but noticeable differences that match the identity trajectory.
+No AI body edits. No unrealistic warps. Keep it believable.
+
+Constraints:
+- Do NOT redesign UI.
+- Do NOT introduce heavy AI image generation.
+- Do NOT change the avatar engine architecture.
+- Keep changes reversible and subtle.
+
+-----------------------------------------
+A) APPLY PHOTO OVERLAYS TO BOTH CURRENT AND FUTURE
+-----------------------------------------
+
+Requirement:
+Photo rendering must always pass through a PhotoTransformLayer when a photo is shown.
+
+1) Current Photo:
+- Apply a light “current state” overlay derived from current traits.
+- This should be subtle, not dramatic.
+
+2) Future Photo:
+- Apply a stronger “future state” overlay derived from projected traits.
+- This must be visibly different from Current when confidence is MEDIUM/HIGH.
+- When confidence is LOW, keep differences conservative and show the existing banner message.
+
+Definition of done:
+Toggling Current vs Future while in Photo mode produces a visible, believable change.
+
+-----------------------------------------
+B) INCREASE PERCEPTIBILITY SAFELY
+-----------------------------------------
+
+Problem:
+Overlays can be too subtle to notice.
+
+Requirement:
+Add a controlled visibility floor for photo overlays, similar to the avatar visibility floor, but still realistic.
+
+Rules:
+- Only apply visibility floor when projectionConfidence is MEDIUM or HIGH and trait deltas exceed threshold.
+- Do not create an obvious “filter” look.
+- Avoid strong color shifts or heavy vignettes.
+
+-----------------------------------------
+C) ADD OPTIONAL “FRAMING / POSTURE” CUE (NO BODY WARP)
+-----------------------------------------
+
+Requirement:
+Add a subtle framing adjustment that supports the posture concept without editing the body:
+- Slight rotate (very small)
+- Slight translate (center shift)
+- Slight crop/scale
+
+Tie it to postureLean:
+- more upright future = slightly more centered and level framing
+- more collapsed future = slightly lower, slightly forward framing
+
+Rules:
+- Do not warp the image.
+- Keep the adjustment subtle.
+- Must not cause image clipping artifacts.
+
+-----------------------------------------
+D) CONFIDENCE GATING MUST APPLY
+-----------------------------------------
+
+Requirement:
+Photo transformations must respect projectionConfidence tiers:
+- LOW: conservative differences only
+- MEDIUM: moderate
+- HIGH: full (still subtle)
+
+Current photo should not be gated like Future, but it must remain subtle.
+
+-----------------------------------------
+E) WIRING AND CONSISTENCY
+-----------------------------------------
+
+Ensure PhotoTransformLayer is used everywhere photo is shown:
+- AvatarScreen current photo view
+- FutureAvatar photo view
+- FutureMeAvatar photo view (if separate)
+- Any mini photo previews if they exist (optional)
+
+Remove any duplicate legacy photo style layers that might conflict.
+
+-----------------------------------------
+F) DEBUG SAFETY (DEV ONLY)
+-----------------------------------------
+
+Add a dev-only toggle or internal debug readout (no console spam) that can show:
+- current overlay values
+- future overlay values
+- projectionConfidence tier
+
+This helps confirm the photo layer is actually being applied.
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+
+1) Photo mode visibly changes between Current and Future when confidence is MEDIUM/HIGH and deltas exist.
+2) Changes remain believable and do not look like an Instagram filter.
+3) No AI edits, no warping.
+4) No UI redesign.
+5) Build passes cleanly.
+
+Return:
+- where photo overlays were previously missing or too subtle
+- what wiring was added
+- how visibility floors work
+- confirmation confidence gating is respected
