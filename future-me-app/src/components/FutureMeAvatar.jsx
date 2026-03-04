@@ -15,7 +15,7 @@ import EnergyGlowLayer from './avatar/EnergyGlowLayer';
 import PhotoEffectsLayer from './avatar/photo/PhotoEffectsLayer';
 import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
 import { mapFromAvatarEffects } from '../avatar/mapTraitsToAvatarParams';
-import { loadSkinTone, loadHairStyle } from './SkinToneSelector';
+import { loadSkinTone, loadHairStyle, loadHairColor } from './SkinToneSelector';
 
 const USE_HUMAN_AVATAR_V2 = true;
 
@@ -35,7 +35,8 @@ export default function FutureMeAvatar({
   baselineData = null,
   historyData = null,
   skinTone = null,
-  hairStyle = null
+  hairStyle = null,
+  hairColor = null
 }) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
   
@@ -135,13 +136,15 @@ export default function FutureMeAvatar({
 
   const resolvedSkinTone = skinTone || loadSkinTone();
   const resolvedHairStyle = hairStyle || loadHairStyle();
+  const resolvedHairColor = hairColor || loadHairColor();
 
   const humanAvatarParams = useMemo(() => {
     if (!USE_HUMAN_AVATAR_V2) return null;
     const params = mapFromAvatarEffects(avatarEffects, avatarTraits, gender, resolvedSkinTone);
     params.hairStyle = resolvedHairStyle;
+    params.hairColor = resolvedHairColor;
     return params;
-  }, [avatarEffects, avatarTraits, gender, resolvedSkinTone, resolvedHairStyle]);
+  }, [avatarEffects, avatarTraits, gender, resolvedSkinTone, resolvedHairStyle, resolvedHairColor]);
 
 
   const getAvatarColor = () => {

@@ -1,0 +1,90 @@
+PHASE 23: Add Long Hair Option + Basic Hair Color Palette (Avatar V2)
+
+Context:
+Hair options exist (none/short/medium) but we need:
+1) Long hair option
+2) Basic hair color selection (hair is currently always black)
+
+Constraints:
+- No UI redesign.
+- Keep using the existing Appearance & Influences section.
+- Keep the same persistence approach (localStorage or existing user settings storage).
+- Must work for both male and female avatars and all body types.
+- Hair must not cover facial features (eyes/eyebrows) or read like a helmet.
+
+-----------------------------------------
+A) LONG HAIR OPTION
+-----------------------------------------
+
+Requirement:
+Add a "Long" hair option alongside None / Short / Medium.
+
+Long hair must:
+- Clearly extend below shoulders (or to shoulder level minimum).
+- Have natural silhouette (not a cloak block).
+- Maintain a visible hairline so it reads as hair, not a hood.
+- Respect headScale and postureLean without drifting off the head.
+
+Definition of done:
+Long hair reads immediately as long hair and stays aligned with head/neck.
+
+-----------------------------------------
+B) HAIR COLOR PALETTE
+-----------------------------------------
+
+Requirement:
+Add a Hair Color selector with 6–8 common options:
+- Black
+- Dark Brown
+- Brown
+- Light Brown
+- Blonde
+- Red/Auburn
+- Gray
+(Optional) Dark Blonde
+
+Rules:
+- Hair color selection applies consistently across Current and Future.
+- Hair highlights/shading should adapt to the chosen base color.
+- Hair must not tint skin tone.
+
+Persistence:
+- Store selected hairColor in the same persistence system as skinTone and hairStyle.
+- Default hairColor = Black if unset.
+
+-----------------------------------------
+C) UI INTEGRATION
+-----------------------------------------
+
+Requirement:
+Inside Appearance & Influences:
+- Add "Long" as a 4th hair style pill/button.
+- Add a compact hair color selector beneath hair style (swatches or small pills).
+- Keep it visually minimal.
+
+No new screens.
+
+-----------------------------------------
+D) MINIAVATARPREVIEW + ALL AVATAR RENDERS
+-----------------------------------------
+
+Requirement:
+Ensure hairStyle and hairColor apply in:
+- HumanAvatarRenderer (main)
+- MiniAvatarPreview V2
+- Current and Future avatar renders
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+
+1) Hair options are: None, Short, Medium, Long
+2) Hair color palette works and persists
+3) Long hair does not cover eyes/face and does not look like a hood
+4) No regressions to background cleanliness or facial tension
+5) Build passes cleanly
+
+Return:
+- Files changed
+- Summary of how hairStyle and hairColor are stored and applied
+- Confirmation MiniAvatarPreview supports long hair + hair colors

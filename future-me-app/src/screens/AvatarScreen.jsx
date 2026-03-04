@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
-import { loadSkinTone, loadHairStyle } from '../components/SkinToneSelector';
+import { loadSkinTone, loadHairStyle, loadHairColor } from '../components/SkinToneSelector';
 import FutureMeAvatar from '../components/FutureMeAvatar';
 import FutureAvatar from '../components/FutureAvatar';
 import ImageUpload from '../components/ImageUpload';
@@ -62,10 +62,12 @@ export default function AvatarScreen() {
 
   const [skinTone, setSkinTone] = useState(() => loadSkinTone());
   const [hairStyle, setHairStyle] = useState(() => loadHairStyle());
+  const [hairColor, setHairColor] = useState(() => loadHairColor());
 
   const handleAppearanceChange = useCallback((changes) => {
     if (changes.skinTone !== undefined) setSkinTone(changes.skinTone);
     if (changes.hairStyle !== undefined) setHairStyle(changes.hairStyle);
+    if (changes.hairColor !== undefined) setHairColor(changes.hairColor);
   }, []);
 
   const iteNarrative = useMemo(() => {
@@ -200,6 +202,7 @@ export default function AvatarScreen() {
               historyData={historyData}
               skinTone={skinTone}
               hairStyle={hairStyle}
+              hairColor={hairColor}
             />
           ) : (
             <FutureAvatar
@@ -218,6 +221,7 @@ export default function AvatarScreen() {
               historyData={historyData}
               skinTone={skinTone}
               hairStyle={hairStyle}
+              hairColor={hairColor}
             />
           )}
 

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { getSkinToneById } from './avatarParams';
+import { getHairColors } from '../components/SkinToneSelector';
 
 const lerp = (a, b, t) => a + (b - a) * t;
 
@@ -163,11 +164,11 @@ function buildNeckPath(g) {
   `;
 }
 
-function HairLayer({ g, hairStyle, skinColors }) {
+function HairLayer({ g, hairStyle, hairColors }) {
   if (!hairStyle || hairStyle === 'none') return null;
-  const { cx, headCy, headRx, headRy } = g;
-  const hairColor = '#3a2a1a';
-  const hairHighlight = '#5a4a3a';
+  const { cx, headCy, headRx, headRy, neckBottom, shoulderY } = g;
+  const hairColor = hairColors?.base || '#3a2a1a';
+  const hairHighlight = hairColors?.highlight || '#5a4a3a';
 
   if (hairStyle === 'short') {
     const topY = headCy - headRy;
@@ -250,6 +251,71 @@ function HairLayer({ g, hairStyle, skinColors }) {
           strokeWidth="0.8"
           fill="none"
           opacity="0.15"
+        />
+      </g>
+    );
+  }
+
+  if (hairStyle === 'long') {
+    const topY = headCy - headRy;
+    const hairlineY = headCy - headRy * 0.45;
+    const shoulderLevel = shoulderY || neckBottom + 10;
+    const hairBottom = shoulderLevel + 15;
+    return (
+      <g>
+        <path
+          d={`
+            M ${cx - headRx - 3} ${headCy}
+            Q ${cx - headRx - 4} ${topY} ${cx - headRx * 0.5} ${topY - 6}
+            Q ${cx} ${topY - 10} ${cx + headRx * 0.5} ${topY - 6}
+            Q ${cx + headRx + 4} ${topY} ${cx + headRx + 3} ${headCy}
+            Q ${cx + headRx + 5} ${headCy + headRy * 0.5} ${cx + headRx + 4} ${neckBottom}
+            Q ${cx + headRx + 6} ${shoulderLevel} ${cx + headRx * 0.7} ${hairBottom}
+            Q ${cx + headRx * 0.4} ${hairBottom + 6} ${cx} ${hairBottom + 3}
+            Q ${cx - headRx * 0.4} ${hairBottom + 6} ${cx - headRx * 0.7} ${hairBottom}
+            Q ${cx - headRx - 6} ${shoulderLevel} ${cx - headRx - 4} ${neckBottom}
+            Q ${cx - headRx - 5} ${headCy + headRy * 0.5} ${cx - headRx - 3} ${headCy}
+            Z
+          `}
+          fill={hairColor}
+        />
+        <path
+          d={`
+            M ${cx + headRx * 0.6} ${hairlineY + 2}
+            Q ${cx + headRx * 0.3} ${hairlineY + 5} ${cx} ${hairlineY + 6}
+            Q ${cx - headRx * 0.3} ${hairlineY + 5} ${cx - headRx * 0.6} ${hairlineY + 2}
+          `}
+          fill={hairColor}
+        />
+        <path
+          d={`
+            M ${cx - headRx * 0.4} ${topY}
+            Q ${cx} ${topY - 7} ${cx + headRx * 0.4} ${topY}
+          `}
+          stroke={hairHighlight}
+          strokeWidth="1.5"
+          fill="none"
+          opacity="0.2"
+        />
+        <path
+          d={`
+            M ${cx - headRx - 2} ${headCy + headRy * 0.3}
+            Q ${cx - headRx - 3} ${neckBottom - 5} ${cx - headRx - 2} ${shoulderLevel}
+          `}
+          stroke={hairHighlight}
+          strokeWidth="0.8"
+          fill="none"
+          opacity="0.12"
+        />
+        <path
+          d={`
+            M ${cx + headRx + 2} ${headCy + headRy * 0.3}
+            Q ${cx + headRx + 3} ${neckBottom - 5} ${cx + headRx + 2} ${shoulderLevel}
+          `}
+          stroke={hairHighlight}
+          strokeWidth="0.8"
+          fill="none"
+          opacity="0.12"
         />
       </g>
     );
@@ -358,6 +424,7 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
   const energyGlow = p.energyGlow ?? 0.4;
   const facialTension = p.facialTension ?? 0.15;
   const hairStyle = p.hairStyle || 'none';
+  const resolvedHairColors = useMemo(() => getHairColors(p.hairColor), [p.hairColor]);
 
   const skinColors = useMemo(() => resolveSkinColor(p.skinTone, vibrancy), [p.skinTone, vibrancy]);
   const bodyFill = color;
@@ -394,7 +461,7 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
             <path d={neckPath} fill={`url(#${skinGradId})`} />
             <ellipse cx={g.cx} cy={g.headCy} rx={g.headRx} ry={g.headRy} fill={`url(#${skinGradId})`} />
           </g>
-          <HairLayer g={g} hairStyle={hairStyle} skinColors={skinColors} />
+          <HairLayer g={g} hairStyle={hairStyle} hairColors={resolvedHairColors} />
           <FaceFeatures g={g} facialTension={facialTension} skinColors={skinColors} />
         </g>
       </svg>
@@ -453,7 +520,7 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
           />
         </g>
 
-        <HairLayer g={g} hairStyle={hairStyle} skinColors={skinColors} />
+        <HairLayer g={g} hairStyle={hairStyle} hairColors={resolvedHairColors} />
 
         <ShadingLayer g={g} clipId={clipId} vibrancy={vibrancy} />
 

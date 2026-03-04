@@ -7,7 +7,7 @@ import { computeZoneInfluences, applyZoneInfluencesToEffects } from '../utils/zo
 import { computeITECurrentAdapter } from '../utils/iteAvatarAdapter';
 import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
 import { mapFromAvatarEffects } from '../avatar/mapTraitsToAvatarParams';
-import { loadSkinTone, loadHairStyle } from './SkinToneSelector';
+import { loadSkinTone, loadHairStyle, loadHairColor } from './SkinToneSelector';
 
 const USE_HUMAN_AVATAR_V2 = true;
 
@@ -137,13 +137,15 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
 
   const resolvedSkinTone = loadSkinTone();
   const resolvedHairStyle = loadHairStyle();
+  const resolvedHairColor = loadHairColor();
 
   const humanAvatarParams = useMemo(() => {
     if (!USE_HUMAN_AVATAR_V2) return null;
     const params = mapFromAvatarEffects(avatarEffects, avatarTraits, selectedGender || 'male', resolvedSkinTone);
     params.hairStyle = resolvedHairStyle;
+    params.hairColor = resolvedHairColor;
     return params;
-  }, [avatarEffects, avatarTraits, selectedGender, resolvedSkinTone, resolvedHairStyle]);
+  }, [avatarEffects, avatarTraits, selectedGender, resolvedSkinTone, resolvedHairStyle, resolvedHairColor]);
 
   const subtitle = useMemo(() => getSubtitle(historyData), [historyData]);
 

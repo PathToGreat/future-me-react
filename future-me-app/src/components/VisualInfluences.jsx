@@ -64,6 +64,7 @@ export default function VisualInfluences({ lifeZones, onAppearanceChange }) {
               <SkinToneSelector
                 onSkinToneChange={(tone) => onAppearanceChange && onAppearanceChange({ skinTone: tone })}
                 onHairStyleChange={(style) => onAppearanceChange && onAppearanceChange({ hairStyle: style })}
+                onHairColorChange={(color) => onAppearanceChange && onAppearanceChange({ hairColor: color })}
               />
 
               {activeInfluences.length > 0 && (

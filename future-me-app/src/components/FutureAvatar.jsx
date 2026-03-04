@@ -16,7 +16,7 @@ import AvatarViewToggle, { VIEW_MODES } from './avatar/AvatarViewToggle';
 import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
 import { mapFromAvatarEffectsProjected, computePhotoOverlayState } from '../avatar/mapTraitsToAvatarParams';
 import PhotoFutureOverlay from './avatar/photo/PhotoFutureOverlay';
-import { loadSkinTone, loadHairStyle } from './SkinToneSelector';
+import { loadSkinTone, loadHairStyle, loadHairColor } from './SkinToneSelector';
 
 const USE_HUMAN_AVATAR_V2 = true;
 
@@ -30,7 +30,8 @@ export default function FutureAvatar({
   baselineData = null,
   historyData = null,
   skinTone = null,
-  hairStyle = null
+  hairStyle = null,
+  hairColor = null
 }) {
   const [viewMode, setViewMode] = useState(VIEW_MODES.PHOTO);
   const hasImages = images && images.length > 0;
@@ -146,14 +147,16 @@ export default function FutureAvatar({
 
   const resolvedSkinTone = skinTone || loadSkinTone();
   const resolvedHairStyle = hairStyle || loadHairStyle();
+  const resolvedHairColor = hairColor || loadHairColor();
 
   const humanAvatarParams = useMemo(() => {
     if (!USE_HUMAN_AVATAR_V2) return null;
     const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
     const params = mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, resolvedSkinTone, historyData);
     params.hairStyle = resolvedHairStyle;
+    params.hairColor = resolvedHairColor;
     return params;
-  }, [avatarEffects, avatarTraits, iteAdapter, gender, resolvedSkinTone, resolvedHairStyle, historyData]);
+  }, [avatarEffects, avatarTraits, iteAdapter, gender, resolvedSkinTone, resolvedHairStyle, resolvedHairColor, historyData]);
 
   const photoOverlayState = useMemo(() => {
     const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
