@@ -1,0 +1,85 @@
+PHASE 24: Remove Ghost Silhouette Artifacts + Fix Long Hair Face Occlusion
+
+Two issues remain in Avatar V2:
+
+1) Background ghost silhouette shapes and faint lines still appear behind the avatar.
+   It looks like a body outline or duplicate shape behind the main figure.
+
+2) Long hair currently covers the whole face area and reads like a mask (Chewbacca effect).
+   Hair must never cover eyes/eyebrows/mouth.
+
+Do NOT redesign the screen.
+Do NOT change projection logic.
+This phase is strictly SVG render cleanup and hair layering correctness.
+
+-----------------------------------------
+A) ELIMINATE GHOST SILHOUETTE / BACKGROUND ARTIFACTS
+-----------------------------------------
+
+Requirement:
+There must be only one visible body silhouette.
+
+Implement:
+1) Audit HumanAvatarRenderer for any duplicate body shapes used for:
+   - clipPaths
+   - masks
+   - shading alignment
+   - filter targets
+   - debug outlines
+
+2) Ensure any helper paths used for clip/mask purposes are truly non-rendering:
+   - They must not paint fill or stroke in the visible output.
+
+3) Remove or disable any remaining background silhouette layer, guide stroke, or low-opacity path that could read as a ghost body.
+
+Definition of done:
+On a plain background, there are no faint body outlines, no stray lines, and no duplicate silhouette behind the avatar.
+
+-----------------------------------------
+B) FIX LONG HAIR SO FACE STAYS CLEAR
+-----------------------------------------
+
+Requirement:
+Long hair must read as long hair without covering the face.
+
+Rules:
+- Hair can frame the face, but cannot cover:
+  eyes, eyebrows, nose, mouth
+- Hair must have a visible hairline.
+- Hair must sit behind face features.
+- Hair must remain aligned across headScale and postureLean.
+
+Implement:
+1) Update the "long" hair style so it includes a face opening.
+2) Ensure hair is layered behind the face feature layer.
+3) Ensure hair does not overlap facial area even at extreme headScale or posture settings.
+
+Definition of done:
+Long hair looks human and the face remains fully visible and readable.
+
+-----------------------------------------
+C) REGRESSION SAFETY
+-----------------------------------------
+
+Verify no regressions:
+- Background stays clean (no glow artifacts or fog blocks reintroduced)
+- Short and medium hair still look correct
+- Skin tone still applies correctly
+- MiniAvatarPreview still renders without SVG ID collisions
+
+-----------------------------------------
+FILES EXPECTED TO CHANGE
+-----------------------------------------
+HumanAvatarRenderer.jsx (primary)
+Possibly MiniAvatarPreview.jsx if it has its own renderer quirks
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+1) No ghost body silhouette or faint outline behind avatar.
+2) Long hair no longer covers the face.
+3) Face features remain visible and expressive.
+4) Build passes cleanly.
+Return:
+- Summary of what caused the ghost silhouette and what was removed or corrected
+- Summary of how long hair was adjusted to preserve face visibility

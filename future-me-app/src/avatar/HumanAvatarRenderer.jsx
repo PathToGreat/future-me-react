@@ -164,6 +164,55 @@ function buildNeckPath(g) {
   `;
 }
 
+function LongHairBackLayer({ g, hairColors }) {
+  const { cx, headCy, headRx, headRy, neckBottom, shoulderY } = g;
+  const hairColor = hairColors?.base || '#3a2a1a';
+  const hairHighlight = hairColors?.highlight || '#5a4a3a';
+  const shoulderLevel = shoulderY || neckBottom + 10;
+  const hairBottom = shoulderLevel + 15;
+
+  return (
+    <g>
+      <path
+        d={`
+          M ${cx - headRx - 2} ${headCy - headRy * 0.2}
+          Q ${cx - headRx - 4} ${headCy + headRy * 0.3} ${cx - headRx - 5} ${neckBottom}
+          Q ${cx - headRx - 5} ${shoulderLevel} ${cx - headRx * 0.7} ${hairBottom}
+          Q ${cx - headRx * 0.4} ${hairBottom + 5} ${cx} ${hairBottom + 3}
+          Q ${cx + headRx * 0.4} ${hairBottom + 5} ${cx + headRx * 0.7} ${hairBottom}
+          Q ${cx + headRx + 5} ${shoulderLevel} ${cx + headRx + 5} ${neckBottom}
+          Q ${cx + headRx + 4} ${headCy + headRy * 0.3} ${cx + headRx + 2} ${headCy - headRy * 0.2}
+          Q ${cx + headRx + 1} ${headCy - headRy * 0.6} ${cx + headRx} ${headCy - headRy * 0.8}
+          L ${cx - headRx} ${headCy - headRy * 0.8}
+          Q ${cx - headRx - 1} ${headCy - headRy * 0.6} ${cx - headRx - 2} ${headCy - headRy * 0.2}
+          Z
+        `}
+        fill={hairColor}
+      />
+      <path
+        d={`
+          M ${cx - headRx - 2} ${headCy + headRy * 0.3}
+          Q ${cx - headRx - 3} ${neckBottom - 5} ${cx - headRx - 2} ${shoulderLevel}
+        `}
+        stroke={hairHighlight}
+        strokeWidth="0.8"
+        fill="none"
+        opacity="0.12"
+      />
+      <path
+        d={`
+          M ${cx + headRx + 2} ${headCy + headRy * 0.3}
+          Q ${cx + headRx + 3} ${neckBottom - 5} ${cx + headRx + 2} ${shoulderLevel}
+        `}
+        stroke={hairHighlight}
+        strokeWidth="0.8"
+        fill="none"
+        opacity="0.12"
+      />
+    </g>
+  );
+}
+
 function HairLayer({ g, hairStyle, hairColors }) {
   if (!hairStyle || hairStyle === 'none') return null;
   const { cx, headCy, headRx, headRy, neckBottom, shoulderY } = g;
@@ -259,63 +308,29 @@ function HairLayer({ g, hairStyle, hairColors }) {
   if (hairStyle === 'long') {
     const topY = headCy - headRy;
     const hairlineY = headCy - headRy * 0.45;
-    const shoulderLevel = shoulderY || neckBottom + 10;
-    const hairBottom = shoulderLevel + 15;
     return (
       <g>
         <path
           d={`
-            M ${cx - headRx - 3} ${headCy}
-            Q ${cx - headRx - 4} ${topY} ${cx - headRx * 0.5} ${topY - 6}
-            Q ${cx} ${topY - 10} ${cx + headRx * 0.5} ${topY - 6}
-            Q ${cx + headRx + 4} ${topY} ${cx + headRx + 3} ${headCy}
-            Q ${cx + headRx + 5} ${headCy + headRy * 0.5} ${cx + headRx + 4} ${neckBottom}
-            Q ${cx + headRx + 6} ${shoulderLevel} ${cx + headRx * 0.7} ${hairBottom}
-            Q ${cx + headRx * 0.4} ${hairBottom + 6} ${cx} ${hairBottom + 3}
-            Q ${cx - headRx * 0.4} ${hairBottom + 6} ${cx - headRx * 0.7} ${hairBottom}
-            Q ${cx - headRx - 6} ${shoulderLevel} ${cx - headRx - 4} ${neckBottom}
-            Q ${cx - headRx - 5} ${headCy + headRy * 0.5} ${cx - headRx - 3} ${headCy}
+            M ${cx - headRx * 0.85} ${hairlineY}
+            Q ${cx - headRx * 0.9} ${topY + 2} ${cx - headRx * 0.5} ${topY - 5}
+            Q ${cx} ${topY - 9} ${cx + headRx * 0.5} ${topY - 5}
+            Q ${cx + headRx * 0.9} ${topY + 2} ${cx + headRx * 0.85} ${hairlineY}
+            Q ${cx + headRx * 0.6} ${hairlineY + 3} ${cx} ${hairlineY + 4}
+            Q ${cx - headRx * 0.6} ${hairlineY + 3} ${cx - headRx * 0.85} ${hairlineY}
             Z
           `}
           fill={hairColor}
         />
         <path
           d={`
-            M ${cx + headRx * 0.6} ${hairlineY + 2}
-            Q ${cx + headRx * 0.3} ${hairlineY + 5} ${cx} ${hairlineY + 6}
-            Q ${cx - headRx * 0.3} ${hairlineY + 5} ${cx - headRx * 0.6} ${hairlineY + 2}
-          `}
-          fill={hairColor}
-        />
-        <path
-          d={`
-            M ${cx - headRx * 0.4} ${topY}
-            Q ${cx} ${topY - 7} ${cx + headRx * 0.4} ${topY}
+            M ${cx - headRx * 0.4} ${topY - 2}
+            Q ${cx} ${topY - 7} ${cx + headRx * 0.4} ${topY - 2}
           `}
           stroke={hairHighlight}
           strokeWidth="1.5"
           fill="none"
           opacity="0.2"
-        />
-        <path
-          d={`
-            M ${cx - headRx - 2} ${headCy + headRy * 0.3}
-            Q ${cx - headRx - 3} ${neckBottom - 5} ${cx - headRx - 2} ${shoulderLevel}
-          `}
-          stroke={hairHighlight}
-          strokeWidth="0.8"
-          fill="none"
-          opacity="0.12"
-        />
-        <path
-          d={`
-            M ${cx + headRx + 2} ${headCy + headRy * 0.3}
-            Q ${cx + headRx + 3} ${neckBottom - 5} ${cx + headRx + 2} ${shoulderLevel}
-          `}
-          stroke={hairHighlight}
-          strokeWidth="0.8"
-          fill="none"
-          opacity="0.12"
         />
       </g>
     );
@@ -367,25 +382,6 @@ function FaceFeatures({ g, facialTension, skinColors }) {
   );
 }
 
-function ShadingLayer({ g, clipId, vibrancy }) {
-  const { cx, shoulderHalf, shoulderY, waistHalf, waistY, hipY } = g;
-  const shadingOpacity = lerp(0.08, 0.02, vibrancy);
-
-  return (
-    <g clipPath={`url(#${clipId})`} opacity={shadingOpacity}>
-      <ellipse
-        cx={cx - shoulderHalf * 0.3} cy={(shoulderY + waistY) / 2}
-        rx={shoulderHalf * 0.3} ry={(waistY - shoulderY) * 0.4}
-        fill="#000"
-      />
-      <ellipse
-        cx={cx + shoulderHalf * 0.3} cy={(shoulderY + waistY) / 2}
-        rx={shoulderHalf * 0.3} ry={(waistY - shoulderY) * 0.4}
-        fill="#000"
-      />
-    </g>
-  );
-}
 
 function GlowLayer({ g, energyGlow, color }) {
   if (energyGlow < 0.4) return null;
@@ -429,7 +425,6 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
   const skinColors = useMemo(() => resolveSkinColor(p.skinTone, vibrancy), [p.skinTone, vibrancy]);
   const bodyFill = color;
 
-  const clipId = mini ? 'miniBodyClip' : 'humanBodyClip';
   const glowId = mini ? 'miniGlow' : 'avatarGlow';
   const skinGradId = mini ? 'miniSkinGrad' : 'skinGrad';
   const bodyGradId = mini ? 'miniBodyGrad' : 'bodyGrad';
@@ -457,6 +452,7 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
           <path d={torsoPath} fill={`url(#${bodyGradId})`} />
           <path d={leftArmPath} fill={`url(#${bodyGradId})`} />
           <path d={rightArmPath} fill={`url(#${bodyGradId})`} />
+          {hairStyle === 'long' && <LongHairBackLayer g={g} hairColors={resolvedHairColors} />}
           <g style={skinFilterStyle}>
             <path d={neckPath} fill={`url(#${skinGradId})`} />
             <ellipse cx={g.cx} cy={g.headCy} rx={g.headRx} ry={g.headRy} fill={`url(#${skinGradId})`} />
@@ -486,14 +482,6 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
           <stop offset="60%" stopColor={bodyFill} stopOpacity="0.75" />
           <stop offset="100%" stopColor={bodyFill} stopOpacity="0.6" />
         </linearGradient>
-        <clipPath id={clipId}>
-          <path d={torsoPath} />
-          <path d={leftArmPath} />
-          <path d={rightArmPath} />
-          <path d={leftLegPath} />
-          <path d={rightLegPath} />
-          <path d={neckPath} />
-        </clipPath>
       </defs>
 
       <motion.g
@@ -511,6 +499,8 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
         <motion.path d={leftArmPath} fill={`url(#${bodyGradId})`} />
         <motion.path d={rightArmPath} fill={`url(#${bodyGradId})`} />
 
+        {hairStyle === 'long' && <LongHairBackLayer g={g} hairColors={resolvedHairColors} />}
+
         <g style={skinFilterStyle}>
           <path d={neckPath} fill={`url(#${skinGradId})`} />
           <ellipse
@@ -521,8 +511,6 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
         </g>
 
         <HairLayer g={g} hairStyle={hairStyle} hairColors={resolvedHairColors} />
-
-        <ShadingLayer g={g} clipId={clipId} vibrancy={vibrancy} />
 
         <FaceFeatures g={g} facialTension={facialTension} skinColors={skinColors} />
       </motion.g>
