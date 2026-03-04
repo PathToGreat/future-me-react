@@ -1,0 +1,114 @@
+PHASE 27: Semi-Realistic Posture Layer (Shoulders, Neck, Spine) + Final Release Freeze
+
+Goal:
+Improve avatar realism and differentiation using posture, without adding new UI or changing engine architecture.
+
+The avatar should communicate:
+- Fit/regulated/disciplined = upright posture, shoulders open, neck tall
+- Unfit/high-stress/low-discipline = slight forward head, rounded shoulders, reduced chest openness
+
+Constraints:
+- Do NOT redesign UI.
+- Do NOT change tiering, presets, or projection confidence system.
+- Keep changes subtle and believable (no extreme hunching).
+- Must work for male/female and all body types.
+- Must remain clean in MiniAvatarPreview.
+
+-----------------------------------------
+A) ADD POSTURE GEOMETRY CUES (NOT JUST ROTATION)
+-----------------------------------------
+
+Current:
+postureLean exists but is mainly applied as animation offset/rotation.
+
+Requirement:
+Add subtle geometric posture cues that change the body silhouette:
+
+1) Shoulder roll:
+- For negative postureLean: shoulders slightly forward/rounded
+- For positive postureLean: shoulders slightly back/open
+
+2) Neck/head alignment:
+- For negative postureLean: slight forward head position + reduced neck height
+- For positive postureLean: head centered + slightly taller neck
+
+3) Chest openness:
+- For negative postureLean: chest visually narrows slightly
+- For positive postureLean: chest visually opens slightly
+
+Rules:
+- These must be subtle and anatomically plausible.
+- No exaggerated slouch.
+
+Definition of done:
+Posture differences are visible at a glance but still realistic.
+
+-----------------------------------------
+B) MAP POSTURELEAN MORE INTELLIGENTLY
+-----------------------------------------
+
+Requirement:
+Ensure postureLean reflects a blend of:
+- confidence
+- discipline
+- emotional stability (secondary)
+
+Rules:
+- High physical composition alone should not force upright posture if emotional stability is low.
+- A fit-but-stressed user can have good body but slightly tense posture.
+- A calm-but-soft user can have relaxed posture but not necessarily “confident upright.”
+
+Keep mapping conservative.
+
+-----------------------------------------
+C) CURRENT VS FUTURE POSTURE DIFFERENCE
+-----------------------------------------
+
+Requirement:
+When Future projection meaningfully differs from Current (MEDIUM/HIGH confidence),
+ensure posture shifts subtly in the correct direction.
+
+- Improvement trajectory → slightly more upright
+- Decline trajectory → slightly more collapsed
+
+No change for LOW confidence beyond existing caps.
+
+-----------------------------------------
+D) MINIAVATARPREVIEW SUPPORT
+-----------------------------------------
+
+Requirement:
+MiniAvatarPreview must reflect posture state in a simplified way without motion artifacts.
+No jitter, no clipped head/hair, no overflow.
+
+-----------------------------------------
+E) VALIDATION PASS
+-----------------------------------------
+
+Test quickly across:
+- Excellent vs Poor vs Mixed profiles
+- Both genders
+- All hair styles (none/short/medium/long)
+
+Confirm:
+- posture changes do not break hair alignment
+- face stays readable
+- body constraints still hold
+- no background artifacts reintroduced
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+
+1) Posture is visibly more human and expressive (subtle).
+2) Fit/regulated profiles read upright and open.
+3) Poor/high-stress profiles read slightly forward and closed.
+4) Mixed profiles read physically fit but emotionally tense where applicable.
+5) No regressions, build passes cleanly.
+
+Return:
+- Files changed
+- Summary of posture geometry changes
+- Summary of updated posture mapping logic
+- Confirmation MiniAvatarPreview works
+- Confirmation safe to publish and freeze

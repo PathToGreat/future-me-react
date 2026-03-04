@@ -37,11 +37,14 @@ function computeEmotionalVisualParams(traits) {
   const rawTension = 1 - emo / 100;
   const facialTension = clamp(rawTension * rawTension * 1.15, 0, 1);
 
+  const postureBase = (conf * 0.40 + disc * 0.35 + emo * 0.25);
+  const postureLean = clamp((postureBase - 50) / 50, -1, 1);
+
   return {
     vibrancy: clamp(vit / 100, 0, 1),
     energyGlow: clamp((vit * 0.6 + res * 0.4) / 100, 0, 1),
     facialTension,
-    postureLean: clamp(((conf + disc) / 2 - 50) / 50, -1, 1)
+    postureLean
   };
 }
 
@@ -97,11 +100,15 @@ export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbac
       const str = fallbackMetrics.stress ?? 3;
       const rawStressTension = clamp((str - 1) / 4, 0, 1);
       const stressTension = clamp(rawStressTension * rawStressTension * 1.15, 0, 1);
+      const actNorm = clamp((act - 1) / 4, 0, 1);
+      const nutNorm = clamp((nut - 1) / 4, 0, 1);
+      const stressCalm = 1 - rawStressTension;
+      const postureBase = (actNorm * 0.35 + nutNorm * 0.35 + stressCalm * 0.30);
       emotionalParams = {
         vibrancy: clamp(physicalScore / 100, 0, 1),
-        energyGlow: clamp((act - 1) / 4, 0, 1) * 0.7 + clamp((slp - 1) / 4, 0, 1) * 0.3,
+        energyGlow: actNorm * 0.7 + clamp((slp - 1) / 4, 0, 1) * 0.3,
         facialTension: stressTension,
-        postureLean: clamp(((clamp((act - 1) / 4, 0, 1) + clamp((nut - 1) / 4, 0, 1)) / 2) * 2 - 1, -1, 1)
+        postureLean: clamp(postureBase * 2 - 1, -1, 1)
       };
     }
   } else {
@@ -280,8 +287,12 @@ export function diagnosticAvatarProfile(metrics, gender, label) {
   const rawStressTension = clamp((str - 1) / 4, 0, 1);
   const facialTension = clamp(rawStressTension * rawStressTension * 1.15, 0, 1);
   const vibrancy = clamp(physicalScore / 100, 0, 1);
-  const energyGlow = clamp((act - 1) / 4, 0, 1) * 0.7 + clamp((slp - 1) / 4, 0, 1) * 0.3;
-  const postureLean = clamp(((clamp((act - 1) / 4, 0, 1) + clamp((nut - 1) / 4, 0, 1)) / 2) * 2 - 1, -1, 1);
+  const actNorm = clamp((act - 1) / 4, 0, 1);
+  const nutNorm = clamp((nut - 1) / 4, 0, 1);
+  const stressCalm = 1 - rawStressTension;
+  const energyGlow = actNorm * 0.7 + clamp((slp - 1) / 4, 0, 1) * 0.3;
+  const postureBase = (actNorm * 0.35 + nutNorm * 0.35 + stressCalm * 0.30);
+  const postureLean = clamp(postureBase * 2 - 1, -1, 1);
 
   const params = buildBodyParams(physicalScore, { vibrancy, energyGlow, facialTension, postureLean }, gender, null);
 

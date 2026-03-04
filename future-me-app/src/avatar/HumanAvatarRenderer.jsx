@@ -38,22 +38,33 @@ function computeBodyGeometry(params) {
 
   const cx = 100;
   const isMale = gender !== 'female';
+  const pl = postureLean ?? 0;
+
+  const shoulderRollInward = pl < 0 ? pl * 3.5 : pl * -1.5;
+  const headFwdShift = pl < 0 ? pl * 2.5 : pl * -0.5;
+  const neckStretch = pl * 1.8;
+  const chestOpenAdj = pl * 0.04;
 
   const headRx = lerp(22, 28, headScale);
   const headRy = lerp(26, 32, headScale);
-  const headCy = 52;
+  const headCy = 52 + headFwdShift * 0.15;
 
   const neckW = lerp(8, 16, neckThickness);
   const neckTop = headCy + headRy - 4;
-  const neckBottom = neckTop + 18;
+  const baseNeckLen = 18;
+  const neckLen = baseNeckLen + neckStretch;
+  const neckBottom = neckTop + neckLen;
 
   const shoulderY = neckBottom - 2;
-  const shoulderHalf = lerp(28, 55, shoulderWidth);
-  const chestY = shoulderY + lerp(18, 28, chestSize);
+  const baseShoulderHalf = lerp(28, 55, shoulderWidth);
+  const shoulderHalf = baseShoulderHalf + shoulderRollInward;
+
+  const effectiveChestSize = Math.max(0, Math.min(1, chestSize + chestOpenAdj));
+  const chestY = shoulderY + lerp(18, 28, effectiveChestSize);
 
   const waistY = chestY + 32;
   const taperFactor = lerp(0.95, 0.55, waistTaper);
-  const waistHalf = shoulderHalf * taperFactor;
+  const waistHalf = baseShoulderHalf * taperFactor;
 
   const hipY = waistY + 18;
   const hipHalf = lerp(22, 48, hipWidth);
@@ -66,18 +77,19 @@ function computeBodyGeometry(params) {
   const legW = lerp(10, 22, legThickness);
   const legLen = 80;
 
-  const postureOffset = postureLean * -4;
-  const postureRotate = postureLean * -2.5;
+  const postureOffset = pl * -2;
+  const postureRotate = pl * -1.5;
 
   return {
     cx, headRx, headRy, headCy,
     neckW, neckTop, neckBottom,
-    shoulderY, shoulderHalf, chestY, chestSize,
+    shoulderY, shoulderHalf, chestY, chestSize: effectiveChestSize,
     waistY, waistHalf,
     hipY, hipHalf, crotchY,
     armW, armLen,
     legW, legLen,
     postureOffset, postureRotate,
+    headFwdShift,
     isMale
   };
 }
@@ -153,13 +165,14 @@ function buildLegPath(g, side) {
 }
 
 function buildNeckPath(g) {
-  const { cx, neckW, neckTop, neckBottom } = g;
+  const { cx, neckW, neckTop, neckBottom, headFwdShift } = g;
   const hw = neckW / 2;
+  const topShift = (headFwdShift ?? 0) * 0.4;
   return `
-    M ${cx - hw} ${neckTop}
-    Q ${cx - hw - 1} ${(neckTop + neckBottom) / 2} ${cx - hw + 1} ${neckBottom}
+    M ${cx - hw + topShift} ${neckTop}
+    Q ${cx - hw - 1 + topShift * 0.5} ${(neckTop + neckBottom) / 2} ${cx - hw + 1} ${neckBottom}
     L ${cx + hw - 1} ${neckBottom}
-    Q ${cx + hw + 1} ${(neckTop + neckBottom) / 2} ${cx + hw} ${neckTop}
+    Q ${cx + hw + 1 + topShift * 0.5} ${(neckTop + neckBottom) / 2} ${cx + hw + topShift} ${neckTop}
     Z
   `;
 }
