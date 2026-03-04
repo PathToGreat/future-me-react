@@ -167,20 +167,34 @@ function HairLayer({ g, hairStyle, skinColors }) {
   if (!hairStyle || hairStyle === 'none') return null;
   const { cx, headCy, headRx, headRy } = g;
   const hairColor = '#3a2a1a';
+  const hairHighlight = '#5a4a3a';
 
   if (hairStyle === 'short') {
+    const topY = headCy - headRy;
+    const hairlineY = headCy - headRy * 0.45;
     return (
       <g>
-        <ellipse
-          cx={cx} cy={headCy - headRy * 0.2}
-          rx={headRx + 2} ry={headRy * 0.55}
+        <path
+          d={`
+            M ${cx - headRx * 0.85} ${hairlineY}
+            Q ${cx - headRx * 0.9} ${topY + 2} ${cx - headRx * 0.5} ${topY - 3}
+            Q ${cx} ${topY - 7} ${cx + headRx * 0.5} ${topY - 3}
+            Q ${cx + headRx * 0.9} ${topY + 2} ${cx + headRx * 0.85} ${hairlineY}
+            Q ${cx + headRx * 0.6} ${hairlineY + 3} ${cx} ${hairlineY + 4}
+            Q ${cx - headRx * 0.6} ${hairlineY + 3} ${cx - headRx * 0.85} ${hairlineY}
+            Z
+          `}
           fill={hairColor}
         />
-        <rect
-          x={cx - headRx - 1} y={headCy - headRy * 0.6}
-          width={(headRx + 1) * 2} height={headRy * 0.35}
-          rx={headRx * 0.3}
-          fill={hairColor}
+        <path
+          d={`
+            M ${cx - headRx * 0.5} ${topY - 1}
+            Q ${cx} ${topY - 5} ${cx + headRx * 0.3} ${topY}
+          `}
+          stroke={hairHighlight}
+          strokeWidth="1.2"
+          fill="none"
+          opacity="0.3"
         />
       </g>
     );
@@ -188,22 +202,54 @@ function HairLayer({ g, hairStyle, skinColors }) {
 
   if (hairStyle === 'medium') {
     const topY = headCy - headRy;
-    const sideY = headCy + headRy * 0.3;
+    const hairlineY = headCy - headRy * 0.45;
+    const sideBottom = headCy + headRy * 0.35;
     return (
       <g>
         <path
           d={`
-            M ${cx - headRx - 3} ${headCy - headRy * 0.1}
-            Q ${cx - headRx - 4} ${topY - 4} ${cx} ${topY - 6}
-            Q ${cx + headRx + 4} ${topY - 4} ${cx + headRx + 3} ${headCy - headRy * 0.1}
-            Q ${cx + headRx + 5} ${sideY} ${cx + headRx} ${sideY + 4}
-            L ${cx + headRx - 2} ${headCy + headRy * 0.1}
-            Q ${cx} ${topY + 2} ${cx - headRx + 2} ${headCy + headRy * 0.1}
-            L ${cx - headRx} ${sideY + 4}
-            Q ${cx - headRx - 5} ${sideY} ${cx - headRx - 3} ${headCy - headRy * 0.1}
+            M ${cx - headRx - 2} ${sideBottom}
+            Q ${cx - headRx - 3} ${headCy - headRy * 0.2} ${cx - headRx - 1} ${topY + 4}
+            Q ${cx - headRx * 0.5} ${topY - 6} ${cx} ${topY - 8}
+            Q ${cx + headRx * 0.5} ${topY - 6} ${cx + headRx + 1} ${topY + 4}
+            Q ${cx + headRx + 3} ${headCy - headRy * 0.2} ${cx + headRx + 2} ${sideBottom}
+            Q ${cx + headRx * 0.8} ${sideBottom - 2} ${cx + headRx * 0.6} ${hairlineY + 2}
+            Q ${cx + headRx * 0.3} ${hairlineY + 5} ${cx} ${hairlineY + 6}
+            Q ${cx - headRx * 0.3} ${hairlineY + 5} ${cx - headRx * 0.6} ${hairlineY + 2}
+            Q ${cx - headRx * 0.8} ${sideBottom - 2} ${cx - headRx - 2} ${sideBottom}
             Z
           `}
           fill={hairColor}
+        />
+        <path
+          d={`
+            M ${cx - headRx * 0.4} ${topY}
+            Q ${cx} ${topY - 5} ${cx + headRx * 0.4} ${topY}
+          `}
+          stroke={hairHighlight}
+          strokeWidth="1.5"
+          fill="none"
+          opacity="0.25"
+        />
+        <path
+          d={`
+            M ${cx - headRx - 1} ${headCy - headRy * 0.1}
+            Q ${cx - headRx} ${sideBottom - 4} ${cx - headRx + 1} ${sideBottom}
+          `}
+          stroke={hairHighlight}
+          strokeWidth="0.8"
+          fill="none"
+          opacity="0.15"
+        />
+        <path
+          d={`
+            M ${cx + headRx + 1} ${headCy - headRy * 0.1}
+            Q ${cx + headRx} ${sideBottom - 4} ${cx + headRx - 1} ${sideBottom}
+          `}
+          stroke={hairHighlight}
+          strokeWidth="0.8"
+          fill="none"
+          opacity="0.15"
         />
       </g>
     );
@@ -219,22 +265,22 @@ function FaceFeatures({ g, facialTension, skinColors }) {
   const browY = eyeY - 7;
 
   const tension = facialTension || 0;
-  const browAngle = tension * 4;
-  const eyeOpenness = lerp(5, 3.5, tension);
+  const browAngle = tension * 3;
+  const eyeOpenness = lerp(5, 3.8, tension);
   const mouthY = headCy + 10;
 
-  const mouthCurve = lerp(3, -2, tension);
+  const mouthCurve = lerp(2.5, -1.5, tension);
 
   return (
     <g>
       <line
-        x1={cx - eyeSpacing - 5} y1={browY + browAngle * 0.5}
-        x2={cx - eyeSpacing + 5} y2={browY - browAngle * 0.5}
+        x1={cx - eyeSpacing - 5} y1={browY + browAngle * 0.4}
+        x2={cx - eyeSpacing + 5} y2={browY - browAngle * 0.4}
         stroke="#5a4a3a" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"
       />
       <line
-        x1={cx + eyeSpacing - 5} y1={browY - browAngle * 0.5}
-        x2={cx + eyeSpacing + 5} y2={browY + browAngle * 0.5}
+        x1={cx + eyeSpacing - 5} y1={browY - browAngle * 0.4}
+        x2={cx + eyeSpacing + 5} y2={browY + browAngle * 0.4}
         stroke="#5a4a3a" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"
       />
 
@@ -257,39 +303,35 @@ function FaceFeatures({ g, facialTension, skinColors }) {
 
 function ShadingLayer({ g, clipId, vibrancy }) {
   const { cx, shoulderHalf, shoulderY, waistHalf, waistY, hipY } = g;
-  const shadingOpacity = lerp(0.12, 0.04, vibrancy);
+  const shadingOpacity = lerp(0.08, 0.02, vibrancy);
 
   return (
     <g clipPath={`url(#${clipId})`} opacity={shadingOpacity}>
       <ellipse
         cx={cx - shoulderHalf * 0.3} cy={(shoulderY + waistY) / 2}
-        rx={shoulderHalf * 0.4} ry={(waistY - shoulderY) * 0.5}
+        rx={shoulderHalf * 0.3} ry={(waistY - shoulderY) * 0.4}
         fill="#000"
       />
       <ellipse
         cx={cx + shoulderHalf * 0.3} cy={(shoulderY + waistY) / 2}
-        rx={shoulderHalf * 0.4} ry={(waistY - shoulderY) * 0.5}
+        rx={shoulderHalf * 0.3} ry={(waistY - shoulderY) * 0.4}
         fill="#000"
-      />
-      <rect
-        x={cx - waistHalf * 0.6} y={waistY - 5}
-        width={waistHalf * 1.2} height={hipY - waistY + 10}
-        rx="8" fill="#000" opacity="0.5"
       />
     </g>
   );
 }
 
 function GlowLayer({ g, energyGlow, color }) {
-  if (energyGlow < 0.15) return null;
+  if (energyGlow < 0.4) return null;
   const { cx } = g;
-  const glowOpacity = lerp(0, 0.25, energyGlow);
-  const glowRadius = lerp(30, 60, energyGlow);
+  const intensity = (energyGlow - 0.4) / 0.6;
+  const glowOpacity = lerp(0, 0.12, intensity);
+  const glowRadius = lerp(25, 45, intensity);
 
   return (
     <ellipse
       cx={cx} cy={140}
-      rx={glowRadius} ry={glowRadius * 1.3}
+      rx={glowRadius} ry={glowRadius * 1.2}
       fill={color}
       opacity={glowOpacity}
       filter="url(#avatarGlow)"
@@ -314,7 +356,7 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
 
   const vibrancy = p.vibrancy ?? 0.5;
   const energyGlow = p.energyGlow ?? 0.4;
-  const facialTension = p.facialTension ?? 0.3;
+  const facialTension = p.facialTension ?? 0.15;
   const hairStyle = p.hairStyle || 'none';
 
   const skinColors = useMemo(() => resolveSkinColor(p.skinTone, vibrancy), [p.skinTone, vibrancy]);
@@ -363,11 +405,10 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
     <svg
       viewBox="0 0 200 300"
       className={`w-full max-w-[200px] h-auto ${className}`}
-      style={{ overflow: 'visible' }}
     >
       <defs>
         <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="12" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
         </filter>
         <linearGradient id={skinGradId} x1="0.5" y1="0" x2="0.5" y2="1">
           <stop offset="0%" stopColor={skinColors.base} stopOpacity="1" />
@@ -417,19 +458,6 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
         <ShadingLayer g={g} clipId={clipId} vibrancy={vibrancy} />
 
         <FaceFeatures g={g} facialTension={facialTension} skinColors={skinColors} />
-
-        {energyGlow > 0.5 && (
-          <motion.ellipse
-            cx={g.cx} cy={140}
-            rx={65} ry={90}
-            fill="none"
-            stroke={bodyFill}
-            strokeWidth="0.8"
-            opacity={lerp(0, 0.2, energyGlow - 0.5) * 2}
-            animate={{ opacity: [0.05, lerp(0, 0.15, (energyGlow - 0.5) * 2), 0.05] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        )}
       </motion.g>
     </svg>
   );

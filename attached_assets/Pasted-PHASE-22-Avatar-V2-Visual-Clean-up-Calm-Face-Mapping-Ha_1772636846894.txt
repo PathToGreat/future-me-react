@@ -1,0 +1,126 @@
+PHASE 22: Avatar V2 Visual Clean-up + Calm Face Mapping + Hair Fix + Gender Lock
+
+We have a stable Avatar V2 system, but the user experience has 4 issues:
+
+1) There are unwanted background artifacts behind the avatar (glow/shading/aura reads messy).
+2) The avatar face looks stressed/upset even when stress logging is low (example: stress=2/5 should look calm).
+3) Hair rendering is incorrect: "short" looks like a mask, "medium" looks like a beanie.
+4) Male/Female selector should be locked after onboarding, not always visible. It should collapse or be replaced with an edit option.
+
+Do NOT redesign the Avatar screen.
+Do NOT add new pages.
+Fix these issues with minimal UI change.
+
+-----------------------------------------
+A) REMOVE / REDUCE BACKGROUND ARTIFACTS
+-----------------------------------------
+
+Requirement:
+Make the avatar background look clean and intentional.
+
+Rules:
+- Glow and aura must never look like random shapes behind the body.
+- Any glow must be subtle, low opacity, and not overlap UI elements.
+- Shading must not create visible rectangles or “fog” behind the figure.
+
+Implement:
+1) Add a strict visual cap on glow intensity and aura visibility.
+2) Ensure glow or aura only appears when energyGlow is meaningfully high.
+3) If any layer reads as a background rectangle, remove it or constrain it.
+
+Definition of done:
+At rest, the avatar card background looks clean with no distracting shapes.
+
+-----------------------------------------
+B) FIX FACIAL TENSION LOGIC FOR STRESS SCALE
+-----------------------------------------
+
+Problem:
+User logs stress 2/5 (calm) but avatar looks tense.
+
+Requirement:
+Facial tension must reflect calmness when stress is low.
+
+Implement:
+1) Audit mapping for facialTension across:
+- mapTraitsToAvatarParams
+- mapFromAvatarEffectsProjected
+- fallbackMetrics mapping
+- projection blending
+
+2) Enforce correct interpretation:
+- Stress scale is: 1 calm → 5 very stressed
+- Therefore facialTension should be LOW when stress is 1–2
+
+3) Add a clamp floor/ceiling so facial tension never defaults to “upset” unless stress is truly high or emotionalStability is truly low.
+
+Definition of done:
+With stress=2/5 and normal emotional stability, face reads neutral or relaxed.
+
+-----------------------------------------
+C) HAIR FIX: SHORT AND MEDIUM MUST READ AS HAIR
+-----------------------------------------
+
+Requirement:
+Replace current hair layers so they do not cover the face like a mask and do not resemble a beanie.
+
+Rules:
+- Hair must sit above the forehead with a natural hairline.
+- Hair must not cover eyes, eyebrows, or facial features.
+- Hair must conform to head shape and posture.
+- Hair must respect headScale and not drift.
+
+Implement:
+1) Redesign short hair as a minimal scalp-top shape with a clean hairline contour.
+2) Redesign medium hair as a shape that extends slightly down the sides/back, not a full cap.
+3) Add subtle shading or edge softness so hair reads as hair, not a flat helmet.
+
+Definition of done:
+Selecting short or medium hair looks normal and human at a glance.
+
+-----------------------------------------
+D) GENDER SELECTION LOCK AFTER ONBOARDING
+-----------------------------------------
+
+Requirement:
+Gender should be chosen during onboarding and then locked.
+
+Behavior:
+1) If gender is already set for the user:
+- Hide the Male/Female toggle in normal view (collapse it).
+- Provide a small “Edit” link or button to change it only if needed.
+- Changing gender should require one extra confirmation step (simple, not modal-heavy).
+
+2) If gender is not set (legacy users):
+- Prompt them once to select it (inline, minimal).
+- After selection, lock it as above.
+
+Persistence:
+- Store gender in the same persistence layer as other user settings (localStorage acceptable if that’s what is used now).
+
+Definition of done:
+Most users do not see a permanent gender toggle. It is stable unless explicitly edited.
+
+-----------------------------------------
+FILES LIKELY TO CHANGE
+-----------------------------------------
+- HumanAvatarRenderer.jsx (clean background layers, fix hair shapes)
+- mapTraitsToAvatarParams.js (facial tension mapping corrections)
+- projectionConfidence or identity mapping as needed (only if involved in tension)
+- AvatarScreen.jsx (lock/collapse gender selection UX)
+- Any onboarding or user profile storage file if present
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+1) Avatar card background looks clean with no distracting artifacts.
+2) Stress=2/5 produces a calm or neutral face, not upset.
+3) Short hair reads as hair, not a mask.
+4) Medium hair reads as hair, not a beanie.
+5) Gender selection is locked post-onboarding with an edit option.
+6) Build passes cleanly.
+
+Return:
+- List of files changed
+- Summary of what was adjusted for each issue
+- Confirmation the stress scale is correctly interpreted

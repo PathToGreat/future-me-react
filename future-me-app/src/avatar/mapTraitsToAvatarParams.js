@@ -34,10 +34,13 @@ function computeEmotionalVisualParams(traits) {
   const res = extractTraitScore(traits.resilience);
   const vit = extractTraitScore(traits.vitality);
 
+  const rawTension = 1 - emo / 100;
+  const facialTension = clamp(rawTension * rawTension, 0, 1);
+
   return {
     vibrancy: clamp(vit / 100, 0, 1),
     energyGlow: clamp((vit * 0.6 + res * 0.4) / 100, 0, 1),
-    facialTension: clamp(1 - emo / 100, 0, 1),
+    facialTension,
     postureLean: clamp(((conf + disc) / 2 - 50) / 50, -1, 1)
   };
 }
@@ -92,10 +95,12 @@ export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbac
 
     if (!hasCurrentTraits) {
       const str = fallbackMetrics.stress ?? 3;
+      const rawStressTension = clamp((str - 1) / 4, 0, 1);
+      const stressTension = rawStressTension * rawStressTension;
       emotionalParams = {
         vibrancy: clamp(physicalScore / 100, 0, 1),
         energyGlow: clamp((act - 1) / 4, 0, 1) * 0.7 + clamp((slp - 1) / 4, 0, 1) * 0.3,
-        facialTension: clamp((str - 1) / 4, 0, 1),
+        facialTension: stressTension,
         postureLean: clamp(((clamp((act - 1) / 4, 0, 1) + clamp((nut - 1) / 4, 0, 1)) / 2) * 2 - 1, -1, 1)
       };
     }
@@ -152,9 +157,10 @@ export function mapFromAvatarEffects(avatarEffects, avatarTraits, gender, skinTo
 
   let currentTraits = null;
   if (avatarTraits?.glowEnergy && avatarTraits?.posture && avatarTraits?.facialExpression) {
+    const faceScore = avatarTraits.facialExpression.score ?? 50;
     currentTraits = {
       vitality: avatarTraits.glowEnergy.score,
-      emotionalStability: 100 - (avatarTraits.facialExpression.score < 40 ? 30 : avatarTraits.facialExpression.score < 60 ? 50 : 70),
+      emotionalStability: clamp(faceScore, 10, 95),
       confidence: avatarTraits.posture.score,
       discipline: avatarTraits.posture.score * 0.8 + (avatarTraits.auraPresence?.score || 50) * 0.2,
       resilience: (avatarTraits.glowEnergy.score + avatarTraits.posture.score) / 2
@@ -175,9 +181,10 @@ export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteRe
 
   let currentTraits = null;
   if (avatarTraits?.glowEnergy && avatarTraits?.posture && avatarTraits?.facialExpression) {
+    const faceScore = avatarTraits.facialExpression.score ?? 50;
     currentTraits = {
       vitality: avatarTraits.glowEnergy.score,
-      emotionalStability: 100 - (avatarTraits.facialExpression.score < 40 ? 30 : avatarTraits.facialExpression.score < 60 ? 50 : 70),
+      emotionalStability: clamp(faceScore, 10, 95),
       confidence: avatarTraits.posture.score,
       discipline: avatarTraits.posture.score * 0.8 + (avatarTraits.auraPresence?.score || 50) * 0.2,
       resilience: (avatarTraits.glowEnergy.score + avatarTraits.posture.score) / 2
