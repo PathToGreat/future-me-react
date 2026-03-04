@@ -16,6 +16,8 @@ import PhotoTransformLayer, { getPhotoFramingStyle } from './avatar/photo/PhotoT
 import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
 import { mapFromAvatarEffects, computePhotoOverlayState } from '../avatar/mapTraitsToAvatarParams';
 import { loadSkinTone, loadHairStyle, loadHairColor } from './SkinToneSelector';
+import AvatarDiagnosticsPanel from './AvatarDiagnosticsPanel';
+import { useAuth } from '../context/AuthContext';
 
 const USE_HUMAN_AVATAR_V2 = true;
 
@@ -39,6 +41,8 @@ export default function FutureMeAvatar({
   hairColor = null
 }) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
+  const { user } = useAuth();
+  const debugAvatar = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debugAvatar') === '1';
   
   const dailyMetrics = { activity, nutrition, sleep, stress };
   const habitStreaks = habits.map(h => h.streak || 0);
@@ -616,6 +620,15 @@ export default function FutureMeAvatar({
           </button>
         )}
       </motion.div>
+      {debugAvatar && (
+        <AvatarDiagnosticsPanel
+          avatarEffects={avatarEffects}
+          humanAvatarParams={humanAvatarParams}
+          iteAdapter={iteAdapter}
+          userId={user?.uid}
+          rawMetrics={{ activity, nutrition, sleep, stress }}
+        />
+      )}
     </div>
   );
 }

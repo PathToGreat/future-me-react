@@ -648,6 +648,12 @@ export const computeAvatarEffects = (metrics = {}) => {
     bodyComposition,
     energyPulse,
     baselineModifiers,
+
+    activityScore,
+    nutritionScore,
+    sleepScore,
+    stressScore,
+    consistencyScore,
     
     cssFilter: buildCSSFilter({
       brightnessLevel,

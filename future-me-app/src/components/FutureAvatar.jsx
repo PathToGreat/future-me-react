@@ -17,6 +17,8 @@ import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
 import { mapFromAvatarEffectsProjected, computePhotoOverlayState } from '../avatar/mapTraitsToAvatarParams';
 import PhotoTransformLayer, { getPhotoFramingStyle } from './avatar/photo/PhotoTransformLayer';
 import { loadSkinTone, loadHairStyle, loadHairColor } from './SkinToneSelector';
+import AvatarDiagnosticsPanel from './AvatarDiagnosticsPanel';
+import { useAuth } from '../context/AuthContext';
 
 const USE_HUMAN_AVATAR_V2 = true;
 
@@ -35,6 +37,8 @@ export default function FutureAvatar({
 }) {
   const [viewMode, setViewMode] = useState(VIEW_MODES.PHOTO);
   const hasImages = images && images.length > 0;
+  const { user } = useAuth();
+  const debugAvatar = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debugAvatar') === '1';
 
   useEffect(() => {
     if (!hasImages) {
@@ -633,6 +637,15 @@ export default function FutureAvatar({
           />
         )}
       </motion.div>
+      {debugAvatar && (
+        <AvatarDiagnosticsPanel
+          avatarEffects={avatarEffects}
+          humanAvatarParams={humanAvatarParams}
+          iteAdapter={iteAdapter}
+          userId={user?.uid}
+          rawMetrics={dailyMetrics}
+        />
+      )}
     </div>
   );
 }

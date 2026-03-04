@@ -1,0 +1,130 @@
+PHASE 29: Avatar Body Responsiveness Debug + Correction (No More Guessing)
+
+Problem:
+Across intentionally “bad metrics” test accounts, body composition appears identical to a high-performing account, even after Phase 26 calibration. Face responsiveness works, but body does not.
+
+We must identify the true cause with explicit diagnostics, then fix it at the correct layer.
+
+Constraints:
+- Do NOT redesign UI.
+- Do NOT change the avatar renderer geometry again unless needed.
+- This phase is about tracing the data pipeline and ensuring body type is driven by the correct inputs per account.
+
+-----------------------------------------
+A) ADD A DEV-ONLY AVATAR DIAGNOSTICS PANEL
+-----------------------------------------
+
+Implement a dev-only toggle (e.g., query param ?debugAvatar=1 or a small hidden click area) that displays the following values on the Avatar screen ONLY when enabled:
+
+1) Source flags:
+- hasITECurrentTraits: true/false
+- hasFallbackMetrics: true/false
+- usingLegacyAvatarEffectsBridge: true/false
+
+2) Physical composition:
+- activityRaw (1–5)
+- nutritionRaw (1–5)
+- consistencyRaw (if available)
+- sleepRaw (1–5)
+- stressRaw (1–5)
+- PhysicalCompositionScore (0–100)
+- SelectedTier (Overweight/Soft/AverageFit/Lean/Muscular)
+- InterpolationFactor (0–1)
+
+3) Final body params (the ones that actually drive geometry):
+- shoulderWidth
+- chestSize
+- waistTaper
+- hipWidth
+- armThickness
+- legThickness
+
+4) Confirm that these params differ between accounts.
+
+No console spam. Show inline text only when debug enabled.
+
+-----------------------------------------
+B) VERIFY ACCOUNT ISOLATION (PERSISTENCE BUG CHECK)
+-----------------------------------------
+
+We suspect localStorage or cached state may cause multiple accounts to share the same avatar body inputs.
+
+Implement verification:
+1) Show current user/account identifier on the debug panel (whatever unique ID exists).
+2) Confirm that metric storage keys are per-user and not shared globally.
+3) Confirm that any cached avatar state is not being reused across accounts.
+
+If shared keys exist:
+- Fix storage to be namespaced by user ID (or profile ID).
+- Ensure switching accounts loads the correct distinct metric history and trait state.
+
+-----------------------------------------
+C) TRACE THE BODY INPUT PIPELINE END-TO-END
+-----------------------------------------
+
+Add explicit tracing inside the mapping layer (debug only) that records:
+
+- What input object is used to compute PhysicalCompositionScore
+- Whether any values were undefined and replaced by defaults
+- Whether the system is accidentally using:
+  avatarEffects defaults, placeholder metrics, or a hardcoded "3" for missing fields
+
+If missing values are being defaulted to mid/high values:
+- Fix the pipeline so missing values do NOT default to “average fit.”
+- Missing values should either:
+  (a) use true stored user metrics, or
+  (b) show an onboarding prompt to log data rather than faking a body type
+
+-----------------------------------------
+D) FIX THE ROOT CAUSE (BASED ON FINDINGS)
+-----------------------------------------
+
+Once diagnostics reveal the actual cause, apply the minimal fix, likely one of:
+
+1) Incorrect normalization (1–5 scale treated as 0–1 or inverted)
+2) Wrong data source (using legacy avatarEffects instead of raw metrics/ITE)
+3) Default substitution (undefined metrics replaced by “3” everywhere)
+4) Shared persistence between accounts (global localStorage keys)
+5) Tier selection not using PhysicalCompositionScore but another composite
+
+Body parameters must be driven ONLY by PhysicalCompositionScore, not emotional traits.
+
+-----------------------------------------
+E) VALIDATION SCENARIOS (REQUIRED)
+-----------------------------------------
+
+Using the debug panel, validate 3 real test accounts:
+
+1) Excellent account:
+- PhysicalCompositionScore high
+- Tier Lean/Muscular
+- waist narrower than shoulders
+- thicker arms/legs
+
+2) Poor account:
+- PhysicalCompositionScore low
+- Tier Soft/Overweight
+- waist wider, shoulders narrower
+- arms/legs thinner or softer as defined
+
+3) Mixed account:
+- PhysicalCompositionScore medium-high
+- Tier AverageFit→Lean
+- face tense if stress high
+
+Confirm: The debug panel values differ clearly across accounts.
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+
+1) We can see, on-screen, exactly what scores/tiers/params each account is using.
+2) Bad accounts produce meaningfully different PhysicalCompositionScore and tier from excellent accounts.
+3) Body parameters differ across accounts, not just face.
+4) Account switching does not reuse previous account’s body inputs.
+5) Build passes cleanly.
+
+Return:
+- The identified root cause
+- The specific fix applied
+- Example debug readouts for Excellent vs Poor accounts

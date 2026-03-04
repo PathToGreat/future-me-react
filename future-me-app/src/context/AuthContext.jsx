@@ -9,6 +9,7 @@ import {
 import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 import { getDefaultLifeZones } from '../utils/lifeZoneEngine';
+import { setStorageUserId } from '../components/SkinToneSelector';
 
 const AuthContext = createContext({});
 
@@ -26,6 +27,7 @@ export const AuthProvider = ({ children }) => {
     
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      setStorageUserId(currentUser?.uid || null);
       
       if (currentUser) {
         console.log('🔄 Setting up real-time listener for user:', currentUser.uid);

@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import { SKIN_TONE_PALETTE } from '../avatar/avatarParams';
 
+let _currentUserId = null;
+
+export function setStorageUserId(uid) {
+  _currentUserId = uid || null;
+}
+
+function storageKey(base) {
+  return _currentUserId ? `${base}_${_currentUserId}` : base;
+}
+
 const STORAGE_KEY = 'futureme_skin_tone';
 const HAIR_STORAGE_KEY = 'futureme_hair_style';
 const HAIR_COLOR_STORAGE_KEY = 'futureme_hair_color';
@@ -27,7 +37,7 @@ export { HAIR_COLOR_PALETTE };
 
 export function loadSkinTone() {
   try {
-    return localStorage.getItem(STORAGE_KEY) || null;
+    return localStorage.getItem(storageKey(STORAGE_KEY)) || null;
   } catch {
     return null;
   }
@@ -35,7 +45,7 @@ export function loadSkinTone() {
 
 export function loadHairStyle() {
   try {
-    return localStorage.getItem(HAIR_STORAGE_KEY) || 'none';
+    return localStorage.getItem(storageKey(HAIR_STORAGE_KEY)) || 'none';
   } catch {
     return 'none';
   }
@@ -43,7 +53,7 @@ export function loadHairStyle() {
 
 export function loadHairColor() {
   try {
-    return localStorage.getItem(HAIR_COLOR_STORAGE_KEY) || 'darkBrown';
+    return localStorage.getItem(storageKey(HAIR_COLOR_STORAGE_KEY)) || 'darkBrown';
   } catch {
     return 'darkBrown';
   }
@@ -77,9 +87,9 @@ export default function SkinToneSelector({ onSkinToneChange, onHairStyleChange, 
     setSelected(newVal);
     try {
       if (newVal) {
-        localStorage.setItem(STORAGE_KEY, newVal);
+        localStorage.setItem(storageKey(STORAGE_KEY), newVal);
       } else {
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(storageKey(STORAGE_KEY));
       }
     } catch {}
     if (onSkinToneChange) onSkinToneChange(newVal);
@@ -88,7 +98,7 @@ export default function SkinToneSelector({ onSkinToneChange, onHairStyleChange, 
   const handleHairChange = (id) => {
     setHairStyle(id);
     try {
-      localStorage.setItem(HAIR_STORAGE_KEY, id);
+      localStorage.setItem(storageKey(HAIR_STORAGE_KEY), id);
     } catch {}
     if (onHairStyleChange) onHairStyleChange(id);
   };
@@ -96,7 +106,7 @@ export default function SkinToneSelector({ onSkinToneChange, onHairStyleChange, 
   const handleHairColorChange = (id) => {
     setHairColor(id);
     try {
-      localStorage.setItem(HAIR_COLOR_STORAGE_KEY, id);
+      localStorage.setItem(storageKey(HAIR_COLOR_STORAGE_KEY), id);
     } catch {}
     if (onHairColorChange) onHairColorChange(id);
   };

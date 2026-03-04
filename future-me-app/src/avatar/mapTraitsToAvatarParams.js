@@ -12,7 +12,7 @@ const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
 const PROJECTION_BLEND = 0.35;
 
-function computePhysicalCompositionScore(metrics) {
+export function computePhysicalCompositionScore(metrics) {
   const act = clamp((metrics.activity - 1) / 4, 0, 1);
   const nut = clamp((metrics.nutrition - 1) / 4, 0, 1);
   const slp = clamp((metrics.sleep - 1) / 4, 0, 1);
@@ -363,4 +363,4 @@ export function diagnosticAvatarProfile(metrics, gender, label) {
 
 function round4(v) { return Math.round(v * 10000) / 10000; }
 
-export { computePhysicalCompositionScore };
+
