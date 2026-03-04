@@ -30,7 +30,7 @@ outputType = "webview"
 [deployment]
 deploymentTarget = "static"
 publicDir = "future-me-app/dist"
-run = ["sh", "-c", "npx serve -s simple-test -l 5000"]
+run = ["sh", "-c", "npx serve -s future-me-app/dist -l 5000"]
 build = ["bash", "-c", "cd future-me-app && npm install && npm run build"]
 
 [[ports]]
