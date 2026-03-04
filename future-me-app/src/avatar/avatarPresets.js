@@ -1,52 +1,52 @@
 const PRESETS = {
   Overweight: {
-    shoulderWidth: 0.56,
-    chestSize: 0.6,
-    waistTaper: 0.15,
-    hipWidth: 0.62,
-    armThickness: 0.58,
-    legThickness: 0.6,
-    neckThickness: 0.48,
-    headScale: 0.54
+    shoulderWidth: 0.48,
+    chestSize: 0.65,
+    waistTaper: 0.10,
+    hipWidth: 0.68,
+    armThickness: 0.62,
+    legThickness: 0.64,
+    neckThickness: 0.42,
+    headScale: 0.55
   },
   Soft: {
-    shoulderWidth: 0.5,
-    chestSize: 0.52,
-    waistTaper: 0.32,
-    hipWidth: 0.55,
-    armThickness: 0.5,
-    legThickness: 0.52,
-    neckThickness: 0.5,
-    headScale: 0.52
+    shoulderWidth: 0.46,
+    chestSize: 0.55,
+    waistTaper: 0.25,
+    hipWidth: 0.58,
+    armThickness: 0.52,
+    legThickness: 0.54,
+    neckThickness: 0.40,
+    headScale: 0.53
   },
   AverageFit: {
     shoulderWidth: 0.55,
-    chestSize: 0.5,
-    waistTaper: 0.5,
-    hipWidth: 0.48,
-    armThickness: 0.45,
-    legThickness: 0.48,
-    neckThickness: 0.45,
-    headScale: 0.5
+    chestSize: 0.48,
+    waistTaper: 0.48,
+    hipWidth: 0.47,
+    armThickness: 0.42,
+    legThickness: 0.46,
+    neckThickness: 0.42,
+    headScale: 0.50
   },
   LeanAthletic: {
-    shoulderWidth: 0.62,
-    chestSize: 0.48,
-    waistTaper: 0.7,
-    hipWidth: 0.4,
-    armThickness: 0.38,
-    legThickness: 0.42,
-    neckThickness: 0.4,
+    shoulderWidth: 0.66,
+    chestSize: 0.44,
+    waistTaper: 0.72,
+    hipWidth: 0.38,
+    armThickness: 0.34,
+    legThickness: 0.38,
+    neckThickness: 0.38,
     headScale: 0.48
   },
   MuscularAthletic: {
-    shoulderWidth: 0.82,
-    chestSize: 0.75,
-    waistTaper: 0.72,
-    hipWidth: 0.48,
-    armThickness: 0.7,
-    legThickness: 0.65,
-    neckThickness: 0.6,
+    shoulderWidth: 0.85,
+    chestSize: 0.78,
+    waistTaper: 0.74,
+    hipWidth: 0.52,
+    armThickness: 0.72,
+    legThickness: 0.62,
+    neckThickness: 0.58,
     headScale: 0.52
   }
 };
@@ -54,11 +54,11 @@ const PRESETS = {
 const TIER_ORDER = ['Overweight', 'Soft', 'AverageFit', 'LeanAthletic', 'MuscularAthletic'];
 
 const TIER_BOUNDARIES = [
-  { tier: 'Overweight',       min: 0,   max: 20  },
-  { tier: 'Soft',             min: 20,  max: 40  },
-  { tier: 'AverageFit',       min: 40,  max: 60  },
-  { tier: 'LeanAthletic',     min: 60,  max: 80  },
-  { tier: 'MuscularAthletic', min: 80,  max: 100 }
+  { tier: 'Overweight',       min: 0,   max: 30  },
+  { tier: 'Soft',             min: 30,  max: 50  },
+  { tier: 'AverageFit',       min: 50,  max: 70  },
+  { tier: 'LeanAthletic',     min: 70,  max: 85  },
+  { tier: 'MuscularAthletic', min: 85,  max: 100 }
 ];
 
 const FEMALE_ADJUSTMENTS = {
@@ -135,10 +135,10 @@ export function getTierInterpolation(physicalScore) {
 }
 
 export function selectPresetFromScore(score) {
-  if (score >= 80) return 'MuscularAthletic';
-  if (score >= 60) return 'LeanAthletic';
-  if (score >= 40) return 'AverageFit';
-  if (score >= 20) return 'Soft';
+  if (score >= 85) return 'MuscularAthletic';
+  if (score >= 70) return 'LeanAthletic';
+  if (score >= 50) return 'AverageFit';
+  if (score >= 30) return 'Soft';
   return 'Overweight';
 }
 

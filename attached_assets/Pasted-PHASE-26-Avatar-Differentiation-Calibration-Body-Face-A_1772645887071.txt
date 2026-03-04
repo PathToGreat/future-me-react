@@ -1,0 +1,140 @@
+PHASE 26: Avatar Differentiation Calibration (Body + Face) Across Accounts
+
+Problem:
+Across multiple test accounts with intentionally poor metrics, the avatar body composition and facial expression look nearly the same as a high-performing account. This makes the system feel unresponsive.
+
+We are NOT changing UI.
+We are NOT changing the overall architecture.
+We are calibrating mapping so differences become visibly meaningful while remaining realistic.
+
+Goal:
+Bad inputs must create a visibly different body composition and facial expression than good inputs, even before long history exists, without exaggeration.
+
+-----------------------------------------
+A) DIAGNOSE WHERE COMPRESSION IS HAPPENING
+-----------------------------------------
+
+Add a lightweight internal diagnostic (no console spam in production) to confirm:
+
+- PhysicalCompositionScore per account
+- Selected preset tier
+- Key body params (waistTaper, shoulderWidth, armThickness, legThickness)
+- EmotionalStability / stress-derived values
+- facialTension, postureLean, vibrancy, energyGlow
+- projectionConfidence tier
+
+This is to verify whether:
+1) Scores are too similar (scoring compression)
+or
+2) Visual mapping is too dampened (mapping compression)
+
+-----------------------------------------
+B) INCREASE BODY DIFFERENTIATION WITHOUT EXAGGERATION
+-----------------------------------------
+
+Current issue:
+PhysicalCompositionScore bands + preset deltas are too compressed, so many users fall into similar-looking tiers.
+
+Fix requirements:
+1) Adjust score band thresholds so tiers separate more clearly.
+   Example target structure (tunable):
+   - 0–30 Overweight
+   - 30–50 Soft
+   - 50–70 AverageFit
+   - 70–85 LeanAthletic
+   - 85–100 MuscularAthletic
+
+2) Slightly increase geometric separation between presets, focusing on:
+   - waistTaper (most noticeable)
+   - shoulderWidth (second)
+   - armThickness and legThickness (third)
+   - chestSize and hipWidth (subtle)
+
+3) Preserve realism constraints from bodyConstraints.js.
+
+4) Ensure female presets remain capable of muscular/lean outcomes (no suppression).
+
+Success:
+An intentionally “bad” account lands in Soft/Overweight and looks meaningfully different than Muscular/Lean accounts.
+
+-----------------------------------------
+C) MAKE FACE STATES MORE READABLE
+-----------------------------------------
+
+Current issue:
+Facial expression is too neutral across the middle range.
+
+Fix requirements:
+1) Increase expressiveness slightly, but stay subtle.
+2) Ensure stress scale remains correct: 1 calm → 5 very stressed.
+3) Expand differentiation especially between:
+   - calm (stress 1–2) → relaxed eyes/brows/mouth
+   - neutral (stress ~3) → neutral mouth, normal brows
+   - stressed (stress 4–5 or low emotional stability) → mild brow tension, flatter mouth
+
+4) Keep “no shame” tone: never angry, never grotesque, never sickly.
+
+Success:
+A calm account looks calm, a stressed account looks meaningfully tenser.
+
+-----------------------------------------
+D) PROJECTION CONFIDENCE SHOULD NOT FLATTEN CURRENT VIEW
+-----------------------------------------
+
+Important:
+ProjectionConfidence gating is correct for FUTURE deltas, but CURRENT avatar should reflect CURRENT inputs.
+
+Fix requirement:
+1) Ensure projectionConfidence dampening only affects FUTURE projection deltas.
+2) Current avatar should always use present mapping without being capped by confidence tiers.
+3) Future avatar still respects LOW/MEDIUM/HIGH gating.
+
+Success:
+A new user with poor CURRENT metrics still looks meaningfully different in CURRENT view. FUTURE remains guarded.
+
+-----------------------------------------
+E) TEST MATRIX (REQUIRED)
+-----------------------------------------
+
+Create a simple test harness validation (can be dev-only) with 4 synthetic profiles:
+
+1) Excellent:
+   activity=5 nutrition=5 consistency=high sleep=4 stress=1–2
+2) Average:
+   activity=3 nutrition=3 consistency=medium sleep=3 stress=3
+3) Poor:
+   activity=1–2 nutrition=1–2 consistency=low sleep=2 stress=4
+4) Mixed:
+   activity=5 nutrition=2 consistency=high sleep=2 stress=4
+
+For each profile, confirm:
+- Tier selection differs appropriately
+- Body params differ visibly but realistically
+- Face expression differs appropriately
+- Male and female both behave correctly
+
+-----------------------------------------
+FILES LIKELY TO CHANGE
+-----------------------------------------
+avatarPresets.js (preset deltas)
+mapTraitsToAvatarParams.js (thresholds + mapping calibration)
+projectionConfidence.js or usage sites (ensure only FUTURE is gated)
+HumanAvatarRenderer.jsx (only if face feature mapping needs tiny adjustment)
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+
+1) Good vs bad accounts produce clearly different bodies in CURRENT view.
+2) Calm vs stressed accounts produce clearly different faces.
+3) FUTURE view remains confidence-gated.
+4) No UI changes.
+5) No regressions to constraints or gender robustness.
+6) Build passes cleanly.
+
+Return:
+- What was causing the similarity (scores vs mapping vs gating)
+- Updated tier bands
+- Updated preset deltas summary
+- Confirmation CURRENT is not dampened by projectionConfidence
+- Test matrix results

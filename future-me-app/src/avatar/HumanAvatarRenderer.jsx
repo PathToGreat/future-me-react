@@ -346,11 +346,11 @@ function FaceFeatures({ g, facialTension, skinColors }) {
   const browY = eyeY - 7;
 
   const tension = facialTension || 0;
-  const browAngle = tension * 3;
-  const eyeOpenness = lerp(5, 3.8, tension);
+  const browAngle = tension * 6;
+  const eyeOpenness = lerp(5.2, 3.4, tension);
   const mouthY = headCy + 10;
 
-  const mouthCurve = lerp(2.5, -1.5, tension);
+  const mouthCurve = lerp(3, -2.5, tension);
 
   return (
     <g>

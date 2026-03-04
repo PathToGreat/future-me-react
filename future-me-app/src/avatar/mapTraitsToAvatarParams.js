@@ -35,7 +35,7 @@ function computeEmotionalVisualParams(traits) {
   const vit = extractTraitScore(traits.vitality);
 
   const rawTension = 1 - emo / 100;
-  const facialTension = clamp(rawTension * rawTension, 0, 1);
+  const facialTension = clamp(rawTension * rawTension * 1.15, 0, 1);
 
   return {
     vibrancy: clamp(vit / 100, 0, 1),
@@ -96,7 +96,7 @@ export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbac
     if (!hasCurrentTraits) {
       const str = fallbackMetrics.stress ?? 3;
       const rawStressTension = clamp((str - 1) / 4, 0, 1);
-      const stressTension = rawStressTension * rawStressTension;
+      const stressTension = clamp(rawStressTension * rawStressTension * 1.15, 0, 1);
       emotionalParams = {
         vibrancy: clamp(physicalScore / 100, 0, 1),
         energyGlow: clamp((act - 1) / 4, 0, 1) * 0.7 + clamp((slp - 1) / 4, 0, 1) * 0.3,
@@ -267,5 +267,50 @@ export function computePhotoOverlayState(iteResult, isFuture) {
     underEyeIntensity: clamp((100 - futRes) / 250 - Math.max(0, resDelta * 0.002), 0, 0.15)
   };
 }
+
+export function diagnosticAvatarProfile(metrics, gender, label) {
+  const act = metrics.activity ?? 3;
+  const nut = metrics.nutrition ?? 3;
+  const slp = metrics.sleep ?? 3;
+  const str = metrics.stress ?? 3;
+  const consistency = metrics.consistency ?? 0.5;
+
+  const physicalScore = computePhysicalCompositionScore({ activity: act, nutrition: nut, sleep: slp, consistency });
+
+  const rawStressTension = clamp((str - 1) / 4, 0, 1);
+  const facialTension = clamp(rawStressTension * rawStressTension * 1.15, 0, 1);
+  const vibrancy = clamp(physicalScore / 100, 0, 1);
+  const energyGlow = clamp((act - 1) / 4, 0, 1) * 0.7 + clamp((slp - 1) / 4, 0, 1) * 0.3;
+  const postureLean = clamp(((clamp((act - 1) / 4, 0, 1) + clamp((nut - 1) / 4, 0, 1)) / 2) * 2 - 1, -1, 1);
+
+  const params = buildBodyParams(physicalScore, { vibrancy, energyGlow, facialTension, postureLean }, gender, null);
+
+  const { lowerTier, upperTier, t } = getTierInterpolation(physicalScore);
+  const confidence = computeProjectionConfidence(null);
+
+  return {
+    label,
+    gender,
+    physicalScore: Math.round(physicalScore * 10) / 10,
+    tier: `${lowerTier} → ${upperTier} (t=${t.toFixed(3)})`,
+    bodyParams: {
+      waistTaper: round4(params.waistTaper),
+      shoulderWidth: round4(params.shoulderWidth),
+      armThickness: round4(params.armThickness),
+      legThickness: round4(params.legThickness),
+      chestSize: round4(params.chestSize),
+      hipWidth: round4(params.hipWidth)
+    },
+    emotionalParams: {
+      facialTension: round4(facialTension),
+      postureLean: round4(postureLean),
+      vibrancy: round4(vibrancy),
+      energyGlow: round4(energyGlow)
+    },
+    projectionConfidence: confidence.tier
+  };
+}
+
+function round4(v) { return Math.round(v * 10000) / 10000; }
 
 export { computePhysicalCompositionScore };
