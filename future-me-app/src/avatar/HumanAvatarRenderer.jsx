@@ -383,6 +383,67 @@ function FaceFeatures({ g, facialTension, skinColors }) {
 }
 
 
+function AnatomicalDepthLayer({ g }) {
+  const { cx, shoulderHalf, shoulderY, neckBottom, waistY, armW, armLen } = g;
+  const collarboneY = neckBottom + 2;
+  const shoulderPlaneY = shoulderY + 4;
+  const hw = (armW || 12) / 2;
+
+  const leftArmInnerX = cx - shoulderHalf + hw * 0.3;
+  const rightArmInnerX = cx + shoulderHalf - hw * 0.3;
+  const armTopY = shoulderY + 3;
+  const armMidY = armTopY + (armLen || 67) * 0.5;
+
+  return (
+    <g>
+      <path
+        d={`
+          M ${cx - shoulderHalf * 0.6} ${shoulderPlaneY}
+          Q ${cx} ${shoulderPlaneY - 3} ${cx + shoulderHalf * 0.6} ${shoulderPlaneY}
+        `}
+        stroke="white"
+        strokeWidth="1"
+        fill="none"
+        opacity="0.07"
+        strokeLinecap="round"
+      />
+
+      <path
+        d={`
+          M ${cx - shoulderHalf * 0.35} ${collarboneY}
+          Q ${cx - shoulderHalf * 0.15} ${collarboneY + 2} ${cx} ${collarboneY + 3}
+          Q ${cx + shoulderHalf * 0.15} ${collarboneY + 2} ${cx + shoulderHalf * 0.35} ${collarboneY}
+        `}
+        stroke="black"
+        strokeWidth="0.8"
+        fill="none"
+        opacity="0.06"
+        strokeLinecap="round"
+      />
+
+      <ellipse
+        cx={cx}
+        cy={(shoulderY + waistY) / 2}
+        rx={shoulderHalf * 0.25}
+        ry={(waistY - shoulderY) * 0.35}
+        fill="white"
+        opacity="0.04"
+      />
+
+      <line
+        x1={leftArmInnerX} y1={armTopY + 5}
+        x2={leftArmInnerX + 2} y2={armMidY}
+        stroke="black" strokeWidth="0.6" opacity="0.05" strokeLinecap="round"
+      />
+      <line
+        x1={rightArmInnerX} y1={armTopY + 5}
+        x2={rightArmInnerX - 2} y2={armMidY}
+        stroke="black" strokeWidth="0.6" opacity="0.05" strokeLinecap="round"
+      />
+    </g>
+  );
+}
+
 function GlowLayer({ g, energyGlow, color }) {
   if (energyGlow < 0.4) return null;
   const { cx } = g;
@@ -452,6 +513,7 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
           <path d={torsoPath} fill={`url(#${bodyGradId})`} />
           <path d={leftArmPath} fill={`url(#${bodyGradId})`} />
           <path d={rightArmPath} fill={`url(#${bodyGradId})`} />
+          <AnatomicalDepthLayer g={g} />
           {hairStyle === 'long' && <LongHairBackLayer g={g} hairColors={resolvedHairColors} />}
           <g style={skinFilterStyle}>
             <path d={neckPath} fill={`url(#${skinGradId})`} />
@@ -498,6 +560,8 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
 
         <motion.path d={leftArmPath} fill={`url(#${bodyGradId})`} />
         <motion.path d={rightArmPath} fill={`url(#${bodyGradId})`} />
+
+        <AnatomicalDepthLayer g={g} />
 
         {hairStyle === 'long' && <LongHairBackLayer g={g} hairColors={resolvedHairColors} />}
 

@@ -276,7 +276,7 @@ export default function FutureAvatar({
         }}
         className="relative"
       >
-        {aura.rings > 0 && (
+        {!USE_HUMAN_AVATAR_V2 && aura.rings > 0 && (
           <>
             {[...Array(aura.rings)].map((_, i) => (
               <motion.div
@@ -299,48 +299,51 @@ export default function FutureAvatar({
           </>
         )}
 
-        <motion.div
-          animate={{
-            scale: glowAnim.scale,
-            opacity: glowAnim.opacity,
-          }}
-          transition={{
-            duration: glowAnim.duration,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute inset-0 rounded-full blur-2xl"
-          style={{
-            background: `radial-gradient(circle, ${colors.glow} 0%, transparent 70%)`,
-            transform: 'scale(1.5)',
-          }}
-        />
-
-        <PostureLayer 
-          postureState={avatarEffects.postureState}
-          color={colors.body}
-        />
-
-        {showSvgAvatar && (
-          <FacialExpressionLayer
-            emotionState={avatarEffects.emotionState}
-            facialOverlays={avatarEffects.facialOverlays}
-            color={colors.body}
+        {!USE_HUMAN_AVATAR_V2 && (
+          <motion.div
+            animate={{
+              scale: glowAnim.scale,
+              opacity: glowAnim.opacity,
+            }}
+            transition={{
+              duration: glowAnim.duration,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            className="absolute inset-0 rounded-full blur-2xl"
+            style={{
+              background: `radial-gradient(circle, ${colors.glow} 0%, transparent 70%)`,
+              transform: 'scale(1.5)',
+            }}
           />
         )}
 
-        {showSvgAvatar && (
-          <EnergyGlowLayer
-            energyPulse={avatarEffects.energyPulse}
-            color={colors.glow}
-          />
-        )}
-
-        {showSvgAvatar && (
-          <BodyCompositionLayer
-            bodyComposition={avatarEffects.bodyComposition}
-            color={colors.body}
-          />
+        {!USE_HUMAN_AVATAR_V2 && (
+          <>
+            <PostureLayer 
+              postureState={avatarEffects.postureState}
+              color={colors.body}
+            />
+            {showSvgAvatar && (
+              <FacialExpressionLayer
+                emotionState={avatarEffects.emotionState}
+                facialOverlays={avatarEffects.facialOverlays}
+                color={colors.body}
+              />
+            )}
+            {showSvgAvatar && (
+              <EnergyGlowLayer
+                energyPulse={avatarEffects.energyPulse}
+                color={colors.glow}
+              />
+            )}
+            {showSvgAvatar && (
+              <BodyCompositionLayer
+                bodyComposition={avatarEffects.bodyComposition}
+                color={colors.body}
+              />
+            )}
+          </>
         )}
 
         <AnimatePresence mode="wait">
@@ -418,7 +421,7 @@ export default function FutureAvatar({
               transition={{ duration: 0.35, ease: 'easeOut' }}
               className="relative z-10"
             >
-              <div style={getGlowOverlayStyle(avatarEffects.glowIntensity, colors.glow)} />
+              {!USE_HUMAN_AVATAR_V2 && <div style={getGlowOverlayStyle(avatarEffects.glowIntensity, colors.glow)} />}
               {USE_HUMAN_AVATAR_V2 && humanAvatarParams ? (
                 <HumanAvatarRenderer
                   params={humanAvatarParams}
@@ -608,10 +611,10 @@ export default function FutureAvatar({
                   )}
                 </svg>
               )}
-              <div 
+              {!USE_HUMAN_AVATAR_V2 && <div 
                 style={getDarknessOverlayStyle(avatarEffects.darknessOverlay)} 
                 className="absolute inset-0 rounded-2xl pointer-events-none" 
-              />
+              />}
             </motion.div>
           )}
         </AnimatePresence>

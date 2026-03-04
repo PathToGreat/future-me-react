@@ -1,0 +1,125 @@
+PHASE 25: Remove Remaining Avatar Halo + Add Subtle Anatomical Depth
+
+Context:
+The avatar renderer is now structurally correct and clean, but two improvements remain:
+
+1) A large faint oval/halo shape still appears behind the avatar. This appears to originate from container styling rather than the SVG renderer.
+2) The avatar silhouette is correct, but the body still reads slightly flat. We want subtle anatomical depth cues to make the figure feel more human while staying minimalist.
+
+This phase is the final visual cleanup and realism pass.
+
+Do NOT change the avatar engine logic.
+Do NOT change trait mapping or projections.
+Do NOT redesign the UI.
+
+-----------------------------------------
+A) REMOVE THE LARGE HALO BEHIND THE AVATAR
+-----------------------------------------
+
+Problem:
+A large faint oval or halo shape is visible behind the avatar card.
+
+This is not part of the HumanAvatarRenderer and likely originates from:
+
+• radial-gradient backgrounds
+• backdrop-filter blur layers
+• pseudo elements (::before / ::after)
+• oversized box-shadows
+• decorative glow wrappers
+
+Audit the avatar container in:
+
+AvatarScreen.jsx  
+FutureAvatar.jsx  
+FutureMeAvatar.jsx  
+Avatar card wrapper styles  
+
+Remove any halo, radial gradient, blur, or decorative glow layer.
+
+Desired result:
+
+The avatar sits cleanly inside the card with:
+• normal card background
+• subtle shadow only if needed
+• no glowing oval or decorative halo
+
+-----------------------------------------
+B) ADD SUBTLE ANATOMICAL DEPTH CUES
+-----------------------------------------
+
+Goal:
+Improve realism without making the avatar complex.
+
+Add very subtle structural hints to the body silhouette.
+
+These should be extremely light and low-opacity.
+
+Implement the following visual cues:
+
+1) Shoulder plane hint
+A faint curved highlight across the upper chest/shoulder line that suggests the clavicle/shoulder plane.
+
+2) Collarbone suggestion
+A very subtle shallow line or gradient under the neck indicating collarbone structure.
+
+3) Torso depth gradient
+Apply a gentle vertical or radial gradient across the torso so the center reads slightly lighter than the sides.
+
+4) Arm taper shading
+Add minimal shading along the inner arm edge so arms read cylindrical instead of flat.
+
+Rules:
+
+• opacity must remain very low (barely noticeable)
+• must work across all skin tones
+• must not look like drawn muscles
+• must never overpower the clean silhouette
+
+These cues should only add depth perception.
+
+-----------------------------------------
+C) PRESERVE EXISTING FEATURES
+-----------------------------------------
+
+Do not modify or break:
+
+• hair layering
+• hair colors
+• skin tone system
+• posture animation
+• face rendering
+• projection mapping
+• MiniAvatarPreview renderer
+
+All existing avatar behavior must remain intact.
+
+-----------------------------------------
+D) VERIFY VISUAL STABILITY
+-----------------------------------------
+
+After changes verify:
+
+• no halo behind the avatar
+• no ghost silhouettes
+• hair still renders correctly
+• face expressions still map correctly
+• gradients or highlights do not distort darker skin tones
+• avatar still reads clean at small preview sizes
+
+-----------------------------------------
+SUCCESS CRITERIA
+-----------------------------------------
+
+1) The halo behind the avatar is completely removed.
+2) Avatar sits cleanly on the card background.
+3) Subtle anatomical depth cues make the body feel slightly more dimensional.
+4) The avatar remains minimalist and readable.
+5) No regressions occur.
+6) Build passes cleanly.
+
+Return:
+
+• the file where the halo originated
+• what styling created it
+• confirmation it was removed
+• summary of the anatomical depth cues added
