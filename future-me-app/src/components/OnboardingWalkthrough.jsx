@@ -13,7 +13,7 @@ const WALKTHROUGH_STEPS = [
   {
     id: 'metrics',
     title: 'Log Your Daily Metrics',
-    description: 'This is where you log your daily sleep, nutrition, stress, hydration, activity, and more. Daily logs drive your avatar and insights.',
+    description: 'This is where you log your daily sleep, nutrition, stress, activity, and more. Daily logs drive your avatar and insights.',
     icon: '📊',
     highlight: 'metrics',
     position: 'bottom'

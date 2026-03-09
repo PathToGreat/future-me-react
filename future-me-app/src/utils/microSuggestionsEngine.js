@@ -43,8 +43,7 @@ const PTG_SUGGESTION_TEMPLATES = {
       "Movement rhythm today differs from baseline. Adapting routines like this requires self-discipline."
     ],
     combined: {
-      lowSleep: "Low sleep + moderate activity affected morning energy. Observing patterns like this takes self-awareness.",
-      goodHydration: "Hydration and activity aligned with energy levels. Tracking interactions takes attentiveness."
+      lowSleep: "Low sleep + moderate activity affected morning energy. Observing patterns like this takes self-awareness."
     }
   },
 
@@ -59,10 +58,9 @@ const PTG_SUGGESTION_TEMPLATES = {
     ],
     improving: [
       "Nutrition intake slightly better than yesterday. Noticing incremental improvements takes awareness.",
-      "Nutrition synergy with hydration noted. Tracking positive interactions takes persistence."
+      "Nutrition quality was one of the stronger inputs today. Tracking positive patterns takes persistence."
     ],
     combined: {
-      goodHydration: "High nutrition + proper hydration created positive synergy today. That reflects thoughtful consistency.",
       goodActivity: "Nutrition intake balanced with activity today. Observing these synergies takes self-reflection."
     }
   },
@@ -80,18 +78,6 @@ const PTG_SUGGESTION_TEMPLATES = {
     improving: [
       "Stress level trending lower over past 3 days. Observing changes demonstrates consistency.",
       "Evening stress recovery shows delayed improvement. Noticing this trend takes self-reflection."
-    ]
-  },
-
-  hydration: {
-    belowBaseline: [
-      "Hydration slightly below baseline. Tracking this pattern shows attentiveness."
-    ],
-    consistent: [
-      "Hydration tracked accurately. Consistently logging water intake takes focus."
-    ],
-    good: [
-      "Hydration and activity aligned with energy levels. Tracking interactions takes attentiveness."
     ]
   },
 
@@ -145,9 +131,9 @@ const PTG_SUGGESTION_TEMPLATES = {
       "Morning energy aligned with sleep score. Tracking these interactions takes persistence."
     ],
     balancedPositive: [
-      "High nutrition + proper hydration created positive synergy today. That reflects thoughtful consistency.",
-      "Nutrition intake balanced with activity today. Observing these synergies takes self-reflection.",
-      "Hydration and activity aligned with energy levels. Tracking interactions takes attentiveness."
+      "Nutrition and activity aligned today. Observing these synergies takes self-reflection.",
+      "Nutrition intake balanced with activity today. Tracking combined patterns takes persistence.",
+      "Activity and nutrition both met or exceeded baseline. Consistent logging takes discipline."
     ],
     multipleStressors: [
       "Multiple areas show signs of strain today. Tracking these patterns takes awareness and discipline.",
@@ -170,7 +156,6 @@ const METRIC_SOURCE_LABELS = {
   activity: 'Based on your activity log today',
   nutrition: 'Based on your nutrition log today',
   stress: 'Based on your stress log today',
-  hydration: 'Based on your hydration log today',
   emotional: 'Based on your emotional log today',
   faith: 'Based on your faith practice today',
   energy: 'Based on your energy log today',
@@ -328,7 +313,6 @@ function detectCombinedPatterns(currentLog, baseline, avg7Day) {
   const activity = currentLog.activity;
   const nutrition = currentLog.nutrition;
   const stress = currentLog.stress;
-  const hydration = currentLog.hydration;
   
   const baselineSleep = baseline?.sleep;
   const baselineActivity = baseline?.activity;
@@ -384,17 +368,11 @@ function detectCombinedPatterns(currentLog, baseline, avg7Day) {
     patterns.push('weekendContext');
   }
   
-  const loggedMetrics = ['sleep', 'activity', 'nutrition', 'stress', 'hydration'].filter(
+  const loggedMetrics = ['sleep', 'activity', 'nutrition', 'stress'].filter(
     metric => currentLog[metric] !== undefined && currentLog[metric] !== null
   );
-  if (loggedMetrics.length >= 4) {
+  if (loggedMetrics.length >= 3) {
     patterns.push('overallComplete');
-  }
-  
-  if (nutrition !== undefined && hydration !== undefined) {
-    if (nutrition >= (baselineNutrition || 3) && hydration >= (baseline?.hydration || 3)) {
-      patterns.push('nutritionHydrationSynergy');
-    }
   }
   
   return patterns;
@@ -477,7 +455,7 @@ function generateCombinedSuggestion(patterns, currentLog, baseline) {
     return getRandomTemplate(combinedTemplates.overallImproving);
   }
   
-  if (patterns.includes('balancedPositive') || patterns.includes('nutritionHydrationSynergy')) {
+  if (patterns.includes('balancedPositive')) {
     return getRandomTemplate(combinedTemplates.balancedPositive);
   }
   
@@ -486,24 +464,6 @@ function generateCombinedSuggestion(patterns, currentLog, baseline) {
   }
   
   return null;
-}
-
-function generateHydrationSuggestion(hydrationValue, baselineHydration, userId = 'default') {
-  const templates = SUGGESTION_TEMPLATES.hydration;
-  if (!templates) return null;
-  
-  if (hydrationValue === undefined || hydrationValue === null) return null;
-  
-  const baseline = baselineHydration || 3;
-  const templateValues = { current: hydrationValue, baseline };
-  
-  if (hydrationValue < baseline - 0.5) {
-    return getTemplateWithValues(templates.belowBaseline, templateValues, userId);
-  }
-  if (hydrationValue >= baseline) {
-    return getTemplateWithValues(templates.good, templateValues, userId);
-  }
-  return getTemplateWithValues(templates.consistent, templateValues, userId);
 }
 
 function generateFaithSuggestion(faithData, baseline, userId = 'default') {
@@ -598,7 +558,6 @@ export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []
       primary: null,
       secondary: null,
       combined: null,
-      hydration: null,
       metadata: { error: 'No current log data provided' }
     };
   }
@@ -609,8 +568,7 @@ export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []
     activity: calculateMovingAverage(last7DaysLogs, 'activity'),
     nutrition: calculateMovingAverage(last7DaysLogs, 'nutrition'),
     sleep: calculateMovingAverage(last7DaysLogs, 'sleep'),
-    stress: calculateMovingAverage(last7DaysLogs, 'stress'),
-    hydration: calculateMovingAverage(last7DaysLogs, 'hydration')
+    stress: calculateMovingAverage(last7DaysLogs, 'stress')
   };
   
   const patterns = detectCombinedPatterns(currentLog, baselineMetrics, avg7Day);
@@ -675,12 +633,6 @@ export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []
   
   const combinedSuggestion = generateCombinedSuggestion(patterns, currentLog, baselineMetrics);
   
-  const hydrationSuggestion = generateHydrationSuggestion(
-    currentLog.hydration, 
-    baselineMetrics.hydration,
-    userId
-  );
-  
   const faithSuggestion = generateFaithSuggestion(
     currentLog.faith || currentLog,
     baselineMetrics.faith || baselineMetrics,
@@ -710,7 +662,6 @@ export function generateMicroSuggestion(currentLog, baseline, last7DaysLogs = []
     primary: primarySuggestion,
     secondary: secondarySuggestion,
     combined: combinedSuggestion ? { text: combinedSuggestion, source: METRIC_SOURCE_LABELS.combined, patterns } : null,
-    hydration: hydrationSuggestion ? { text: hydrationSuggestion, source: METRIC_SOURCE_LABELS.hydration } : null,
     faith: faithSuggestion ? { text: faithSuggestion, source: METRIC_SOURCE_LABELS.faith } : null,
     emotional: emotionalSuggestion ? { text: emotionalSuggestion, source: METRIC_SOURCE_LABELS.emotional } : null,
     energy: energySuggestion ? { text: energySuggestion, source: METRIC_SOURCE_LABELS.energy } : null,
@@ -779,19 +730,6 @@ export function formatSuggestionForDisplay(suggestionResult) {
       source: secondary.source || METRIC_SOURCE_LABELS[secondary.metric] || null,
       comparison: secondary.comparison || 'consistent'
     });
-  }
-  
-  if (suggestionResult.hydration?.text) {
-    const hydrationDetail = {
-      type: 'hydration',
-      text: suggestionResult.hydration.text,
-      source: suggestionResult.hydration.source || METRIC_SOURCE_LABELS.hydration
-    };
-    expandedDetails.push(hydrationDetail);
-    if (!mainText) {
-      mainText = suggestionResult.hydration.text;
-      mainSource = hydrationDetail.source;
-    }
   }
   
   if (suggestionResult.faith?.text) {
@@ -881,7 +819,6 @@ export function getSuggestionIcon(metricType) {
     nutrition: '🥗',
     sleep: '💤',
     stress: '⚖️',
-    hydration: '💧',
     faith: '📖',
     emotional: '❤️',
     energy: '⭐',

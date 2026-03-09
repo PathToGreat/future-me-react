@@ -58,8 +58,8 @@
         "update_frequency": "daily",
         "affects_projection": true
       },
-      "hydration_nutrition": {
-        "inputs": ["hydration", "waterIntake", "sugarIntake", "caffeineIntake", "alcoholIntake", "mealCount", "vegetableServings", "proteinIntake"],
+      "nutrition_detail": {
+        "inputs": ["sugarIntake", "caffeineIntake", "alcoholIntake", "mealCount", "vegetableServings", "proteinIntake"],
         "update_frequency": "daily",
         "affects_projection": true
       },
@@ -98,7 +98,7 @@
     "all_inputs": [
       "sleep", "sleepQuality", "sleepDuration",
       "activity", "activityLevel", "steps", "activeMinutes", "workoutDuration",
-      "nutrition", "foodQuality", "hydration", "waterIntake", "sugarIntake",
+      "nutrition", "foodQuality", "sugarIntake",
       "stress", "stressLevel", "anxietyLevel",
       "mood", "energyMorning", "energyAfternoon", "energyEvening",
       "faithActions", "prayerTime", "scriptureReading", "gratitudePractice",

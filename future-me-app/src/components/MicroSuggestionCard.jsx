@@ -25,7 +25,15 @@ export default function MicroSuggestionCard({ suggestion, onViewInsights }) {
       const suggestionSnap = await getDoc(suggestionRef);
       
       if (suggestionSnap.exists()) {
-        setStoredSuggestion(suggestionSnap.data());
+        const data = suggestionSnap.data();
+        const hydrationPattern = /hydrat|water intake/i;
+        if (data.summary && hydrationPattern.test(data.summary)) {
+          data.summary = "Your metrics today are consistent with your patterns. Consistency supports long-term progress.";
+        }
+        if (data.details && Array.isArray(data.details)) {
+          data.details = data.details.filter(d => !hydrationPattern.test(d.text || ''));
+        }
+        setStoredSuggestion(data);
       }
     } catch (error) {
       console.error('Error loading stored suggestion:', error);
@@ -147,7 +155,6 @@ function formatZoneName(type) {
     nutrition: 'Nutrition',
     sleep: 'Sleep',
     stress: 'Stress',
-    hydration: 'Hydration',
     faith: 'Faith & Purpose',
     emotional: 'Emotional Wellness',
     energy: 'Energy Level',

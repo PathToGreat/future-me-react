@@ -92,7 +92,6 @@ export default function DeveloperInspectorPanel() {
       activity: 3,
       nutrition: 4,
       stress: 2,
-      hydration: 3,
       faithActions: true
     };
     
