@@ -1,0 +1,60 @@
+Update the landing page copy only.
+
+Keep the same layout, graphics, icons, styling, spacing, button placement, and overall visual structure exactly as it is now. Do not redesign anything. Do not move elements. Only change the text.
+
+Replace the current landing page copy with the following:
+
+Main heading:
+Future Me
+
+Subheading:
+See where your current habits are taking you.
+
+Main supporting paragraph:
+Every day your habits quietly shape the person you are becoming. Future Me turns those patterns into a visual reflection so you can see the direction your current path leads.
+
+Three feature cards:
+
+Card 1 title:
+Track Your Signals
+
+Card 1 body:
+Answer simple questions about the patterns shaping your trajectory. Sleep, nutrition, movement, stress, and consistency all influence the version of you that is forming.
+
+Card 2 title:
+See Your Direction
+
+Card 2 body:
+Watch a realistic future version of yourself respond to the patterns you are building, based on your actual inputs over time.
+
+Card 3 title:
+Shift the Path
+
+Card 3 body:
+Small changes can alter direction. Repeated choices shape identity over time, and different patterns lead to different futures.
+
+Add this single line directly above the main CTA button:
+Not a habit tracker. A mirror of where your habits are taking you.
+
+Keep the existing CTA button and placement, but change the button text to:
+Start Your Reflection
+
+Keep the small line below the button, but change it to:
+Free to use • Takes about 2 minutes
+
+Bottom section heading:
+Your future is already forming.
+
+Bottom section body:
+Most people move into the future without clearly seeing where their patterns are leading. Future Me makes that direction visible so you can decide whether to stay the course or change it.
+
+Keep the existing bottom stats/structure in place, but update the labels to feel less promotional and more grounded:
+- 100% → Free
+- <2min → Initial Setup
+- ∞ → Ongoing Reflection
+
+Important:
+- Do not change any graphics, icons, gradients, cards, or spacing.
+- Do not add new sections.
+- Do not remove any existing structural elements unless needed only to fit the new copy cleanly.
+- Keep the page clean, calm, and credible.
