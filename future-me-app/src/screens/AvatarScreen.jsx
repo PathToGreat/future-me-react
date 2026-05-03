@@ -45,6 +45,12 @@ function MetricBar({ label, value, max, color, reverse = false }) {
   );
 }
 
+function firstSentence(text) {
+  if (!text) return null;
+  const match = text.match(/^[^.!?]+[.!?]/);
+  return match ? match[0].trim() : text.trim();
+}
+
 export default function AvatarScreen() {
   const {
     liveProfile,
@@ -121,6 +127,39 @@ export default function AvatarScreen() {
     }
   }, [historyData, liveProfile]);
 
+  const currentNarrative = useMemo(() => {
+    if (iteNarrative?.currentSummary) {
+      return firstSentence(iteNarrative.currentSummary);
+    }
+    const description = getCurrentMeDescription(
+      currentMeMetrics || liveProfile?.onboardingBaseline,
+      { slowDriftApplied: currentMeMetrics?.slowDriftApplied }
+    );
+    return description?.secondary || 'Based on your current lifestyle patterns.';
+  }, [iteNarrative, currentMeMetrics, liveProfile]);
+
+  const futureNarrative = useMemo(() => {
+    if (!futureMetrics) return null;
+    if (iteNarrative?.projection12MonthSummary) {
+      return firstSentence(iteNarrative.projection12MonthSummary);
+    }
+    const description = getFutureAvatarDescription(futureMetrics, trendAnalysis);
+    return description?.primary || null;
+  }, [iteNarrative, futureMetrics, trendAnalysis]);
+
+  const contrastLine = useMemo(() => {
+    if (!futureMetrics) return null;
+    if (iteNarrative?.leverLine) return iteNarrative.leverLine;
+    if (iteNarrative?.contrast?.contrastSummaryCurrentToFuture) {
+      return iteNarrative.contrast.contrastSummaryCurrentToFuture;
+    }
+    const lever = iteNarrative?.contrast?.strongestLever;
+    const trait = iteNarrative?.contrast?.mostSensitiveTrait;
+    if (lever && trait) return `The primary driver of this projection is ${lever}, with ${trait} most sensitive to change.`;
+    if (lever) return `The primary driver of this projection is ${lever}.`;
+    return null;
+  }, [iteNarrative, futureMetrics]);
+
   if (!liveProfile) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -129,262 +168,175 @@ export default function AvatarScreen() {
     );
   }
 
+  const currentAvatarProps = {
+    lifestyleScore: currentMeMetrics?.lifestyleScore || liveProfile.onboardingBaseline?.lifestyleScore || 50,
+    activity: currentMeMetrics?.activity || liveProfile.onboardingBaseline?.activity || 3,
+    nutrition: currentMeMetrics?.nutrition || liveProfile.onboardingBaseline?.nutrition || 3,
+    sleep: currentMeMetrics?.sleep || liveProfile.onboardingBaseline?.sleep || 3,
+    stress: currentMeMetrics?.stress || liveProfile.onboardingBaseline?.stress || 3,
+    images: liveProfile.images,
+    habits,
+    achievements,
+    lifeZones: liveProfile.lifeZones,
+    gender: selectedGender,
+    baselineData: {
+      baselineState: liveProfile?.baselineState,
+      lifestyleRhythm: liveProfile?.lifestyleRhythm,
+      emotionalProfile: liveProfile?.emotionalProfile,
+      faithPurpose: liveProfile?.faithPurpose
+    },
+    historyData,
+    skinTone,
+    hairStyle,
+    hairColor,
+  };
+
+  const futureAvatarProps = {
+    futureMetrics,
+    images: liveProfile.images,
+    habits,
+    achievements,
+    lifeZones: liveProfile.lifeZones,
+    gender: selectedGender,
+    baselineData: {
+      baselineState: liveProfile?.baselineState,
+      lifestyleRhythm: liveProfile?.lifestyleRhythm,
+      emotionalProfile: liveProfile?.emotionalProfile,
+      faithPurpose: liveProfile?.faithPurpose
+    },
+    historyData,
+    skinTone,
+    hairStyle,
+    hairColor,
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-800">Your Avatar</h1>
-        <p className="text-gray-600">Visualize your current and future self</p>
+        <p className="text-gray-600">Current and projected self, side by side</p>
       </div>
 
+      {/* Side-by-side comparison panel */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card"
+        className="card p-6"
       >
-        <div className="flex items-center justify-center gap-4">
-          <span className="text-sm font-medium text-gray-600">View:</span>
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setShowFutureAvatar(false)}
-              className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
-                !showFutureAvatar
-                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              Current You
-            </button>
-            <button
-              onClick={() => setShowFutureAvatar(true)}
-              disabled={!futureMetrics}
-              className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
-                showFutureAvatar
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
-                  : futureMetrics
-                  ? 'text-gray-600 hover:text-gray-800'
-                  : 'text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              Future You {!futureMetrics && '(Coming Soon)'}
-            </button>
-          </div>
-        </div>
-      </motion.div>
-
-      <div className="grid lg:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="card flex flex-col items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-purple-50"
-        >
-          {selectedGender === null ? (
-            <div className="w-full max-w-[200px] aspect-[2/3] flex items-center justify-center">
-              <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
+        <div className="grid grid-cols-2 gap-4 sm:gap-8">
+          {/* Current Me */}
+          <div className="flex flex-col items-center">
+            <span className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-3">
+              Current Me
+            </span>
+            <div className="w-full flex justify-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl py-4">
+              {selectedGender === null ? (
+                <div className="w-[120px] aspect-[2/3] flex items-center justify-center">
+                  <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
+                </div>
+              ) : (
+                <FutureMeAvatar {...currentAvatarProps} />
+              )}
             </div>
-          ) : !showFutureAvatar ? (
-            <FutureMeAvatar
-              lifestyleScore={currentMeMetrics?.lifestyleScore || liveProfile.onboardingBaseline?.lifestyleScore || 50}
-              activity={currentMeMetrics?.activity || liveProfile.onboardingBaseline?.activity || 3}
-              nutrition={currentMeMetrics?.nutrition || liveProfile.onboardingBaseline?.nutrition || 3}
-              sleep={currentMeMetrics?.sleep || liveProfile.onboardingBaseline?.sleep || 3}
-              stress={currentMeMetrics?.stress || liveProfile.onboardingBaseline?.stress || 3}
-              images={liveProfile.images}
-              habits={habits}
-              achievements={achievements}
-              lifeZones={liveProfile.lifeZones}
-              gender={selectedGender}
-              baselineData={{
-                baselineState: liveProfile?.baselineState,
-                lifestyleRhythm: liveProfile?.lifestyleRhythm,
-                emotionalProfile: liveProfile?.emotionalProfile,
-                faithPurpose: liveProfile?.faithPurpose
-              }}
-              historyData={historyData}
-              skinTone={skinTone}
-              hairStyle={hairStyle}
-              hairColor={hairColor}
-            />
-          ) : (
-            <FutureAvatar
-              futureMetrics={futureMetrics}
-              images={liveProfile.images}
-              habits={habits}
-              achievements={achievements}
-              lifeZones={liveProfile.lifeZones}
-              gender={selectedGender}
-              baselineData={{
-                baselineState: liveProfile?.baselineState,
-                lifestyleRhythm: liveProfile?.lifestyleRhythm,
-                emotionalProfile: liveProfile?.emotionalProfile,
-                faithPurpose: liveProfile?.faithPurpose
-              }}
-              historyData={historyData}
-              skinTone={skinTone}
-              hairStyle={hairStyle}
-              hairColor={hairColor}
-            />
-          )}
+            <p className="text-sm text-gray-700 text-center mt-3 leading-snug px-1">
+              {currentNarrative}
+            </p>
+          </div>
 
-          <div className="mt-4 text-center">
-            {!showFutureAvatar ? (
-              (() => {
-                if (iteNarrative?.currentSummary) {
-                  return (
-                    <>
-                      <p className="text-sm text-gray-700 font-medium mb-2">
-                        {iteNarrative.currentSummary}
-                      </p>
-                      {iteNarrative.contrast?.contrastSummaryCurrentToFuture && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {iteNarrative.contrast.contrastSummaryCurrentToFuture}
-                        </p>
-                      )}
-                    </>
-                  );
-                }
-                const description = getCurrentMeDescription(
-                  currentMeMetrics || liveProfile.onboardingBaseline,
-                  { slowDriftApplied: currentMeMetrics?.slowDriftApplied }
-                );
-                return (
-                  <>
-                    <p className="text-sm text-gray-700 font-medium mb-2">
-                      This is your current self based on your lifestyle assessment.
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {description.secondary}
-                    </p>
-                  </>
-                );
-              })()
-            ) : futureMetrics ? (
-              (() => {
-                const showConfidenceBanner = iteNarrative?.projectionConfidence === 'LOW';
-                if (iteNarrative?.projection12MonthSummary) {
-                  const futureContrast = iteNarrative.contrast;
-                  const influenceParts = [];
-                  if (futureContrast?.strongestLever) influenceParts.push(futureContrast.strongestLever);
-                  if (futureContrast?.mostSensitiveTrait) influenceParts.push(futureContrast.mostSensitiveTrait);
-                  const influenceLine = influenceParts.length > 0
-                    ? `This projection is most influenced by: ${influenceParts.join(' and ')}.`
-                    : futureContrast?.contrastSummaryFutureToCurrent || null;
-
-                  return (
-                    <>
-                      {showConfidenceBanner && (
-                        <p className="text-xs text-slate-400 mb-2">
-                          Future projection is refining as more data is logged.
-                        </p>
-                      )}
-                      <p className="text-sm text-gray-700 font-medium mb-2">
-                        {iteNarrative.projection12MonthSummary}
-                      </p>
-                      {iteNarrative.leverLine && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {iteNarrative.leverLine}
-                        </p>
-                      )}
-                      {influenceLine && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {influenceLine}
-                        </p>
-                      )}
-                      {futureContrast?.deltaList && (
-                        <p className="text-xs text-gray-400 mt-1">
-                          {futureContrast.deltaList}
-                        </p>
-                      )}
-                      {iteNarrative.scenarioLine && (
-                        <p className="text-xs text-gray-500 mt-2 italic">
-                          ➡️ {iteNarrative.scenarioLine}
-                        </p>
-                      )}
-                    </>
-                  );
-                }
-                const description = getFutureAvatarDescription(futureMetrics, trendAnalysis);
-                return (
-                  <>
-                    <p className={`text-sm font-medium mb-2 ${
-                      description.tone === 'positive'
-                        ? 'text-green-600'
-                        : description.tone === 'warning'
-                        ? 'text-orange-600'
-                        : 'text-gray-700'
-                    }`}>
-                      {description.primary}
-                    </p>
-                    <p className={`text-xs ${
-                      description.tone === 'positive'
-                        ? 'text-green-600 font-semibold'
-                        : description.tone === 'warning'
-                        ? 'text-orange-600 font-semibold'
-                        : 'text-gray-600'
-                    }`}>
-                      {description.secondary}
-                    </p>
-                  </>
-                );
-              })()
-            ) : (
-              <p className="text-sm text-gray-500">
-                Track your habits for a few more days to unlock your future projection.
+          {/* Future Me */}
+          <div className="flex flex-col items-center">
+            <span className="text-xs font-semibold text-purple-600 uppercase tracking-widest mb-3">
+              Future Me
+            </span>
+            <div className="w-full flex justify-center bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl py-4">
+              {selectedGender === null ? (
+                <div className="w-[120px] aspect-[2/3] flex items-center justify-center">
+                  <div className="w-10 h-10 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
+                </div>
+              ) : futureMetrics ? (
+                <FutureAvatar {...futureAvatarProps} />
+              ) : (
+                <div className="w-[120px] aspect-[2/3] flex flex-col items-center justify-center gap-2 opacity-40">
+                  <div className="w-16 h-16 rounded-full bg-purple-200 flex items-center justify-center text-2xl">➡️</div>
+                  <div className="w-10 h-20 rounded-full bg-purple-100" />
+                </div>
+              )}
+            </div>
+            <p className="text-sm text-gray-600 text-center mt-3 leading-snug px-1">
+              {futureMetrics
+                ? (futureNarrative || 'Projection updating as more data is logged.')
+                : 'Log a few more days to unlock your future projection.'}
+            </p>
+            {iteNarrative?.projectionConfidence === 'LOW' && futureMetrics && (
+              <p className="text-xs text-slate-400 text-center mt-1">
+                Refining as more data is logged.
               </p>
             )}
           </div>
-          
-          <p className="mt-3 text-xs text-gray-400 text-center">
-            Your baseline only updates through reassessment, not daily logs.
-          </p>
+        </div>
 
-          <div className="mt-4 w-full max-w-xs">
+        {/* Contrast line */}
+        {contrastLine && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mt-5 pt-4 border-t border-gray-100 text-center"
+          >
+            <p className="text-sm text-gray-500 italic">{contrastLine}</p>
+          </motion.div>
+        )}
+      </motion.div>
+
+      {/* Controls + metrics row */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Left: appearance controls */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="space-y-4"
+        >
+          <div className="card">
+            <p className="text-xs text-gray-400 mb-3">
+              Your baseline only updates through reassessment, not daily logs.
+            </p>
             <GenderSelector onGenderChange={handleGenderChange} />
           </div>
-
-          <div className="mt-4 w-full">
+          <div className="card">
             <VisualInfluences lifeZones={liveProfile.lifeZones} onAppearanceChange={handleAppearanceChange} />
           </div>
         </motion.div>
 
+        {/* Right: metrics + goals + image upload */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
           <div className="card">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
-              {!showFutureAvatar ? 'Your Lifestyle Metrics' : 'Projected Metrics (90 Days)'}
-            </h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Your Lifestyle Metrics</h2>
             <div className="space-y-4">
               <MetricBar
                 label="Physical Activity"
-                value={!showFutureAvatar 
-                  ? (currentMeMetrics?.activity || liveProfile.onboardingBaseline?.activity || 3)
-                  : (futureMetrics?.activity || 3)}
+                value={currentMeMetrics?.activity || liveProfile.onboardingBaseline?.activity || 3}
                 max={5}
                 color="blue"
               />
               <MetricBar
                 label="Nutrition Quality"
-                value={!showFutureAvatar 
-                  ? (currentMeMetrics?.nutrition || liveProfile.onboardingBaseline?.nutrition || 3)
-                  : (futureMetrics?.nutrition || 3)}
+                value={currentMeMetrics?.nutrition || liveProfile.onboardingBaseline?.nutrition || 3}
                 max={5}
                 color="green"
               />
               <MetricBar
                 label="Sleep Quality"
-                value={!showFutureAvatar 
-                  ? (currentMeMetrics?.sleep || liveProfile.onboardingBaseline?.sleep || 3)
-                  : (futureMetrics?.sleep || 3)}
+                value={currentMeMetrics?.sleep || liveProfile.onboardingBaseline?.sleep || 3}
                 max={5}
                 color="purple"
               />
               <MetricBar
                 label="Stress Level"
-                value={!showFutureAvatar 
-                  ? (currentMeMetrics?.stress || liveProfile.onboardingBaseline?.stress || 3)
-                  : (futureMetrics?.stress || 3)}
+                value={currentMeMetrics?.stress || liveProfile.onboardingBaseline?.stress || 3}
                 max={5}
                 color="red"
                 reverse
@@ -412,7 +364,7 @@ export default function AvatarScreen() {
 
           <ImageUpload
             onUpload={(urls) =>
-              console.log("📸 Avatar Screen: Image upload successful")
+              console.log("Avatar Screen: Image upload successful")
             }
           />
         </motion.div>
