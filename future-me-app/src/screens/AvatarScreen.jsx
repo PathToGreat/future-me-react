@@ -214,7 +214,6 @@ export default function AvatarScreen() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-800">Your Avatar</h1>
-        <p className="text-gray-600">Current and projected self, side by side</p>
       </div>
 
       {/* Side-by-side comparison panel */}
