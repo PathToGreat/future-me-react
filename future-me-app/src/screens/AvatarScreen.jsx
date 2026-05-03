@@ -488,7 +488,7 @@ export default function AvatarScreen() {
           >
             <span className="text-base shrink-0 mt-0.5">📖</span>
             <p className="text-sm text-gray-700">
-              <span className="font-semibold text-gray-800">Key Pattern: </span>
+              <span className="font-semibold text-gray-800">Key Transformation: </span>
               {keyPatternLine}
             </p>
           </motion.div>
