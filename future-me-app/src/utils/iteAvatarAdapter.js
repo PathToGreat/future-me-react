@@ -20,14 +20,15 @@ function canRunITE(historyData, baselineData) {
   return true;
 }
 
-function buildRawMetrics(dailyMetrics, lifeZones, habits) {
+function buildRawMetrics(dailyMetrics, lifeZones, habits, defaultHabitCompletions) {
   return {
     activity: dailyMetrics?.activity ?? 3,
     nutrition: dailyMetrics?.nutrition ?? 3,
     sleep: dailyMetrics?.sleep ?? 3,
     stress: dailyMetrics?.stress ?? 3,
     lifeZones: lifeZones || {},
-    habits: habits || []
+    habits: habits || [],
+    defaultHabitCompletions: defaultHabitCompletions || null
   };
 }
 
@@ -136,8 +137,8 @@ function traitStateToAvatarTraitInputFromScores(scores) {
   };
 }
 
-export function computeITECurrentAdapter(rawMetrics, historyData, baselineData, lifeZones, habits) {
-  const metrics = buildRawMetrics(rawMetrics, lifeZones, habits);
+export function computeITECurrentAdapter(rawMetrics, historyData, baselineData, lifeZones, habits, defaultHabitCompletions) {
+  const metrics = buildRawMetrics(rawMetrics, lifeZones, habits, defaultHabitCompletions);
 
   if (!canRunITE(historyData, baselineData)) {
     return { available: false, iteResult: null, adapted: null };
@@ -149,8 +150,8 @@ export function computeITECurrentAdapter(rawMetrics, historyData, baselineData, 
   return { available: true, iteResult, adapted };
 }
 
-export function computeITEFutureAdapter(rawMetrics, historyData, baselineData, lifeZones, habits, horizon) {
-  const metrics = buildRawMetrics(rawMetrics, lifeZones, habits);
+export function computeITEFutureAdapter(rawMetrics, historyData, baselineData, lifeZones, habits, horizon, defaultHabitCompletions) {
+  const metrics = buildRawMetrics(rawMetrics, lifeZones, habits, defaultHabitCompletions);
 
   if (!canRunITE(historyData, baselineData)) {
     return { available: false, iteResult: null, adapted: null };

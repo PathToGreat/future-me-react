@@ -11,7 +11,7 @@ const ZONE_DESCRIPTIONS = {
   'Family & Community': 'influencing openness and expression'
 };
 
-export default function VisualInfluences({ lifeZones, onAppearanceChange }) {
+export default function VisualInfluences({ lifeZones, onAppearanceChange, habitInfluenceSummary = [] }) {
   const [expanded, setExpanded] = useState(false);
 
   const lifeZoneScores = useMemo(() => {
@@ -78,6 +78,18 @@ export default function VisualInfluences({ lifeZones, onAppearanceChange }) {
                         {': '}
                         {ZONE_DESCRIPTIONS[influence.zone] || influence.target}
                       </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {habitInfluenceSummary.length > 0 && (
+                <div className="space-y-2.5 pt-2 border-t border-gray-100">
+                  <p className="text-xs font-medium text-slate-500">Core habit rhythm</p>
+                  {habitInfluenceSummary.map((line, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="w-1 h-1 rounded-full bg-slate-300 mt-1.5 flex-shrink-0" />
+                      <p className="text-xs text-slate-500 leading-relaxed">{line}</p>
                     </div>
                   ))}
                 </div>

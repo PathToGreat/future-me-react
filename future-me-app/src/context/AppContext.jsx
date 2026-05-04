@@ -29,6 +29,7 @@ export function AppProvider({ children }) {
   const [predictions, setPredictions] = useState(null);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [walkthroughCompleted, setWalkthroughCompleted] = useState(false);
+  const [defaultHabitCompletions, setDefaultHabitCompletions] = useState({});
 
   const { trendAnalysis, historyData } = useHistoryData(user?.uid, liveProfile);
 
@@ -95,6 +96,15 @@ export function AppProvider({ children }) {
     });
 
     return () => unsubscribe();
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    const ref = doc(db, 'users', user.uid, 'habitPrefs', 'defaults');
+    const unsub = onSnapshot(ref, (snap) => {
+      setDefaultHabitCompletions(snap.exists() ? (snap.data()?.completions || {}) : {});
+    }, () => {});
+    return () => unsub();
   }, [user?.uid]);
 
   useEffect(() => {
@@ -271,6 +281,7 @@ export function AppProvider({ children }) {
     historyData,
     showWalkthrough,
     walkthroughCompleted,
+    defaultHabitCompletions,
     refreshHabits,
     refreshAchievements,
     handleAchievementsEarned,

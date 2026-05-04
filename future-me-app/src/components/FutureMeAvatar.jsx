@@ -38,7 +38,8 @@ export default function FutureMeAvatar({
   historyData = null,
   skinTone = null,
   hairStyle = null,
-  hairColor = null
+  hairColor = null,
+  defaultHabitCompletions = null
 }) {
   const [showSvgAvatar, setShowSvgAvatar] = useState(!images || images.length === 0);
   const { user } = useAuth();
@@ -62,9 +63,10 @@ export default function FutureMeAvatar({
       historyData,
       baselineData,
       lifeZoneScores,
-      habits
+      habits,
+      defaultHabitCompletions
     );
-  }, [activity, nutrition, sleep, stress, historyData, baselineData, lifeZoneScores, habits]);
+  }, [activity, nutrition, sleep, stress, historyData, baselineData, lifeZoneScores, habits, defaultHabitCompletions]);
 
   const effectiveMetrics = useMemo(() => {
     if (iteAdapter.available && iteAdapter.adapted) {

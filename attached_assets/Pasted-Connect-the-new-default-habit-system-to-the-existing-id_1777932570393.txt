@@ -1,0 +1,263 @@
+Connect the new default habit system to the existing identity trait and avatar influence system in a restrained, believable way.
+
+Do not overhaul the avatar. Do not change the visual design of the Habits page. Do not add gamification. This should be a data-flow and mapping upgrade.
+
+Goal:
+Default habits should not directly change the avatar one by one. Habits should influence identity traits, and identity traits should influence the avatar. The model should be:
+
+habit completed → trait influence → identity signal → avatar visual influence
+
+Use the existing identity/avatar architecture wherever possible.
+
+---
+
+Core principle:
+A single completed habit should not create a dramatic visible avatar change.
+
+Avatar changes should come from repeated patterns over time, especially rhythm/consistency across related habits.
+
+---
+
+### 1. Add trait influence mapping to default habits
+
+Each default habit already has a trait connection. Expand this into a structured mapping if needed.
+
+Suggested mappings:
+
+Quality Sleep:
+
+* vitality
+* resilience
+* emotionalStability
+
+Morning Sunlight:
+
+* vitality
+* rhythm
+* emotionalStability
+
+Evening Wind Down:
+
+* emotionalStability
+* resilience
+* rhythm
+
+Daily Movement:
+
+* vitality
+* discipline
+* confidence
+
+Strength Training:
+
+* vitality
+* discipline
+* confidence
+
+Deep Breathing & Relaxation:
+
+* emotionalStability
+* resilience
+
+Prayer or Reflection:
+
+* purpose
+* emotionalStability
+* discipline
+
+Morning Gratitude:
+
+* emotionalStability
+* purpose
+
+Check-in with Loved Ones:
+
+* connection
+* emotionalStability
+
+Acts of Kindness:
+
+* connection
+* purpose
+
+Whole Food Meal:
+
+* vitality
+* discipline
+
+Hydration:
+
+* vitality
+
+Financial Check-In:
+
+* discipline
+* confidence
+* stability
+
+Reading or Learning:
+
+* discipline
+* purpose
+* confidence
+
+Outdoor Time:
+
+* vitality
+* emotionalStability
+* resilience
+
+If some of these traits do not exist yet, map them to the nearest existing trait instead. Do not create major new systems unless necessary.
+
+---
+
+### 2. Create a habit influence aggregator
+
+Create or update a utility that reads completed default habits and converts them into small trait influence values.
+
+Important:
+
+* use recent completion data, not just today
+* favor the last 7 days
+* optionally include last 14 or 30 days if existing data makes that easy
+* normalize the result so habits cannot overpower existing metrics
+
+Suggested restraint:
+
+* habit influence should contribute lightly, roughly 10–20% of the total trait signal at most
+* daily metrics should remain the stronger signal for now
+
+Do not let one habit completion create a major trait jump.
+
+---
+
+### 3. Weight by rhythm, not streak hype
+
+Use the existing rhythm count if available, but treat it calmly.
+
+Example logic:
+
+* completed today = small immediate influence
+* repeated completion over recent days = slightly stronger influence
+* missed days reduce influence gradually
+* no punishment language
+
+Use “rhythm” internally, not streak-focused logic.
+
+---
+
+### 4. Connect trait influence to avatar visual inputs
+
+The avatar should continue responding through trait-level visual categories.
+
+Suggested avatar influence mapping:
+
+vitality:
+
+* posture lift
+* brightness/vibrancy
+* energy glow
+
+discipline:
+
+* steadiness
+* alignment
+* visual composure
+
+emotionalStability:
+
+* softer expression
+* reduced facial tension
+* calmer visual state
+
+resilience:
+
+* grounded posture
+* recovery tone
+* less collapsed stance
+
+confidence:
+
+* open stance
+* steadier posture
+* lifted chest/shoulders
+
+connection:
+
+* warmer expression
+* softer face
+
+purpose:
+
+* centeredness
+* calm focus
+
+stability:
+
+* steadiness
+* lower visual volatility
+
+Keep all avatar changes subtle and bounded.
+
+---
+
+### 5. Add a visual influence explanation if existing architecture supports it
+
+If the app already shows Visual Influences or avatar explanation cards, include habit-derived influences there.
+
+Example language:
+
+* “Recent sleep and wind-down rhythm are supporting vitality and emotional stability.”
+* “Movement and strength habits are contributing to steadier posture and energy.”
+* “Reflection and gratitude are supporting emotional steadiness.”
+
+Do not say:
+
+* “Your avatar improved because…”
+* “You earned…”
+* “You unlocked…”
+
+Keep it observational.
+
+---
+
+### 6. Update dashboard/insight compatibility only if needed
+
+If the Home dashboard uses Today’s Signals or identity traits, allow completed core habits to contribute to those signals where appropriate.
+
+But do not create a large new dashboard section yet.
+
+Possible subtle language:
+
+* “Recent habit rhythm is contributing to today’s signal.”
+* “Core habits are beginning to shape your current direction.”
+
+Only add this if it fits existing components cleanly.
+
+---
+
+### 7. Preserve data safety
+
+Do not duplicate default habit definitions into each user record.
+
+Use:
+
+* defaultHabits config for definitions
+* user habitPrefs/defaults for completion/hidden state
+* existing identity/avatar functions for derived output
+
+If a user has no default habit data yet, avatar behavior should remain unchanged.
+
+---
+
+### 8. Acceptance criteria
+
+* Default habits now influence identity traits through a restrained mapping
+* Repeated habit rhythm has more effect than a single completion
+* Habit influence does not overpower existing metrics
+* Avatar visual changes remain subtle
+* Existing dashboard and avatar logic still works
+* Hidden default habits do not contribute unless completed history is intentionally retained by current logic
+* Custom habits are not broken
+* No gamification language or reward mechanics are added
+* No major new UI section is added unless already supported by existing architecture

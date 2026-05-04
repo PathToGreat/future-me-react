@@ -11,6 +11,7 @@ import { getCurrentMeDescription } from '../utils/currentMeAvatarModel';
 import VisualInfluences from '../components/VisualInfluences';
 import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
 import { canRunITE } from '../utils/iteAvatarAdapter';
+import { generateHabitInfluenceSummary } from '../utils/habitInfluenceEngine';
 import { inferActionsFromLog, findStrongestInferredLever } from '../utils/loggingConsequenceInference';
 import { simulateDefaultScenario } from '../utils/trajectoryScenarioEngine';
 
@@ -183,6 +184,7 @@ export default function AvatarScreen() {
     historyData,
     trendAnalysis,
     handleGenderChange,
+    defaultHabitCompletions,
   } = useApp();
 
   const [skinTone, setSkinTone]   = useState(() => loadSkinTone());
@@ -202,12 +204,13 @@ export default function AvatarScreen() {
     try {
       const latestMetrics = historyData?.[0] || {};
       const rawMetrics = {
-        activity:  latestMetrics.activity  ?? 3,
-        nutrition: latestMetrics.nutrition ?? 3,
-        sleep:     latestMetrics.sleep     ?? 3,
-        stress:    latestMetrics.stress    ?? 3,
-        lifeZones: liveProfile?.lifeZones  || {},
-        habits:    []
+        activity:                latestMetrics.activity  ?? 3,
+        nutrition:               latestMetrics.nutrition ?? 3,
+        sleep:                   latestMetrics.sleep     ?? 3,
+        stress:                  latestMetrics.stress    ?? 3,
+        lifeZones:               liveProfile?.lifeZones  || {},
+        habits:                  [],
+        defaultHabitCompletions: defaultHabitCompletions || null,
       };
       const iteResult = runIdentityTrajectoryEngine(rawMetrics, historyData, baseline);
       const narrative  = iteResult.narrative || null;
@@ -238,7 +241,7 @@ export default function AvatarScreen() {
     } catch (_) {
       return null;
     }
-  }, [historyData, liveProfile]);
+  }, [historyData, liveProfile, defaultHabitCompletions]);
 
   // Current metric values — unchanged
   const cm = useMemo(() => {
@@ -331,6 +334,10 @@ export default function AvatarScreen() {
     );
   }
 
+  const habitInfluenceSummary = useMemo(() => {
+    return generateHabitInfluenceSummary(defaultHabitCompletions);
+  }, [defaultHabitCompletions]);
+
   const sharedAvatarBase = {
     images:    liveProfile.images,
     habits,
@@ -347,6 +354,7 @@ export default function AvatarScreen() {
     skinTone,
     hairStyle,
     hairColor,
+    defaultHabitCompletions: defaultHabitCompletions || null,
   };
 
   const currentAvatarProps = {
@@ -509,7 +517,11 @@ export default function AvatarScreen() {
             <GenderSelector onGenderChange={handleGenderChange} />
           </div>
           <div className="card">
-            <VisualInfluences lifeZones={liveProfile.lifeZones} onAppearanceChange={handleAppearanceChange} />
+            <VisualInfluences
+              lifeZones={liveProfile.lifeZones}
+              onAppearanceChange={handleAppearanceChange}
+              habitInfluenceSummary={habitInfluenceSummary}
+            />
           </div>
         </motion.div>
 

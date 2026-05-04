@@ -33,7 +33,8 @@ export default function FutureAvatar({
   historyData = null,
   skinTone = null,
   hairStyle = null,
-  hairColor = null
+  hairColor = null,
+  defaultHabitCompletions = null
 }) {
   const [viewMode, setViewMode] = useState(VIEW_MODES.PHOTO);
   const hasImages = images && images.length > 0;
@@ -73,9 +74,10 @@ export default function FutureAvatar({
       baselineData,
       lifeZoneScores,
       habits,
-      '90day'
+      '90day',
+      defaultHabitCompletions
     );
-  }, [dailyMetrics, historyData, baselineData, lifeZoneScores, habits]);
+  }, [dailyMetrics, historyData, baselineData, lifeZoneScores, habits, defaultHabitCompletions]);
 
   const effectiveMetrics = useMemo(() => {
     if (iteAdapter.available && iteAdapter.adapted) {
