@@ -14,7 +14,7 @@ import { canRunITE } from '../utils/iteAvatarAdapter';
 import { inferActionsFromLog, findStrongestInferredLever } from '../utils/loggingConsequenceInference';
 import { simulateDefaultScenario } from '../utils/trajectoryScenarioEngine';
 
-// ─── Pure label helpers ────────────────────────────────────────────────────────
+// ─── Pure label helpers (unchanged) ───────────────────────────────────────────
 
 function energyLabel(s) {
   if (s < 30) return { text: 'Low', color: 'red' };
@@ -26,7 +26,7 @@ function moodLabel(s) {
   if (s < 30) return { text: 'Stressed', color: 'red' };
   if (s < 55) return { text: 'Tense', color: 'orange' };
   if (s < 75) return { text: 'Balanced', color: 'yellow' };
-  return { text: 'Calm & Happy', color: 'green' };
+  return { text: 'Calm', color: 'green' };
 }
 function sleepLabel(raw) {
   if (raw < 2)   return { text: 'Poor', color: 'red' };
@@ -37,9 +37,9 @@ function sleepLabel(raw) {
 }
 function healthLabel(s) {
   if (s < 30) return { text: 'Overweight', color: 'red' };
-  if (s < 50) return { text: 'Below Average', color: 'orange' };
+  if (s < 50) return { text: 'Below Avg', color: 'orange' };
   if (s < 70) return { text: 'Average', color: 'yellow' };
-  if (s < 87) return { text: 'Fit & Healthy', color: 'green' };
+  if (s < 87) return { text: 'Fit', color: 'green' };
   return { text: 'Athletic', color: 'green' };
 }
 function mindsetLabel(s) {
@@ -56,13 +56,6 @@ const COLOR_MAP = {
   lightgreen: 'text-lime-600',
   green:      'text-green-600',
 };
-const DOT_MAP = {
-  red:    'bg-red-400',
-  orange: 'bg-orange-400',
-  yellow: 'bg-yellow-400',
-  lightgreen: 'bg-lime-500',
-  green:  'bg-green-500',
-};
 
 function thrivingColor(score) {
   if (score < 40) return { dot: 'bg-red-400',    text: 'text-red-500' };
@@ -72,11 +65,11 @@ function thrivingColor(score) {
 
 function buildBadges(energy, mood, sleepRaw, healthScore, mindset) {
   return [
-    { icon: '💪', label: 'Energy',  ...energyLabel(energy)  },
-    { icon: '❤️', label: 'Mood',    ...moodLabel(mood)      },
-    { icon: '💤', label: 'Sleep',   ...sleepLabel(sleepRaw) },
-    { icon: '🌱', label: 'Health',  ...healthLabel(healthScore) },
-    { icon: '📖', label: 'Mindset', ...mindsetLabel(mindset) },
+    { icon: '💪', label: 'Energy',  ...energyLabel(energy)      },
+    { icon: '❤️', label: 'Mood',    ...moodLabel(mood)           },
+    { icon: '💤', label: 'Sleep',   ...sleepLabel(sleepRaw)      },
+    { icon: '🌱', label: 'Health',  ...healthLabel(healthScore)  },
+    { icon: '📖', label: 'Mindset', ...mindsetLabel(mindset)     },
   ];
 }
 
@@ -106,39 +99,40 @@ function firstSentence(text) {
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
-function TraitBadge({ icon, label, text, color }) {
+// Compact horizontal chip — replaces the tall flanking badge column
+function MetricChip({ icon, label, text, color }) {
   return (
-    <div className="bg-white rounded-lg px-2 py-1.5 shadow-sm border border-gray-100 min-w-0">
-      <div className="flex items-center gap-1.5">
-        <span className="text-sm leading-none shrink-0">{icon}</span>
-        <div className="min-w-0">
-          <div className="text-[10px] text-gray-400 leading-tight">{label}</div>
-          <div className={`text-[11px] font-semibold leading-tight truncate ${COLOR_MAP[color] || 'text-gray-600'}`}>
-            {text}
-          </div>
-        </div>
-      </div>
+    <div className="flex items-center gap-1 bg-white/70 rounded-md px-1.5 py-1 border border-white/80">
+      <span className="text-[11px] leading-none shrink-0">{icon}</span>
+      <span className={`text-[10px] font-semibold leading-none ${COLOR_MAP[color] || 'text-gray-600'}`}>
+        {text}
+      </span>
     </div>
   );
 }
 
+// Single thriving status line directly beneath avatar
 function ThrivingRow({ score }) {
   if (score == null) return null;
   const { dot, text } = thrivingColor(score);
   return (
-    <div className="flex items-center justify-center gap-2 mt-3">
-      <div className={`w-2.5 h-2.5 rounded-full ${dot}`} />
+    <div className="flex items-center justify-center gap-1.5">
+      <div className={`w-2 h-2 rounded-full shrink-0 ${dot}`} />
       <span className="text-xs text-gray-500">Thriving</span>
       <span className={`text-sm font-bold ${text}`}>{score}%</span>
     </div>
   );
 }
 
+// Descriptor chips row
 function TagRow({ tags }) {
   return (
-    <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+    <div className="flex flex-wrap justify-center gap-1">
       {tags.map(t => (
-        <span key={t} className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+        <span
+          key={t}
+          className="text-[10px] text-gray-500 bg-white/60 px-2 py-0.5 rounded-full border border-white/80"
+        >
           {t}
         </span>
       ))}
@@ -146,22 +140,23 @@ function TagRow({ tags }) {
   );
 }
 
+// Metric bar — slightly thinner, cleaner
 function MetricBar({ label, value, max, color, reverse = false }) {
   const displayValue = reverse ? max - value + 1 : value;
-  const percentage = (displayValue / max) * 100;
+  const percentage   = (displayValue / max) * 100;
   const colors = {
-    blue:   'bg-blue-500',
+    blue:   'bg-blue-400',
     green:  'bg-green-500',
-    purple: 'bg-purple-500',
-    red:    'bg-red-500',
+    purple: 'bg-purple-400',
+    red:    'bg-red-400',
   };
   return (
     <div>
-      <div className="flex justify-between mb-2">
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-        <span className="text-sm font-semibold text-gray-900">{displayValue}/{max}</span>
+      <div className="flex justify-between mb-1.5">
+        <span className="text-xs text-gray-600">{label}</span>
+        <span className="text-xs font-semibold text-gray-700">{displayValue}/{max}</span>
       </div>
-      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
@@ -200,7 +195,7 @@ export default function AvatarScreen() {
     if (changes.hairColor !== undefined) setHairColor(changes.hairColor);
   }, []);
 
-  // Full ITE result — exposes traits + projection12Month alongside narrative
+  // Full ITE result — unchanged
   const iteData = useMemo(() => {
     const baseline = liveProfile?.onboardingBaseline || liveProfile?.baselineState;
     if (!canRunITE(historyData, baseline)) return null;
@@ -236,16 +231,16 @@ export default function AvatarScreen() {
 
       const projectionConfidence = iteResult.projectionConfidence?.tier || 'LOW';
       return {
-        traits:           iteResult.traits,
+        traits:            iteResult.traits,
         projection12Month: iteResult.projection12Month,
-        narrative:        narrative ? { ...narrative, leverLine, contrast, scenarioLine, projectionConfidence } : null,
+        narrative:         narrative ? { ...narrative, leverLine, contrast, scenarioLine, projectionConfidence } : null,
       };
     } catch (_) {
       return null;
     }
   }, [historyData, liveProfile]);
 
-  // Current metric values
+  // Current metric values — unchanged
   const cm = useMemo(() => {
     const m = currentMeMetrics || liveProfile?.onboardingBaseline || {};
     return {
@@ -257,7 +252,7 @@ export default function AvatarScreen() {
     };
   }, [currentMeMetrics, liveProfile]);
 
-  // Future metric values
+  // Future metric values — unchanged
   const fm = useMemo(() => {
     if (!futureMetrics) return null;
     return {
@@ -269,7 +264,7 @@ export default function AvatarScreen() {
     };
   }, [futureMetrics]);
 
-  // Thriving scores
+  // Thriving scores — unchanged
   const currentThrivingScore = useMemo(() => {
     if (cm.lifestyleScore) return Math.round(cm.lifestyleScore);
     return Math.round(((cm.activity + cm.nutrition + cm.sleep + (5 - cm.stress)) / 16) * 100);
@@ -281,17 +276,16 @@ export default function AvatarScreen() {
     return Math.round(((fm.activity + fm.nutrition + fm.sleep + (5 - fm.stress)) / 16) * 100);
   }, [fm]);
 
-  // Trait badge data — current
+  // Trait badge data — unchanged
   const currentBadges = useMemo(() => {
     const t = iteData?.traits;
-    const energy   = t?.vitality?.currentScore           ?? (cm.activity  / 5) * 100;
-    const mood     = t?.emotionalStability?.currentScore ?? ((5 - cm.stress) / 5) * 100;
-    const health   = physicalScore(cm.activity, cm.nutrition);
-    const mindset  = t?.discipline?.currentScore         ?? 50;
+    const energy  = t?.vitality?.currentScore           ?? (cm.activity  / 5) * 100;
+    const mood    = t?.emotionalStability?.currentScore ?? ((5 - cm.stress) / 5) * 100;
+    const health  = physicalScore(cm.activity, cm.nutrition);
+    const mindset = t?.discipline?.currentScore         ?? 50;
     return buildBadges(energy, mood, cm.sleep, health, mindset);
   }, [iteData, cm]);
 
-  // Trait badge data — future
   const futureBadges = useMemo(() => {
     if (!fm) return null;
     const p = iteData?.projection12Month;
@@ -302,7 +296,7 @@ export default function AvatarScreen() {
     return buildBadges(energy, mood, fm.sleep, health, mindset);
   }, [iteData, fm]);
 
-  // Descriptor tags
+  // Descriptor tags — unchanged
   const currentTags = useMemo(() => {
     const vitality = iteData?.traits?.vitality?.currentScore ?? (cm.activity / 5) * 100;
     return computeTags(cm.activity, cm.stress, vitality);
@@ -314,7 +308,7 @@ export default function AvatarScreen() {
     return computeTags(fm.activity, fm.stress, vitality);
   }, [iteData, fm]);
 
-  // Key Pattern line
+  // Key Pattern line — unchanged
   const keyPatternLine = useMemo(() => {
     const n = iteData?.narrative;
     if (!fm) return null;
@@ -338,7 +332,7 @@ export default function AvatarScreen() {
   }
 
   const sharedAvatarBase = {
-    images:   liveProfile.images,
+    images:    liveProfile.images,
     habits,
     achievements,
     lifeZones: liveProfile.lifeZones,
@@ -370,124 +364,131 @@ export default function AvatarScreen() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Your Avatar</h1>
-      </div>
+    <div className="space-y-5">
 
-      {/* ── Side-by-side comparison ───────────────────────────────────────── */}
+      <h1 className="text-2xl font-bold text-gray-800">Your Avatar</h1>
+
+      {/* ── Side-by-side comparison ──────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card p-4 sm:p-6"
+        className="card p-4"
       >
         {/* Column headers */}
-        <div className="grid grid-cols-[1fr_32px_1fr] mb-3">
-          <h3 className="text-center text-xs font-bold tracking-widest text-blue-600 uppercase">
-            Current Me
-          </h3>
+        <div className="grid grid-cols-[1fr_32px_1fr] mb-4">
+          <div className="text-center">
+            <p className="text-[10px] font-bold tracking-widest text-blue-500 uppercase">Current Me</p>
+          </div>
           <div />
-          <h3 className="text-center text-xs font-bold tracking-widest text-purple-600 uppercase">
-            Future Me&nbsp;(1 Year)
-          </h3>
+          <div className="text-center">
+            <p className="text-[10px] font-bold tracking-widest text-purple-500 uppercase">Future Me</p>
+            <p className="text-[9px] text-gray-400 font-medium mt-0.5">1 Year ➡️</p>
+          </div>
         </div>
 
-        {/* Avatar panels + arrow */}
-        <div className="grid grid-cols-[1fr_32px_1fr] gap-y-0">
+        {/* Panels + divider */}
+        <div className="grid grid-cols-[1fr_28px_1fr] items-start">
+
           {/* ── Current Me panel ── */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-2 sm:p-3 flex flex-col">
-            <div className="flex items-start gap-1.5 sm:gap-2 flex-1">
-              {/* Left badges */}
-              <div className="flex flex-col gap-1.5 shrink-0 w-[90px] sm:w-[110px]">
-                {currentBadges.map(b => <TraitBadge key={b.label} {...b} />)}
-              </div>
-              {/* Avatar */}
-              <div className="flex-1 flex justify-center items-start pt-1">
-                {selectedGender === null ? (
-                  <div className="w-[100px] aspect-[2/3] flex items-center justify-center">
-                    <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
-                  </div>
-                ) : (
-                  <FutureMeAvatar {...currentAvatarProps} />
-                )}
-              </div>
+          <div className="bg-gradient-to-b from-blue-50 to-indigo-50/50 rounded-xl p-3 flex flex-col items-center gap-2">
+
+            {/* 1. Avatar — focal point */}
+            <div className="flex justify-center items-start w-full">
+              {selectedGender === null ? (
+                <div className="w-[100px] aspect-[2/3] flex items-center justify-center">
+                  <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
+                </div>
+              ) : (
+                <FutureMeAvatar {...currentAvatarProps} />
+              )}
             </div>
 
+            {/* 2. Single status + percentage */}
             <ThrivingRow score={currentThrivingScore} />
+
+            {/* 3. Descriptor chips */}
             <TagRow tags={currentTags} />
+
+            {/* 4. Metric chips (secondary, compact horizontal) */}
+            <div className="flex flex-wrap justify-center gap-1 w-full pt-0.5 border-t border-white/60 mt-0.5">
+              {currentBadges.map(b => <MetricChip key={b.label} {...b} />)}
+            </div>
           </div>
 
           {/* Arrow divider */}
-          <div className="flex items-center justify-center">
-            <div className="w-7 h-7 rounded-full bg-white border-2 border-gray-200 shadow-sm flex items-center justify-center">
-              <span className="text-xs text-gray-400">➡️</span>
+          <div className="flex items-center justify-center" style={{ paddingTop: '72px' }}>
+            <div className="w-6 h-6 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center shrink-0">
+              <span className="text-[9px] text-gray-400">➡️</span>
             </div>
           </div>
 
           {/* ── Future Me panel ── */}
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-2 sm:p-3 flex flex-col">
-            <div className="flex items-start gap-1.5 sm:gap-2 flex-1">
-              {/* Avatar */}
-              <div className="flex-1 flex justify-center items-start pt-1">
-                {selectedGender === null ? (
-                  <div className="w-[100px] aspect-[2/3] flex items-center justify-center">
-                    <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
-                  </div>
-                ) : fm ? (
-                  <FutureAvatar {...futureAvatarProps} />
-                ) : (
-                  <div className="w-[100px] aspect-[2/3] flex flex-col items-center justify-center gap-2 opacity-30">
-                    <div className="w-10 h-10 rounded-full bg-purple-300" />
-                    <div className="w-8 h-16 rounded-full bg-purple-200" />
-                  </div>
-                )}
-              </div>
-              {/* Right badges */}
-              <div className="flex flex-col gap-1.5 shrink-0 w-[90px] sm:w-[110px]">
-                {fm && futureBadges
-                  ? futureBadges.map(b => <TraitBadge key={b.label} {...b} />)
-                  : Array.from({ length: 5 }).map((_, i) => (
-                      <div key={i} className="h-[34px] rounded-lg bg-white/60 border border-white/80" />
-                    ))}
-              </div>
+          <div className="bg-gradient-to-b from-purple-50 to-pink-50/50 rounded-xl p-3 flex flex-col items-center gap-2">
+
+            {/* 1. Avatar — focal point */}
+            <div className="flex justify-center items-start w-full">
+              {selectedGender === null ? (
+                <div className="w-[100px] aspect-[2/3] flex items-center justify-center">
+                  <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
+                </div>
+              ) : fm ? (
+                <FutureAvatar {...futureAvatarProps} />
+              ) : (
+                <div className="w-[100px] aspect-[2/3] flex flex-col items-center justify-center gap-2 opacity-25">
+                  <div className="w-10 h-10 rounded-full bg-purple-300" />
+                  <div className="w-8 h-16 rounded-full bg-purple-200" />
+                </div>
+              )}
             </div>
 
+            {/* 2. Single status + percentage */}
             <ThrivingRow score={futureThrivingScore} />
+
+            {/* 3. Descriptor chips */}
             {fm
               ? <TagRow tags={futureTags} />
-              : <p className="text-[10px] text-center text-gray-400 mt-2">Log more days to unlock</p>
+              : <p className="text-[10px] text-center text-gray-400">Log more days to unlock</p>
             }
+
+            {/* 4. Metric chips (secondary, compact horizontal) */}
+            <div className="flex flex-wrap justify-center gap-1 w-full pt-0.5 border-t border-white/60 mt-0.5 min-h-[24px]">
+              {fm && futureBadges
+                ? futureBadges.map(b => <MetricChip key={b.label} {...b} />)
+                : null
+              }
+            </div>
+
             {projectionConfidence === 'LOW' && fm && (
-              <p className="text-[10px] text-slate-400 text-center mt-1">
+              <p className="text-[10px] text-slate-400 text-center leading-snug">
                 Refining as more data is logged.
               </p>
             )}
           </div>
         </div>
 
-        {/* Card footers */}
-        <div className="grid grid-cols-[1fr_32px_1fr] mt-2">
+        {/* 6. Explanatory text */}
+        <div className="grid grid-cols-[1fr_28px_1fr] mt-3">
           <p className="text-[10px] text-gray-400 text-center leading-snug px-1">
-            Your avatar reflects your baseline wellness state from onboarding.
+            Reflects your baseline wellness state.
           </p>
           <div />
           <p className="text-[10px] text-gray-400 text-center leading-snug px-1">
             {fm
-              ? 'Your predicted physical trajectory based on current patterns.'
+              ? 'Based on your current logged patterns.'
               : 'Track more days to generate your projection.'}
           </p>
         </div>
 
-        {/* Key Pattern banner */}
+        {/* Key Transformation banner */}
         {keyPatternLine && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="mt-4 p-3 sm:p-4 bg-indigo-50 rounded-xl flex gap-3 items-start"
+            className="mt-4 p-3 bg-indigo-50 rounded-xl flex gap-2.5 items-start"
           >
-            <span className="text-base shrink-0 mt-0.5">📖</span>
-            <p className="text-sm text-gray-700">
+            <span className="text-sm shrink-0 mt-0.5">📖</span>
+            <p className="text-sm text-gray-700 leading-relaxed">
               <span className="font-semibold text-gray-800">Key Transformation: </span>
               {keyPatternLine}
             </p>
@@ -495,8 +496,9 @@ export default function AvatarScreen() {
         )}
       </motion.div>
 
-      {/* ── Controls + metrics ──────────────────────────────────────────────── */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* ── Controls + metrics ───────────────────────────────────────────── */}
+      <div className="grid lg:grid-cols-2 gap-5">
+
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -516,11 +518,11 @@ export default function AvatarScreen() {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="space-y-6"
+          className="space-y-4"
         >
           <div className="card">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Your Lifestyle Metrics</h2>
-            <div className="space-y-4">
+            <h2 className="text-sm font-semibold text-gray-700 mb-4">Lifestyle Metrics</h2>
+            <div className="space-y-3.5">
               <MetricBar label="Physical Activity" value={cm.activity}  max={5} color="blue"   />
               <MetricBar label="Nutrition Quality" value={cm.nutrition} max={5} color="green"  />
               <MetricBar label="Sleep Quality"     value={cm.sleep}     max={5} color="purple" />
@@ -529,16 +531,19 @@ export default function AvatarScreen() {
           </div>
 
           <div className="card">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Your Goals</h2>
-            <div className="flex flex-wrap gap-2">
+            <h2 className="text-sm font-semibold text-gray-700 mb-3">Your Goals</h2>
+            <div className="flex flex-wrap gap-1.5">
               {liveProfile.goals && liveProfile.goals.length > 0 ? (
                 liveProfile.goals.map((goal, idx) => (
-                  <span key={idx} className="px-4 py-2 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
+                  <span
+                    key={idx}
+                    className="px-3 py-1.5 bg-primary-50 text-primary-700 rounded-full text-xs font-medium"
+                  >
                     {goal}
                   </span>
                 ))
               ) : (
-                <p className="text-gray-500">No goals set</p>
+                <p className="text-sm text-gray-500">No goals set</p>
               )}
             </div>
           </div>
@@ -546,6 +551,7 @@ export default function AvatarScreen() {
           <ImageUpload onUpload={() => console.log('Avatar Screen: Image upload successful')} />
         </motion.div>
       </div>
+
     </div>
   );
 }
