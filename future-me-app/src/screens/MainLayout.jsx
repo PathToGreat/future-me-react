@@ -9,6 +9,7 @@ import AvatarScreen from './AvatarScreen';
 import HabitsScreen from './HabitsScreen';
 import MetricsScreen from './MetricsScreen';
 import MenuScreen from './MenuScreen';
+import FutureLabScreen from './FutureLabScreen';
 
 function MainLayoutContent() {
   const [activeTab, setActiveTab] = useState('home');
@@ -31,7 +32,9 @@ function MainLayoutContent() {
       case 'metrics':
         return <MetricsScreen />;
       case 'menu':
-        return <MenuScreen />;
+        return <MenuScreen onNavigate={setActiveTab} />;
+      case 'futureLab':
+        return <FutureLabScreen onBack={() => setActiveTab('menu')} />;
       default:
         return <HomeScreen />;
     }

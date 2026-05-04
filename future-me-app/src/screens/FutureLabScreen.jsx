@@ -1,0 +1,311 @@
+import { useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../config/firebase';
+import { useAuth } from '../context/AuthContext';
+import { useApp } from '../context/AppContext';
+import FutureAvatar from '../components/FutureAvatar';
+
+const EXPERIMENT_VERSION = 'v1.0-visual-direction';
+
+// ─── Placeholder visuals for versions B and C ─────────────────────────────────
+
+function PlaceholderVisual({ label, description, accentColor }) {
+  const colors = {
+    amber:  { bg: 'bg-amber-50',  border: 'border-amber-200',  text: 'text-amber-600',  dot: 'bg-amber-400' },
+    teal:   { bg: 'bg-teal-50',   border: 'border-teal-200',   text: 'text-teal-600',   dot: 'bg-teal-400' },
+  };
+  const c = colors[accentColor] || colors.amber;
+
+  return (
+    <div className={`w-full flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed ${c.bg} ${c.border} py-10 px-4`}>
+      <div className={`w-14 h-14 rounded-full ${c.dot} opacity-30`} />
+      <div className={`w-8 h-20 rounded-full ${c.dot} opacity-20`} />
+      <p className={`text-xs font-semibold uppercase tracking-wide mt-2 ${c.text}`}>{label}</p>
+      {description && (
+        <p className="text-xs text-gray-400 text-center max-w-[160px]">{description}</p>
+      )}
+    </div>
+  );
+}
+
+// ─── Version card ──────────────────────────────────────────────────────────────
+
+function VersionCard({ id, label, descriptor, children, selected, onSelect }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`flex flex-col rounded-2xl border-2 transition-all cursor-pointer overflow-hidden
+        ${selected
+          ? 'border-indigo-400 shadow-md shadow-indigo-100'
+          : 'border-gray-200 hover:border-gray-300'}`}
+      onClick={onSelect}
+    >
+      {/* Header */}
+      <div className={`flex items-center justify-between px-4 py-2.5 ${selected ? 'bg-indigo-50' : 'bg-gray-50'}`}>
+        <div className="flex items-center gap-2">
+          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0
+            ${selected ? 'border-indigo-500 bg-indigo-500' : 'border-gray-300 bg-white'}`}>
+            {selected && <div className="w-2 h-2 rounded-full bg-white" />}
+          </div>
+          <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">{label}</span>
+        </div>
+        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium
+          ${selected ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-200 text-gray-500'}`}>
+          Version {id}
+        </span>
+      </div>
+
+      {/* Visual */}
+      <div className="flex justify-center items-center bg-white px-4 py-4 min-h-[220px]">
+        {children}
+      </div>
+
+      {/* Descriptor */}
+      {descriptor && (
+        <div className="px-4 py-2 border-t border-gray-100">
+          <p className="text-xs text-gray-500 text-center">{descriptor}</p>
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+// ─── Rating row ────────────────────────────────────────────────────────────────
+
+function RatingInput({ value, onChange }) {
+  return (
+    <div className="flex gap-2 justify-center">
+      {[1, 2, 3, 4, 5].map(n => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n === value ? null : n)}
+          className={`w-9 h-9 rounded-full border-2 text-sm font-semibold transition-all
+            ${value === n
+              ? 'border-indigo-500 bg-indigo-500 text-white'
+              : 'border-gray-300 text-gray-500 hover:border-indigo-300'}`}
+        >
+          {n}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─── Main screen ───────────────────────────────────────────────────────────────
+
+export default function FutureLabScreen({ onBack }) {
+  const { user } = useAuth();
+  const {
+    futureMetrics,
+    habits,
+    achievements,
+    selectedGender,
+    liveProfile,
+    historyData,
+  } = useApp();
+
+  const [selectedVersion, setSelectedVersion] = useState(null);
+  const [rating, setRating]                   = useState(null);
+  const [textFeedback, setTextFeedback]       = useState('');
+  const [submitting, setSubmitting]           = useState(false);
+  const [submitted, setSubmitted]             = useState(false);
+  const [submitError, setSubmitError]         = useState(null);
+
+  const canSubmit = selectedVersion !== null && !submitting && !submitted;
+
+  const handleSubmit = useCallback(async () => {
+    if (!canSubmit || !user) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const record = {
+        selectedOption:    selectedVersion,
+        rating:            rating ?? null,
+        textFeedback:      textFeedback.trim() || null,
+        timestamp:         serverTimestamp(),
+        experimentVersion: EXPERIMENT_VERSION,
+        userId:            user.uid,
+      };
+      await addDoc(collection(db, 'users', user.uid, 'futureLabFeedback'), record);
+      setSubmitted(true);
+    } catch (err) {
+      console.error('FutureLab feedback write failed:', err);
+      setSubmitError('Something went wrong saving your response. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [canSubmit, user, selectedVersion, rating, textFeedback]);
+
+  const futureAvatarProps = {
+    futureMetrics,
+    images:    liveProfile?.images,
+    habits,
+    achievements,
+    lifeZones: liveProfile?.lifeZones,
+    gender:    selectedGender,
+    baselineData: {
+      baselineState:    liveProfile?.baselineState,
+      lifestyleRhythm:  liveProfile?.lifestyleRhythm,
+      emotionalProfile: liveProfile?.emotionalProfile,
+      faithPurpose:     liveProfile?.faithPurpose,
+    },
+    historyData,
+    skinTone:  'medium',
+    hairStyle: 'medium',
+    hairColor: '#3b2314',
+  };
+
+  return (
+    <div className="space-y-6 pb-8">
+      {/* Header + back */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onBack}
+          className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors shrink-0"
+          aria-label="Back"
+        >
+          ←
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Future Lab</h1>
+          <p className="text-xs text-gray-400 mt-0.5 uppercase tracking-wide font-medium">Preview — Experimental</p>
+        </div>
+      </div>
+
+      {/* Intro */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4"
+      >
+        <p className="text-sm text-gray-600 leading-relaxed">
+          This area previews visual directions we are testing. These representations are experimental
+          and may not yet reflect the final version of your Future Me.
+        </p>
+      </motion.div>
+
+      {/* Visual versions */}
+      <div>
+        <h2 className="text-sm font-semibold text-gray-700 mb-3">
+          Which version best helps you understand your future self?
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <VersionCard
+            id="A"
+            label="Current Avatar"
+            descriptor="SVG-based avatar driven by your logged metrics"
+            selected={selectedVersion === 'A'}
+            onSelect={() => setSelectedVersion('A')}
+          >
+            {futureMetrics && selectedGender !== null ? (
+              <FutureAvatar {...futureAvatarProps} />
+            ) : (
+              <div className="flex flex-col items-center gap-2 opacity-40">
+                <div className="w-12 h-12 rounded-full bg-indigo-200" />
+                <div className="w-8 h-20 rounded-full bg-indigo-100" />
+                <p className="text-xs text-gray-400 mt-1">Log more days to preview</p>
+              </div>
+            )}
+          </VersionCard>
+
+          <VersionCard
+            id="B"
+            label="Experimental Render"
+            descriptor="Reserved for AI-generated future image — not yet implemented"
+            selected={selectedVersion === 'B'}
+            onSelect={() => setSelectedVersion('B')}
+          >
+            <PlaceholderVisual
+              label="Coming Soon"
+              description="AI-generated render based on your identity data"
+              accentColor="amber"
+            />
+          </VersionCard>
+
+          <VersionCard
+            id="C"
+            label="Stylized Concept"
+            descriptor="Alternative visual style — direction under evaluation"
+            selected={selectedVersion === 'C'}
+            onSelect={() => setSelectedVersion('C')}
+          >
+            <PlaceholderVisual
+              label="In Exploration"
+              description="A different visual representation of projected identity"
+              accentColor="teal"
+            />
+          </VersionCard>
+        </div>
+      </div>
+
+      {/* Feedback form */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="card space-y-5"
+      >
+        <h2 className="text-base font-semibold text-gray-800">Your Feedback</h2>
+
+        {/* Rating */}
+        <div>
+          <p className="text-sm text-gray-600 mb-3">
+            How useful is this visualization? <span className="text-gray-400">(optional)</span>
+          </p>
+          <RatingInput value={rating} onChange={setRating} />
+          <div className="flex justify-between text-[10px] text-gray-400 mt-1.5 px-1">
+            <span>Not useful</span>
+            <span>Very useful</span>
+          </div>
+        </div>
+
+        {/* Text input */}
+        <div>
+          <label className="text-sm text-gray-600 block mb-2">
+            What feels accurate or inaccurate about this?{' '}
+            <span className="text-gray-400">(optional)</span>
+          </label>
+          <textarea
+            value={textFeedback}
+            onChange={e => setTextFeedback(e.target.value)}
+            rows={3}
+            maxLength={500}
+            placeholder="Share anything that stands out…"
+            className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300 text-gray-700 placeholder-gray-400"
+            disabled={submitted}
+          />
+          <p className="text-[10px] text-gray-400 text-right mt-0.5">
+            {textFeedback.length}/500
+          </p>
+        </div>
+
+        {/* Submit */}
+        {submitted ? (
+          <div className="flex items-center gap-2 text-green-600 bg-green-50 rounded-xl px-4 py-3">
+            <span className="text-lg">✓</span>
+            <p className="text-sm font-medium">Response recorded. Thank you.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <button
+              onClick={handleSubmit}
+              disabled={!canSubmit}
+              className={`w-full py-3 rounded-xl text-sm font-semibold transition-all
+                ${canSubmit
+                  ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+            >
+              {submitting ? 'Saving…' : selectedVersion ? 'Submit Feedback' : 'Select a version above to continue'}
+            </button>
+            {submitError && (
+              <p className="text-xs text-red-500 text-center">{submitError}</p>
+            )}
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+}

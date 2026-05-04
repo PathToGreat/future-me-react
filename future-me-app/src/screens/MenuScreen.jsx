@@ -8,6 +8,7 @@ import InvestorMetricsDashboard from '../components/InvestorMetricsDashboard';
 import ReminderSettings from '../components/ReminderSettings';
 
 const MENU_ITEMS = [
+  { id: 'futureLab', label: 'Future Lab', icon: '🎯', description: 'Preview and compare experimental visual directions', highlight: true },
   { id: 'devices', label: 'Connected Devices', icon: '📱', description: 'Manage health device integrations' },
   { id: 'reminders', label: 'Reflection Reminders', icon: '📊', description: 'Choose when to be notified of meaningful changes' },
   { id: 'retake', label: 'Retake Assessment', icon: '📋', description: 'Update your baseline metrics' },
@@ -17,7 +18,7 @@ const MENU_ITEMS = [
   { id: 'logout', label: 'Log Out', icon: '🚪', description: 'Sign out of your account', danger: true },
 ];
 
-export default function MenuScreen() {
+export default function MenuScreen({ onNavigate }) {
   const { logout } = useAuth();
   const { replayWalkthrough } = useApp();
   const navigate = useNavigate();
@@ -43,6 +44,9 @@ export default function MenuScreen() {
 
   const handleMenuClick = async (itemId) => {
     switch (itemId) {
+      case 'futureLab':
+        if (onNavigate) onNavigate('futureLab');
+        break;
       case 'devices':
         setShowDevicesPanel(true);
         break;
@@ -89,21 +93,30 @@ export default function MenuScreen() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
             onClick={() => handleMenuClick(item.id)}
-            className={`w-full flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left ${
-              item.danger ? 'hover:border-red-200' : 'hover:border-blue-200'
+            className={`w-full flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border transition-all text-left ${
+              item.danger     ? 'border-gray-100 hover:border-red-200'
+              : item.highlight ? 'border-indigo-200 hover:border-indigo-400'
+              : 'border-gray-100 hover:border-blue-200'
             }`}
           >
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              item.danger ? 'bg-red-50' : 'bg-gray-50'
+              item.danger ? 'bg-red-50' : item.highlight ? 'bg-indigo-50' : 'bg-gray-50'
             }`}>
               <span className="text-2xl">{item.icon}</span>
             </div>
             <div className="flex-1">
-              <h3 className={`font-semibold ${
-                item.danger ? 'text-red-600' : 'text-gray-800'
-              }`}>
-                {item.label}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className={`font-semibold ${
+                  item.danger ? 'text-red-600' : item.highlight ? 'text-indigo-700' : 'text-gray-800'
+                }`}>
+                  {item.label}
+                </h3>
+                {item.highlight && (
+                  <span className="text-[10px] px-1.5 py-0.5 bg-indigo-100 text-indigo-600 rounded-full font-semibold uppercase tracking-wide">
+                    Preview
+                  </span>
+                )}
+              </div>
               <p className="text-sm text-gray-500">{item.description}</p>
             </div>
             <svg 
