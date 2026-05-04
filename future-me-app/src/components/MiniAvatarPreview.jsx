@@ -130,9 +130,9 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
 
   const colors = useMemo(() => {
     const energyScore = avatarTraits.glowEnergy.score;
-    if (energyScore >= 75) return { body: '#10b981', bg: 'from-emerald-50 to-slate-50' };
-    if (energyScore >= 50) return { body: '#f59e0b', bg: 'from-amber-50 to-slate-50' };
-    return { body: '#94a3b8', bg: 'from-slate-50 to-gray-50' };
+    if (energyScore >= 75) return { body: '#10b981', bg: 'from-indigo-50 via-blue-50 to-indigo-50/40' };
+    if (energyScore >= 50) return { body: '#f59e0b', bg: 'from-indigo-50 via-blue-50/70 to-indigo-50/30' };
+    return { body: '#94a3b8', bg: 'from-slate-100 via-indigo-50/50 to-blue-50/40' };
   }, [avatarTraits.glowEnergy.score]);
 
   const resolvedSkinTone = loadSkinTone();
@@ -165,10 +165,10 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
       whileTap={{ scale: 0.995 }}
       transition={{ duration: 0.3 }}
       onClick={() => onNavigateToAvatar && onNavigateToAvatar('avatar')}
-      className={`w-full bg-gradient-to-br ${colors.bg} to-indigo-50/30 rounded-2xl border border-blue-100/60 shadow-sm p-5 flex items-center gap-5 text-left`}
+      className={`w-full bg-gradient-to-br ${colors.bg} rounded-2xl border border-indigo-200/70 shadow-md ring-1 ring-indigo-100/40 p-6 flex items-center gap-5 text-left`}
     >
-      {/* Avatar — larger */}
-      <div className="w-20 h-28 flex-shrink-0 flex items-end justify-center">
+      {/* Avatar — primary focal point */}
+      <div className="w-24 h-32 flex-shrink-0 flex items-end justify-center">
         {USE_HUMAN_AVATAR_V2 && humanAvatarParams ? (
           <HumanAvatarRenderer
             params={humanAvatarParams}

@@ -1,0 +1,169 @@
+Refactor the Home/Dashboard visual system so color becomes part of the primary surfaces, not just accents.
+
+Do NOT change logic, data, Firestore, scoring, or language. This is strictly a visual hierarchy and surface redesign using the EXISTING app color palette.
+
+Goal:
+The page currently feels gray because all main surfaces are white/neutral with small color accents. We need to invert that balance so key sections carry soft color by default, while still maintaining a calm, natural, non-gamified tone.
+
+---
+
+### 1. Upgrade surface system (CRITICAL)
+
+Introduce 3 surface tiers:
+
+Tier 1 (Primary Surface)
+Used for:
+
+* "Your Current Self" card
+* CTA section background area
+
+Style:
+
+* soft gradient background using existing indigo/blue tones
+* e.g. bg-gradient-to-br from-indigo-50 to-blue-50 (low saturation)
+* subtle border (border-indigo-100)
+* slightly stronger shadow than other cards
+
+This should be the most visually present element on the page.
+
+---
+
+Tier 2 (Secondary Surfaces)
+Used for:
+
+* Today's Signals strip
+* Monthly Snapshot
+* Direction card
+
+Style:
+
+* tinted backgrounds instead of white
+* use color based on meaning:
+
+  * Signals: very light indigo tint
+  * Forming (monthly): light emerald tint
+  * Declining: light amber tint
+* avoid pure white backgrounds
+
+Example:
+bg-indigo-50/60
+bg-emerald-50/60
+bg-amber-50/60
+
+---
+
+Tier 3 (Neutral Surfaces)
+Used for:
+
+* expandable sections (Progress, Insights)
+* less critical information
+
+Style:
+
+* keep mostly white but slightly warm (not gray)
+* reduce border harshness
+
+---
+
+### 2. Strengthen background system
+
+Current blobs are too weak.
+
+Update:
+
+* increase opacity slightly (still subtle)
+* increase size and blur so they influence the page tone
+* allow slight overlap behind primary card
+
+Use:
+
+* indigo (top right)
+* blue (bottom left)
+* emerald (bottom right)
+
+They should create atmosphere, not decoration.
+
+---
+
+### 3. Make "Your Current Self" dominant
+
+Enhance this card further:
+
+* increase internal padding
+* slightly increase avatar size again
+* ensure gradient background is visible (not washed out)
+* add very subtle inner glow or highlight
+
+This should clearly feel like:
+"This is the center of the page"
+
+---
+
+### 4. Reduce gray usage globally
+
+Audit all instances of:
+
+* bg-gray-50
+* bg-gray-100
+* border-gray-200
+
+Replace with:
+
+* warmer neutrals or tinted surfaces
+
+Example:
+bg-white → bg-white/90
+bg-gray-50 → bg-indigo-50/30 or warm neutral
+
+Goal:
+Remove the “cold gray dashboard” feel.
+
+---
+
+### 5. Increase contrast between sections
+
+Right now sections blend together.
+
+Do:
+
+* slightly increase vertical spacing between sections
+* vary background tones between adjacent cards
+* reduce uniformity
+
+The page should feel layered, not stacked.
+
+---
+
+### 6. CTA should sit on its own layer
+
+Wrap the CTA button in a slightly tinted container:
+
+* soft gradient background behind the button
+* not just the button itself
+
+This creates separation and importance.
+
+---
+
+### 7. Keep restraint
+
+Do NOT:
+
+* increase saturation too much
+* add bright colors
+* introduce gamification visuals
+* add badges, streaks, rewards
+
+Everything should still feel calm and grounded.
+
+---
+
+### Acceptance criteria:
+
+* The page no longer reads as gray at first glance
+* Color is part of the surfaces, not just borders
+* "Your Current Self" is clearly the focal point
+* Sections feel layered and distinct
+* The app feels more alive without feeling gamified
+* All colors match the existing app palette
+* No logic or data behavior is changed

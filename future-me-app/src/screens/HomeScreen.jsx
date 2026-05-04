@@ -46,7 +46,7 @@ function TodaysSignals({ historyData }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.08 }}
-      className="bg-white/80 rounded-2xl border border-gray-100 shadow-sm px-4 py-3"
+      className="bg-indigo-50/60 rounded-2xl border border-indigo-100/70 shadow-sm px-4 py-3"
     >
       <div className="flex items-center justify-between mb-2.5">
         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
@@ -195,12 +195,12 @@ export default function HomeScreen({ onNavigate }) {
   const dateLabel = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div className="space-y-5 relative">
-      {/* Subtle page-level background accents */}
+    <div className="space-y-6 relative">
+      {/* Atmospheric background layer — creates depth without decorating */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-indigo-100/30 blur-3xl" />
-        <div className="absolute top-1/2 -left-24 w-64 h-64 rounded-full bg-blue-100/20 blur-3xl" />
-        <div className="absolute bottom-20 right-8 w-48 h-48 rounded-full bg-emerald-100/20 blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-[520px] h-[520px] rounded-full bg-indigo-200/25 blur-[80px]" />
+        <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full bg-blue-200/20 blur-[70px]" />
+        <div className="absolute bottom-24 -right-16 w-72 h-72 rounded-full bg-emerald-200/18 blur-[60px]" />
       </div>
 
       {/* Header */}
@@ -232,18 +232,23 @@ export default function HomeScreen({ onNavigate }) {
 
       <MonthlySnapshotCard onOpenSnapshot={() => setShowMonthlySnapshot(true)} />
 
-      <motion.button
+      {/* CTA — sits on its own surface layer */}
+      <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -1, boxShadow: '0 6px 24px rgba(99,102,241,0.22)' }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ delay: 0.15 }}
-        onClick={() => onNavigate && onNavigate('metrics')}
-        className="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-semibold rounded-2xl shadow-md flex items-center justify-center gap-3"
+        transition={{ delay: 0.12 }}
+        className="bg-gradient-to-br from-indigo-50/80 to-blue-50/70 rounded-2xl border border-indigo-100 p-3"
       >
-        <span className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-base flex-shrink-0">📊</span>
-        <span className="text-[15px]">Log Today's Metrics</span>
-      </motion.button>
+        <motion.button
+          whileHover={{ y: -1, boxShadow: '0 6px 24px rgba(99,102,241,0.25)' }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => onNavigate && onNavigate('metrics')}
+          className="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-semibold rounded-xl shadow-md flex items-center justify-center gap-3"
+        >
+          <span className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-base flex-shrink-0">📊</span>
+          <span className="text-[15px]">Log Today's Metrics</span>
+        </motion.button>
+      </motion.div>
 
       <ProgressDetails>
         <FutureSelfPreview 
