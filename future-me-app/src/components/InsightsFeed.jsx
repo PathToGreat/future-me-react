@@ -198,16 +198,24 @@ export default function InsightsFeed() {
   if (!loaded || feedInsights.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div
+      data-section="insights"
+      className="bg-gradient-to-br from-indigo-50/40 to-white rounded-2xl border border-indigo-100/60 border-t-2 border-t-indigo-200 shadow-sm overflow-hidden"
+    >
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full px-6 py-4 flex items-center justify-between text-left"
       >
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm">📊</span>
           <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-            Insights{unreadCount > 0 ? ` (${unreadCount} new)` : ''}
+            Insights
           </span>
+          {unreadCount > 0 && (
+            <span className="text-[10px] font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded-full">
+              {unreadCount} new
+            </span>
+          )}
         </div>
         <motion.svg
           animate={{ rotate: isOpen ? 180 : 0 }}

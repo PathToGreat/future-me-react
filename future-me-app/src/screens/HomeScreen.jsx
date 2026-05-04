@@ -215,9 +215,13 @@ export default function HomeScreen({ onNavigate }) {
 
       <ReminderBanner />
 
-      <MiniAvatarPreview onNavigateToAvatar={onNavigate} />
-
-      <TodaysSignals historyData={historyData} />
+      {/* ── Top zone: Current Self + Today's Signals ─────────────────
+           Tighter gap (space-y-3) keeps them visually connected.
+           The outer space-y-6 then creates a clear break before Reflection. */}
+      <div className="space-y-3">
+        <MiniAvatarPreview onNavigateToAvatar={onNavigate} />
+        <TodaysSignals historyData={historyData} />
+      </div>
 
       <TodaysReflection
         currentPattern={currentPattern}

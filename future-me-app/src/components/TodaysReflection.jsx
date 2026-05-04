@@ -454,23 +454,25 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+      className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 rounded-2xl border border-indigo-100/60 border-l-4 border-l-indigo-300 shadow-sm overflow-hidden"
     >
-      <div className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
-          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-            Today's Reflection
-          </span>
-        </div>
+      {/* Header band */}
+      <div className="px-5 pt-4 pb-0 flex items-center gap-2">
+        <span className="text-sm">📖</span>
+        <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">
+          Today's Reflection
+        </span>
+      </div>
 
+      <div className="p-5 pt-3">
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+          {/* Icon container — indigo tinted */}
+          <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center flex-shrink-0 mt-0.5">
             <span className="text-lg">{reflection.icon}</span>
           </div>
           <div className="flex-1 min-w-0">
             <div className="mb-1">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">
                 {reflection.label}
               </span>
             </div>
@@ -484,10 +486,10 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
         </div>
 
         {hasExpansion && (
-          <div className="mt-4 pt-3 border-t border-gray-50">
+          <div className="mt-4 pt-3 border-t border-indigo-100/50">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-xs text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1.5"
+              className="text-xs text-indigo-400 hover:text-indigo-600 transition-colors flex items-center gap-1.5 font-medium"
             >
               <motion.svg
                 animate={{ rotate: isExpanded ? 90 : 0 }}
@@ -510,17 +512,17 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
                   className="overflow-hidden"
                 >
                   {reflection.whyThisMatters && (
-                    <p className="text-sm text-gray-500 leading-relaxed mt-3 pl-4 border-l-2 border-slate-100">
+                    <p className="text-sm text-gray-500 leading-relaxed mt-3 pl-4 border-l-2 border-indigo-200">
                       {reflection.whyThisMatters}
                     </p>
                   )}
                   {reflection.tryThis && (
-                    <p className="text-xs text-slate-400 leading-relaxed mt-2 pl-4 border-l-2 border-slate-50">
+                    <p className="text-xs text-slate-400 leading-relaxed mt-2 pl-4 border-l-2 border-indigo-100">
                       <span className="text-slate-500">Try this:</span> {reflection.tryThis}
                     </p>
                   )}
                   {reflection.consequence && (
-                    <p className="text-xs text-slate-400 leading-relaxed mt-1.5 pl-4 border-l-2 border-slate-50 italic">
+                    <p className="text-xs text-slate-400 leading-relaxed mt-1.5 pl-4 border-l-2 border-indigo-100 italic">
                       {reflection.consequence}
                     </p>
                   )}
@@ -531,7 +533,7 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
         )}
 
         {reflection.type === 'pattern' && currentPattern && (
-          <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-end">
+          <div className="mt-3 pt-3 border-t border-indigo-100/50 flex items-center justify-end">
             <button
               onClick={() => {
                 if (onPatternDismiss) onPatternDismiss(currentPattern.type, Date.now());

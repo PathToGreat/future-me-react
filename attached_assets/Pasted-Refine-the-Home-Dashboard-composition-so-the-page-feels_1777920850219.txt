@@ -1,0 +1,52 @@
+Refine the Home/Dashboard composition so the page feels less like a stack of repeated cards and more like a living dashboard.
+
+Do not change data logic, scoring, Firestore, routing, or the language system.
+
+Keep the new 3-tier surface system from the last pass. Do not undo those changes.
+
+Main goal:
+The color system is improved, but the page may still feel too repetitive because every section is a full-width rounded rectangle. Improve layout rhythm and visual interest while keeping the calm, natural Future Me tone.
+
+Updates:
+
+1. Create a stronger top dashboard zone.
+   Group “Your Current Self” and “Today’s Signals” into a visually connected upper area. They should feel related, not like two unrelated cards. Use spacing, background layering, or subtle shared container treatment.
+
+2. Make Today’s Reflection more visually important.
+   This is the most meaningful content on the page after the Current Self card. Give it a slightly richer surface treatment:
+
+* soft tinted background, not plain white
+* clearer icon treatment
+* better text spacing
+* subtle accent gradient or top border
+* keep the current copy and hierarchy
+
+3. Break the repeated rectangle pattern.
+   Vary the visual form slightly:
+
+* some cards can have colored side accents
+* some can have soft header bands
+* some can use inset chips
+* avoid making every section look identical
+
+4. Add small organic visual details.
+   Use restrained nature-inspired details from the existing palette:
+
+* soft leaf/sprout style icon treatment
+* gentle circular highlights
+* subtle flowing gradient accents
+* no decorative clutter
+
+5. Keep the page calm.
+   Do not add streaks, points, trophies, reward badges, confetti, or playful animation.
+
+6. Improve bottom sections.
+   Progress & Details and Insights should not look like dead collapsed rows. Make them feel like intentional expandable panels with soft icons, slight tinting, and clearer affordance.
+
+Acceptance criteria:
+
+* The page no longer feels like a generic stacked-card dashboard
+* The top section feels more cohesive
+* Today’s Reflection has more presence
+* The design feels natural, alive, and cohesive with the rest of the app
+* No app logic changes
