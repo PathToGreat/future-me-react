@@ -1,0 +1,99 @@
+Future Lab is currently a feedback shell. Extend it so Version B is ready for AI-generated Future Me renders, but do not require the image generation provider to be active yet.
+
+Important:
+I have not set up Replicate or any other provider yet. Build everything that can be built now, but leave the actual generation pathway clearly staged and ready to connect later.
+
+Goal:
+Prepare Version B in Future Lab for a future Replicate-based experimental render flow using the user’s uploaded current photo and existing ITE projection data.
+
+Requirements:
+
+1) Add a “Generate Experimental Render” button inside Version B only.
+
+2) If no image generation provider/API key is configured, clicking the button should not fail. It should show a clear message:
+“AI render generation is not connected yet.”
+
+3) Create the frontend UI state for:
+- idle
+- provider not connected
+- generating
+- render complete
+- render error
+
+4) Create the backend/API route or callable structure that will eventually call Replicate, but leave it inactive until the API key/provider config is added.
+
+5) Do not place any API key in frontend code.
+
+6) Prepare the expected request payload for the future Replicate call. It should include:
+- user uploaded current photo reference
+- ITE trait summary
+- current state summary
+- projected future state summary
+- transformation direction
+- promptVersion
+- experimentVersion
+
+7) Use existing ITE outputs to prepare the future transformation direction:
+- vitality / energy
+- emotional stability / calmness
+- discipline / posture / consistency
+- stress reduction if applicable
+- projected future state
+- strongest lever if available
+
+8) The intended generated image should aim for:
+- same person identity as much as possible
+- healthier posture
+- calmer expression
+- improved energy
+- realistic but not exaggerated transformation
+- not overly muscular
+- not fantasy
+- not cartoon unless a later experiment specifically requests that style
+
+9) Store render metadata separately from feedback data.
+
+Create/prep storage path:
+users/{uid}/futureLabRenders/{renderId}
+
+Each render record should include:
+- renderStatus: pending / provider_not_connected / complete / error
+- imageUrl or storageReference if available
+- sourcePhotoReference
+- promptVersion
+- experimentVersion
+- createdAt
+- provider: “replicate” or “not_configured”
+- ITE summary data used
+- errorMessage if applicable
+
+10) Keep feedback storage exactly as currently built:
+users/{uid}/futureLabFeedback/{feedbackId}
+
+Do not mix render metadata with feedback data.
+
+11) Add cost-control placeholders for future use:
+- user-triggered generation only
+- no auto-generation on page load
+- prepare a simple per-user generation limit field or comment for future enforcement
+- do not implement paid billing logic yet
+
+12) Version B should still display the placeholder card until an actual render exists.
+
+If a render exists for the user, show the latest completed render in Version B.
+If provider is not connected, show the placeholder and connection message.
+
+13) Do not modify:
+- Avatar screen
+- Dashboard
+- ITE logic
+- Main app flow
+- Existing feedback logic
+
+14) Future Lab must remain accessible only to authenticated users.
+
+15) Keep all language clearly experimental.
+This is not part of the main product promise yet.
+
+Goal outcome:
+Version B becomes a staged AI-render experiment area. It should be safe to use now without Replicate configured, and ready to connect later once I add a Replicate API key and choose the model.

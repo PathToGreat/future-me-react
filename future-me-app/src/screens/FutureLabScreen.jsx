@@ -1,22 +1,30 @@
-import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import FutureAvatar from '../components/FutureAvatar';
+import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
+import {
+  buildRenderPayload,
+  initiateRender,
+  getLatestRender,
+} from '../utils/futureLabRender';
 
 const EXPERIMENT_VERSION = 'v1.0-visual-direction';
 
-// ─── Placeholder visuals for versions B and C ─────────────────────────────────
+// ─── Render states ────────────────────────────────────────────────────────────
+// idle | generating | provider_not_connected | complete | error
+
+// ─── Placeholder visual ───────────────────────────────────────────────────────
 
 function PlaceholderVisual({ label, description, accentColor }) {
   const colors = {
-    amber:  { bg: 'bg-amber-50',  border: 'border-amber-200',  text: 'text-amber-600',  dot: 'bg-amber-400' },
-    teal:   { bg: 'bg-teal-50',   border: 'border-teal-200',   text: 'text-teal-600',   dot: 'bg-teal-400' },
+    amber: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-600', dot: 'bg-amber-400' },
+    teal:  { bg: 'bg-teal-50',  border: 'border-teal-200',  text: 'text-teal-600',  dot: 'bg-teal-400' },
   };
   const c = colors[accentColor] || colors.amber;
-
   return (
     <div className={`w-full flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed ${c.bg} ${c.border} py-10 px-4`}>
       <div className={`w-14 h-14 rounded-full ${c.dot} opacity-30`} />
@@ -29,7 +37,115 @@ function PlaceholderVisual({ label, description, accentColor }) {
   );
 }
 
-// ─── Version card ──────────────────────────────────────────────────────────────
+// ─── Version B inner content ──────────────────────────────────────────────────
+
+function VersionBContent({ renderState, latestRender, onGenerate, loadingRender }) {
+  const showRender =
+    latestRender?.renderStatus === 'complete' && latestRender?.imageUrl;
+
+  const isGenerating = renderState === 'generating';
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      {/* Visual area */}
+      {showRender ? (
+        <div className="w-full rounded-xl overflow-hidden border border-gray-200">
+          <img
+            src={latestRender.imageUrl}
+            alt="AI-generated future render"
+            className="w-full object-cover"
+          />
+          <div className="px-3 py-2 bg-gray-50 border-t border-gray-100">
+            <p className="text-[10px] text-gray-400 text-center uppercase tracking-wide">
+              Experimental render — not a prediction
+            </p>
+          </div>
+        </div>
+      ) : isGenerating ? (
+        <div className="w-full flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-amber-200 bg-amber-50 py-10 px-4">
+          <div className="w-8 h-8 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+          <p className="text-xs text-amber-600 font-medium">Requesting render…</p>
+        </div>
+      ) : (
+        <PlaceholderVisual
+          label="AI Render"
+          description="Your identity data is ready — waiting for provider connection"
+          accentColor="amber"
+        />
+      )}
+
+      {/* Status message */}
+      <AnimatePresence mode="wait">
+        {renderState === 'provider_not_connected' && (
+          <motion.div
+            key="not-connected"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5"
+          >
+            <span className="text-amber-500 text-sm mt-0.5">⚖️</span>
+            <p className="text-xs text-amber-700 leading-relaxed">
+              AI render generation is not connected yet. Your identity data has been
+              prepared and saved — this will work once the provider is configured.
+            </p>
+          </motion.div>
+        )}
+
+        {renderState === 'error' && (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5"
+          >
+            <span className="text-red-400 text-sm mt-0.5">📊</span>
+            <p className="text-xs text-red-700 leading-relaxed">
+              Something went wrong requesting the render. Try again later.
+            </p>
+          </motion.div>
+        )}
+
+        {renderState === 'complete' && showRender && (
+          <motion.div
+            key="complete"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2.5"
+          >
+            <span className="text-green-500 text-sm">✓</span>
+            <p className="text-xs text-green-700">Render complete — this is experimental output only.</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Generate button — user-triggered only, never auto-generated */}
+      {!showRender && !isGenerating && (
+        <button
+          onClick={e => { e.stopPropagation(); onGenerate(); }}
+          disabled={isGenerating || loadingRender}
+          className={`w-full py-2.5 rounded-xl text-xs font-semibold transition-all border
+            ${isGenerating || loadingRender
+              ? 'bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed'
+              : 'bg-amber-500 text-white border-amber-500 hover:bg-amber-600 shadow-sm'}`}
+        >
+          {loadingRender ? 'Checking…' : 'Generate Experimental Render'}
+        </button>
+      )}
+
+      {!showRender && !isGenerating && (
+        <p className="text-[10px] text-gray-400 text-center px-2 leading-relaxed">
+          Experimental only. Triggered by you, not automatic.
+          Generation requires provider connection.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ─── Version card ─────────────────────────────────────────────────────────────
 
 function VersionCard({ id, label, descriptor, children, selected, onSelect }) {
   return (
@@ -37,12 +153,9 @@ function VersionCard({ id, label, descriptor, children, selected, onSelect }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       className={`flex flex-col rounded-2xl border-2 transition-all cursor-pointer overflow-hidden
-        ${selected
-          ? 'border-indigo-400 shadow-md shadow-indigo-100'
-          : 'border-gray-200 hover:border-gray-300'}`}
+        ${selected ? 'border-indigo-400 shadow-md shadow-indigo-100' : 'border-gray-200 hover:border-gray-300'}`}
       onClick={onSelect}
     >
-      {/* Header */}
       <div className={`flex items-center justify-between px-4 py-2.5 ${selected ? 'bg-indigo-50' : 'bg-gray-50'}`}>
         <div className="flex items-center gap-2">
           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0
@@ -57,12 +170,10 @@ function VersionCard({ id, label, descriptor, children, selected, onSelect }) {
         </span>
       </div>
 
-      {/* Visual */}
-      <div className="flex justify-center items-center bg-white px-4 py-4 min-h-[220px]">
+      <div className="flex justify-center items-start bg-white px-4 py-4 min-h-[220px]">
         {children}
       </div>
 
-      {/* Descriptor */}
       {descriptor && (
         <div className="px-4 py-2 border-t border-gray-100">
           <p className="text-xs text-gray-500 text-center">{descriptor}</p>
@@ -72,7 +183,7 @@ function VersionCard({ id, label, descriptor, children, selected, onSelect }) {
   );
 }
 
-// ─── Rating row ────────────────────────────────────────────────────────────────
+// ─── Rating input ─────────────────────────────────────────────────────────────
 
 function RatingInput({ value, onChange }) {
   return (
@@ -94,7 +205,7 @@ function RatingInput({ value, onChange }) {
   );
 }
 
-// ─── Main screen ───────────────────────────────────────────────────────────────
+// ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function FutureLabScreen({ onBack }) {
   const { user } = useAuth();
@@ -107,6 +218,7 @@ export default function FutureLabScreen({ onBack }) {
     historyData,
   } = useApp();
 
+  // ── Feedback state (unchanged) ───────────────────────────────────────────
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [rating, setRating]                   = useState(null);
   const [textFeedback, setTextFeedback]       = useState('');
@@ -114,6 +226,88 @@ export default function FutureLabScreen({ onBack }) {
   const [submitted, setSubmitted]             = useState(false);
   const [submitError, setSubmitError]         = useState(null);
 
+  // ── Render state (Version B) ─────────────────────────────────────────────
+  const [renderState, setRenderState]     = useState('idle');
+  const [latestRender, setLatestRender]   = useState(null);
+  const [loadingRender, setLoadingRender] = useState(true);
+
+  // ── ITE computation for payload ──────────────────────────────────────────
+  const iteResult = useMemo(() => {
+    if (!historyData || !liveProfile) return null;
+    try {
+      const latest     = historyData?.[0] || {};
+      const rawMetrics = {
+        activityScore:  latest.activityScore  ?? 3,
+        nutritionScore: latest.nutritionScore ?? 3,
+        sleepScore:     latest.sleepScore     ?? 3,
+        stressScore:    latest.stressScore    ?? 3,
+        lifeZones:      liveProfile?.lifeZones || {},
+        habits:         [],
+      };
+      const baseline = liveProfile?.onboardingBaseline || liveProfile?.baselineState || null;
+      return runIdentityTrajectoryEngine(rawMetrics, historyData, baseline);
+    } catch {
+      return null;
+    }
+  }, [historyData, liveProfile]);
+
+  // ── Load latest render on mount ──────────────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    setLoadingRender(true);
+    getLatestRender({ db, userId: user.uid })
+      .then(render => {
+        if (cancelled) return;
+        setLatestRender(render);
+        if (render?.renderStatus === 'complete') setRenderState('complete');
+        else if (render?.renderStatus === 'provider_not_connected') setRenderState('provider_not_connected');
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoadingRender(false); });
+    return () => { cancelled = true; };
+  }, [user]);
+
+  // ── Handle render request ────────────────────────────────────────────────
+  const handleGenerate = useCallback(async () => {
+    if (!user || renderState === 'generating') return;
+    setRenderState('generating');
+
+    try {
+      const latest   = historyData?.[0] || {};
+      const rawMetrics = {
+        activityScore:  latest.activityScore  ?? null,
+        nutritionScore: latest.nutritionScore ?? null,
+        sleepScore:     latest.sleepScore     ?? null,
+        stressScore:    latest.stressScore    ?? null,
+      };
+
+      // Source photo reference — path/URL only, never an actual file
+      const sourcePhotoReference = liveProfile?.images?.[0]?.path
+        || liveProfile?.images?.[0]?.url
+        || liveProfile?.images?.[0]
+        || null;
+
+      const payload = buildRenderPayload({
+        userId:               user.uid,
+        sourcePhotoReference,
+        iteResult,
+        rawMetrics,
+      });
+
+      const result = await initiateRender({ db, userId: user.uid, payload });
+
+      // Reload the latest render record after initiation
+      const fresh = await getLatestRender({ db, userId: user.uid });
+      setLatestRender(fresh);
+      setRenderState(result.status);
+    } catch (err) {
+      console.error('FutureLab render initiation failed:', err);
+      setRenderState('error');
+    }
+  }, [user, renderState, historyData, liveProfile, iteResult]);
+
+  // ── Feedback submit (unchanged logic) ────────────────────────────────────
   const canSubmit = selectedVersion !== null && !submitting && !submitted;
 
   const handleSubmit = useCallback(async () => {
@@ -121,15 +315,14 @@ export default function FutureLabScreen({ onBack }) {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const record = {
+      await addDoc(collection(db, 'users', user.uid, 'futureLabFeedback'), {
         selectedOption:    selectedVersion,
         rating:            rating ?? null,
         textFeedback:      textFeedback.trim() || null,
         timestamp:         serverTimestamp(),
         experimentVersion: EXPERIMENT_VERSION,
         userId:            user.uid,
-      };
-      await addDoc(collection(db, 'users', user.uid, 'futureLabFeedback'), record);
+      });
       setSubmitted(true);
     } catch (err) {
       console.error('FutureLab feedback write failed:', err);
@@ -139,6 +332,7 @@ export default function FutureLabScreen({ onBack }) {
     }
   }, [canSubmit, user, selectedVersion, rating, textFeedback]);
 
+  // ── Avatar props for Version A ────────────────────────────────────────────
   const futureAvatarProps = {
     futureMetrics,
     images:    liveProfile?.images,
@@ -158,8 +352,10 @@ export default function FutureLabScreen({ onBack }) {
     hairColor: '#3b2314',
   };
 
+  // ────────────────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6 pb-8">
+
       {/* Header + back */}
       <div className="flex items-center gap-3">
         <button
@@ -171,7 +367,9 @@ export default function FutureLabScreen({ onBack }) {
         </button>
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Future Lab</h1>
-          <p className="text-xs text-gray-400 mt-0.5 uppercase tracking-wide font-medium">Preview — Experimental</p>
+          <p className="text-xs text-gray-400 mt-0.5 uppercase tracking-wide font-medium">
+            Preview — Experimental
+          </p>
         </div>
       </div>
 
@@ -179,11 +377,15 @@ export default function FutureLabScreen({ onBack }) {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4"
+        className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 space-y-1"
       >
         <p className="text-sm text-gray-600 leading-relaxed">
-          This area previews visual directions we are testing. These representations are experimental
-          and may not yet reflect the final version of your Future Me.
+          This area previews visual directions we are testing. These representations are
+          experimental and may not reflect the final version of your Future Me.
+        </p>
+        <p className="text-xs text-gray-400 leading-relaxed">
+          Version B includes a staged AI render pathway. No generation happens automatically —
+          only when you request it.
         </p>
       </motion.div>
 
@@ -193,6 +395,8 @@ export default function FutureLabScreen({ onBack }) {
           Which version best helps you understand your future self?
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+          {/* Version A — SVG avatar */}
           <VersionCard
             id="A"
             label="Current Avatar"
@@ -211,20 +415,27 @@ export default function FutureLabScreen({ onBack }) {
             )}
           </VersionCard>
 
+          {/* Version B — staged AI render */}
           <VersionCard
             id="B"
             label="Experimental Render"
-            descriptor="Reserved for AI-generated future image — not yet implemented"
+            descriptor={
+              latestRender?.renderStatus === 'complete'
+                ? 'AI render — experimental output only'
+                : 'AI-generated future render — provider not yet connected'
+            }
             selected={selectedVersion === 'B'}
             onSelect={() => setSelectedVersion('B')}
           >
-            <PlaceholderVisual
-              label="Coming Soon"
-              description="AI-generated render based on your identity data"
-              accentColor="amber"
+            <VersionBContent
+              renderState={renderState}
+              latestRender={latestRender}
+              onGenerate={handleGenerate}
+              loadingRender={loadingRender}
             />
           </VersionCard>
 
+          {/* Version C — placeholder */}
           <VersionCard
             id="C"
             label="Stylized Concept"
@@ -238,10 +449,11 @@ export default function FutureLabScreen({ onBack }) {
               accentColor="teal"
             />
           </VersionCard>
+
         </div>
       </div>
 
-      {/* Feedback form */}
+      {/* Feedback form — unchanged */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -250,7 +462,6 @@ export default function FutureLabScreen({ onBack }) {
       >
         <h2 className="text-base font-semibold text-gray-800">Your Feedback</h2>
 
-        {/* Rating */}
         <div>
           <p className="text-sm text-gray-600 mb-3">
             How useful is this visualization? <span className="text-gray-400">(optional)</span>
@@ -262,7 +473,6 @@ export default function FutureLabScreen({ onBack }) {
           </div>
         </div>
 
-        {/* Text input */}
         <div>
           <label className="text-sm text-gray-600 block mb-2">
             What feels accurate or inaccurate about this?{' '}
@@ -282,7 +492,6 @@ export default function FutureLabScreen({ onBack }) {
           </p>
         </div>
 
-        {/* Submit */}
         {submitted ? (
           <div className="flex items-center gap-2 text-green-600 bg-green-50 rounded-xl px-4 py-3">
             <span className="text-lg">✓</span>
@@ -298,7 +507,11 @@ export default function FutureLabScreen({ onBack }) {
                   ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
             >
-              {submitting ? 'Saving…' : selectedVersion ? 'Submit Feedback' : 'Select a version above to continue'}
+              {submitting
+                ? 'Saving…'
+                : selectedVersion
+                  ? 'Submit Feedback'
+                  : 'Select a version above to continue'}
             </button>
             {submitError && (
               <p className="text-xs text-red-500 text-center">{submitError}</p>
@@ -306,6 +519,7 @@ export default function FutureLabScreen({ onBack }) {
           </div>
         )}
       </motion.div>
+
     </div>
   );
 }
