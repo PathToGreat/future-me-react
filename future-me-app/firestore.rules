@@ -57,6 +57,11 @@ service cloud.firestore {
       match /microSuggestions/{date} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+      
+      // Default habit preferences: /users/{uid}/habitPrefs/{docId}
+      match /habitPrefs/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
 }
