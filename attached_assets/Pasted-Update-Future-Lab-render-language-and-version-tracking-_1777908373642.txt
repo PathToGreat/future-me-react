@@ -1,0 +1,86 @@
+Update Future Lab render language and version tracking.
+
+Do not change the overall Future Lab structure.
+Do not connect Replicate yet.
+Do not modify the Avatar screen, Dashboard, ITE logic, or feedback storage.
+
+Goal:
+Tighten the experimental render language and make prompt/experiment versioning more disciplined before provider integration.
+
+1) Update provider-not-connected language.
+
+Current message:
+“AI render generation is not connected yet. Your identity data has been prepared and saved — this will work once the provider is configured.”
+
+Replace with:
+“Your data is ready. AI rendering will activate once the provider is connected.”
+
+This should feel factual and not imply that a visual transformation has happened yet.
+
+2) Update completed-render label.
+
+Current label:
+“Experimental render — not a prediction”
+
+Replace with:
+“Experimental render — visual interpretation of your current trajectory”
+
+This better matches the product philosophy while still making clear that this is experimental.
+
+3) Strengthen version tracking.
+
+In futureLabRender.js, replace generic placeholder version values with explicit version constants:
+
+- EXPERIMENT_VERSION = "future_lab_visual_direction_v1"
+- PROMPT_VERSION = "identity_preserve_soft_transform_v1"
+- PROVIDER_TARGET = "replicate_not_configured"
+
+Use these constants consistently in all render records and payloads.
+
+4) Add version descriptions to stored metadata.
+
+Each futureLabRenders record should include:
+
+- experimentVersion
+- promptVersion
+- provider
+- providerTarget
+- promptIntent
+
+promptIntent should describe the intended render style in a short structured object or string:
+
+“Preserve user identity while creating a realistic but restrained future-facing visual interpretation based on current ITE projection. Improve posture, energy, calmness, and health signals without exaggeration or extreme muscularity.”
+
+5) Add render constraints to the payload.
+
+Ensure imageIntent or renderConstraints includes:
+
+- preserveIdentity: true
+- realisticButAvatarLike: true
+- restrainedTransformation: true
+- notOverlyMuscular: true
+- notFantasy: true
+- notCartoon: true
+- notMedicalPrediction: true
+- visuallyBasedOnTrajectory: true
+
+6) Add a note/comment for future prompt iteration.
+
+In futureLabRender.js, add a clear comment near the version constants explaining:
+
+“These version constants allow us to compare future render experiments cleanly. Update PROMPT_VERSION whenever the generation prompt meaningfully changes. Update EXPERIMENT_VERSION when the experiment design changes.”
+
+7) Keep existing storage separation unchanged.
+
+Continue storing render metadata at:
+users/{uid}/futureLabRenders/{renderId}
+
+Continue storing feedback separately at:
+users/{uid}/futureLabFeedback/{feedbackId}
+
+8) Do not implement generation limits yet, but leave the existing MAX_RENDERS_PER_USER scaffold and add a comment:
+
+“Enforce this before connecting a live paid provider.”
+
+Goal outcome:
+Future Lab language is more accurate, and all future render attempts are versioned clearly so provider testing can be measured cleanly later.

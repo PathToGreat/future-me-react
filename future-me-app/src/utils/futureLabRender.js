@@ -22,13 +22,24 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 
-export const RENDER_EXPERIMENT_VERSION = 'v1.0-replicate-staged';
-export const RENDER_PROMPT_VERSION     = 'prompt-v1';
+// ─── Version constants ────────────────────────────────────────────────────────
+// These version constants allow us to compare future render experiments cleanly.
+// Update PROMPT_VERSION whenever the generation prompt meaningfully changes.
+// Update EXPERIMENT_VERSION when the experiment design changes.
+
+export const EXPERIMENT_VERSION = 'future_lab_visual_direction_v1';
+export const PROMPT_VERSION     = 'identity_preserve_soft_transform_v1';
+export const PROVIDER_TARGET    = 'replicate_not_configured';
+
+// Legacy aliases — keep these so any import using the old names still compiles.
+export const RENDER_EXPERIMENT_VERSION = EXPERIMENT_VERSION;
+export const RENDER_PROMPT_VERSION     = PROMPT_VERSION;
 
 // ─── Per-user generation limit (future enforcement — NOT yet active) ──────────
 // TODO: Before allowing a new render, read users/{uid}/futureLabRenderMeta
 //       and check generationCount against MAX_RENDERS_PER_USER.
 // TODO: Increment generationCount on each successful initiation.
+// Enforce this before connecting a live paid provider.
 // eslint-disable-next-line no-unused-vars
 const MAX_RENDERS_PER_USER = 3;
 
@@ -95,6 +106,11 @@ export function buildTransformationDirection(iteResult) {
 // ─── Full payload builder ─────────────────────────────────────────────────────
 // This payload will be sent to the backend → Replicate when the provider is connected.
 
+const PROMPT_INTENT =
+  'Preserve user identity while creating a realistic but restrained future-facing visual ' +
+  'interpretation based on current ITE projection. Improve posture, energy, calmness, and ' +
+  'health signals without exaggeration or extreme muscularity.';
+
 export function buildRenderPayload({ userId, sourcePhotoReference, iteResult, rawMetrics }) {
   return {
     userId,
@@ -107,20 +123,20 @@ export function buildRenderPayload({ userId, sourcePhotoReference, iteResult, ra
       stress:    rawMetrics?.stressScore    ?? rawMetrics?.stress    ?? null,
     },
     transformationDirection: buildTransformationDirection(iteResult),
-    imageIntent: {
-      // These are the invariants that will inform the future prompt
-      samePersonIdentity: true,
-      healthierPosture:   true,
-      calmerExpression:   true,
-      improvedEnergy:     true,
-      realistic:          true,
-      notExaggerated:     true,
-      notOverlyMuscular:  true,
-      notFantasy:         true,
-      notCartoon:         true,
+    renderConstraints: {
+      preserveIdentity:          true,
+      realisticButAvatarLike:    true,
+      restrainedTransformation:  true,
+      notOverlyMuscular:         true,
+      notFantasy:                true,
+      notCartoon:                true,
+      notMedicalPrediction:      true,
+      visuallyBasedOnTrajectory: true,
     },
-    promptVersion:      RENDER_PROMPT_VERSION,
-    experimentVersion:  RENDER_EXPERIMENT_VERSION,
+    promptIntent:      PROMPT_INTENT,
+    promptVersion:     PROMPT_VERSION,
+    experimentVersion: EXPERIMENT_VERSION,
+    providerTarget:    PROVIDER_TARGET,
   };
 }
 
@@ -148,19 +164,21 @@ async function callReplicateProvider(_payload) {
 
 export async function initiateRender({ db, userId, payload }) {
   const renderRecord = {
-    renderStatus:           'pending',
-    imageUrl:               null,
-    storageReference:       null,
-    sourcePhotoReference:   payload.sourcePhotoReference,
-    promptVersion:          payload.promptVersion,
-    experimentVersion:      payload.experimentVersion,
-    createdAt:              serverTimestamp(),
-    provider:               'replicate',
-    iteSummaryData:         payload.iteSummary,
-    transformationDirection:payload.transformationDirection,
-    currentStateSummary:    payload.currentStateSummary,
-    imageIntent:            payload.imageIntent,
-    errorMessage:           null,
+    renderStatus:            'pending',
+    imageUrl:                null,
+    storageReference:        null,
+    sourcePhotoReference:    payload.sourcePhotoReference,
+    promptVersion:           payload.promptVersion,
+    experimentVersion:       payload.experimentVersion,
+    providerTarget:          payload.providerTarget,
+    promptIntent:            payload.promptIntent,
+    createdAt:               serverTimestamp(),
+    provider:                'replicate',
+    iteSummaryData:          payload.iteSummary,
+    transformationDirection: payload.transformationDirection,
+    currentStateSummary:     payload.currentStateSummary,
+    renderConstraints:       payload.renderConstraints,
+    errorMessage:            null,
     userId,
   };
 

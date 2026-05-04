@@ -57,7 +57,7 @@ function VersionBContent({ renderState, latestRender, onGenerate, loadingRender 
           />
           <div className="px-3 py-2 bg-gray-50 border-t border-gray-100">
             <p className="text-[10px] text-gray-400 text-center uppercase tracking-wide">
-              Experimental render — not a prediction
+              Experimental render — visual interpretation of your current trajectory
             </p>
           </div>
         </div>
@@ -86,8 +86,7 @@ function VersionBContent({ renderState, latestRender, onGenerate, loadingRender 
           >
             <span className="text-amber-500 text-sm mt-0.5">⚖️</span>
             <p className="text-xs text-amber-700 leading-relaxed">
-              AI render generation is not connected yet. Your identity data has been
-              prepared and saved — this will work once the provider is configured.
+              Your data is ready. AI rendering will activate once the provider is connected.
             </p>
           </motion.div>
         )}
