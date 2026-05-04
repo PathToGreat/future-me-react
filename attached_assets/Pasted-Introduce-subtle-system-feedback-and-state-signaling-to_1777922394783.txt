@@ -1,0 +1,123 @@
+Introduce subtle system feedback and state signaling to the Home/Dashboard so the interface feels active and responsive, without adding gamification.
+
+Do NOT change logic, scoring, Firestore, or data structure.
+
+Use only existing data already available in the app.
+
+---
+
+### 1. Add micro-state indicators (CRITICAL)
+
+Introduce small, subtle indicators that show system activity:
+
+* In the top zone (Current Self or Signals):
+
+  * add a very subtle pulsing dot or glow tied to whether today's inputs are incomplete vs complete
+  * slow, soft pulse only (no bright colors)
+
+* In Today's Signals:
+
+  * when an input is logged, allow its chip to have a faint inner glow or slight elevation
+  * not a badge, not a checkmark explosion — just a presence shift
+
+Goal:
+User can *feel* what’s active without reading everything
+
+---
+
+### 2. Add “last change awareness”
+
+If possible using existing data:
+
+* lightly highlight the most recently changed or influenced trait/area
+* this can be:
+
+  * slightly stronger tint
+  * slightly brighter icon
+  * or subtle scale difference
+
+Do NOT label it as “recent” or “updated”
+Let the visual carry that meaning
+
+---
+
+### 3. Introduce very light motion
+
+Add restrained motion in 2–3 places only:
+
+* page load:
+
+  * sections fade in with slight stagger (very fast, subtle)
+
+* cards:
+
+  * hover/tap: slight lift (translateY -1 or -2px)
+
+* indicators:
+
+  * pulse (very slow, very soft opacity change)
+
+Do NOT:
+
+* bounce
+* animate continuously
+* add playful transitions
+
+---
+
+### 4. Add directional atmosphere (very subtle)
+
+Without changing content:
+
+* if direction is Strengthening:
+
+  * slightly warmer overall tone in key areas (barely perceptible)
+
+* if Declining:
+
+  * slightly cooler or more muted tone
+
+* if Stable:
+
+  * neutral
+
+This should NOT be obvious.
+It should be something the user feels over time.
+
+---
+
+### 5. Make top zone feel responsive
+
+Add one of the following:
+
+* slight hover response on the entire top zone container
+* or subtle gradient shift on interaction
+
+It should feel like:
+“This panel is alive and clickable”
+
+---
+
+### 6. Maintain restraint
+
+Do NOT add:
+
+* streaks
+* progress bars
+* achievement visuals
+* notifications
+* bright highlights
+* urgency indicators
+
+Everything must remain:
+calm, observational, grounded
+
+---
+
+### Acceptance criteria:
+
+* The page no longer feels static
+* Users can sense activity without reading every line
+* Subtle motion exists but does not distract
+* No gamification elements are introduced
+* The interface feels like a system, not a report
