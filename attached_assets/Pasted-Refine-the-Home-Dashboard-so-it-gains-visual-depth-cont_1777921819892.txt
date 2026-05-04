@@ -1,0 +1,117 @@
+Refine the Home/Dashboard so it gains visual depth, contrast, and system cohesion without adding noise or breaking the calm tone.
+
+Do NOT change logic, data, scoring, Firestore, or language.
+
+Keep all previous improvements (3-tier surfaces, gradients, grouping, etc.).
+
+---
+
+### 1. Strengthen contrast in key areas
+
+Right now most surfaces are too close to white.
+
+Adjust gradients slightly so key sections have more visible presence:
+
+* Increase saturation slightly on primary and reflection surfaces
+* Reduce how quickly gradients fade to pure white
+* Maintain softness, but avoid washed-out appearance
+
+Goal:
+At a glance, the user should immediately see:
+Top zone → Reflection → Secondary info
+
+---
+
+### 2. Convert top zone into a unified container
+
+Wrap MiniAvatarPreview + TodaysSignals in a shared parent container:
+
+* soft gradient background (very subtle)
+* rounded-3xl (slightly larger than cards)
+* light border (border-indigo-100/50)
+* internal padding (p-3 or p-4)
+
+Inside that container:
+
+* keep the tighter spacing between the two elements
+* remove the feeling of two separate cards
+
+This should feel like:
+“One active system panel”
+
+---
+
+### 3. Create a visual “pause” before the CTA
+
+Right now the CTA flows directly after content.
+
+Introduce a subtle separation:
+
+Option A:
+
+* add slightly increased margin-top before CTA
+
+Option B (preferred):
+
+* give the CTA container a slightly stronger gradient than surrounding elements
+* or a faint glow/shadow
+
+Goal:
+The CTA should feel like an intentional action point, not just the next item in a list
+
+---
+
+### 4. Slightly differentiate Direction vs Snapshot
+
+They are currently too similar in weight.
+
+Adjust:
+
+Direction:
+
+* keep more neutral
+* softer tint
+
+Snapshot:
+
+* slightly stronger tint (especially in forming state)
+* slightly more visual presence
+
+This reinforces:
+Snapshot = evolving system
+Direction = status readout
+
+---
+
+### 5. Add subtle asymmetry to break rigidity
+
+Introduce one of the following (very lightly):
+
+* slightly varied border radius (e.g., top zone more rounded than others)
+* slight offset or overlap of background blobs behind reflection card
+* minor internal alignment differences
+
+Do NOT make it obvious. Just reduce the “perfect stack” feeling.
+
+---
+
+### 6. Improve bottom weight
+
+Right now bottom panels can feel like they fade away.
+
+Give Insights + Progress:
+
+* slightly stronger surface than pure white
+* maintain indigo tint but increase visibility slightly
+* ensure they don’t visually disappear compared to content above
+
+---
+
+### Acceptance criteria
+
+* The page no longer feels washed out
+* The top section reads as a unified system
+* The CTA feels intentional and placed, not stacked
+* There is subtle visual rhythm (not just repetition)
+* The design still feels calm, natural, and non-gamified
+* No logic or behavior changes

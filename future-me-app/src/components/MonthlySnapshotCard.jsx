@@ -35,8 +35,8 @@ export default function MonthlySnapshotCard({ onOpenSnapshot }) {
       transition={{ duration: 0.3, delay: 0.1 }}
       className={`rounded-2xl border shadow-sm px-5 py-4 border-l-4 ${
         isForming
-          ? 'bg-gradient-to-r from-emerald-50/60 to-white border-gray-100 border-l-emerald-200'
-          : 'bg-white border-gray-100 border-l-indigo-300'
+          ? 'bg-gradient-to-r from-emerald-100/80 via-emerald-50/50 to-white/80 border-emerald-100/60 border-l-emerald-400'
+          : 'bg-gradient-to-r from-indigo-50/50 to-white border-indigo-100/60 border-l-indigo-300'
       }`}
     >
       <button

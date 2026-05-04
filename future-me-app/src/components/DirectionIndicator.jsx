@@ -93,22 +93,22 @@ const STATUS_CONFIG = {
   strengthening: {
     label:      'Strengthening',
     dotColor:   'bg-green-500',
-    accent:     'border-l-green-400',
-    bg:         'bg-gradient-to-r from-green-50/60 to-white',
+    accent:     'border-l-green-300',
+    bg:         'bg-gradient-to-r from-green-50/35 to-white/90',
     textAccent: 'text-green-600',
   },
   stable: {
     label:      'Stable',
     dotColor:   'bg-slate-400',
-    accent:     'border-l-slate-300',
-    bg:         'bg-white',
+    accent:     'border-l-slate-200',
+    bg:         'bg-white/90',
     textAccent: 'text-slate-500',
   },
   declining: {
     label:      'Declining',
     dotColor:   'bg-amber-400',
-    accent:     'border-l-amber-300',
-    bg:         'bg-gradient-to-r from-amber-50/50 to-white',
+    accent:     'border-l-amber-200',
+    bg:         'bg-gradient-to-r from-amber-50/35 to-white/90',
     textAccent: 'text-amber-600',
   },
 };

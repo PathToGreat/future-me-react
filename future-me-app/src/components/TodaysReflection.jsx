@@ -454,7 +454,7 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 rounded-2xl border border-indigo-100/60 border-l-4 border-l-indigo-300 shadow-sm overflow-hidden"
+      className="bg-gradient-to-br from-blue-50/90 via-indigo-50/60 to-slate-50/50 rounded-2xl border border-indigo-200/60 border-l-4 border-l-indigo-400 shadow-sm overflow-hidden"
     >
       {/* Header band */}
       <div className="px-5 pt-4 pb-0 flex items-center gap-2">

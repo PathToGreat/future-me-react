@@ -46,7 +46,7 @@ function TodaysSignals({ historyData }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.08 }}
-      className="bg-indigo-50/60 rounded-2xl border border-indigo-100/70 shadow-sm px-4 py-3"
+      className="bg-white/55 rounded-xl border border-white/70 px-4 py-3"
     >
       <div className="flex items-center justify-between mb-2.5">
         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
@@ -215,10 +215,10 @@ export default function HomeScreen({ onNavigate }) {
 
       <ReminderBanner />
 
-      {/* ── Top zone: Current Self + Today's Signals ─────────────────
-           Tighter gap (space-y-3) keeps them visually connected.
-           The outer space-y-6 then creates a clear break before Reflection. */}
-      <div className="space-y-3">
+      {/* ── Top zone: unified "active system" panel ─────────────────
+           rounded-3xl + indigo gradient make the two elements feel
+           like one zone, not two separate cards. */}
+      <div className="rounded-3xl bg-gradient-to-br from-indigo-50/80 via-blue-50/40 to-white/60 border border-indigo-100/60 p-3 space-y-2.5 shadow-sm">
         <MiniAvatarPreview onNavigateToAvatar={onNavigate} />
         <TodaysSignals historyData={historyData} />
       </div>
@@ -236,12 +236,12 @@ export default function HomeScreen({ onNavigate }) {
 
       <MonthlySnapshotCard onOpenSnapshot={() => setShowMonthlySnapshot(true)} />
 
-      {/* CTA — sits on its own surface layer */}
+      {/* CTA — intentional action point with stronger visual presence */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.12 }}
-        className="bg-gradient-to-br from-indigo-50/80 to-blue-50/70 rounded-2xl border border-indigo-100 p-3"
+        className="bg-gradient-to-br from-indigo-100/80 via-blue-50/70 to-indigo-50/60 rounded-2xl border border-indigo-200/60 p-3 shadow-md"
       >
         <motion.button
           whileHover={{ y: -1, boxShadow: '0 6px 24px rgba(99,102,241,0.25)' }}
