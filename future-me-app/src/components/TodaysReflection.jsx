@@ -454,7 +454,7 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-gradient-to-br from-blue-50/90 via-indigo-50/60 to-slate-50/50 rounded-2xl border border-indigo-200/60 border-l-4 border-l-indigo-400 shadow-sm overflow-hidden"
+      className="bg-gradient-to-br from-blue-50/90 via-indigo-50/60 to-slate-50/50 rounded-2xl border border-indigo-200/60 border-l-4 border-l-indigo-500 shadow-md overflow-hidden"
     >
       {/* Header band */}
       <div className="px-5 pt-4 pb-0 flex items-center gap-2">
@@ -467,16 +467,16 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
       <div className="p-5 pt-3">
         <div className="flex items-start gap-4">
           {/* Icon container — indigo tinted */}
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <div className="w-10 h-10 rounded-xl bg-indigo-100/70 border border-indigo-200 flex items-center justify-center flex-shrink-0 mt-0.5">
             <span className="text-lg">{reflection.icon}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="mb-1">
-              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">
+            <div className="mb-1.5">
+              <span className="text-xs font-semibold text-indigo-500 uppercase tracking-wide">
                 {reflection.label}
               </span>
             </div>
-            <h3 className="text-base font-semibold text-gray-800 leading-snug mb-2">
+            <h3 className="text-[15px] font-bold text-gray-900 leading-snug mb-3">
               {reflection.headline}
             </h3>
             <p className="text-sm text-gray-500 leading-relaxed">

@@ -91,19 +91,22 @@ function TodaysSignals({ historyData }) {
           const active    = loggedToday && (key === null || todayEntry?.[key] !== undefined);
           const elevated  = active && key !== null && key === mostChangedKey;
           return (
-            <div
+            <motion.div
               key={label}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all ${
+              initial={{ opacity: elevated ? 0 : 1 }}
+              animate={{ opacity: 1 }}
+              transition={elevated ? { delay: 0.4, duration: 0.45 } : {}}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] border transition-all ${
                 elevated
-                  ? 'bg-indigo-100/70 text-indigo-700 border-indigo-200 shadow-sm ring-1 ring-indigo-200/50 scale-[1.02]'
+                  ? 'bg-indigo-100 text-indigo-800 border-indigo-300 shadow-sm ring-1 ring-indigo-300/50 scale-[1.03] font-semibold'
                   : active
-                    ? 'bg-indigo-50 text-indigo-700 border-indigo-100'
-                    : 'bg-gray-50 text-gray-400 border-gray-100'
+                    ? 'bg-indigo-50/80 text-indigo-600 border-indigo-100 font-medium'
+                    : 'bg-white/60 text-gray-300 border-gray-100/80 font-medium'
               }`}
             >
-              <span className={active ? '' : 'opacity-40'}>{icon}</span>
+              <span className={active ? 'opacity-100' : 'opacity-30'}>{icon}</span>
               <span>{label}</span>
-            </div>
+            </motion.div>
           );
         })}
       </div>
