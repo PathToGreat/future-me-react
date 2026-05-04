@@ -1,0 +1,157 @@
+Refactor the Habits page so it becomes a guided habit system, not only a blank custom habit manager.
+
+Do not remove the ability for users to create custom habits. Keep custom habits fully functional.
+
+Goal:
+The original prototype included a set of prebuilt habits and feedback loops that made the page feel guided, useful, and alive. The current page is too empty because users must create everything themselves. Restore a prebuilt habit library while preserving user choice and customization.
+
+Core concept:
+Habits are not achievements. Habits are recurring inputs that shape identity trajectory and future self direction.
+
+Update the Habits page around two layers:
+
+1. Core Habit Library
+   Add a set of preloaded default habits tied to Future Me life zones and identity traits.
+
+Suggested default habits:
+
+* Quality Sleep
+* Morning Sunlight
+* Evening Wind Down
+* Daily Movement
+* Strength Training
+* Deep Breathing & Relaxation
+* Prayer or Reflection
+* Morning Gratitude
+* Check-in with Loved Ones
+* Acts of Kindness
+* Whole Food Meal
+* Hydration
+* Financial Check-In
+* Reading or Learning
+* Outdoor Time
+
+Each default habit should include:
+
+* title
+* category or life zone
+* short description
+* icon
+* optional identity trait connection, such as vitality, discipline, emotional stability, resilience, connection, or purpose
+* completion state for today
+* consistency/rhythm data if already available
+
+2. Custom Habits
+   Keep the current custom habit feature.
+   Users should still be able to:
+
+* create a new habit
+* complete it
+* edit it if that exists already
+* remove it if that exists already
+
+Custom habits should appear in their own section or be clearly marked as user-created.
+
+Default habit behavior:
+Users should be able to remove or hide specific preloaded habits from their active list if they do not want them.
+
+Important:
+Default habits should not be permanently deleted. If a user removes a default habit, move it into a hidden or inactive state.
+
+Add a way to restore removed default habits later, such as:
+
+* “Available Habits”
+* “Hidden Habits”
+* “Restore Habits”
+* or similar wording that fits the app
+
+Custom habits may be deleted normally if that is how the app currently works.
+
+Language/tone changes:
+Remove or avoid gamified language.
+
+Change language like:
+“Build consistency and earn achievements”
+
+To something more aligned, such as:
+“Choose the daily inputs that shape your future self”
+
+Avoid making streaks the dominant concept. If streak data already exists, it can remain, but visually downplay it or reframe it as:
+
+* rhythm
+* consistency
+* recent practice
+* completed recently
+
+Do not add trophies, rewards, levels, points, confetti, or achievement language.
+
+Feedback loop:
+Bring back a calm version of the old habit feedback insight.
+
+When a habit is completed, show a restrained insight card or toast explaining why the habit matters.
+
+Examples:
+
+* Morning Sunlight: “Morning sunlight helps anchor your daily rhythm and supports sleep timing later in the day.”
+* Daily Movement: “Movement supports energy, posture, and emotional regulation.”
+* Evening Wind Down: “A consistent wind-down helps your nervous system transition toward rest.”
+* Prayer or Reflection: “Reflection creates space to notice direction before reacting to the day.”
+* Check-in with Loved Ones: “Intentional connection supports emotional stability and relational depth.”
+
+Do not use exaggerated claims like “boosts mood by 40%” unless there is a verified source in the app. Keep feedback grounded and non-hype.
+
+Visual direction:
+Make the Habits page cohesive with the updated Home page:
+
+* soft nature-inspired surfaces
+* existing indigo, blue, emerald, amber palette
+* calm gradients
+* stronger visual hierarchy
+* cards that feel alive but not gamified
+* subtle motion only
+
+Suggested page structure:
+
+* Header: “My Habits”
+* Subtitle: “Choose the daily inputs that shape your future self”
+* Section 1: “Core Habits”
+* Section 2: “Custom Habits”
+* Section 3, if needed: “Available Habits” or “Hidden Habits” for restoring removed default habits
+
+Habit card design:
+Each card should show:
+
+* icon
+* habit title
+* category/life zone
+* short description
+* today’s completion control
+* subtle rhythm or consistency indicator if available
+* optional small trait connection chip
+
+Do not overcrowd the cards.
+
+Data handling:
+If default habit definitions already exist in the codebase from the original prototype, reuse them if possible.
+If they do not exist, create a clear default habit configuration array in the Habits page or a nearby habits config file.
+
+Store user-specific behavior separately:
+
+* completed habits
+* hidden default habits
+* custom habits
+
+Do not duplicate default habit definitions into every user record unless necessary.
+
+Acceptance criteria:
+
+* Habits page is no longer empty by default
+* Users see a useful guided set of core habits
+* Users can still create custom habits
+* Users can hide/remove default habits
+* Hidden default habits can be restored later
+* Custom habits remain user-controlled
+* Completion feedback explains the meaning of the habit without hype
+* No gamified achievement system is added
+* Language aligns with Future Me’s identity trajectory philosophy
+* Page visually matches the updated Home page
