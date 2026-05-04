@@ -1,0 +1,72 @@
+Refine the Your Avatar screen to match a clean, minimal, vertically stacked comparison layout.
+
+Do not change any functionality, scoring, projections, avatar/photo behavior, toggles, or data.
+
+This is a visual restructuring only.
+
+Apply these exact layout rules:
+
+Each panel (Current Me and Future Me) must follow this exact order:
+
+1. Panel title
+2. Avatar/photo centered as the primary focal point
+3. Single status row (status word + percentage)
+4. One row of 2–3 descriptor chips
+5. One row of compact metric chips
+6. One short explanatory sentence at the bottom
+
+Remove all other duplicated or extra sections.
+
+Specifically:
+
+Remove any repeated status rows. There should only be one per panel.
+
+Remove any second set of descriptor chips or repeated tags.
+
+Remove any extra metric sections beyond the single compact row.
+
+Remove any divider lines or extra containers that break the vertical flow.
+
+Remove any mid-panel UI blocks that interrupt the sequence.
+
+Metric presentation:
+
+Use a single compact row of small metric chips (icon + label). No tall stacked cards inside the panel.
+
+Metric chips should be visually light and not compete with the avatar.
+
+Projection label:
+
+Keep “Future Me (1 Year)” but make “1 Year” a smaller subtitle under “FUTURE ME”.
+
+If a projection badge exists, it must be subtle and must not sit between the avatar and the status row.
+
+Controls:
+
+Keep the Show Photo / Show Avatar control, but make it visually subtle and secondary. It should not interrupt the main vertical flow.
+
+Hierarchy:
+
+The avatar must visually dominate each panel.
+
+The status row is the second most important element.
+
+Everything else is clearly secondary.
+
+Symmetry:
+
+Both panels must mirror each other exactly in structure, spacing, and alignment.
+
+No left/right structural differences.
+
+Spacing:
+
+Use consistent vertical spacing between each element.
+
+Avoid stacked containers and excessive padding.
+
+Keep the layout breathable and centered.
+
+Do not introduce new elements. Do not change wording. Do not change data.
+
+The final result should visually match a clean comparison layout with a single, clear story per panel and no duplicated information.

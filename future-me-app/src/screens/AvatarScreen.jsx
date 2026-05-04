@@ -363,6 +363,15 @@ export default function AvatarScreen() {
     futureMetrics,
   };
 
+  // Foot note per panel — absorbs the projection confidence state so both panels
+  // always have exactly one explanatory sentence and the structure stays symmetric.
+  const currentFootNote  = 'Reflects your baseline wellness state.';
+  const futureFootNote   = !fm
+    ? 'Track more days to generate your projection.'
+    : projectionConfidence === 'LOW'
+      ? 'Refining as more data is logged.'
+      : 'Based on your current logged patterns.';
+
   return (
     <div className="space-y-5">
 
@@ -375,25 +384,25 @@ export default function AvatarScreen() {
         className="card p-4"
       >
         {/* Column headers */}
-        <div className="grid grid-cols-[1fr_32px_1fr] mb-4">
+        <div className="grid grid-cols-[1fr_24px_1fr] mb-3">
           <div className="text-center">
             <p className="text-[10px] font-bold tracking-widest text-blue-500 uppercase">Current Me</p>
           </div>
           <div />
           <div className="text-center">
             <p className="text-[10px] font-bold tracking-widest text-purple-500 uppercase">Future Me</p>
-            <p className="text-[9px] text-gray-400 font-medium mt-0.5">1 Year ➡️</p>
+            <p className="text-[9px] text-gray-400 font-medium">1 Year</p>
           </div>
         </div>
 
-        {/* Panels + divider */}
-        <div className="grid grid-cols-[1fr_28px_1fr] items-start">
+        {/* Panels */}
+        <div className="grid grid-cols-[1fr_24px_1fr] items-start">
 
-          {/* ── Current Me panel ── */}
-          <div className="bg-gradient-to-b from-blue-50 to-indigo-50/50 rounded-xl p-3 flex flex-col items-center gap-2">
+          {/* ── Current Me panel ─────────────────────────────────── */}
+          <div className="bg-gradient-to-b from-blue-50 to-indigo-50/40 rounded-xl p-3 flex flex-col items-center gap-2.5">
 
-            {/* 1. Avatar — focal point */}
-            <div className="flex justify-center items-start w-full">
+            {/* 2. Avatar — primary focal point */}
+            <div className="flex justify-center w-full">
               {selectedGender === null ? (
                 <div className="w-[100px] aspect-[2/3] flex items-center justify-center">
                   <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
@@ -403,30 +412,33 @@ export default function AvatarScreen() {
               )}
             </div>
 
-            {/* 2. Single status + percentage */}
+            {/* 3. Single status row */}
             <ThrivingRow score={currentThrivingScore} />
 
-            {/* 3. Descriptor chips */}
+            {/* 4. Descriptor chips (2–3) */}
             <TagRow tags={currentTags} />
 
-            {/* 4. Metric chips (secondary, compact horizontal) */}
-            <div className="flex flex-wrap justify-center gap-1 w-full pt-0.5 border-t border-white/60 mt-0.5">
+            {/* 5. Compact metric chip row */}
+            <div className="flex flex-wrap justify-center gap-1 w-full">
               {currentBadges.map(b => <MetricChip key={b.label} {...b} />)}
             </div>
+
+            {/* 6. Explanatory sentence */}
+            <p className="text-[10px] text-gray-400 text-center leading-snug">
+              {currentFootNote}
+            </p>
           </div>
 
-          {/* Arrow divider */}
-          <div className="flex items-center justify-center" style={{ paddingTop: '72px' }}>
-            <div className="w-6 h-6 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center shrink-0">
-              <span className="text-[9px] text-gray-400">➡️</span>
-            </div>
+          {/* Arrow */}
+          <div className="flex justify-center pt-16">
+            <span className="text-gray-300 text-xs">➡️</span>
           </div>
 
-          {/* ── Future Me panel ── */}
-          <div className="bg-gradient-to-b from-purple-50 to-pink-50/50 rounded-xl p-3 flex flex-col items-center gap-2">
+          {/* ── Future Me panel — exact mirror ───────────────────── */}
+          <div className="bg-gradient-to-b from-purple-50 to-pink-50/40 rounded-xl p-3 flex flex-col items-center gap-2.5">
 
-            {/* 1. Avatar — focal point */}
-            <div className="flex justify-center items-start w-full">
+            {/* 2. Avatar — primary focal point */}
+            <div className="flex justify-center w-full">
               {selectedGender === null ? (
                 <div className="w-[100px] aspect-[2/3] flex items-center justify-center">
                   <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
@@ -441,42 +453,28 @@ export default function AvatarScreen() {
               )}
             </div>
 
-            {/* 2. Single status + percentage */}
+            {/* 3. Single status row */}
             <ThrivingRow score={futureThrivingScore} />
 
-            {/* 3. Descriptor chips */}
+            {/* 4. Descriptor chips (2–3) */}
             {fm
               ? <TagRow tags={futureTags} />
               : <p className="text-[10px] text-center text-gray-400">Log more days to unlock</p>
             }
 
-            {/* 4. Metric chips (secondary, compact horizontal) */}
-            <div className="flex flex-wrap justify-center gap-1 w-full pt-0.5 border-t border-white/60 mt-0.5 min-h-[24px]">
+            {/* 5. Compact metric chip row */}
+            <div className="flex flex-wrap justify-center gap-1 w-full">
               {fm && futureBadges
                 ? futureBadges.map(b => <MetricChip key={b.label} {...b} />)
-                : null
+                : <div className="h-[20px]" />
               }
             </div>
 
-            {projectionConfidence === 'LOW' && fm && (
-              <p className="text-[10px] text-slate-400 text-center leading-snug">
-                Refining as more data is logged.
-              </p>
-            )}
+            {/* 6. Explanatory sentence */}
+            <p className="text-[10px] text-gray-400 text-center leading-snug">
+              {futureFootNote}
+            </p>
           </div>
-        </div>
-
-        {/* 6. Explanatory text */}
-        <div className="grid grid-cols-[1fr_28px_1fr] mt-3">
-          <p className="text-[10px] text-gray-400 text-center leading-snug px-1">
-            Reflects your baseline wellness state.
-          </p>
-          <div />
-          <p className="text-[10px] text-gray-400 text-center leading-snug px-1">
-            {fm
-              ? 'Based on your current logged patterns.'
-              : 'Track more days to generate your projection.'}
-          </p>
         </div>
 
         {/* Key Transformation banner */}
