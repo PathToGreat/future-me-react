@@ -90,9 +90,27 @@ function computeDirection(historyData, baseline) {
 }
 
 const STATUS_CONFIG = {
-  strengthening: { label: 'Strengthening', dotColor: 'bg-slate-600' },
-  stable: { label: 'Stable', dotColor: 'bg-slate-400' },
-  declining: { label: 'Declining', dotColor: 'bg-slate-400' }
+  strengthening: {
+    label:      'Strengthening',
+    dotColor:   'bg-green-500',
+    accent:     'border-l-green-400',
+    bg:         'bg-gradient-to-r from-green-50/60 to-white',
+    textAccent: 'text-green-600',
+  },
+  stable: {
+    label:      'Stable',
+    dotColor:   'bg-slate-400',
+    accent:     'border-l-slate-300',
+    bg:         'bg-white',
+    textAccent: 'text-slate-500',
+  },
+  declining: {
+    label:      'Declining',
+    dotColor:   'bg-amber-400',
+    accent:     'border-l-amber-300',
+    bg:         'bg-gradient-to-r from-amber-50/50 to-white',
+    textAccent: 'text-amber-600',
+  },
 };
 
 export default function DirectionIndicator() {
@@ -123,15 +141,15 @@ export default function DirectionIndicator() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 }}
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4"
+      className={`rounded-2xl border border-gray-100 border-l-4 shadow-sm px-5 py-4 ${config.bg} ${config.accent}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className={`w-2 h-2 rounded-full ${config.dotColor}`} />
+          <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${config.dotColor}`} />
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Direction</span>
-              <span className="text-sm font-semibold text-gray-800">{config.label}</span>
+              <span className={`text-sm font-semibold ${config.textAccent}`}>{config.label}</span>
             </div>
             <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{direction.subtitle}</p>
           </div>

@@ -149,15 +149,26 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
 
   const subtitle = useMemo(() => getSubtitle(historyData), [historyData]);
 
+  const energyScore = avatarTraits.glowEnergy.score;
+  const statusLabel  = energyScore >= 75 ? 'Active'   : energyScore >= 50 ? 'Building' : 'Baseline';
+  const statusColor  = energyScore >= 75
+    ? 'text-emerald-600 bg-emerald-50 border-emerald-100'
+    : energyScore >= 50
+      ? 'text-amber-600 bg-amber-50 border-amber-100'
+      : 'text-slate-500 bg-slate-50 border-slate-100';
+
   return (
     <motion.button
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -1, boxShadow: '0 4px 20px rgba(99,102,241,0.10)' }}
+      whileTap={{ scale: 0.995 }}
       transition={{ duration: 0.3 }}
       onClick={() => onNavigateToAvatar && onNavigateToAvatar('avatar')}
-      className={`w-full bg-gradient-to-r ${colors.bg} rounded-2xl border border-gray-100 p-4 flex items-center gap-4 text-left transition-shadow hover:shadow-sm`}
+      className={`w-full bg-gradient-to-br ${colors.bg} to-indigo-50/30 rounded-2xl border border-blue-100/60 shadow-sm p-5 flex items-center gap-5 text-left`}
     >
-      <div className="w-16 h-20 flex-shrink-0 flex items-center justify-center">
+      {/* Avatar — larger */}
+      <div className="w-20 h-28 flex-shrink-0 flex items-end justify-center">
         {USE_HUMAN_AVATAR_V2 && humanAvatarParams ? (
           <HumanAvatarRenderer
             params={humanAvatarParams}
@@ -188,9 +199,15 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
         )}
       </div>
 
+      {/* Content */}
       <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-semibold text-gray-800">Your Current Self</h3>
-        <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{subtitle}</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-1">Your Current Self</p>
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${statusColor}`}>
+            {statusLabel}
+          </span>
+        </div>
+        <p className="text-xs text-gray-500 leading-relaxed">{subtitle}</p>
       </div>
 
       <svg className="w-4 h-4 text-slate-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

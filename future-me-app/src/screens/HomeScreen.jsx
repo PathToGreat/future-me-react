@@ -27,6 +27,61 @@ import { doc, updateDoc, setDoc, getDoc, increment } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 
+// ─── Today's Signals strip ────────────────────────────────────────────────────
+function TodaysSignals({ historyData }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const todayEntry = historyData?.[0];
+  const loggedToday = !!(todayEntry?.date?.slice?.(0, 10) === today);
+
+  const SIGNALS = [
+    { label: 'Sleep',     icon: '💤', key: 'sleep'     },
+    { label: 'Movement',  icon: '💪', key: 'activity'  },
+    { label: 'Nutrition', icon: '🌱', key: 'nutrition' },
+    { label: 'Stress',    icon: '⚖️', key: 'stress'    },
+    { label: 'Reflection',icon: '📖', key: null        },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.08 }}
+      className="bg-white/80 rounded-2xl border border-gray-100 shadow-sm px-4 py-3"
+    >
+      <div className="flex items-center justify-between mb-2.5">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          Today's Signals
+        </span>
+        {loggedToday ? (
+          <span className="text-[10px] text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
+            ✓ Logged today
+          </span>
+        ) : (
+          <span className="text-[10px] text-gray-400">Not yet logged</span>
+        )}
+      </div>
+      <div className="flex gap-1.5 flex-wrap">
+        {SIGNALS.map(({ label, icon, key }) => {
+          const active = loggedToday && (key === null || todayEntry?.[key] !== undefined);
+          return (
+            <div
+              key={label}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all ${
+                active
+                  ? 'bg-indigo-50 text-indigo-700 border-indigo-100'
+                  : 'bg-gray-50 text-gray-400 border-gray-100'
+              }`}
+            >
+              <span className={active ? '' : 'opacity-40'}>{icon}</span>
+              <span>{label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+}
+
 export default function HomeScreen({ onNavigate }) {
   const {
     liveProfile,
@@ -136,16 +191,33 @@ export default function HomeScreen({ onNavigate }) {
     );
   }
 
+  const today = new Date();
+  const dateLabel = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Your Dashboard</h1>
-        <p className="text-gray-500 text-sm">Daily overview</p>
+    <div className="space-y-5 relative">
+      {/* Subtle page-level background accents */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-indigo-100/30 blur-3xl" />
+        <div className="absolute top-1/2 -left-24 w-64 h-64 rounded-full bg-blue-100/20 blur-3xl" />
+        <div className="absolute bottom-20 right-8 w-48 h-48 rounded-full bg-emerald-100/20 blur-3xl" />
       </div>
+
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h1 className="text-2xl font-bold text-gray-800">Your Dashboard</h1>
+        <p className="text-gray-400 text-xs mt-0.5">{dateLabel}</p>
+      </motion.div>
 
       <ReminderBanner />
 
       <MiniAvatarPreview onNavigateToAvatar={onNavigate} />
+
+      <TodaysSignals historyData={historyData} />
 
       <TodaysReflection
         currentPattern={currentPattern}
@@ -163,12 +235,14 @@ export default function HomeScreen({ onNavigate }) {
       <motion.button
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -1, boxShadow: '0 6px 24px rgba(99,102,241,0.22)' }}
+        whileTap={{ scale: 0.98 }}
         transition={{ delay: 0.15 }}
         onClick={() => onNavigate && onNavigate('metrics')}
-        className="w-full py-4 px-6 bg-gradient-to-r from-slate-700 to-slate-800 text-white font-semibold rounded-xl shadow-sm hover:shadow-md hover:from-slate-800 hover:to-slate-900 transition-all flex items-center justify-center gap-2"
+        className="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-semibold rounded-2xl shadow-md flex items-center justify-center gap-3"
       >
-        <span className="text-lg">📊</span>
-        <span>Log Today's Metrics</span>
+        <span className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-base flex-shrink-0">📊</span>
+        <span className="text-[15px]">Log Today's Metrics</span>
       </motion.button>
 
       <ProgressDetails>

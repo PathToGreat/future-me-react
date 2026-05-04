@@ -1,0 +1,128 @@
+Update the Home/Dashboard page visual design so it feels more alive, natural, and cohesive with the rest of the Future Me app.
+
+Important: do not change the app’s core philosophy, scoring logic, Firestore logic, routing, data calculations, insight logic, or language system unless needed for visual presentation. This is primarily a UI refinement.
+
+Goal:
+The current Home page feels too flat, dull, and clinical compared to the rest of the app. Keep the grounded, observational tone, but make the page feel more active, warm, and inviting. The original visual direction for Future Me was a natural, nature-inspired feel. Use the existing color palette already used across the other app pages. Do not introduce a completely new brand palette.
+
+Design direction:
+Create a cohesive nature-based dashboard experience using the app’s existing colors. The feeling should be calm, organic, and alive, not childish, game-like, or overly bright.
+
+Apply these changes:
+
+1. Page background
+   Replace the plain flat background with a subtle layered background using the existing app colors. Use very soft gradients, translucent shapes, or organic radial accents. Keep it subtle enough that content remains easy to read. The background should feel natural and breathable, like light, air, growth, or morning energy.
+
+2. Top “Your Current Self” card
+   Make this card feel like the main visual anchor of the Home page. Keep the existing message and function, but improve its presentation.
+   Use:
+
+* larger avatar or image area
+* soft gradient background using existing app colors
+* gentle border or glow
+* better spacing
+* subtle directional/state indicator if available
+* no gamified badge or reward language
+
+This card should feel like “this is where I am right now,” not like a plain list item.
+
+3. Add a system strip near the top
+   Add a horizontal visual strip inspired by the old prototype’s “Connected Devices” area, but adapt it to the current product philosophy.
+
+Do not add streaks or gamified stats.
+
+Possible label:
+“Active Inputs”
+or
+“Connected Inputs”
+or
+“Today’s Signals”
+
+Use whichever fits the current language system best.
+
+This strip should show small soft icons/chips for available input categories, such as:
+
+* Sleep
+* Movement
+* Nutrition
+* Stress
+* Reflection
+* Manual Logs
+
+If actual device integrations are not implemented, do not falsely imply active device integrations. Use language like “Input Signals” or “Tracked Inputs” instead of “Connected Devices.”
+
+Make inactive/missing inputs visually softer, and available/recent inputs slightly more vivid. Use existing data if available. If not, use safe placeholder logic based on whether today’s metrics have been logged.
+
+4. Refresh insight cards
+   Keep the current card content and hierarchy, but improve the visual treatment.
+   For the Today’s Reflection card, Direction card, Monthly Snapshot card, Progress & Details, and Insights sections:
+
+* use subtle colored top borders or side accents
+* add soft icon containers
+* add light tinted backgrounds where appropriate
+* use improved spacing and visual hierarchy
+* make collapsed rows feel intentional, not empty
+* preserve existing copy and logic
+
+Cards should feel distinct without becoming loud.
+
+5. Improve empty and forming states
+   Where the app says things like:
+   “Log 6 more days this month to generate a snapshot”
+   consider changing the visual framing so it feels like the system is forming, not empty or dead.
+
+Keep the meaning accurate. Use language similar to:
+“Monthly snapshot forming”
+“More data needed”
+“Log 6 more days this month to complete the snapshot”
+
+Do not overpromise. Do not imply insights exist before enough data exists.
+
+6. Improve primary CTA
+   Upgrade the “Log Today’s Metrics” button visually.
+   Use:
+
+* existing app gradient or color pairing
+* softer shadow
+* better icon treatment
+* clear tap target
+* calm but noticeable presence
+
+Keep the button text unless there is already a better app-wide label.
+
+7. Add restrained motion
+   Add subtle motion only where appropriate:
+
+* fade in sections on load
+* slight hover/tap lift on cards/buttons
+* gentle pulse only for active input indicators, if used
+
+Do not add playful animation, confetti, bounce effects, spinning icons, or anything that feels like a game.
+
+8. Maintain product tone
+   Do not add:
+
+* streaks
+* points
+* achievements
+* reward badges
+* completion trophies
+* hype language
+* shame language
+* urgency language
+
+The dashboard should feel more engaging because it is visually alive, not because it is gamified.
+
+9. Preserve responsiveness
+   Make sure the design works well on mobile and desktop. The dashboard should remain clean and readable on small screens.
+
+Acceptance criteria:
+
+* Home page is visually cohesive with the rest of the app.
+* Existing app colors are reused, not replaced.
+* The page feels more natural, warm, and alive.
+* Current logic and data behavior still works.
+* No gamification features are introduced.
+* No fake connected-device claims are made.
+* Cards have more visual distinction and depth.
+* The dashboard still communicates direction, reflection, and identity trajectory clearly.

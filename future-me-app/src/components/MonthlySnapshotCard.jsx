@@ -26,12 +26,18 @@ export default function MonthlySnapshotCard({ onOpenSnapshot }) {
 
   if (!snapshotStatus) return null;
 
+  const isForming = !snapshotStatus.available;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 }}
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4"
+      className={`rounded-2xl border shadow-sm px-5 py-4 border-l-4 ${
+        isForming
+          ? 'bg-gradient-to-r from-emerald-50/60 to-white border-gray-100 border-l-emerald-200'
+          : 'bg-white border-gray-100 border-l-indigo-300'
+      }`}
     >
       <button
         onClick={() => snapshotStatus.available && onOpenSnapshot && onOpenSnapshot()}
@@ -39,15 +45,20 @@ export default function MonthlySnapshotCard({ onOpenSnapshot }) {
         className="w-full flex items-center justify-between text-left"
       >
         <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-slate-400" />
+          <span className="text-base">{isForming ? '🌱' : '📊'}</span>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Monthly Snapshot</span>
+              {isForming && (
+                <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full font-medium border border-emerald-100">
+                  Forming
+                </span>
+              )}
             </div>
             <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
               {snapshotStatus.available
                 ? `View ${snapshotStatus.label} snapshot`
-                : `Log ${snapshotStatus.logsNeeded} more day${snapshotStatus.logsNeeded === 1 ? '' : 's'} this month to generate a snapshot`
+                : `Log ${snapshotStatus.logsNeeded} more day${snapshotStatus.logsNeeded === 1 ? '' : 's'} this month to complete the snapshot`
               }
             </p>
           </div>

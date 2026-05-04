@@ -31,13 +31,13 @@ export default function ProgressDetails({ children }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-100 border-t-2 border-t-indigo-200 shadow-sm overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full px-6 py-4 flex items-center justify-between text-left"
       >
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm">📈</span>
           <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
             Progress & Details
           </span>
