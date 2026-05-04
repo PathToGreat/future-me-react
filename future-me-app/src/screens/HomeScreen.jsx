@@ -28,12 +28,22 @@ import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 
 // ─── Today's Signals strip ────────────────────────────────────────────────────
-function TodaysSignals({ historyData }) {
+function TodaysSignals({ historyData, liveProfile }) {
   const _now = new Date();
   const today = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
-  const todayEntry   = historyData?.[0];
-  const yesterdayEntry = historyData?.[1];
-  const loggedToday  = !!(todayEntry?.date?.slice?.(0, 10) === today);
+
+  // liveProfile.lastDailyLog is the authoritative source — written to the user
+  // document immediately on save and kept in sync via AppContext's onSnapshot.
+  // historyData[0] uses serverTimestamp ordering and can lag by several seconds.
+  const lastLogDate = liveProfile?.lastDailyLog?.date?.slice?.(0, 10);
+  const loggedToday = lastLogDate === today || historyData?.[0]?.date?.slice?.(0, 10) === today;
+
+  // For metric chip values prefer lastDailyLog (instant) then historyData
+  const todayEntry   = loggedToday
+    ? (liveProfile?.lastDailyLog ?? historyData?.[0])
+    : null;
+  // First history entry whose date differs from today (handles both orderings)
+  const yesterdayEntry = historyData?.find(e => e?.date?.slice?.(0, 10) !== today);
 
   const SIGNALS = [
     { label: 'Sleep',      icon: '💤', key: 'sleep'     },
@@ -277,7 +287,7 @@ export default function HomeScreen({ onNavigate }) {
         className="rounded-3xl bg-gradient-to-br from-indigo-50/80 via-blue-50/40 to-white/60 border border-indigo-100/60 p-3 space-y-2.5 shadow-sm"
       >
         <MiniAvatarPreview onNavigateToAvatar={onNavigate} />
-        <TodaysSignals historyData={historyData} />
+        <TodaysSignals historyData={historyData} liveProfile={liveProfile} />
       </motion.div>
 
       <TodaysReflection
