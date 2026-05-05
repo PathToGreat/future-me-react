@@ -27,6 +27,79 @@ import { doc, updateDoc, setDoc, getDoc, increment } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 
+// ─── Connected Inputs strip ───────────────────────────────────────────────────
+const CONNECTED_DEVICES = [
+  {
+    id: 'apple-watch',
+    label: 'Apple Watch',
+    icon: (
+      <svg viewBox="0 0 16 20" fill="none" className="w-3.5 h-3.5" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="4" width="12" height="12" rx="3" />
+        <path d="M5 1.5h6M5 18.5h6" strokeWidth={2} />
+      </svg>
+    ),
+  },
+  {
+    id: 'fitbit',
+    label: 'Fitbit',
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" className="w-3.5 h-3.5" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round">
+        <path d="M10 3c0 0 4 2 4 7s-4 7-4 7S6 15 6 10 10 3 10 3z" />
+        <path d="M10 7v6" />
+      </svg>
+    ),
+  },
+  {
+    id: 'oura',
+    label: 'Oura',
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" className="w-3.5 h-3.5" stroke="currentColor" strokeWidth={1.5}>
+        <circle cx="10" cy="10" r="7" />
+        <circle cx="10" cy="10" r="3.5" />
+      </svg>
+    ),
+  },
+  {
+    id: 'garmin',
+    label: 'Garmin',
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" className="w-3.5 h-3.5" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="5" width="14" height="10" rx="2.5" />
+        <path d="M7 9h6M7 12h4" />
+      </svg>
+    ),
+  },
+];
+
+function ConnectedInputsStrip() {
+  return (
+    <div className="flex items-center gap-2 px-1 pt-0.5">
+      {/* Label */}
+      <span className="text-[9px] font-bold uppercase tracking-widest text-slate-300 flex-shrink-0 whitespace-nowrap">
+        Connected Inputs
+      </span>
+
+      {/* Device chips */}
+      <div className="flex gap-1.5 flex-1 min-w-0">
+        {CONNECTED_DEVICES.map(({ id, label, icon }) => (
+          <div
+            key={id}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/40 border border-gray-100/60 opacity-40 select-none"
+          >
+            <span className="text-gray-400 flex-shrink-0">{icon}</span>
+            <span className="text-[10px] font-medium text-gray-400 whitespace-nowrap">{label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Coming soon badge */}
+      <span className="text-[9px] italic text-gray-300 flex-shrink-0 whitespace-nowrap">
+        Coming soon
+      </span>
+    </div>
+  );
+}
+
 // ─── Today's Signals strip ────────────────────────────────────────────────────
 function TodaysSignals({ historyData, liveProfile }) {
   const _now = new Date();
@@ -288,6 +361,7 @@ export default function HomeScreen({ onNavigate }) {
       >
         <MiniAvatarPreview onNavigateToAvatar={onNavigate} />
         <TodaysSignals historyData={historyData} liveProfile={liveProfile} />
+        <ConnectedInputsStrip />
       </motion.div>
 
       <TodaysReflection

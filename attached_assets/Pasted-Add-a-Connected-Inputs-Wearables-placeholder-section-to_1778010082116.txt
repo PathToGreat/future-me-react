@@ -1,0 +1,97 @@
+Add a “Connected Inputs / Wearables” placeholder section to the Home/Dashboard that visually represents future integrations without implying that they are currently active.
+
+Do NOT connect any real APIs. This is a UI-only placeholder.
+
+Goal:
+The dashboard should show that wearable/device integration exists as part of the system, even if not yet active. It should feel honest, not misleading.
+
+---
+
+### 1. Placement
+
+Place this section within the top zone, beneath or alongside “Today’s Signals” so it feels like part of the same system.
+
+It should not be a large standalone card. It should feel like a secondary strip.
+
+---
+
+### 2. Label
+
+Use one of the following (choose what fits current language best):
+
+* “Connected Inputs”
+* “Connected Devices”
+* “Wearable Inputs”
+
+Preferred: “Connected Inputs” (more flexible long-term)
+
+---
+
+### 3. Visual structure
+
+Create a horizontal strip with small chips/icons similar to Today’s Signals.
+
+Example items:
+
+* Apple Watch
+* Fitbit
+* Oura
+* Garmin
+
+Each chip should include:
+
+* small icon (generic if needed, do not use official logos if not available)
+* device name
+
+---
+
+### 4. State (important)
+
+All items should appear in an inactive / placeholder state:
+
+* low opacity
+* muted color
+* no glow or active indicator
+
+Add a small italic label on the right side:
+
+“Coming soon”
+
+Style:
+
+* text-xs
+* italic
+* text-gray-400 or similar soft tone
+
+---
+
+### 5. Tone and accuracy
+
+Do NOT:
+
+* imply devices are connected
+* show “connected” or “synced”
+* animate these chips as active
+
+This section should communicate:
+“These inputs will be available,” not “these are currently active”
+
+---
+
+### 6. Visual consistency
+
+Match:
+
+* the existing indigo/blue surface system
+* rounded chip style used in Today’s Signals
+* same spacing and scale
+
+---
+
+### Acceptance criteria
+
+* A wearable/input strip appears on the dashboard
+* It visually fits within the top system zone
+* It clearly communicates “not active yet”
+* It does not mislead the user
+* It reinforces that the system will expand beyond manual input
