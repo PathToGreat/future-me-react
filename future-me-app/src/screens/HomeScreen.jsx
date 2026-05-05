@@ -84,10 +84,10 @@ function ConnectedInputsStrip() {
         {CONNECTED_DEVICES.map(({ id, label, icon }) => (
           <div
             key={id}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/40 border border-gray-100/60 opacity-40 select-none"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/70 border border-gray-200/80 opacity-70 select-none"
           >
             <span className="text-gray-400 flex-shrink-0">{icon}</span>
-            <span className="text-[10px] font-medium text-gray-400 whitespace-nowrap">{label}</span>
+            <span className="text-[10px] font-medium text-gray-500 whitespace-nowrap">{label}</span>
           </div>
         ))}
       </div>
