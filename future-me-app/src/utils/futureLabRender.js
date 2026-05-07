@@ -2,8 +2,8 @@
  * futureLabRender.js
  *
  * Client-side render orchestration for Future Lab — Version B.
- * Calls Replicate directly from the browser (no backend server required).
- * Rate limiting is enforced via Firestore render history (3/day per user).
+ * All Replicate calls happen server-side via /api/render/generate.
+ * This file manages Firestore records and triggers the backend.
  *
  * Storage: users/{uid}/futureLabRenders/{renderId}
  */
@@ -15,14 +15,10 @@ import {
   doc,
   query,
   orderBy,
-  where,
   limit,
   getDocs,
   serverTimestamp,
-  Timestamp,
 } from 'firebase/firestore';
-
-import { buildPrompt } from './promptBuilder.js';
 
 // ─── Version constants ────────────────────────────────────────────────────────
 
@@ -32,11 +28,6 @@ export const PROVIDER_TARGET    = 'replicate_flux_1.1_pro';
 
 export const RENDER_EXPERIMENT_VERSION = EXPERIMENT_VERSION;
 export const RENDER_PROMPT_VERSION     = PROMPT_VERSION;
-
-const MODEL_ID    = 'black-forest-labs/flux-1.1-pro';
-const MAX_PER_DAY = 3;
-const POLL_MS     = 3000;   // poll every 3 s
-const TIMEOUT_MS  = 95_000; // 95 s hard stop
 
 // ─── ITE summary builder ──────────────────────────────────────────────────────
 
@@ -136,139 +127,49 @@ export function buildRenderPayload({ userId, sourcePhotoReference, iteResult, ra
   };
 }
 
-// ─── Firestore rate limiter ───────────────────────────────────────────────────
-// Single-field query on createdAt only — avoids needing a composite index.
-// Status filtering is done client-side after fetching.
+// ─── Backend call (server-side proxy) ────────────────────────────────────────
 
-async function checkFirestoreRate(db, userId) {
-  const startOfDayUtc = new Date();
-  startOfDayUtc.setUTCHours(0, 0, 0, 0);
-
+async function callReplicateProvider(payload) {
   try {
-    const q = query(
-      collection(db, 'users', userId, 'futureLabRenders'),
-      where('createdAt', '>=', Timestamp.fromDate(startOfDayUtc)),
-    );
+    const res = await fetch('/api/render/generate', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        userId:                  payload.userId,
+        gender:                  payload.gender,
+        iteSummary:              payload.iteSummary,
+        transformationDirection: payload.transformationDirection,
+        rawMetrics:              payload.currentStateSummary,
+      }),
+      signal: AbortSignal.timeout(100_000),
+    });
 
-    const snap = await getDocs(q);
-    // Count only non-error renders against the daily limit
-    const used = snap.docs.filter(d => d.data().renderStatus !== 'error').length;
-
-    console.log('[FutureLab] Rate check — renders today:', used, '/', MAX_PER_DAY);
-
-    if (used >= MAX_PER_DAY) {
-      return {
-        allowed:   false,
-        remaining: 0,
-        used,
-        error:     `Daily limit of ${MAX_PER_DAY} generations reached. Resets at midnight UTC.`,
-      };
+    if (res.status === 429) {
+      const data = await res.json().catch(() => ({}));
+      return { rateLimited: true, error: data.error || 'Daily limit reached.' };
     }
 
-    return { allowed: true, remaining: MAX_PER_DAY - used - 1, used };
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      return { error: data.error || `Server error ${res.status}` };
+    }
+
+    const data = await res.json();
+    if (!data.imageUrl) return { error: 'No image returned from server.' };
+
+    return { connected: true, imageUrl: data.imageUrl, remaining: data.remaining ?? null };
+
   } catch (err) {
-    // If Firestore check fails, allow the request rather than blocking
-    console.warn('[FutureLab] Rate check failed, allowing request:', err.message);
-    return { allowed: true, remaining: MAX_PER_DAY - 1, used: 0 };
-  }
-}
-
-// ─── Direct Replicate call ────────────────────────────────────────────────────
-
-async function callReplicate({ iteSummary, transformationDirection, rawMetrics, gender }) {
-  const token = import.meta.env.VITE_REPLICATE_API_TOKEN;
-  if (!token) {
-    console.error('[FutureLab] VITE_REPLICATE_API_TOKEN is not set in this build.');
-    return { error: 'Image generation is not configured. Please contact support.' };
-  }
-
-  console.log('[FutureLab] Starting Replicate call, token present:', token.slice(0, 8) + '...');
-  const { prompt } = buildPrompt({ iteSummary, transformationDirection, rawMetrics, gender });
-
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type':  'application/json',
-    'Prefer':        'wait=5',
-  };
-
-  let prediction;
-  try {
-    const createRes = await fetch(
-      `https://api.replicate.com/v1/models/${MODEL_ID}/predictions`,
-      {
-        method:  'POST',
-        headers,
-        body: JSON.stringify({
-          input: {
-            prompt,
-            aspect_ratio:      '2:3',
-            output_format:     'webp',
-            output_quality:    80,
-            safety_tolerance:  2,
-            prompt_upsampling: true,
-          },
-        }),
-      }
-    );
-
-    if (!createRes.ok) {
-      const err = await createRes.json().catch(() => ({}));
-      return { error: err.detail || `Generation service error (${createRes.status}). Please try again.` };
+    if (err.name === 'TimeoutError' || err.name === 'AbortError') {
+      return { error: 'Request timed out. Replicate may be busy — try again.' };
     }
-
-    prediction = await createRes.json();
-  } catch (err) {
-    return { error: 'Could not reach the image generation service. Check your connection and try again.' };
+    return { error: err.message || 'Unknown network error.' };
   }
-
-  // Poll until complete
-  const deadline = Date.now() + TIMEOUT_MS;
-
-  while (
-    prediction.status !== 'succeeded' &&
-    prediction.status !== 'failed' &&
-    prediction.status !== 'canceled'
-  ) {
-    if (Date.now() > deadline) {
-      return { error: 'Generation timed out — the service may be busy. Please try again.' };
-    }
-
-    await new Promise(r => setTimeout(r, POLL_MS));
-
-    try {
-      const pollRes = await fetch(
-        `https://api.replicate.com/v1/predictions/${prediction.id}`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
-      prediction = await pollRes.json();
-    } catch {
-      return { error: 'Lost connection while waiting for the image. Please try again.' };
-    }
-  }
-
-  if (prediction.status !== 'succeeded') {
-    return { error: prediction.error || 'Image generation failed. Please try again.' };
-  }
-
-  const output   = prediction.output;
-  const imageUrl = Array.isArray(output) ? String(output[0]) : String(output);
-
-  if (!imageUrl || imageUrl === 'undefined' || imageUrl === 'null') {
-    return { error: 'No image was returned. Please try again.' };
-  }
-
-  return { imageUrl };
 }
 
 // ─── Initiate render ──────────────────────────────────────────────────────────
 
 export async function initiateRender({ db, userId, payload }) {
-  // Check rate limit first
-  const rate = await checkFirestoreRate(db, userId);
-  if (!rate.allowed) {
-    return { status: 'rate_limited', error: rate.error };
-  }
-
   const renderRecord = {
     renderStatus:            'pending',
     imageUrl:                null,
@@ -292,12 +193,15 @@ export async function initiateRender({ db, userId, payload }) {
   const colRef = collection(db, 'users', userId, 'futureLabRenders');
   const docRef = await addDoc(colRef, renderRecord);
 
-  const result = await callReplicate({
-    iteSummary:              payload.iteSummary,
-    transformationDirection: payload.transformationDirection,
-    rawMetrics:              payload.currentStateSummary,
-    gender:                  payload.gender,
-  });
+  const result = await callReplicateProvider(payload);
+
+  if (result.rateLimited) {
+    await updateDoc(doc(db, 'users', userId, 'futureLabRenders', docRef.id), {
+      renderStatus: 'rate_limited',
+      errorMessage: result.error,
+    });
+    return { status: 'rate_limited', renderId: docRef.id, error: result.error };
+  }
 
   if (result.error) {
     await updateDoc(doc(db, 'users', userId, 'futureLabRenders', docRef.id), {
@@ -307,17 +211,24 @@ export async function initiateRender({ db, userId, payload }) {
     return { status: 'error', renderId: docRef.id, error: result.error };
   }
 
-  await updateDoc(doc(db, 'users', userId, 'futureLabRenders', docRef.id), {
-    renderStatus: 'complete',
-    imageUrl:     result.imageUrl,
-  });
+  if (result.imageUrl) {
+    await updateDoc(doc(db, 'users', userId, 'futureLabRenders', docRef.id), {
+      renderStatus: 'complete',
+      imageUrl:     result.imageUrl,
+    });
+    return {
+      status:    'complete',
+      renderId:  docRef.id,
+      imageUrl:  result.imageUrl,
+      remaining: result.remaining,
+    };
+  }
 
-  return {
-    status:    'complete',
-    renderId:  docRef.id,
-    imageUrl:  result.imageUrl,
-    remaining: rate.remaining,
-  };
+  await updateDoc(doc(db, 'users', userId, 'futureLabRenders', docRef.id), {
+    renderStatus: 'error',
+    errorMessage: 'Unexpected empty response.',
+  });
+  return { status: 'error', renderId: docRef.id };
 }
 
 // ─── Latest render query ──────────────────────────────────────────────────────
