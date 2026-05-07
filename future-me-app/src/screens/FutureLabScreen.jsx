@@ -444,7 +444,7 @@ export default function FutureLabScreen({ onBack }) {
             descriptor={
               latestRender?.renderStatus === 'complete'
                 ? 'AI render — experimental output only'
-                : 'AI-generated future render — provider not yet connected'
+                : 'AI-generated image — tap to generate'
             }
             selected={selectedVersion === 'B'}
             onSelect={() => setSelectedVersion('B')}

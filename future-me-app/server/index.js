@@ -135,7 +135,8 @@ if (IS_PROD) {
   app.use(express.static(distPath));
 
   // SPA catch-all — return index.html for any non-API path so React Router works
-  app.get('*', (_req, res) => {
+  // Express 5 requires named wildcard: '/{*path}' instead of bare '*'
+  app.get('/{*path}', (_req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 }
