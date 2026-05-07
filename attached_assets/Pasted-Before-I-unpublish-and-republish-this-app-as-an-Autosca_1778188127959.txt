@@ -1,0 +1,92 @@
+Before I unpublish and republish this app as an Autoscale deployment, create a deployment safety checklist and verify the current setup.
+
+Do not change code yet unless you find a clear deployment-blocking issue.
+
+Please inspect the project and produce a clear report with these sections:
+
+1. Git safety checkpoint
+   Confirm whether the current working code has been committed and pushed to GitHub.
+   Repository:
+   PathToGreat/future-me-react
+   Branch:
+   origin/main
+
+Tell me clearly:
+
+* whether there are uncommitted changes
+* whether there are unpushed commits
+* what I should do before unpublishing
+
+2. Current deployment configuration
+   Identify and report:
+
+* current deployment type if detectable
+* current build command
+* current run command
+* whether the project is currently configured like a static deployment or a server/API deployment
+* whether `.replit`, `package.json`, or deployment config could force static-only behavior
+
+3. Required Autoscale configuration
+   Verify the correct Autoscale run command should be:
+
+cd future-me-app && NODE_ENV=production node server/index.js
+
+If this is not correct based on the actual folder structure, tell me the correct command.
+
+4. Backend health check readiness
+   Confirm that the Express server:
+
+* starts without crashing
+* exposes `/api/health`
+* can run in production mode
+* can serve the frontend or cooperate with the deployed frontend correctly
+
+5. Environment variables and secrets
+   Verify which secrets/environment variables are required for deployment.
+
+Specifically check for:
+
+* REPLICATE_API_TOKEN
+* Firebase-related variables
+* any Vite public variables
+* any server-only variables
+
+Do not print secret values. Only list variable names and whether they appear to be required.
+
+Also tell me whether these secrets need to be added to the deployment environment separately from Replit editor secrets.
+
+6. Replicate pipeline readiness
+   Verify:
+
+* backend route exists for image generation
+* frontend calls `/api/*`, not Replicate directly
+* Replicate token is only used server-side
+* rate limit logic still exists
+* cached render logic still exists
+
+7. Firebase safety
+   Confirm that unpublishing the Replit deployment will not delete Firebase Auth users, Firestore data, or stored app user records.
+
+8. Post-deployment test checklist
+   Create a short checklist I should run immediately after republishing as Autoscale:
+
+* home page loads
+* login works
+* dashboard reads Firestore
+* menu opens
+* Future Lab Version B loads
+* `/api/health` responds
+* Generate Future Me Image calls backend
+* generated result or clean error appears
+* Firestore writes render metadata
+
+9. Rollback plan
+   Tell me the safest rollback plan if Autoscale publish fails:
+
+* what to check first
+* whether to revert deployment type
+* whether to use GitHub commit checkpoint
+* how to avoid touching Firebase data
+
+Final output:
+Give me a concise “safe to proceed / not safe to proceed” recommendation and the exact reason.
