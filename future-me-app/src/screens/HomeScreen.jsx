@@ -19,6 +19,8 @@ import MonthlySnapshotScreen from '../components/MonthlySnapshotScreen';
 import ProgressDetails from '../components/ProgressDetails';
 import InsightsFeed from '../components/InsightsFeed';
 import ReminderBanner from '../components/ReminderBanner';
+import StaleZonePrompt from '../components/StaleZonePrompt';
+import { useStaleZoneCheck } from '../hooks/useStaleZoneCheck';
 import { detectPatterns, selectPatternForDisplay } from '../utils/trendPatternEngine';
 import { checkNewPattern } from '../utils/reminderEngine';
 import { trackPatternSurfaced, trackPatternDismissed, getLastShownPatterns, trackReturnAfterPattern } from '../utils/patternMetrics';
@@ -215,6 +217,11 @@ export default function HomeScreen({ onNavigate }) {
   const [currentPattern, setCurrentPattern] = useState(null);
   const [patternChecked, setPatternChecked] = useState(false);
 
+  const { staleZone, dismissStaleZone } = useStaleZoneCheck(
+    user?.uid ?? null,
+    liveProfile?.lifeZones ?? null
+  );
+
   useEffect(() => {
     const initClarityMetrics = async () => {
       if (!user?.uid) return;
@@ -369,6 +376,11 @@ export default function HomeScreen({ onNavigate }) {
         onPatternDismiss={handlePatternDismiss}
         onPatternExpand={handlePatternExpand}
         onPatternReflection={handlePatternReflection}
+      />
+
+      <StaleZonePrompt
+        staleZone={staleZone}
+        onDismiss={dismissStaleZone}
       />
 
       <DirectionIndicator />

@@ -1,0 +1,66 @@
+Add a restrained “stale zone check-in” prompt system to the dashboard.
+
+Goal:
+If a user has not updated one of the six major life zones for a meaningful period of time, the app should gently prompt them to check whether that area still reflects reality.
+
+This should not feel like a nag, reminder, streak pressure, or gamification. It should feel like the system is maintaining accuracy.
+
+Do not change scoring logic unless needed to detect last updated timestamps.
+
+Life zones:
+
+* Health
+* Social Emotional
+* Family
+* Community
+* Wealth
+* Faith
+
+Current daily metrics already cover:
+
+* sleep quality
+* nutrition quality
+* stress level
+* movement level
+
+Those daily metrics should not be treated the same as the six-zone check-ins unless the current architecture already links them cleanly.
+
+Add logic:
+
+* Track or read the last updated date for each life zone.
+* If a zone has not been updated in 14 days, mark it as stale.
+* If multiple zones are stale, show only one prompt at a time.
+* Prioritize the stalest zone or the lowest-scoring stale zone.
+* Do not show the same stale-zone prompt repeatedly every visit.
+* Add cooldown behavior, such as hiding the same prompt for 3 days after dismissal.
+
+Prompt copy examples:
+“Faith has not been checked in for 14 days. Has anything changed?”
+“Your Faith score is based on older inputs. Check in if this area has shifted.”
+“Community has not been updated recently. Review it if your current life no longer matches the score.”
+
+Actions:
+
+* “Check in”
+* “Not now”
+
+Behavior:
+
+* “Check in” should take the user to that zone’s detail/check-in screen if one exists.
+* “Not now” should dismiss the prompt and apply the cooldown.
+* Do not lower the user’s score simply because they have not checked in.
+* Do not use shame, urgency, or reward language.
+
+Visual placement:
+Add this as a small, calm prompt card on the dashboard, preferably below Today’s Reflection or near the zone overview.
+Use the existing soft nature-inspired dashboard styling.
+It should be noticeable but not dominant.
+
+Acceptance criteria:
+
+* The dashboard can identify stale life-zone inputs.
+* A single gentle check-in prompt appears when a zone is stale.
+* The prompt helps maintain accuracy without feeling like a reminder app.
+* Users can dismiss it.
+* Dismissal prevents repeated prompting for a short cooldown period.
+* No gamification language or penalty behavior is introduced.
