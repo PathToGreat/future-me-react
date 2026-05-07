@@ -137,30 +137,40 @@ export function buildRenderPayload({ userId, sourcePhotoReference, iteResult, ra
 }
 
 // ─── Firestore rate limiter ───────────────────────────────────────────────────
+// Single-field query on createdAt only — avoids needing a composite index.
+// Status filtering is done client-side after fetching.
 
 async function checkFirestoreRate(db, userId) {
   const startOfDayUtc = new Date();
   startOfDayUtc.setUTCHours(0, 0, 0, 0);
 
-  const q = query(
-    collection(db, 'users', userId, 'futureLabRenders'),
-    where('createdAt', '>=', Timestamp.fromDate(startOfDayUtc)),
-    where('renderStatus', 'in', ['complete', 'pending']),
-  );
+  try {
+    const q = query(
+      collection(db, 'users', userId, 'futureLabRenders'),
+      where('createdAt', '>=', Timestamp.fromDate(startOfDayUtc)),
+    );
 
-  const snap = await getDocs(q);
-  const used = snap.size;
+    const snap = await getDocs(q);
+    // Count only non-error renders against the daily limit
+    const used = snap.docs.filter(d => d.data().renderStatus !== 'error').length;
 
-  if (used >= MAX_PER_DAY) {
-    return {
-      allowed:   false,
-      remaining: 0,
-      used,
-      error:     `Daily limit of ${MAX_PER_DAY} generations reached. Resets at midnight UTC.`,
-    };
+    console.log('[FutureLab] Rate check — renders today:', used, '/', MAX_PER_DAY);
+
+    if (used >= MAX_PER_DAY) {
+      return {
+        allowed:   false,
+        remaining: 0,
+        used,
+        error:     `Daily limit of ${MAX_PER_DAY} generations reached. Resets at midnight UTC.`,
+      };
+    }
+
+    return { allowed: true, remaining: MAX_PER_DAY - used - 1, used };
+  } catch (err) {
+    // If Firestore check fails, allow the request rather than blocking
+    console.warn('[FutureLab] Rate check failed, allowing request:', err.message);
+    return { allowed: true, remaining: MAX_PER_DAY - 1, used: 0 };
   }
-
-  return { allowed: true, remaining: MAX_PER_DAY - used - 1, used };
 }
 
 // ─── Direct Replicate call ────────────────────────────────────────────────────
@@ -168,9 +178,11 @@ async function checkFirestoreRate(db, userId) {
 async function callReplicate({ iteSummary, transformationDirection, rawMetrics, gender }) {
   const token = import.meta.env.VITE_REPLICATE_API_TOKEN;
   if (!token) {
+    console.error('[FutureLab] VITE_REPLICATE_API_TOKEN is not set in this build.');
     return { error: 'Image generation is not configured. Please contact support.' };
   }
 
+  console.log('[FutureLab] Starting Replicate call, token present:', token.slice(0, 8) + '...');
   const { prompt } = buildPrompt({ iteSummary, transformationDirection, rawMetrics, gender });
 
   const headers = {
