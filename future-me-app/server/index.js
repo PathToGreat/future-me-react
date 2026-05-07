@@ -1,24 +1,30 @@
 /**
  * future-me API server
  *
- * Runs alongside Vite dev server. Vite proxies /api/* here.
- * REPLICATE_API_TOKEN is read from process.env — never sent to the client.
+ * Dev:  runs on port 3001 alongside Vite (port 5000). Vite proxies /api/* here.
+ * Prod: runs on PORT env var (default 5000), serves built frontend from dist/
+ *       AND handles all /api/* routes — no separate Vite proxy needed.
  *
  * Routes:
  *   GET  /api/health              — liveness check
  *   POST /api/render/generate     — generate a Future Me image via Replicate
  */
 
-import express  from 'express';
-import cors     from 'cors';
-import { buildPrompt }    from './promptBuilder.js';
+import path   from 'path';
+import { fileURLToPath } from 'url';
+import express from 'express';
+import cors    from 'cors';
+import { buildPrompt }           from './promptBuilder.js';
 import { generateImage, MODEL_ID } from './replicateService.js';
 
-const app  = express();
-const PORT = 3001;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const IS_PROD = process.env.NODE_ENV === 'production';
+const PORT    = parseInt(process.env.PORT || (IS_PROD ? '5000' : '3001'), 10);
+
+const app = express();
 
 // ─── Rate limiter (in-memory, resets on server restart) ───────────────────────
-// Sufficient for controlled testing. Swap for Redis / Firestore in production.
 const MAX_PER_DAY = 3;
 const rateMap     = new Map(); // userId → { date: 'YYYY-MM-DD', count: number }
 
@@ -53,13 +59,14 @@ function decrementRate(userId) {
 app.use(cors({ origin: true }));
 app.use(express.json({ limit: '512kb' }));
 
-// ─── Routes ──────────────────────────────────────────────────────────────────
+// ─── API Routes ───────────────────────────────────────────────────────────────
 
 app.get('/api/health', (_req, res) => {
   res.json({
     status:    'ok',
     service:   'future-me-api',
     model:     MODEL_ID,
+    env:       IS_PROD ? 'production' : 'development',
     timestamp: new Date().toISOString(),
   });
 });
@@ -77,7 +84,6 @@ app.post('/api/render/generate', async (req, res) => {
     return res.status(400).json({ error: 'userId is required' });
   }
 
-  // ── Rate limit check ────────────────────────────────────────────────────
   const rate = checkRate(userId);
   if (!rate.allowed) {
     console.log(`[render] Rate limit hit for user ${userId.slice(0, 8)}...`);
@@ -87,7 +93,6 @@ app.post('/api/render/generate', async (req, res) => {
     });
   }
 
-  // ── Build prompt ────────────────────────────────────────────────────────
   let prompt, negativePrompt;
   try {
     ({ prompt, negativePrompt } = buildPrompt({
@@ -105,29 +110,38 @@ app.post('/api/render/generate', async (req, res) => {
   console.log(`[render] Generating for ${userId.slice(0, 8)}... | remaining today: ${rate.remaining}`);
   console.log(`[render] Prompt (120 chars): ${prompt.slice(0, 120)}…`);
 
-  // ── Call Replicate ──────────────────────────────────────────────────────
   try {
     const { imageUrl } = await generateImage({ prompt, negativePrompt });
-
     console.log(`[render] Success for ${userId.slice(0, 8)}... → ${imageUrl.slice(0, 60)}…`);
     return res.json({ imageUrl, remaining: rate.remaining });
 
   } catch (err) {
-    // Refund the rate limit token on failure
     decrementRate(userId);
-
     console.error(`[render] Replicate error for ${userId.slice(0, 8)}...:`, err.message);
 
     if (err.name === 'AbortError') {
       return res.status(504).json({ error: 'Image generation timed out. Please try again.' });
     }
-
     return res.status(500).json({ error: 'Image generation failed. Please try again.' });
   }
 });
 
+// ─── Static frontend (production only) ───────────────────────────────────────
+// In dev, Vite serves the frontend on port 5000 and proxies /api/* to this server.
+// In production, this server serves the built frontend AND the API from the same port.
+
+if (IS_PROD) {
+  const distPath = path.join(__dirname, '../dist');
+  app.use(express.static(distPath));
+
+  // SPA catch-all — return index.html for any non-API path so React Router works
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
 // ─── Start ────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[future-me-api] Listening on port ${PORT}  model=${MODEL_ID}`);
+  console.log(`[future-me-api] Listening on port ${PORT}  env=${IS_PROD ? 'production' : 'development'}  model=${MODEL_ID}`);
 });
