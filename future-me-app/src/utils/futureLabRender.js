@@ -1,13 +1,12 @@
 /**
  * futureLabRender.js
  *
- * Staged AI-render integration for Future Lab — Version B.
- * The Replicate provider pathway is fully scaffolded but NOT active.
- * When a Replicate API key is available, replace `callReplicateProvider` below
- * (server-side only — never put API keys here) and update the backend route.
+ * Client-side render orchestration for Future Lab — Version B.
+ * All Replicate calls happen server-side via /api/render/generate.
+ * This file only manages Firestore records and triggers the backend.
  *
  * Storage: users/{uid}/futureLabRenders/{renderId}
- * Feedback stays in: users/{uid}/futureLabFeedback/{feedbackId}  ← untouched
+ * Feedback: users/{uid}/futureLabFeedback/{feedbackId}  ← untouched
  */
 
 import {
@@ -23,25 +22,13 @@ import {
 } from 'firebase/firestore';
 
 // ─── Version constants ────────────────────────────────────────────────────────
-// These version constants allow us to compare future render experiments cleanly.
-// Update PROMPT_VERSION whenever the generation prompt meaningfully changes.
-// Update EXPERIMENT_VERSION when the experiment design changes.
 
 export const EXPERIMENT_VERSION = 'future_lab_visual_direction_v1';
-export const PROMPT_VERSION     = 'identity_preserve_soft_transform_v1';
-export const PROVIDER_TARGET    = 'replicate_not_configured';
+export const PROMPT_VERSION     = 'identity_trajectory_full_body_v1';
+export const PROVIDER_TARGET    = 'replicate_flux_1.1_pro';
 
-// Legacy aliases — keep these so any import using the old names still compiles.
 export const RENDER_EXPERIMENT_VERSION = EXPERIMENT_VERSION;
 export const RENDER_PROMPT_VERSION     = PROMPT_VERSION;
-
-// ─── Per-user generation limit (future enforcement — NOT yet active) ──────────
-// TODO: Before allowing a new render, read users/{uid}/futureLabRenderMeta
-//       and check generationCount against MAX_RENDERS_PER_USER.
-// TODO: Increment generationCount on each successful initiation.
-// Enforce this before connecting a live paid provider.
-// eslint-disable-next-line no-unused-vars
-const MAX_RENDERS_PER_USER = 3;
 
 // ─── ITE summary builder ──────────────────────────────────────────────────────
 
@@ -61,8 +48,8 @@ export function buildITESummary(iteResult) {
   const t = iteResult.traits;
   const p = iteResult.projection12Month || {};
 
-  const currentState    = {};
-  const projectedState  = {};
+  const currentState   = {};
+  const projectedState = {};
 
   TRAIT_IDS.forEach(id => {
     currentState[id]   = Math.round(t[id]?.currentScore  ?? 50);
@@ -92,28 +79,29 @@ export function buildTransformationDirection(iteResult) {
   const emoStabilityProjected = proj('emotionalStability');
 
   return {
-    vitality:          { current: cur('vitality'),   projected: proj('vitality')   },
-    emotionalStability:{ current: emoStabilityCurrent, projected: emoStabilityProjected },
-    discipline:        { current: cur('discipline'), projected: proj('discipline') },
-    resilience:        { current: cur('resilience'), projected: proj('resilience') },
-    confidence:        { current: cur('confidence'), projected: proj('confidence') },
-    stressReduction:   Math.max(0, emoStabilityProjected - emoStabilityCurrent),
-    strongestLever:    iteResult.narrative?.strongestLever ?? null,
-    projectedFutureState: proj('vitality') > 60 ? 'improving' : proj('vitality') < 40 ? 'declining' : 'stable',
+    vitality:           { current: cur('vitality'),   projected: proj('vitality')   },
+    emotionalStability: { current: emoStabilityCurrent, projected: emoStabilityProjected },
+    discipline:         { current: cur('discipline'), projected: proj('discipline') },
+    resilience:         { current: cur('resilience'), projected: proj('resilience') },
+    confidence:         { current: cur('confidence'), projected: proj('confidence') },
+    stressReduction:    Math.max(0, emoStabilityProjected - emoStabilityCurrent),
+    strongestLever:     iteResult.narrative?.strongestLever ?? null,
+    projectedFutureState: proj('vitality') > 60 ? 'improving'
+                        : proj('vitality') < 40 ? 'declining'
+                        : 'stable',
   };
 }
 
 // ─── Full payload builder ─────────────────────────────────────────────────────
-// This payload will be sent to the backend → Replicate when the provider is connected.
 
 const PROMPT_INTENT =
-  'Preserve user identity while creating a realistic but restrained future-facing visual ' +
-  'interpretation based on current ITE projection. Improve posture, energy, calmness, and ' +
-  'health signals without exaggeration or extreme muscularity.';
+  'Full-body photorealistic future-self image driven by ITE trajectory. ' +
+  'Preserve identity. Restrained realistic transformation — no exaggeration.';
 
-export function buildRenderPayload({ userId, sourcePhotoReference, iteResult, rawMetrics }) {
+export function buildRenderPayload({ userId, sourcePhotoReference, iteResult, rawMetrics, gender }) {
   return {
     userId,
+    gender:               gender ?? null,
     sourcePhotoReference: sourcePhotoReference ?? null,
     iteSummary:           buildITESummary(iteResult),
     currentStateSummary: {
@@ -125,7 +113,7 @@ export function buildRenderPayload({ userId, sourcePhotoReference, iteResult, ra
     transformationDirection: buildTransformationDirection(iteResult),
     renderConstraints: {
       preserveIdentity:          true,
-      realisticButAvatarLike:    true,
+      realisticButAvatarLike:    false,
       restrainedTransformation:  true,
       notOverlyMuscular:         true,
       notFantasy:                true,
@@ -140,24 +128,44 @@ export function buildRenderPayload({ userId, sourcePhotoReference, iteResult, ra
   };
 }
 
-// ─── Provider gate ────────────────────────────────────────────────────────────
-// Replace this function when Replicate is configured.
-//
-// Future implementation:
-//   POST /api/render/generate  (your backend)
-//   Backend reads REPLICATE_API_KEY from env and calls Replicate.
-//   Returns { imageUrl } on success, { error } on failure.
-//   NEVER expose API keys here or in any frontend file.
-//
-// eslint-disable-next-line no-unused-vars
-async function callReplicateProvider(_payload) {
-  // TODO: return await fetch('/api/render/generate', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(_payload),
-  // }).then(r => r.json());
+// ─── Backend call (server-side proxy) ────────────────────────────────────────
 
-  return { connected: false }; // provider not configured yet
+async function callReplicateProvider(payload) {
+  try {
+    const res = await fetch('/api/render/generate', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        userId:                  payload.userId,
+        gender:                  payload.gender,
+        iteSummary:              payload.iteSummary,
+        transformationDirection: payload.transformationDirection,
+        rawMetrics:              payload.currentStateSummary,
+      }),
+      signal: AbortSignal.timeout(100_000), // 100 s client-side guard
+    });
+
+    if (res.status === 429) {
+      const data = await res.json().catch(() => ({}));
+      return { rateLimited: true, error: data.error || 'Daily limit reached.' };
+    }
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      return { error: data.error || `Server error ${res.status}` };
+    }
+
+    const data = await res.json();
+    if (!data.imageUrl) return { error: 'No image returned from server.' };
+
+    return { connected: true, imageUrl: data.imageUrl, remaining: data.remaining ?? null };
+
+  } catch (err) {
+    if (err.name === 'TimeoutError' || err.name === 'AbortError') {
+      return { error: 'Request timed out. Replicate may be busy — try again.' };
+    }
+    return { error: err.message || 'Unknown network error.' };
+  }
 }
 
 // ─── Initiate render ──────────────────────────────────────────────────────────
@@ -168,6 +176,7 @@ export async function initiateRender({ db, userId, payload }) {
     imageUrl:                null,
     storageReference:        null,
     sourcePhotoReference:    payload.sourcePhotoReference,
+    gender:                  payload.gender ?? null,
     promptVersion:           payload.promptVersion,
     experimentVersion:       payload.experimentVersion,
     providerTarget:          payload.providerTarget,
@@ -187,13 +196,12 @@ export async function initiateRender({ db, userId, payload }) {
 
   const result = await callReplicateProvider(payload);
 
-  if (!result.connected) {
+  if (result.rateLimited) {
     await updateDoc(doc(db, 'users', userId, 'futureLabRenders', docRef.id), {
-      renderStatus: 'provider_not_connected',
-      provider:     'not_configured',
-      errorMessage: 'AI render provider is not connected yet.',
+      renderStatus: 'rate_limited',
+      errorMessage: result.error,
     });
-    return { status: 'provider_not_connected', renderId: docRef.id };
+    return { status: 'rate_limited', renderId: docRef.id, error: result.error };
   }
 
   if (result.error) {
@@ -201,7 +209,7 @@ export async function initiateRender({ db, userId, payload }) {
       renderStatus: 'error',
       errorMessage: result.error,
     });
-    return { status: 'error', renderId: docRef.id };
+    return { status: 'error', renderId: docRef.id, error: result.error };
   }
 
   if (result.imageUrl) {
@@ -209,9 +217,18 @@ export async function initiateRender({ db, userId, payload }) {
       renderStatus: 'complete',
       imageUrl:     result.imageUrl,
     });
-    return { status: 'complete', renderId: docRef.id, imageUrl: result.imageUrl };
+    return {
+      status:    'complete',
+      renderId:  docRef.id,
+      imageUrl:  result.imageUrl,
+      remaining: result.remaining,
+    };
   }
 
+  await updateDoc(doc(db, 'users', userId, 'futureLabRenders', docRef.id), {
+    renderStatus: 'error',
+    errorMessage: 'Unexpected empty response.',
+  });
   return { status: 'error', renderId: docRef.id };
 }
 

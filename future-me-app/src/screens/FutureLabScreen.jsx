@@ -39,59 +39,45 @@ function PlaceholderVisual({ label, description, accentColor }) {
 
 // ─── Version B inner content ──────────────────────────────────────────────────
 
-function VersionBContent({ renderState, latestRender, onGenerate, loadingRender }) {
-  const showRender =
-    latestRender?.renderStatus === 'complete' && latestRender?.imageUrl;
-
+function VersionBContent({ renderState, renderError, latestRender, onGenerate, onRegenerate, loadingRender }) {
+  const showRender   = latestRender?.renderStatus === 'complete' && latestRender?.imageUrl;
   const isGenerating = renderState === 'generating';
+  const isRateLimited = renderState === 'rate_limited';
 
   return (
     <div className="w-full flex flex-col gap-3">
       {/* Visual area */}
       {showRender ? (
-        <div className="w-full rounded-xl overflow-hidden border border-gray-200">
+        <div className="w-full rounded-xl overflow-hidden border border-gray-200 shadow-sm">
           <img
             src={latestRender.imageUrl}
-            alt="AI-generated future render"
+            alt="AI-generated future self render"
             className="w-full object-cover"
           />
-          <div className="px-3 py-2 bg-gray-50 border-t border-gray-100">
-            <p className="text-[10px] text-gray-400 text-center uppercase tracking-wide">
-              Experimental render — visual interpretation of your current trajectory
+          <div className="px-3 py-2 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+            <p className="text-[10px] text-gray-400 uppercase tracking-wide">
+              Experimental — trajectory interpretation
             </p>
+            <span className="text-[10px] text-green-600 font-semibold">✓ Generated</span>
           </div>
         </div>
       ) : isGenerating ? (
         <div className="w-full flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-amber-200 bg-amber-50 py-10 px-4">
           <div className="w-8 h-8 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
-          <p className="text-xs text-amber-600 font-medium">Requesting render…</p>
+          <p className="text-xs text-amber-600 font-medium">Generating — this may take up to 60 seconds…</p>
+          <p className="text-[10px] text-amber-500 text-center">Building your future self from trajectory data</p>
         </div>
       ) : (
         <PlaceholderVisual
-          label="AI Render"
-          description="Your identity data is ready — waiting for provider connection"
+          label="Future Me Image"
+          description="Tap generate to create a full-body image from your trajectory data"
           accentColor="amber"
         />
       )}
 
-      {/* Status message */}
+      {/* Status messages */}
       <AnimatePresence mode="wait">
-        {renderState === 'provider_not_connected' && (
-          <motion.div
-            key="not-connected"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5"
-          >
-            <span className="text-amber-500 text-sm mt-0.5">⚖️</span>
-            <p className="text-xs text-amber-700 leading-relaxed">
-              Your data is ready. AI rendering will activate once the provider is connected.
-            </p>
-          </motion.div>
-        )}
-
-        {renderState === 'error' && (
+        {(renderState === 'error' || renderState === 'provider_not_connected') && (
           <motion.div
             key="error"
             initial={{ opacity: 0, y: 4 }}
@@ -101,7 +87,22 @@ function VersionBContent({ renderState, latestRender, onGenerate, loadingRender 
           >
             <span className="text-red-400 text-sm mt-0.5">📊</span>
             <p className="text-xs text-red-700 leading-relaxed">
-              Something went wrong requesting the render. Try again later.
+              {renderError || 'Generation failed. Please try again.'}
+            </p>
+          </motion.div>
+        )}
+
+        {isRateLimited && (
+          <motion.div
+            key="rate-limited"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5"
+          >
+            <span className="text-amber-500 text-sm mt-0.5">⚖️</span>
+            <p className="text-xs text-amber-700 leading-relaxed">
+              {renderError || 'Daily generation limit reached. Try again tomorrow.'}
             </p>
           </motion.div>
         )}
@@ -115,13 +116,15 @@ function VersionBContent({ renderState, latestRender, onGenerate, loadingRender 
             className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2.5"
           >
             <span className="text-green-500 text-sm">✓</span>
-            <p className="text-xs text-green-700">Render complete — this is experimental output only.</p>
+            <p className="text-xs text-green-700 flex-1">
+              Experimental output only — not a medical or physical prediction.
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Generate button — user-triggered only, never auto-generated */}
-      {!showRender && !isGenerating && (
+      {/* Generate button — never auto-triggered */}
+      {!showRender && !isGenerating && !isRateLimited && (
         <button
           onClick={e => { e.stopPropagation(); onGenerate(); }}
           disabled={isGenerating || loadingRender}
@@ -130,14 +133,23 @@ function VersionBContent({ renderState, latestRender, onGenerate, loadingRender 
               ? 'bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed'
               : 'bg-amber-500 text-white border-amber-500 hover:bg-amber-600 shadow-sm'}`}
         >
-          {loadingRender ? 'Checking…' : 'Generate Experimental Render'}
+          {loadingRender ? 'Checking…' : 'Generate Future Me Image'}
         </button>
       )}
 
-      {!showRender && !isGenerating && (
+      {/* Regenerate button — only shown when image is cached */}
+      {showRender && !isGenerating && (
+        <button
+          onClick={e => { e.stopPropagation(); onRegenerate(); }}
+          className="w-full py-2 rounded-xl text-[11px] font-medium text-gray-400 border border-gray-200 hover:border-amber-300 hover:text-amber-600 transition-all bg-white"
+        >
+          Regenerate
+        </button>
+      )}
+
+      {!showRender && !isGenerating && !isRateLimited && (
         <p className="text-[10px] text-gray-400 text-center px-2 leading-relaxed">
-          Experimental only. Triggered by you, not automatic.
-          Generation requires provider connection.
+          User-triggered only. Limited to 3 generations per day during testing.
         </p>
       )}
     </div>
@@ -227,6 +239,7 @@ export default function FutureLabScreen({ onBack }) {
 
   // ── Render state (Version B) ─────────────────────────────────────────────
   const [renderState, setRenderState]     = useState('idle');
+  const [renderError, setRenderError]     = useState(null);
   const [latestRender, setLatestRender]   = useState(null);
   const [loadingRender, setLoadingRender] = useState(true);
 
@@ -271,9 +284,10 @@ export default function FutureLabScreen({ onBack }) {
   const handleGenerate = useCallback(async () => {
     if (!user || renderState === 'generating') return;
     setRenderState('generating');
+    setRenderError(null);
 
     try {
-      const latest   = historyData?.[0] || {};
+      const latest     = historyData?.[0] || {};
       const rawMetrics = {
         activityScore:  latest.activityScore  ?? null,
         nutritionScore: latest.nutritionScore ?? null,
@@ -281,7 +295,6 @@ export default function FutureLabScreen({ onBack }) {
         stressScore:    latest.stressScore    ?? null,
       };
 
-      // Source photo reference — path/URL only, never an actual file
       const sourcePhotoReference = liveProfile?.images?.[0]?.path
         || liveProfile?.images?.[0]?.url
         || liveProfile?.images?.[0]
@@ -292,19 +305,21 @@ export default function FutureLabScreen({ onBack }) {
         sourcePhotoReference,
         iteResult,
         rawMetrics,
+        gender:               selectedGender,
       });
 
       const result = await initiateRender({ db, userId: user.uid, payload });
 
-      // Reload the latest render record after initiation
       const fresh = await getLatestRender({ db, userId: user.uid });
       setLatestRender(fresh);
       setRenderState(result.status);
+      if (result.error) setRenderError(result.error);
     } catch (err) {
       console.error('FutureLab render initiation failed:', err);
       setRenderState('error');
+      setRenderError('Something went wrong. Please try again.');
     }
-  }, [user, renderState, historyData, liveProfile, iteResult]);
+  }, [user, renderState, historyData, liveProfile, iteResult, selectedGender]);
 
   // ── Feedback submit (unchanged logic) ────────────────────────────────────
   const canSubmit = selectedVersion !== null && !submitting && !submitted;
@@ -428,8 +443,14 @@ export default function FutureLabScreen({ onBack }) {
           >
             <VersionBContent
               renderState={renderState}
+              renderError={renderError}
               latestRender={latestRender}
               onGenerate={handleGenerate}
+              onRegenerate={() => {
+                setLatestRender(null);
+                setRenderState('idle');
+                setRenderError(null);
+              }}
               loadingRender={loadingRender}
             />
           </VersionCard>
