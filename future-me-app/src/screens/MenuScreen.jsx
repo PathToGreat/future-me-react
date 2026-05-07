@@ -6,6 +6,7 @@ import { useApp } from '../context/AppContext';
 import ConnectedDevicesPanel from '../components/ConnectedDevicesPanel';
 import InvestorMetricsDashboard from '../components/InvestorMetricsDashboard';
 import ReminderSettings from '../components/ReminderSettings';
+import LegalNoticesModal from '../components/LegalNoticesModal';
 
 const MENU_ITEMS = [
   { id: 'futureLab', label: 'Future Lab', icon: '🎯', description: 'Preview and compare experimental visual directions', highlight: true },
@@ -14,6 +15,7 @@ const MENU_ITEMS = [
   { id: 'retake', label: 'Retake Assessment', icon: '📋', description: 'Update your baseline metrics' },
   { id: 'walkthrough', label: 'Replay Walkthrough', icon: '🎓', description: 'View the app introduction again' },
   { id: 'settings', label: 'Account Settings', icon: '⚙️', description: 'Manage your profile and preferences' },
+  { id: 'legal', label: 'Legal & Notices', icon: '📖', description: 'Terms, privacy, and AI disclosures' },
   { id: 'support', label: 'Support', icon: '❓', description: 'Get help and FAQs' },
   { id: 'logout', label: 'Log Out', icon: '🚪', description: 'Sign out of your account', danger: true },
 ];
@@ -25,6 +27,7 @@ export default function MenuScreen({ onNavigate }) {
   const [showDevicesPanel, setShowDevicesPanel] = useState(false);
   const [showReminderSettings, setShowReminderSettings] = useState(false);
   const [showFounderMetrics, setShowFounderMetrics] = useState(false);
+  const [showLegalNotices, setShowLegalNotices] = useState(false);
   const [versionTapCount, setVersionTapCount] = useState(0);
   
   useEffect(() => {
@@ -61,6 +64,9 @@ export default function MenuScreen({ onNavigate }) {
         break;
       case 'settings':
         alert('Account Settings coming soon!');
+        break;
+      case 'legal':
+        setShowLegalNotices(true);
         break;
       case 'support':
         alert('Support page coming soon!');
@@ -149,6 +155,11 @@ export default function MenuScreen({ onNavigate }) {
       <ReminderSettings
         isOpen={showReminderSettings}
         onClose={() => setShowReminderSettings(false)}
+      />
+
+      <LegalNoticesModal
+        isOpen={showLegalNotices}
+        onClose={() => setShowLegalNotices(false)}
       />
 
       <AnimatePresence>

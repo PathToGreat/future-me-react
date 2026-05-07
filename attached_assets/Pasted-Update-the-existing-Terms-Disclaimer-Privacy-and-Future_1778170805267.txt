@@ -1,0 +1,95 @@
+Update the existing Terms, Disclaimer, Privacy, and Future Lab messaging throughout the app to reflect the new experimental AI image generation system and identity trajectory features.
+
+Do not rewrite the entire legal structure from scratch. Add or update only the sections necessary to accurately reflect the current product behavior and reduce misleading interpretation.
+
+Tone:
+Keep the language calm, grounded, and readable. Avoid overly aggressive legal language. The app should still feel trustworthy and human.
+
+Main goals:
+
+* clarify that Future Me provides interpretive wellness and trajectory insights
+* clarify that AI-generated imagery is experimental
+* avoid implying medical prediction or guaranteed outcomes
+* clarify that the app is not medical, psychiatric, or diagnostic software
+* preserve the app’s philosophy and tone
+
+Implement the following updates:
+
+1. Add/update a “Trajectory & Visualization Disclaimer” section
+
+Include language substantially similar to:
+
+“Future Me provides observational and interpretive wellness insights based on user-provided information, patterns, habits, and behavioral trends. Visual projections, avatar states, and AI-generated imagery are intended to reflect general trajectory and directional patterns and should not be interpreted as medical predictions, diagnoses, or guaranteed future outcomes.”
+
+2. Add/update a “Not Medical Advice” section
+
+Include language substantially similar to:
+
+“Future Me is not a medical device and does not provide medical, psychiatric, nutritional, or therapeutic diagnosis or treatment. The information provided inside the app is informational and reflective in nature and should not replace professional medical or mental health guidance.”
+
+3. Add/update AI image generation disclosure
+
+Clarify:
+
+* the Future Lab AI image system is experimental
+* generated images may vary in realism and accuracy
+* likeness preservation is not guaranteed
+* generated imagery is intended as a reflective visualization tool
+
+Suggested wording direction:
+
+“Future Lab visualizations are experimental AI-generated interpretations intended to explore future trajectory concepts in a reflective and emotionally meaningful way. Generated imagery may not accurately represent actual future appearance, health outcomes, or physical condition.”
+
+4. Add a short in-app notice inside Future Lab Version B
+
+Place a small subdued notice near the Generate button or render area.
+
+Suggested text:
+
+“This experimental visualization reflects general trajectory patterns and is not a medical prediction or guaranteed future outcome.”
+
+Use subtle styling that matches the app. Do not use warning-red colors or alarming language.
+
+5. Update Privacy Policy regarding image handling
+
+Add language clarifying:
+
+* uploaded/reference images may be processed through third-party AI infrastructure (Replicate)
+* generation requests are transmitted securely
+* images are used only for generation and associated app functionality
+* Future Me does not intentionally sell user images or likeness data
+
+Do not overstate permanence or retention if the app does not currently implement those guarantees.
+
+6. Add usage responsibility language
+
+Add a short clause clarifying users remain responsible for decisions related to:
+
+* health
+* wellness
+* financial choices
+* relationships
+* lifestyle changes
+
+Suggested direction:
+
+“Users remain responsible for their own real-world decisions and actions. Future Me is designed as a reflective and interpretive tool, not a substitute for professional judgment.”
+
+7. Keep language aligned with the product
+
+Do NOT:
+
+* suddenly introduce harsh legal tone
+* use fear-heavy wording
+* imply dangerous medical functionality
+* imply guaranteed predictive accuracy
+
+The updated terms should feel consistent with the app’s calm, observational philosophy.
+
+Acceptance criteria:
+
+* AI visualization system is clearly disclosed
+* Medical/predictive ambiguity is reduced
+* Future Lab has a visible but calm disclaimer
+* Privacy language reflects third-party AI generation
+* Terms still feel readable and aligned with the product

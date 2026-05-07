@@ -152,6 +152,14 @@ function VersionBContent({ renderState, renderError, latestRender, onGenerate, o
           User-triggered only. Limited to 3 generations per day during testing.
         </p>
       )}
+
+      {/* In-app disclaimer notice */}
+      <div className="rounded-lg bg-gray-50 border border-gray-100 px-3 py-2.5">
+        <p className="text-[10px] text-gray-400 leading-relaxed text-center">
+          This experimental visualization reflects general trajectory patterns and is not a
+          medical prediction or guaranteed future outcome. Likeness accuracy is not guaranteed.
+        </p>
+      </div>
     </div>
   );
 }
