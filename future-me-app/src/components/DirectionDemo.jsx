@@ -91,8 +91,8 @@ export default function DirectionDemo() {
   return (
     <motion.section
       initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
       className="max-w-5xl mx-auto mb-16"
     >
       {/* ── Section header ─────────────────────────────────────────── */}
@@ -248,8 +248,8 @@ export default function DirectionDemo() {
       {/* ── How It Works flow — horizontal scroll on mobile ─────────── */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
         className="mt-12 sm:mt-16 text-center"
       >
         <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-5 sm:mb-6">How It Works</h3>
@@ -276,8 +276,8 @@ export default function DirectionDemo() {
       {/* ── Inside the App grid ─────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45 }}
         className="mt-12 sm:mt-16"
       >
         <h3 className="text-xl sm:text-2xl font-bold text-gray-800 text-center mb-2">Inside the App</h3>

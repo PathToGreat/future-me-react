@@ -1,0 +1,1 @@
+- [Scroll animations invisible in preview iframe](scroll-animations-visibility.md) — never use whileInView with initial opacity 0; observers don't fire in the canvas iframe, content stays hidden.
