@@ -23,8 +23,18 @@ import {
 // ─── Version constants ────────────────────────────────────────────────────────
 
 export const EXPERIMENT_VERSION = 'future_lab_visual_direction_v1';
-export const PROMPT_VERSION     = 'identity_trajectory_full_body_v1';
+export const PROMPT_VERSION     = 'identity_trajectory_full_body_v2';
 export const PROVIDER_TARGET    = 'replicate_flux_1.1_pro';
+
+// ─── Reference image helper ──────────────────────────────────────────────────
+// Only https URLs (Firebase Storage download URLs) can be passed to the
+// backend/provider. Anything else (paths, objects) is treated as not usable.
+
+export function usableReferenceImageUrl(sourcePhotoReference) {
+  if (typeof sourcePhotoReference !== 'string') return null;
+  if (!sourcePhotoReference.startsWith('https://')) return null;
+  return sourcePhotoReference;
+}
 
 export const RENDER_EXPERIMENT_VERSION = EXPERIMENT_VERSION;
 export const RENDER_PROMPT_VERSION     = PROMPT_VERSION;
@@ -140,6 +150,7 @@ async function callReplicateProvider(payload) {
         iteSummary:              payload.iteSummary,
         transformationDirection: payload.transformationDirection,
         rawMetrics:              payload.currentStateSummary,
+        referenceImageUrl:       usableReferenceImageUrl(payload.sourcePhotoReference),
       }),
       signal: AbortSignal.timeout(100_000),
     });
@@ -157,7 +168,12 @@ async function callReplicateProvider(payload) {
     const data = await res.json();
     if (!data.imageUrl) return { error: 'No image returned from server.' };
 
-    return { connected: true, imageUrl: data.imageUrl, remaining: data.remaining ?? null };
+    return {
+      connected:  true,
+      imageUrl:   data.imageUrl,
+      remaining:  data.remaining ?? null,
+      renderMeta: data.renderMeta ?? null,
+    };
 
   } catch (err) {
     if (err.name === 'TimeoutError' || err.name === 'AbortError') {
@@ -170,6 +186,8 @@ async function callReplicateProvider(payload) {
 // ─── Initiate render ──────────────────────────────────────────────────────────
 
 export async function initiateRender({ db, userId, payload }) {
+  const referenceImagePresent = Boolean(usableReferenceImageUrl(payload.sourcePhotoReference));
+
   const renderRecord = {
     renderStatus:            'pending',
     imageUrl:                null,
@@ -186,6 +204,14 @@ export async function initiateRender({ db, userId, payload }) {
     transformationDirection: payload.transformationDirection,
     currentStateSummary:     payload.currentStateSummary,
     renderConstraints:       payload.renderConstraints,
+    // Safe debugging metadata (no secrets, no raw URLs beyond what the app
+    // already stores in the user's own profile):
+    referenceImagePresent,
+    referenceImagePassedToProvider: null, // set from server response on completion
+    renderMode:                     null, // text_only | image_reference | image_to_image | identity_preserving
+    model:                          null,
+    trajectoryDirection:            null,
+    strongestTraits:                null,
     errorMessage:            null,
     userId,
   };
@@ -212,9 +238,18 @@ export async function initiateRender({ db, userId, payload }) {
   }
 
   if (result.imageUrl) {
+    const meta = result.renderMeta || {};
     await updateDoc(doc(db, 'users', userId, 'futureLabRenders', docRef.id), {
       renderStatus: 'complete',
       imageUrl:     result.imageUrl,
+      provider:                       meta.provider ?? 'replicate',
+      model:                          meta.model ?? null,
+      promptVersion:                  meta.promptVersion ?? payload.promptVersion,
+      renderMode:                     meta.renderMode ?? null,
+      referenceImagePresent:          meta.referenceImagePresent ?? referenceImagePresent,
+      referenceImagePassedToProvider: meta.referenceImagePassedToProvider ?? null,
+      trajectoryDirection:            meta.trajectoryDirection ?? null,
+      strongestTraits:                meta.strongestTraits ?? null,
     });
     return {
       status:    'complete',

@@ -1,103 +1,180 @@
 /**
  * promptBuilder.js
  *
- * Builds a Replicate-compatible text prompt from ITE trajectory data.
+ * Builds Replicate-compatible prompts from ITE trajectory data.
  * Generates a full-body photorealistic image prompt — not a headshot.
- * Identity-preserving, trajectory-informed, never exaggerated.
+ * Identity-preserving intent, trajectory-informed, never exaggerated.
+ *
+ * Prompt branches by trajectory direction:
+ *   strengthening | stable | declining
+ * Each branch shapes posture, energy, expression, body language,
+ * clothing fit, lighting/mood, and overall tone.
+ *
+ * Two prompt styles:
+ *   - buildPrompt()          → scene description for text-to-image models
+ *   - buildEditInstruction() → edit instruction for image-editing models
+ *                              (e.g. flux-kontext-pro) that preserve identity
  */
 
-// ─── Trait → visual descriptor maps ─────────────────────────────────────────
+export const PROMPT_VERSION = 'identity_trajectory_full_body_v2';
+
+// ─── Trajectory direction ─────────────────────────────────────────────────────
+
+export function resolveTrajectoryDirection(transformationDirection) {
+  const state = transformationDirection?.projectedFutureState;
+  if (state === 'improving') return 'strengthening';
+  if (state === 'declining') return 'declining';
+  return 'stable';
+}
+
+export function resolveStrongestTraits(transformationDirection, count = 2) {
+  const td = transformationDirection || {};
+  const entries = ['vitality', 'emotionalStability', 'discipline', 'resilience', 'confidence']
+    .map(id => ({ id, projected: td[id]?.projected ?? 50 }))
+    .sort((a, b) => b.projected - a.projected);
+  return entries.slice(0, count).map(e => e.id);
+}
+
+// ─── Trajectory branch descriptors ───────────────────────────────────────────
+// Restrained and believable. No fantasy, no extremes, no medical claims.
+
+const TRAJECTORY_BRANCHES = {
+  strengthening: {
+    posture:      'upright open posture, shoulders back and relaxed, weight evenly grounded',
+    energy:       'steady visible vitality, a light sense of forward momentum',
+    expression:   'clear settled gaze, faint natural smile, alert and present',
+    bodyLanguage: 'open at-ease body language, arms relaxed at the sides',
+    clothingFit:  'simple modern casual clothes that fit well, neat and cared for',
+    lighting:     'soft warm directional light with a gentle morning tone',
+    tone:         'grounded hopeful realism — a person quietly doing better, not a transformation fantasy',
+  },
+  stable: {
+    posture:      'balanced neutral posture, natural comfortable stance',
+    energy:       'calm even energy, neither pushed nor withdrawn',
+    expression:   'composed neutral expression, steady unhurried gaze',
+    bodyLanguage: 'settled unhurried body language, nothing performed',
+    clothingFit:  'ordinary comfortable casual clothes with a natural fit',
+    lighting:     'even neutral indoor daylight with soft shadows',
+    tone:         'quiet everyday realism — an ordinary honest moment',
+  },
+  declining: {
+    posture:      'slightly rounded shoulders, subtle inward posture, weight settled back on the heels',
+    energy:       'lowered subdued energy, stillness without spark',
+    expression:   'tired distant gaze, faint tension around the eyes, no smile',
+    bodyLanguage: 'closed-in body language, arms held closer to the body',
+    clothingFit:  'casual clothes that fit slightly loose and look a little unconsidered',
+    lighting:     'flat cooler light, muted tones, slightly dim',
+    tone:         'honest muted realism — subdued but dignified, never bleak or theatrical',
+  },
+};
+
+// ─── Trait → secondary visual modifiers ─────────────────────────────────────
 
 function vitalityDesc(score) {
-  if (score >= 72) return 'upright energized posture, bright alert eyes, clear healthy complexion, natural radiance';
-  if (score >= 55) return 'composed balanced posture, calm alert expression, healthy natural appearance';
-  if (score >= 40) return 'relaxed steady posture, settled expression, natural appearance';
-  return 'slightly inward posture, quieter energy, subdued expression';
+  if (score >= 72) return 'bright alert eyes and a clear healthy complexion';
+  if (score >= 55) return 'a calm alert look and healthy natural appearance';
+  if (score >= 40) return 'a settled natural appearance';
+  return 'quieter energy and a subdued look';
 }
 
 function disciplineDesc(score) {
-  if (score >= 72) return 'lean toned physique, purposeful deliberate bearing';
-  if (score >= 50) return 'healthy natural build, balanced grounded bearing';
-  return 'natural relaxed build, casual easy bearing';
-}
-
-function emotionalDesc(score) {
-  if (score >= 70) return 'calm open expression, relaxed jaw, settled confident demeanor, no tension visible';
-  if (score >= 50) return 'neutral composed expression, quiet inner steadiness';
-  return 'thoughtful inward expression, composed reserved demeanor';
-}
-
-function resilienceDesc(score) {
-  if (score >= 68) return 'grounded stable presence, shoulders relaxed and low, no postural tension';
-  if (score >= 48) return 'steady grounded presence, natural ease in stance';
-  return 'quiet measured presence';
-}
-
-function trajectoryFlavor(state) {
-  if (state === 'improving') return 'subtle sense of forward momentum, light in the eyes, expansive open stance';
-  if (state === 'declining') return 'quiet inward contemplative presence, still and self-contained';
-  return 'still grounded presence, rooted and present in the moment';
+  if (score >= 72) return 'a lean toned build and purposeful bearing';
+  if (score >= 50) return 'a healthy natural build';
+  return 'a natural relaxed build';
 }
 
 function sleepDesc(score) {
   if (score === null || score === undefined) return null;
-  if (score >= 7.5) return 'well-rested appearance, clear skin, no under-eye fatigue';
-  if (score <= 4.5) return 'subtle signs of fatigue, slightly softened eyes';
-  return 'naturally rested appearance';
+  if (score >= 7.5) return 'well-rested, no under-eye fatigue';
+  if (score <= 4.5) return 'subtle signs of fatigue around the eyes';
+  return null;
 }
 
-function confidenceDesc(score) {
-  if (score >= 68) return 'direct natural gaze, relaxed upright shoulders, at-ease confidence';
-  if (score >= 48) return 'gentle steady gaze, natural comfortable stance';
-  return 'slightly averted soft gaze, understated presence';
-}
+// ─── Shared guardrail lines ──────────────────────────────────────────────────
 
-// ─── Main builder ─────────────────────────────────────────────────────────────
+const REALISM_LINES = [
+  'Natural skin texture, realistic proportions, soft directional lighting with gentle shadows.',
+  'Photorealistic, candid documentary quality — not a fashion shoot, not a stock photo, no retouched gloss.',
+  'No graphic overlay, no text, no logo.',
+];
+
+// ─── Scene-description prompt (text-to-image models) ─────────────────────────
 
 export function buildPrompt({ iteSummary, transformationDirection, rawMetrics, gender }) {
   const td = transformationDirection || {};
   const rm = rawMetrics || {};
 
-  const vitality          = td.vitality?.projected          ?? 50;
-  const resilience        = td.resilience?.projected        ?? 50;
-  const discipline        = td.discipline?.projected        ?? 50;
-  const emotionalStab     = td.emotionalStability?.projected ?? 50;
-  const confidence        = td.confidence?.projected        ?? 50;
-  const futureState       = td.projectedFutureState         ?? 'stable';
+  const direction = resolveTrajectoryDirection(td);
+  const branch    = TRAJECTORY_BRANCHES[direction];
 
+  const vitality   = td.vitality?.projected   ?? 50;
+  const discipline = td.discipline?.projected ?? 50;
   const sleepScore = rm.sleep ?? rm.sleepScore ?? null;
   const genderWord = gender === 'male' ? 'man' : gender === 'female' ? 'woman' : 'person';
-
-  const sleepLine = sleepDesc(sleepScore);
+  const sleepLine  = sleepDesc(sleepScore);
 
   const promptParts = [
-    `A photorealistic full-body portrait of a ${genderWord} standing naturally in soft neutral indoor light.`,
-    `${vitalityDesc(vitality)}.`,
-    `${disciplineDesc(discipline)}.`,
-    `${emotionalDesc(emotionalStab)}.`,
-    `${resilienceDesc(resilience)}.`,
-    `${confidenceDesc(confidence)}.`,
-    `${trajectoryFlavor(futureState)}.`,
+    `A photorealistic full-body portrait of an ordinary ${genderWord} standing naturally in a plain everyday indoor setting.`,
+    `Posture: ${branch.posture}.`,
+    `Energy: ${branch.energy}.`,
+    `Expression: ${branch.expression}.`,
+    `Body language: ${branch.bodyLanguage}.`,
+    `They have ${vitalityDesc(vitality)} and ${disciplineDesc(discipline)}.`,
     sleepLine ? `${sleepLine}.` : null,
-    'Wearing simple modern casual clothes — neutral tones, well-fitted.',
-    'Clean softly blurred neutral background.',
-    'Full body visible from head to feet. Shot at eye level.',
-    'Natural skin texture, soft directional lighting with gentle shadows.',
-    'Photorealistic, cinematic quality, no graphic overlay, no text, no logo.',
+    `Clothing: ${branch.clothingFit} in neutral tones.`,
+    `Lighting and mood: ${branch.lighting}.`,
+    `Overall tone: ${branch.tone}.`,
+    'Full body visible from head to feet, shot at eye level, clean softly blurred neutral background.',
+    ...REALISM_LINES,
   ].filter(Boolean);
 
-  const prompt = promptParts.join(' ');
+  return {
+    prompt:              promptParts.join(' '),
+    negativePrompt:      buildNegativePrompt(), // kept for models that support it
+    trajectoryDirection: direction,
+    strongestTraits:     resolveStrongestTraits(td),
+    promptVersion:       PROMPT_VERSION,
+  };
+}
 
-  const negativePrompt = [
+// ─── Edit-instruction prompt (identity-preserving image-editing models) ──────
+
+export function buildEditInstruction({ transformationDirection, rawMetrics, gender }) {
+  const td        = transformationDirection || {};
+  const direction = resolveTrajectoryDirection(td);
+  const branch    = TRAJECTORY_BRANCHES[direction];
+  const sleepLine = sleepDesc((rawMetrics || {}).sleep ?? (rawMetrics || {}).sleepScore ?? null);
+
+  const parts = [
+    'Show this same person about one year in the future.',
+    'Keep the exact same face, identity, skin tone, hair, and overall build — this must clearly be the same person.',
+    `Adjust only: posture (${branch.posture}), energy (${branch.energy}), expression (${branch.expression}), body language (${branch.bodyLanguage}).`,
+    `Clothing: ${branch.clothingFit} in neutral tones.`,
+    `Lighting and mood: ${branch.lighting}.`,
+    sleepLine ? `Subtle detail: ${sleepLine}.` : null,
+    'Changes must be restrained and believable — no fantasy, no dramatic body transformation, no extreme muscularity or weight change.',
+    'Photorealistic, natural skin texture, no text, no logo.',
+  ].filter(Boolean);
+
+  return {
+    prompt:              parts.join(' '),
+    trajectoryDirection: direction,
+    strongestTraits:     resolveStrongestTraits(td),
+    promptVersion:       PROMPT_VERSION,
+  };
+}
+
+// ─── Negative prompt (only used by models that accept one) ───────────────────
+
+function buildNegativePrompt() {
+  return [
     'cartoon, illustration, painting, drawing, anime, 3D render, CGI, digital art',
-    'extreme muscularity, bodybuilder physique, fantasy, supernatural, mystical',
+    'extreme muscularity, bodybuilder physique, extreme obesity, fantasy, supernatural, mystical',
     'medical imaging, clinical, X-ray',
     'logo, text, watermark, caption, frame, border',
     'multiple people, crowd, background people',
     'distorted limbs, extra fingers, missing limbs, deformed anatomy',
     'NSFW, explicit, revealing clothing',
-    'over-saturated, HDR, fake lighting, studio pose',
+    'over-saturated, HDR, fake lighting, studio pose, fashion model, stock photo',
   ].join(', ');
-
-  return { prompt, negativePrompt };
 }

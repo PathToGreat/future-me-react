@@ -14,8 +14,8 @@ import path   from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
 import cors    from 'cors';
-import { buildPrompt }           from './promptBuilder.js';
-import { generateImage, MODEL_ID } from './replicateService.js';
+import { buildPrompt, buildEditInstruction } from './promptBuilder.js';
+import { generateImage, getActiveModel, MODEL_ID } from './replicateService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -54,6 +54,20 @@ function decrementRate(userId) {
   if (entry) entry.count = Math.max(0, entry.count - 1);
 }
 
+// ─── Reference image validation ───────────────────────────────────────────────
+// Only https URLs are accepted (Firebase Storage download URLs). Never logged.
+
+function sanitizeReferenceImageUrl(value) {
+  if (typeof value !== 'string' || value.length === 0 || value.length > 2048) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'https:') return null;
+    return value;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
 app.use(cors({ origin: true }));
@@ -62,10 +76,12 @@ app.use(express.json({ limit: '512kb' }));
 // ─── API Routes ───────────────────────────────────────────────────────────────
 
 app.get('/api/health', (_req, res) => {
+  const active = getActiveModel();
   res.json({
     status:    'ok',
     service:   'future-me-api',
-    model:     MODEL_ID,
+    model:     active.id,
+    modelKey:  active.key,
     env:       IS_PROD ? 'production' : 'development',
     timestamp: new Date().toISOString(),
   });
@@ -78,11 +94,15 @@ app.post('/api/render/generate', async (req, res) => {
     transformationDirection,
     rawMetrics,
     gender,
+    referenceImageUrl: rawReferenceImageUrl,
   } = req.body;
 
   if (!userId || typeof userId !== 'string') {
     return res.status(400).json({ error: 'userId is required' });
   }
+
+  const referenceImageUrl     = sanitizeReferenceImageUrl(rawReferenceImageUrl);
+  const referenceImagePresent = Boolean(referenceImageUrl);
 
   const rate = checkRate(userId);
   if (!rate.allowed) {
@@ -93,27 +113,61 @@ app.post('/api/render/generate', async (req, res) => {
     });
   }
 
-  let prompt, negativePrompt;
+  // Build both prompt styles; the service picks based on the active model.
+  let scenePrompt, editPrompt, trajectoryDirection, strongestTraits, promptVersion;
   try {
-    ({ prompt, negativePrompt } = buildPrompt({
-      iteSummary,
-      transformationDirection,
-      rawMetrics,
-      gender,
-    }));
+    const scene = buildPrompt({ iteSummary, transformationDirection, rawMetrics, gender });
+    const edit  = buildEditInstruction({ transformationDirection, rawMetrics, gender });
+
+    scenePrompt         = scene.prompt;
+    editPrompt          = edit.prompt;
+    trajectoryDirection = scene.trajectoryDirection;
+    strongestTraits     = scene.strongestTraits;
+    promptVersion       = scene.promptVersion;
   } catch (err) {
     decrementRate(userId);
     console.error('[render] Prompt build error:', err.message);
     return res.status(400).json({ error: 'Failed to build prompt from trajectory data.' });
   }
 
-  console.log(`[render] Generating for ${userId.slice(0, 8)}... | remaining today: ${rate.remaining}`);
-  console.log(`[render] Prompt (120 chars): ${prompt.slice(0, 120)}…`);
+  const activeModel = getActiveModel();
+  const usesEditStyle = activeModel.promptStyle === 'instruction' && referenceImagePresent;
+  const prompt = usesEditStyle ? editPrompt : scenePrompt;
+
+  // Safe logging only — never log the reference image URL itself.
+  console.log(
+    `[render] Generating for ${userId.slice(0, 8)}... | model=${activeModel.key} | ` +
+    `direction=${trajectoryDirection} | referenceImagePresent=${referenceImagePresent} | ` +
+    `remaining today: ${rate.remaining}`
+  );
 
   try {
-    const { imageUrl } = await generateImage({ prompt, negativePrompt });
-    console.log(`[render] Success for ${userId.slice(0, 8)}... → ${imageUrl.slice(0, 60)}…`);
-    return res.json({ imageUrl, remaining: rate.remaining });
+    const result = await generateImage({
+      prompt,
+      fallbackPrompt: scenePrompt, // used if active model requires an image we don't have
+      referenceImageUrl,
+    });
+
+    console.log(
+      `[render] Success for ${userId.slice(0, 8)}... | renderMode=${result.renderMode} | ` +
+      `referenceImagePassedToProvider=${result.referenceImagePassedToProvider}`
+    );
+
+    return res.json({
+      imageUrl:  result.imageUrl,
+      remaining: rate.remaining,
+      renderMeta: {
+        provider:                       result.provider,
+        model:                          result.model,
+        modelKey:                       result.modelKey,
+        promptVersion,
+        renderMode:                     result.renderMode,
+        referenceImagePresent,
+        referenceImagePassedToProvider: result.referenceImagePassedToProvider,
+        trajectoryDirection,
+        strongestTraits,
+      },
+    });
 
   } catch (err) {
     decrementRate(userId);
@@ -144,5 +198,5 @@ if (IS_PROD) {
 // ─── Start ────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[future-me-api] Listening on port ${PORT}  env=${IS_PROD ? 'production' : 'development'}  model=${MODEL_ID}`);
+  console.log(`[future-me-api] Listening on port ${PORT}  env=${IS_PROD ? 'production' : 'development'}  model=${getActiveModel().id}`);
 });

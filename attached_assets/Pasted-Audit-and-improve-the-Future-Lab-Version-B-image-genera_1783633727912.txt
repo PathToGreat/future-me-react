@@ -1,0 +1,136 @@
+Audit and improve the Future Lab Version B image generation pipeline for identity preservation and trajectory reflection.
+
+The current Replicate generation works technically, but the output does not resemble the user input image and does not meaningfully reflect trajectory changes. It produces a generic polished person.
+
+Do not change the main app, dashboard, SVG avatar, ITE engine, Firebase auth, or core app flow. Work only inside the Future Lab Version B experimental pipeline.
+
+Goal:
+Determine whether the current pipeline is actually passing the user reference image to the model, whether the current model supports reference-image conditioning, and improve the pipeline so Future Lab is honestly optimized for identity-preserving future-self visualization.
+
+---
+
+1. Audit the current render payload
+
+Inspect:
+
+* frontend Future Lab render request
+* backend `/api/render/generate`
+* `replicateService.js`
+* `promptBuilder.js`
+* Firestore render records
+
+Confirm whether the user uploaded/reference image is being passed all the way to the backend.
+
+Report clearly:
+
+* is an image reference included?
+* what format is it in?
+* is it a URL, base64, Firebase Storage URL, or Firestore reference?
+* does the Replicate model call actually include the image?
+* or is the model only receiving a text prompt?
+
+Do not expose private image URLs, tokens, or secrets in logs.
+
+---
+
+2. Verify model capability
+
+Check whether the current model `black-forest-labs/flux-1.1-pro` actually supports image/reference input in the way we need.
+
+If it is text-to-image only, state that clearly in the report.
+
+Do not pretend prompt tuning can solve identity preservation if the model cannot use the reference image.
+
+---
+
+3. Add safe debugging metadata
+
+For each Future Lab render, store non-sensitive metadata such as:
+
+* provider
+* model
+* promptVersion
+* whether referenceImagePresent was true/false
+* whether referenceImagePassedToProvider was true/false
+* trajectoryDirection
+* strongestTraits
+* renderMode: text_only / image_reference / image_to_image
+
+Do not store raw secrets.
+
+Only store image URLs if the app already stores them safely and user-owned access rules allow it.
+
+---
+
+4. Improve prompt structure for the current model
+
+If the current model is text-only, improve the prompt so outputs at least reflect trajectory more clearly.
+
+Create distinct prompt branches:
+
+* strengthening trajectory
+* stable trajectory
+* declining trajectory
+
+Each branch should influence:
+
+* posture
+* energy
+* expression
+* body language
+* clothing fit
+* lighting/mood
+* overall visual tone
+
+Keep transformations restrained and believable.
+
+Avoid:
+
+* fantasy
+* cartoon
+* extreme obesity
+* extreme muscularity
+* medical claims
+* overly polished stock-photo appearance
+
+The image should feel like a grounded future-self visualization, not a fashion model or generic AI portrait.
+
+---
+
+5. Prepare for model swap
+
+Add a clean provider/model abstraction if not already present so Future Lab can test a different Replicate model later without rewriting the entire feature.
+
+The system should support future render modes:
+
+* text_only
+* image_reference
+* image_to_image
+* identity_preserving
+
+Do not fully migrate unless a suitable model is already available and easy to wire.
+
+If a better image-reference model is available through Replicate, identify it in the report and recommend next steps before switching.
+
+---
+
+6. Add user-facing honesty if needed
+
+If the current render is text-only, update the Future Lab Version B microcopy slightly so it does not imply likeness preservation yet.
+
+Possible language:
+“Experimental trajectory visualization. Likeness preservation is still being tested.”
+
+Keep the current legal notice intact.
+
+---
+
+7. Acceptance criteria
+
+* We know whether the source image is actually reaching the backend
+* We know whether the current model can use the source image
+* Render records include safe metadata about render mode and reference-image status
+* Current prompts better reflect strengthening/stable/declining trajectory
+* Future Lab does not imply identity accuracy if it is currently text-only
+* The code is prepared for a future image-reference or identity-preserving model
+* Main app behavior remains unchanged

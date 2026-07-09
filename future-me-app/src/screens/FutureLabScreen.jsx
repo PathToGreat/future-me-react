@@ -44,6 +44,11 @@ function VersionBContent({ renderState, renderError, latestRender, onGenerate, o
   const isGenerating = renderState === 'generating';
   const isRateLimited = renderState === 'rate_limited';
 
+  // Honest microcopy: only identity-preserving render modes may imply likeness.
+  const identityPreserved =
+    latestRender?.renderMode === 'identity_preserving' ||
+    latestRender?.renderMode === 'image_to_image';
+
   return (
     <div className="w-full flex flex-col gap-3">
       {/* Visual area */}
@@ -54,12 +59,22 @@ function VersionBContent({ renderState, renderError, latestRender, onGenerate, o
             alt="AI-generated future self render"
             className="w-full object-cover"
           />
-          <div className="px-3 py-2 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+          <div className="px-3 py-2 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-2">
             <p className="text-[10px] text-gray-400 uppercase tracking-wide">
-              Experimental — trajectory interpretation
+              {identityPreserved
+                ? 'Experimental — based on your photo'
+                : 'Experimental trajectory visualization'}
             </p>
-            <span className="text-[10px] text-green-600 font-semibold">✓ Generated</span>
+            <span className="text-[10px] text-green-600 font-semibold shrink-0">✓ Generated</span>
           </div>
+          {!identityPreserved && (
+            <div className="px-3 pb-2 bg-gray-50">
+              <p className="text-[10px] text-gray-400 leading-relaxed">
+                Likeness preservation is still being tested — this image does not yet
+                use your uploaded photo for identity.
+              </p>
+            </div>
+          )}
         </div>
       ) : isGenerating ? (
         <div className="w-full flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-amber-200 bg-amber-50 py-10 px-4">
@@ -303,10 +318,10 @@ export default function FutureLabScreen({ onBack }) {
         stressScore:    latest.stressScore    ?? null,
       };
 
-      const sourcePhotoReference = liveProfile?.images?.[0]?.path
-        || liveProfile?.images?.[0]?.url
-        || liveProfile?.images?.[0]
-        || null;
+      // Most recent upload — ImageUpload appends new photos to the end
+      const imgs = liveProfile?.images;
+      const lastImg = Array.isArray(imgs) && imgs.length > 0 ? imgs[imgs.length - 1] : null;
+      const sourcePhotoReference = lastImg?.path || lastImg?.url || lastImg || null;
 
       const payload = buildRenderPayload({
         userId:               user.uid,
