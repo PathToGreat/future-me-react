@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import DirectionDemo from './DirectionDemo';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -24,6 +25,8 @@ export default function LandingPage() {
             Every day your habits quietly shape the person you are becoming. Future Me turns those patterns into a visual reflection so you can see the direction your current path leads.
           </p>
         </motion.div>
+
+        <DirectionDemo />
 
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

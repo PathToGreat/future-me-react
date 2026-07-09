@@ -1,0 +1,121 @@
+Keep the current landing page hero exactly as it is. Do not redesign or rewrite the existing hero section or primary CTA.
+
+Instead, build a new interactive section immediately below the hero that helps visitors experience the core idea of Future Me before creating an account.
+
+I will attach two sample Future Me comparison images.
+
+Use those images as temporary demonstration assets.
+
+These are examples only and should never be presented as a real user's results.
+
+## Section title
+
+"See Direction in Action"
+
+Supporting copy:
+
+"Small daily patterns become long-term direction. Explore how different choices can change the path."
+
+---
+
+## Interactive demonstration
+
+Create a lightweight public experience using local state only.
+
+Do not connect to Firebase.
+
+Do not require login.
+
+Do not call Replicate.
+
+Do not generate images.
+
+Visitors should be able to adjust four sample lifestyle inputs:
+
+* Sleep
+* Nutrition
+* Movement
+* Stress
+
+Simple sliders or segmented controls are sufficient.
+
+As the controls change, update the demonstration immediately.
+
+---
+
+## What changes
+
+Changing the controls should update:
+
+* the comparison image
+* trajectory status
+* identity traits
+* Today's Reflection
+* transformation summary
+
+Initially use the two attached images as the demonstration states.
+
+One represents a declining trajectory.
+
+One represents a strengthening trajectory.
+
+Swap between them based on the selected inputs.
+
+Later we can expand this with additional examples.
+
+---
+
+## Demo note
+
+Below the interaction add a small unobtrusive note:
+
+"This is a sample demonstration. Your own Future Me is built from your actual patterns over time."
+
+---
+
+## Explain the system
+
+After the demonstration add a simple visual flow.
+
+Behavior
+
+↓
+
+Patterns
+
+↓
+
+Identity
+
+↓
+
+Trajectory
+
+↓
+
+Visualization
+
+Brief supporting copy:
+
+"Future Me translates everyday patterns into meaningful insights about the direction those patterns are producing."
+
+---
+
+## App preview
+
+After that, briefly preview the real application experience.
+
+Show:
+
+* Dashboard
+* Today's Reflection
+* Core Habits
+* Avatar
+* Future Lab
+* Connected Inputs
+
+The goal is to show visitors what they'll experience after creating their own Future Me.
+
+Keep this visually consistent with the current app and landing page.
+
+The overall experience should help someone understand the concept within about one minute and naturally encourage them to begin their own reflection.
