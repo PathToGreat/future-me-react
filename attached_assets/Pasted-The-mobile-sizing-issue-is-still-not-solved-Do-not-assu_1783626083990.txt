@@ -1,0 +1,92 @@
+The mobile sizing issue is still not solved. Do not assume the previous responsive fixes worked. Inspect the actual rendered mobile layout and fix the specific overflow/sizing problems.
+
+Focus only on the public landing page demo section and the bottom “Inside the App” / preview section.
+
+Do not change app logic, Firebase, Replicate, authenticated app routes, landing page hero copy, or desktop layout unless needed to prevent responsive breakage.
+
+Tasks:
+
+1. Test the page at real mobile widths:
+
+* 320px
+* 360px
+* 390px
+* 430px
+
+2. Identify the exact element causing overflow or cramped layout:
+
+* segmented controls
+* control cards
+* comparison image
+* demo output panel
+* How It Works row
+* Inside the App cards
+* parent container width
+* fixed min-width
+* image width/aspect ratio
+* padding/margins
+
+3. Fix the controls section so it works cleanly on mobile.
+
+Requirements:
+
+* no horizontal overflow
+* no clipped text
+* no buttons extending outside their card
+* controls remain easy to tap
+* the 4 controls may be 2×2 if it fits cleanly, but if text still feels cramped, use a cleaner stacked layout per control instead
+* prioritize readability over forcing everything into a compact grid
+
+4. Fix the segmented buttons.
+
+Requirements:
+
+* buttons must wrap or shrink safely
+* no text clipping
+* no fixed widths that exceed the parent
+* use min-w-0 where needed
+* use flex-wrap where needed
+* use whitespace-normal if necessary
+* keep tap targets usable
+
+5. Fix the image/demo panel.
+
+Requirements:
+
+* image should scale to the container
+* no fixed desktop width on mobile
+* no horizontal scroll caused by the image
+* use max-w-full and h-auto where needed
+* preserve image aspect ratio
+
+6. Fix the “How It Works” flow.
+
+If the horizontal pill row still causes awkward mobile overflow, make it a clean vertical or compact wrapped layout on small screens. Do not force a horizontal scroll if it makes the section feel broken.
+
+7. Fix the “Inside the App” preview cards.
+
+Requirements:
+
+* cards should stack cleanly on mobile
+* no clipping
+* no compressed text
+* no cards wider than viewport
+* spacing should feel intentional, not squeezed
+
+8. After changes, provide a short verification report.
+
+Report:
+
+* what element was causing the mobile issue
+* what exact files/classes were changed
+* confirmation that the page works at 320px, 360px, 390px, and 430px
+* confirmation that desktop layout was not negatively affected
+
+Acceptance criteria:
+
+* no horizontal overflow on mobile
+* no clipped segmented button text
+* demo controls are readable and tappable
+* comparison image scales properly
+* bottom preview section looks clean on mobile
+* desktop still looks clean

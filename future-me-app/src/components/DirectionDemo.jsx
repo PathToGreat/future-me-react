@@ -254,20 +254,18 @@ export default function DirectionDemo() {
       >
         <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-5 sm:mb-6">How It Works</h3>
 
-        {/* Scrollable row on mobile, natural wrap on md+ */}
-        <div className="overflow-x-auto pb-2 -mx-4 px-4 md:overflow-visible md:mx-0 md:px-0">
-          <div className="flex items-center gap-2 md:gap-3 md:justify-center w-max md:w-auto mx-auto mb-4 sm:mb-6">
-            {FLOW_STEPS.map((step, i) => (
-              <div key={step} className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                <div className="px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm font-semibold text-gray-700 text-sm sm:text-base whitespace-nowrap">
-                  {step}
-                </div>
-                {i < FLOW_STEPS.length - 1 && (
-                  <span className="text-gray-400 text-sm" aria-hidden="true">➡️</span>
-                )}
+        {/* Wrapped pill row — flex-wrap prevents any horizontal overflow */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-4 sm:mb-6">
+          {FLOW_STEPS.map((step, i) => (
+            <div key={step} className="flex items-center gap-2">
+              <div className="px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm font-semibold text-gray-700 text-sm whitespace-nowrap">
+                {step}
               </div>
-            ))}
-          </div>
+              {i < FLOW_STEPS.length - 1 && (
+                <span className="text-gray-400 text-sm" aria-hidden="true">➡️</span>
+              )}
+            </div>
+          ))}
         </div>
 
         <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto px-2">
