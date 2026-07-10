@@ -208,6 +208,12 @@ export default function AvatarScreen() {
         nutrition:               latestMetrics.nutrition ?? 3,
         sleep:                   latestMetrics.sleep     ?? 3,
         stress:                  latestMetrics.stress    ?? 3,
+        // Newer whole-person daily signals (null-safe additive ITE nudge)
+        energy:                  latestMetrics.energy        ?? null,
+        mood:                    latestMetrics.mood          ?? null,
+        sleepDuration:           latestMetrics.sleepDuration ?? null,
+        // Latest deeper physical check-in, when available
+        ...(liveProfile?.lastHealthDetail || {}),
         lifeZones:               liveProfile?.lifeZones  || {},
         habits:                  [],
         defaultHabitCompletions: defaultHabitCompletions || null,

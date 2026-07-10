@@ -10,44 +10,71 @@ export const ZONE_CONFIG = {
     id: 'health',
     title: 'Health',
     icon: '❤️',
-    description: 'Track your physical wellness through activity, nutrition, sleep, and stress management',
+    description: 'A deeper periodic check-in on your physical foundation — strength, mobility, recovery, and fuel',
     color: 'red',
     inputs: [
       {
-        key: 'activity',
-        label: 'Physical Activity',
-        description: 'How active were you today?',
-        minLabel: 'Sedentary',
-        maxLabel: 'Very Active',
-        color: 'blue',
-        weight: 0.30
+        key: 'strength',
+        label: 'Strength Training',
+        description: 'Did you challenge your muscles today?',
+        minLabel: 'None',
+        maxLabel: 'Full Session',
+        color: 'red',
+        weight: 0.20
       },
       {
-        key: 'nutrition',
-        label: 'Nutrition Quality',
-        description: 'How well did you eat today?',
+        key: 'mobility',
+        label: 'Mobility & Stretching',
+        description: 'Did you move through your full range of motion?',
+        minLabel: 'Stiff',
+        maxLabel: 'Very Mobile',
+        color: 'orange',
+        weight: 0.15
+      },
+      {
+        key: 'hydration',
+        label: 'Hydration & Minerals',
+        description: 'Were you well hydrated and mineralized?',
+        minLabel: 'Depleted',
+        maxLabel: 'Well Hydrated',
+        color: 'blue',
+        weight: 0.15
+      },
+      {
+        key: 'protein',
+        label: 'Protein & Whole Foods',
+        description: 'Did you eat enough protein and whole foods?',
         minLabel: 'Poor',
         maxLabel: 'Excellent',
         color: 'green',
-        weight: 0.25
+        weight: 0.15
       },
       {
-        key: 'sleep',
-        label: 'Sleep Quality',
-        description: 'How well did you sleep?',
-        minLabel: 'Poor',
-        maxLabel: 'Excellent',
+        key: 'outdoor',
+        label: 'Outdoor Time & Sunlight',
+        description: 'Did you spend time outdoors in daylight?',
+        minLabel: 'None',
+        maxLabel: 'Plenty',
+        color: 'amber',
+        weight: 0.15
+      },
+      {
+        key: 'recovery',
+        label: 'Recovery Practice',
+        description: 'Did you rest and let your body recover?',
+        minLabel: 'None',
+        maxLabel: 'Full Recovery',
+        color: 'teal',
+        weight: 0.10
+      },
+      {
+        key: 'bodyTension',
+        label: 'Body Tension / Pain',
+        description: 'How much physical tension or pain did you feel?',
+        minLabel: 'None',
+        maxLabel: 'Significant',
         color: 'purple',
-        weight: 0.25
-      },
-      {
-        key: 'stress',
-        label: 'Stress Level',
-        description: 'How stressed are you?',
-        minLabel: 'Calm',
-        maxLabel: 'Very Stressed',
-        color: 'orange',
-        weight: 0.20,
+        weight: 0.10,
         inverted: true
       }
     ]

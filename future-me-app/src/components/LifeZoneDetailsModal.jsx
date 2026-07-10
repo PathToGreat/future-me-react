@@ -117,15 +117,12 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
         ...currentUserData,
         lifeZones: updatedZones 
       };
-      
+
+      // The Daily Quick Log now owns the profile's core lifestyle fields
+      // (activity/nutrition/sleep/stress) — Health Detail must NOT overwrite them.
+      // Instead persist the latest deep physical check-in for the ITE to read.
       if (zoneId === 'health') {
-        updatedUserData.activity = newLog.activity || 3;
-        updatedUserData.nutrition = newLog.nutrition || 3;
-        updatedUserData.sleep = newLog.sleep || 3;
-        updatedUserData.stress = newLog.stress || 3;
-        
-        const lifestyleScore = ((newLog.activity + newLog.nutrition + newLog.sleep + (5 - newLog.stress)) / 16) * 100;
-        updatedUserData.lifestyleScore = Math.round(lifestyleScore);
+        updatedUserData.lastHealthDetail = { ...newLog, date: today };
       }
 
       await setDoc(userDocRef, updatedUserData, { merge: true });
@@ -274,27 +271,39 @@ export default function LifeZoneDetailsModal({ isOpen, onClose, zone, zoneId }) 
                 </div>
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {dailyLogs.map((log) => (
-                    <div
-                      key={log.id}
-                      className={`${zoneColors.light} rounded-lg p-4 border ${zoneColors.border}`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-gray-700">{log.date}</span>
+                  {dailyLogs.map((log) => {
+                    // Only show fields actually recorded on this log, so legacy
+                    // entries don't render misleading default values.
+                    const presentInputs = zoneConfig.inputs.filter((input) => log[input.key] !== undefined);
+                    return (
+                      <div
+                        key={log.id}
+                        className={`${zoneColors.light} rounded-lg p-4 border ${zoneColors.border}`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-gray-700">{log.date}</span>
+                        </div>
+                        {presentInputs.length > 0 ? (
+                          <div
+                            className="grid gap-2 text-xs"
+                            style={{ gridTemplateColumns: `repeat(${Math.min(presentInputs.length, 4)}, minmax(0, 1fr))` }}
+                          >
+                            {presentInputs.map((input) => {
+                              const inputColors = getInputColor(input.color);
+                              return (
+                                <div key={input.key} className="text-center">
+                                  <div className={`font-bold ${inputColors.text}`}>{log[input.key]}</div>
+                                  <div className="text-gray-500 truncate">{input.label.split(' ')[0]}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-gray-400 italic">Daily quick-log entry</p>
+                        )}
                       </div>
-                      <div className={`grid grid-cols-${Math.min(zoneConfig.inputs.length, 4)} gap-2 text-xs`}>
-                        {zoneConfig.inputs.map((input) => {
-                          const inputColors = getInputColor(input.color);
-                          return (
-                            <div key={input.key} className="text-center">
-                              <div className={`font-bold ${inputColors.text}`}>{log[input.key] || 3}</div>
-                              <div className="text-gray-500 truncate">{input.label.split(' ')[0]}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

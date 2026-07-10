@@ -8,9 +8,45 @@
 import { ZONE_CONFIG } from './zoneConfig';
 
 /**
+ * Deeper physical detail fields collected by the periodic Health-zone check-in.
+ * bodyTension is inverted (less tension = better).
+ */
+const HEALTH_DETAIL_FIELDS = [
+  { key: 'strength', inverted: false },
+  { key: 'mobility', inverted: false },
+  { key: 'hydration', inverted: false },
+  { key: 'protein', inverted: false },
+  { key: 'outdoor', inverted: false },
+  { key: 'recovery', inverted: false },
+  { key: 'bodyTension', inverted: true }
+];
+
+/**
+ * Average of whatever deep physical-detail fields are present on a log (0-100).
+ * Returns null when the log carries none of them, so legacy 4-field logs are
+ * scored exactly as before (no detail contribution).
+ */
+function calculateHealthDetailScore(log) {
+  if (!log) return null;
+  let sum = 0;
+  let count = 0;
+  for (const { key, inverted } of HEALTH_DETAIL_FIELDS) {
+    const raw = log[key];
+    if (raw == null) continue;
+    const v = Number(raw);
+    if (isNaN(v)) continue;
+    const score = inverted ? ((5 - v) / 4) * 100 : ((v - 1) / 4) * 100;
+    sum += score;
+    count++;
+  }
+  return count > 0 ? sum / count : null;
+}
+
+/**
  * Calculate Health Zone score
- * Inputs: activity, nutrition, sleep, stress
- * Formula: Weighted average with trend bonus
+ * Core inputs: activity, nutrition, sleep, stress (from the Daily Quick Log bridge)
+ * Optional deeper detail: strength, mobility, hydration, protein, outdoor, recovery, bodyTension
+ * Formula: Weighted core average (+ restrained detail blend when present) with trend bonus
  */
 function calculateHealthZone(zoneHistory, habitBonus = 0) {
   if (!zoneHistory || zoneHistory.length === 0) {
@@ -18,18 +54,32 @@ function calculateHealthZone(zoneHistory, habitBonus = 0) {
   }
 
   const latest = zoneHistory[0];
-  const activity = Number(latest.activity) || 3;
-  const nutrition = Number(latest.nutrition) || 3;
-  const sleep = Number(latest.sleep) || 3;
-  const stress = Number(latest.stress) || 3;
+
+  // The four core lifestyle signals arrive via the Daily Quick Log bridge. A
+  // Health-Detail-only day may lack them, so source them from the most recent
+  // entry that actually contains them (falling back to latest) — otherwise an
+  // engaged user gets punished with all-3 defaults (base 50).
+  const coreSource = zoneHistory.find(
+    (e) => e && (e.activity != null || e.nutrition != null || e.sleep != null || e.stress != null)
+  ) || latest;
+
+  const activity = Number(coreSource.activity) || 3;
+  const nutrition = Number(coreSource.nutrition) || 3;
+  const sleep = Number(coreSource.sleep) || 3;
+  const stress = Number(coreSource.stress) || 3;
 
   const activityScore = ((activity - 1) / 4) * 100;
   const nutritionScore = ((nutrition - 1) / 4) * 100;
   const sleepScore = ((sleep - 1) / 4) * 100;
   const stressScore = ((5 - stress) / 4) * 100;
 
-  const baseScore = (activityScore * 0.30) + (nutritionScore * 0.25) + 
-                    (sleepScore * 0.25) + (stressScore * 0.20);
+  const coreBase = (activityScore * 0.30) + (nutritionScore * 0.25) +
+                   (sleepScore * 0.25) + (stressScore * 0.20);
+
+  // Blend the deeper physical detail in at a restrained 20% ONLY when present,
+  // so legacy logs (core fields only) score identically to before.
+  const detailScore = calculateHealthDetailScore(latest);
+  const baseScore = detailScore == null ? coreBase : (coreBase * 0.80) + (detailScore * 0.20);
 
   const trendBonus = calculateTrendBonus(zoneHistory, ['activity', 'nutrition', 'sleep']);
   const streak = calculateStreak(zoneHistory);
@@ -38,21 +88,27 @@ function calculateHealthZone(zoneHistory, habitBonus = 0) {
   const rawScore = baseScore + trendBonus + streakBonus + habitBonus;
   const score = Math.max(0, Math.min(100, rawScore));
 
+  const details = {
+    activity,
+    nutrition,
+    sleep,
+    stress,
+    baseScore: Math.round(baseScore),
+    trendBonus: Math.round(trendBonus),
+    streakBonus: Math.round(streakBonus),
+    habitBonus: Math.round(habitBonus),
+    daysLogged: zoneHistory.length,
+    currentStreak: streak,
+    interpretation: getInterpretation(score)
+  };
+
+  if (detailScore != null) {
+    details.detailScore = Math.round(detailScore);
+  }
+
   return {
     score: Math.round(score),
-    details: {
-      activity,
-      nutrition,
-      sleep,
-      stress,
-      baseScore: Math.round(baseScore),
-      trendBonus: Math.round(trendBonus),
-      streakBonus: Math.round(streakBonus),
-      habitBonus: Math.round(habitBonus),
-      daysLogged: zoneHistory.length,
-      currentStreak: streak,
-      interpretation: getInterpretation(score)
-    }
+    details
   };
 }
 

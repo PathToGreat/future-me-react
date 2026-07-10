@@ -80,7 +80,7 @@ export default function MetricsScreen() {
               className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2"
             >
               <span className="text-2xl">📊</span>
-              <span>Log Today's Metrics</span>
+              <span>Daily Quick Log</span>
             </button>
           </motion.div>
         )}

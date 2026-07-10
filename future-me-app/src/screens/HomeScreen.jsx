@@ -403,7 +403,7 @@ export default function HomeScreen({ onNavigate }) {
           className="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-semibold rounded-xl shadow-md flex items-center justify-center gap-3"
         >
           <span className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-base flex-shrink-0">📊</span>
-          <span className="text-[15px]">Log Today's Metrics</span>
+          <span className="text-[15px]">Daily Quick Log</span>
         </motion.button>
       </motion.div>
 

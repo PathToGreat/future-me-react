@@ -1,0 +1,188 @@
+PHASE 1: Separate Daily Quick Log from Health Zone Detail
+
+Implement this carefully as a core data-flow improvement. Use app testing. Do not change the avatar rendering system, Replicate, Future Lab, Firebase Auth, landing page, or the two trait-engine architecture in this pass.
+
+Goal:
+“Log Today’s Metrics” should no longer be identical to Health-zone logging. It should become a fast daily whole-person input scan that feeds the dashboard, ITE, avatar inputs, trends, and reflections.
+
+Health-zone logging should become a deeper periodic health detail check-in.
+
+Maintain backward compatibility with existing users and existing data.
+
+Current problem:
+DailyTracking currently asks the same four fields as Health: sleep, movement/activity, nutrition, and stress. It writes to both dailyData and zoneLogs/health, causing duplication and two slightly different versions of “health today.”
+
+New structure:
+
+1. Daily Quick Log
+
+Update “Log Today’s Metrics” so it captures these daily signals:
+
+* Sleep quality
+* Sleep duration
+* Energy
+* Movement
+* Nutrition
+* Stress
+* Mood / emotional state
+
+Keep it fast and simple. It should still feel like it can be completed in under 2 minutes.
+
+Use simple 1–5 style inputs where possible. For sleep duration, either use a simple hour input or clean ranges such as:
+
+* under 5 hours
+* 5–6 hours
+* 6–7 hours
+* 7–8 hours
+* 8+ hours
+
+Keep the tone calm and observational.
+
+2. Canonical daily record
+
+Create or update one canonical daily record for the Daily Quick Log.
+
+Preferred path:
+users/{uid}/dailyData/{date}
+
+Include the new fields while preserving old field names when needed for backward compatibility.
+
+Do not break existing history, dashboard, or ITE readers that expect:
+
+* sleep
+* activity
+* nutrition
+* stress
+
+If needed, map:
+
+* movement → activity
+* sleepQuality → sleep
+* nutrition → nutrition
+* stress → stress
+
+Add new fields without removing old-compatible fields.
+
+3. Health Zone Detail
+
+Update Health-zone detail logging so it is not just the same four daily questions.
+
+Health detail should capture deeper physical well-being inputs such as:
+
+* Strength training
+* Mobility / stretching
+* Hydration / minerals
+* Protein / whole-food adequacy
+* Outdoor time / sunlight
+* Recovery practice
+* Body tension / pain signal
+
+These should be separate from the Daily Quick Log.
+
+Health detail can remain periodic. It does not need to feel like something users must complete every day.
+
+4. Avoid duplicate asking
+
+If the user opens Health zone detail after logging Daily Quick Log, do not ask the same four daily inputs again in the exact same form.
+
+Health detail may reference today’s quick log if useful, but it should extend it rather than duplicate it.
+
+5. Data writes
+
+Preserve current app compatibility.
+
+Daily Quick Log should:
+
+* write to dailyData/{date}
+* update lastDailyLog
+* continue feeding dashboard signals
+* continue feeding ITE sourceMap
+* continue supporting history/trends
+* continue supporting avatar inputs
+
+Health Zone Detail should:
+
+* write to zoneLogs/health/daily/{date}
+* update the Health zone aggregate
+* contribute to Health zone score
+* supplement health context without duplicating the daily quick log
+
+If existing code expects zoneLogs/health from the daily log, maintain a safe compatibility bridge or derived summary, but document clearly what is canonical.
+
+6. Identity and avatar input mapping
+
+Do not overhaul the ITE.
+
+Extend current mappings carefully:
+
+Daily Quick Log should influence:
+
+* sleep quality/duration → vitality, resilience, emotionalStability
+* energy → vitality, confidence
+* movement → vitality, discipline, resilience
+* nutrition → vitality, discipline
+* stress inverse → emotionalStability, resilience
+* mood/emotional state → emotionalStability, confidence
+
+Health detail should influence:
+
+* strength → vitality, discipline, confidence
+* mobility → resilience, vitality
+* hydration/minerals → vitality
+* protein/whole-food adequacy → vitality, discipline
+* outdoor time/sunlight → vitality, emotionalStability
+* recovery practice → resilience, emotionalStability
+* body tension/pain inverse → resilience, vitality, emotionalStability
+
+Keep weights restrained. Do not let new fields overpower existing core metrics.
+
+7. Dashboard
+
+Update dashboard wording if needed so Today’s Signals reflects the richer daily quick log.
+
+Do not overcrowd the dashboard. If only a few signals are shown, choose the most important or show compact grouped signals.
+
+8. Backward compatibility
+
+Existing users with older dailyData should still load normally.
+
+If new fields are missing:
+
+* fall back gracefully
+* do not crash
+* do not show broken UI
+* do not erase old logs
+
+9. Testing
+
+Test:
+
+* new user onboarding still works
+* existing user dashboard still loads
+* Log Today’s Metrics saves correctly
+* Daily Quick Log updates today’s dashboard
+* Health zone detail saves separately
+* Health zone score still updates
+* avatar and ITE still receive valid inputs
+* missing new fields do not break old data
+* mobile layout works
+
+10. Report
+
+After implementation, provide a concise report:
+
+* files changed
+* old data path vs new data path
+* which field is canonical
+* how daily quick log now differs from health detail
+* how backward compatibility is handled
+* whether app testing passed
+
+Acceptance criteria:
+
+* Daily Quick Log and Health Detail are no longer duplicates
+* Daily Quick Log captures the most important daily whole-person signals
+* Health detail captures deeper physical well-being inputs
+* Dashboard, ITE, avatar, and history continue working
+* Existing user data remains safe
+* No Future Lab, Replicate, or landing page behavior changes

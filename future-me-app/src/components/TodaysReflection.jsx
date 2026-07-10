@@ -426,6 +426,10 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
         nutrition: latestMetrics.nutrition ?? 3,
         sleep: latestMetrics.sleep ?? 3,
         stress: latestMetrics.stress ?? 3,
+        energy: latestMetrics.energy ?? null,
+        mood: latestMetrics.mood ?? null,
+        sleepDuration: latestMetrics.sleepDuration ?? null,
+        ...(liveProfile?.lastHealthDetail || {}),
         lifeZones: liveProfile?.lifeZones || {},
         habits: []
       };

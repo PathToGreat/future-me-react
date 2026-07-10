@@ -15,28 +15,36 @@ import { generateMicroSuggestion, formatSuggestionForDisplay, loadSuggestionHist
 
 const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
   const [metrics, setMetrics] = useState({
-    sleep: null,
-    activity: null,
+    sleepQuality: null,
+    sleepDuration: null,
+    energy: null,
+    movement: null,
     nutrition: null,
     stress: null,
+    mood: null,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const metricLabels = {
-    sleep: 'Sleep Quality',
-    activity: 'Physical Activity',
-    nutrition: 'Nutrition Quality',
-    stress: 'Stress Level',
-  };
+  // 1-5 button-row metrics — a fast whole-person daily check-in
+  const SCAN_METRICS = [
+    { key: 'sleepQuality', label: 'Sleep Quality', scale: ['Very Poor', 'Poor', 'Fair', 'Good', 'Excellent'] },
+    { key: 'energy', label: 'Energy', scale: ['Depleted', 'Low', 'Steady', 'High', 'Very High'] },
+    { key: 'movement', label: 'Movement', scale: ['Sedentary', 'Light', 'Moderate', 'Active', 'Very Active'] },
+    { key: 'nutrition', label: 'Nutrition', scale: ['Very Poor', 'Poor', 'Fair', 'Good', 'Excellent'] },
+    { key: 'stress', label: 'Stress', scale: ['Minimal', 'Low', 'Moderate', 'High', 'Overwhelming'] },
+    { key: 'mood', label: 'Mood', scale: ['Very Low', 'Low', 'Neutral', 'Good', 'Excellent'] },
+  ];
 
-  const metricDescriptions = {
-    sleep: ['Very Poor', 'Poor', 'Fair', 'Good', 'Excellent'],
-    activity: ['Sedentary', 'Light', 'Moderate', 'Active', 'Very Active'],
-    nutrition: ['Very Poor', 'Poor', 'Fair', 'Good', 'Excellent'],
-    stress: ['Minimal', 'Low', 'Moderate', 'High', 'Overwhelming'],
-  };
+  // Sleep duration stored as an ordinal 1-5 so it flows with the rest of the scan
+  const SLEEP_DURATION_OPTIONS = [
+    { value: 1, label: 'Under 5h' },
+    { value: 2, label: '5-6h' },
+    { value: 3, label: '6-7h' },
+    { value: 4, label: '7-8h' },
+    { value: 5, label: '8h+' },
+  ];
 
   useEffect(() => {
     loadTodayData();
@@ -60,30 +68,31 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
         console.log('No suggestion history found, starting fresh');
       }
       
-      const healthLogRef = doc(db, 'users', user.uid, 'zoneLogs', 'health', 'daily', today);
-      const healthLogSnap = await getDoc(healthLogRef);
+      // dailyData/{today} is the canonical Daily Quick Log record — prefer it.
+      // Fall back to the zoneLogs/health bridge doc (older data / bridge-only day).
+      const dailyDataRef = doc(db, 'users', user.uid, 'dailyData', today);
+      const dailyDataSnap = await getDoc(dailyDataRef);
 
-      if (healthLogSnap.exists()) {
-        const data = healthLogSnap.data();
-        setMetrics({
-          sleep: data.sleep || null,
-          activity: data.activity || null,
-          nutrition: data.nutrition || null,
-          stress: data.stress || null,
-        });
+      let data = null;
+      if (dailyDataSnap.exists()) {
+        data = dailyDataSnap.data();
       } else {
-        const docRef = doc(db, 'users', user.uid, 'dailyData', today);
-        const docSnap = await getDoc(docRef);
+        const healthLogRef = doc(db, 'users', user.uid, 'zoneLogs', 'health', 'daily', today);
+        const healthLogSnap = await getDoc(healthLogRef);
+        if (healthLogSnap.exists()) data = healthLogSnap.data();
+      }
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setMetrics({
-            sleep: data.sleep || null,
-            activity: data.activity || null,
-            nutrition: data.nutrition || null,
-            stress: data.stress || null,
-          });
-        }
+      if (data) {
+        setMetrics({
+          // New whole-person signals, falling back to legacy field names when absent
+          sleepQuality: data.sleepQuality ?? data.sleep ?? null,
+          sleepDuration: data.sleepDuration ?? null,
+          energy: data.energy ?? null,
+          movement: data.movement ?? data.activity ?? null,
+          nutrition: data.nutrition ?? null,
+          stress: data.stress ?? null,
+          mood: data.mood ?? null,
+        });
       }
     } catch (error) {
       console.error('Error loading today\'s data:', error);
@@ -110,16 +119,25 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
     setSaving(true);
     try {
       const today = new Date().toISOString().slice(0, 10);
-      
-      const lifestyleScore = ((metrics.activity + metrics.nutrition + metrics.sleep + (5 - metrics.stress)) / 16) * 100;
 
+      // Backward-compatible core field names the rest of the app reads:
+      //   movement -> activity, sleepQuality -> sleep
+      const activity = metrics.movement;
+      const sleep = metrics.sleepQuality;
+      const nutrition = metrics.nutrition;
+      const stress = metrics.stress;
+
+      const lifestyleScore = ((activity + nutrition + sleep + (5 - stress)) / 16) * 100;
+
+      // Compatibility bridge payload — the four core fields the Health zone,
+      // avatar router, insights and micro-suggestions have always consumed.
       const healthLogData = {
         date: today,
         timestamp: new Date().toISOString(),
-        activity: metrics.activity,
-        nutrition: metrics.nutrition,
-        sleep: metrics.sleep,
-        stress: metrics.stress
+        activity,
+        nutrition,
+        sleep,
+        stress
       };
 
       const routingResult = interceptDailyLogData(healthLogData, 'health');
@@ -144,9 +162,20 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
       await setDoc(healthLogRef, healthLogData, { merge: true });
       console.log('✅ Health zone log saved:', healthLogData);
 
+      // Canonical Daily Quick Log record: full whole-person signal set plus the
+      // legacy-compatible field names (sleep/activity) so existing readers work.
       const dailyDataRef = doc(db, 'users', user.uid, 'dailyData', today);
       await setDoc(dailyDataRef, {
-        ...healthLogData,
+        date: today,
+        sleepQuality: metrics.sleepQuality,
+        sleepDuration: metrics.sleepDuration,
+        energy: metrics.energy,
+        movement: metrics.movement,
+        mood: metrics.mood,
+        activity,
+        nutrition,
+        sleep,
+        stress,
         lifestyleScore: Math.round(lifestyleScore),
         timestamp: serverTimestamp()
       }, { merge: true });
@@ -177,12 +206,27 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
       const userProfileRef = doc(db, 'users', user.uid);
       await setDoc(userProfileRef, {
         lifeZones: lifeZones,
+        // The Daily Quick Log owns the profile's core lifestyle fields — keep the
+        // profile-root values fresh for readers like MiniAvatarPreview and
+        // NoticingCard (previously refreshed by the Health-detail modal).
+        activity,
+        nutrition,
+        sleep,
+        stress,
+        lifestyleScore: Math.round(lifestyleScore),
         lastDailyLog: {
           date: today,
-          activity: metrics.activity,
-          nutrition: metrics.nutrition,
-          sleep: metrics.sleep,
-          stress: metrics.stress,
+          // Legacy-compatible fields (dashboard signals + ITE read these)
+          activity,
+          nutrition,
+          sleep,
+          stress,
+          // Richer whole-person signals
+          sleepQuality: metrics.sleepQuality,
+          sleepDuration: metrics.sleepDuration,
+          energy: metrics.energy,
+          movement: metrics.movement,
+          mood: metrics.mood,
           lifestyleScore: Math.round(lifestyleScore),
         },
       }, { merge: true });
@@ -341,8 +385,8 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Log Today's Health Metrics</h2>
-          <p className="text-sm text-gray-500 mt-1">These metrics update your Health Life Zone</p>
+          <h2 className="text-2xl font-bold text-gray-800">Daily Quick Log</h2>
+          <p className="text-sm text-gray-500 mt-1">A quick whole-person check-in — takes under two minutes</p>
         </div>
         {onClose && (
           <button
@@ -355,29 +399,53 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
       </div>
 
       <p className="text-gray-600 mb-6">
-        Rate each area on a scale of 1-5 based on today's habits.
+        Notice how today felt. There are no right answers — just an honest snapshot.
       </p>
 
       <div className="space-y-6">
-        {Object.keys(metrics).map((metric) => (
-          <div key={metric}>
+        {/* Sleep duration — range selector */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-sm font-semibold text-gray-700">Sleep Duration</label>
+            {metrics.sleepDuration && (
+              <span className="text-xs text-gray-500">
+                {SLEEP_DURATION_OPTIONS.find((o) => o.value === metrics.sleepDuration)?.label}
+              </span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            {SLEEP_DURATION_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleMetricChange('sleepDuration', option.value)}
+                className={`flex-1 py-3 px-1 rounded-lg text-xs font-semibold transition-all ${
+                  metrics.sleepDuration === option.value
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 1-5 scan metrics */}
+        {SCAN_METRICS.map(({ key, label, scale }) => (
+          <div key={key}>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-semibold text-gray-700">
-                {metricLabels[metric]}
-              </label>
-              {metrics[metric] && (
-                <span className="text-xs text-gray-500">
-                  {metricDescriptions[metric][metrics[metric] - 1]}
-                </span>
+              <label className="text-sm font-semibold text-gray-700">{label}</label>
+              {metrics[key] && (
+                <span className="text-xs text-gray-500">{scale[metrics[key] - 1]}</span>
               )}
             </div>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((value) => (
                 <button
                   key={value}
-                  onClick={() => handleMetricChange(metric, value)}
+                  onClick={() => handleMetricChange(key, value)}
                   className={`flex-1 py-3 px-2 rounded-lg font-semibold transition-all ${
-                    metrics[metric] === value
+                    metrics[key] === value
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
@@ -408,12 +476,12 @@ const DailyTracking = ({ onClose, onSave, onAchievementsEarned }) => {
               : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg hover:scale-105'
           }`}
         >
-          {saving ? 'Saving...' : 'Save Health Metrics'}
+          {saving ? 'Saving...' : 'Save Daily Log'}
         </button>
       </div>
 
       <p className="text-xs text-gray-500 mt-4 text-center">
-        Your metrics are saved securely and used to track your Health zone progress.
+        Your daily log feeds your dashboard, trends, and Future Me projection.
       </p>
     </motion.div>
   );

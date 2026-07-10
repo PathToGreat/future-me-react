@@ -1,6 +1,7 @@
 import { getTraitIds, createEmptyTraitState } from './identityTraits';
 import { getMappingsForTrait } from './traitMappingTable';
 import { computeHabitTraitBoosts } from './habitInfluenceEngine';
+import { computeDailySignalBoosts } from './dailySignalBoosts';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
@@ -207,13 +208,17 @@ function extractBaselineScore(traitId, baselineData) {
 export function computeIdentityState(rawMetrics, historyData, baselineData, earlyStage) {
   const sources = buildSourceMap(rawMetrics, historyData, baselineData);
   const habitBoosts = computeHabitTraitBoosts(rawMetrics?.defaultHabitCompletions);
+  // Bounded, additive nudges from the newer daily/health-detail signals. Applied
+  // to the current score only (never to historical averages), mirroring habitBoost.
+  const dailyBoosts = computeDailySignalBoosts(rawMetrics);
   const traitIds = getTraitIds();
   const traitState = {};
 
   for (const traitId of traitIds) {
     const rawScore = computeTraitCurrentScore(traitId, sources);
     const habitBoost = habitBoosts[traitId] || 0;
-    const currentScore = clamp(rawScore + habitBoost, 0, 100);
+    const dailyBoost = dailyBoosts[traitId] || 0;
+    const currentScore = clamp(rawScore + habitBoost + dailyBoost, 0, 100);
     const baselineScore = extractBaselineScore(traitId, baselineData);
     const sevenDayAvg = computeHistoricalAverage(traitId, historyData, sources, 7) ?? currentScore;
     const thirtyDayAvgRaw = computeHistoricalAverage(traitId, historyData, sources, 30);
