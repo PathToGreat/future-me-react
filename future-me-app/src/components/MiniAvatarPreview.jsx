@@ -5,6 +5,7 @@ import { calculateAvatarTraits } from '../utils/avatarTraitEngine';
 import { computeAvatarEffects } from './avatar/AvatarEffectsEngine';
 import { computeZoneInfluences, applyZoneInfluencesToEffects } from '../utils/zoneInfluenceEngine';
 import { computeITECurrentAdapter } from '../utils/iteAvatarAdapter';
+import { getIdentityBaseline } from '../utils/identityStateEngine';
 import HumanAvatarRenderer from '../avatar/HumanAvatarRenderer';
 import { mapFromAvatarEffects } from '../avatar/mapTraitsToAvatarParams';
 import { loadSkinTone, loadHairStyle, loadHairColor } from './SkinToneSelector';
@@ -57,11 +58,11 @@ export default function MiniAvatarPreview({ onNavigateToAvatar }) {
     return computeITECurrentAdapter(
       { activity, nutrition, sleep, stress },
       historyData,
-      liveProfile?.baselineData || liveProfile?.onboardingBaseline || null,
+      getIdentityBaseline(liveProfile),
       lifeZoneScores,
       habits
     );
-  }, [activity, nutrition, sleep, stress, historyData, liveProfile?.baselineData, liveProfile?.onboardingBaseline, lifeZoneScores, habits]);
+  }, [activity, nutrition, sleep, stress, historyData, liveProfile, lifeZoneScores, habits]);
 
   const effectiveMetrics = useMemo(() => {
     if (iteAdapter.available && iteAdapter.adapted) return iteAdapter.adapted;

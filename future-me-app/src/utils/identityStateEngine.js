@@ -175,34 +175,119 @@ function computeVelocity(sevenDayAvg, thirtyDayAvg, baselineScore, earlyStage) {
   };
 }
 
+// Categorical onboarding answers -> 0-100 "goodness" scores. Goodness is encoded
+// directly (higher is better for the trait), so no polarity flag is needed. An
+// answer not present in a map resolves to null and is skipped, never coerced to 50.
+const CATEGORICAL_BASELINE_SCORES = {
+  // "Do you wake up tired even after a full night's sleep?" — less fatigue is better
+  morningFatigue: { no: 100, sometimes: 50, yes: 15 },
+  // Daily movement type
+  movementRhythm: { light: 45, moderate: 70, intense: 90 },
+  // Eating rhythm — regularity signals discipline
+  eatingRhythm: { regular: 90, irregular: 40, snacking: 30 },
+  // Sleep rhythm — consistency signals discipline
+  sleepRhythm: { consistent: 90, inconsistent: 50, irregular: 25 },
+  // Overall emotional climate
+  emotionalClimate: { overwhelmed: 20, neutral: 55, hopeful: 90 },
+  // Social support level
+  socialSupport: { low: 25, average: 55, strong: 90 },
+  // Purpose alignment
+  purposeAlignment: { disconnected: 20, searching: 50, aligned: 90 },
+  // Faith practice rhythm
+  faithRhythm: { not_practicing: 40, inconsistent: 55, consistent: 90 },
+};
+
+// 1-5 sliders where a HIGHER raw value is worse (inverted on normalize).
+const INVERSE_NUMERIC_FIELDS = new Set(['stress', 'bodyTension']);
+
+function resolveBaselineField(key, flat) {
+  const raw = flat[key];
+  if (raw == null) return null;
+
+  if (typeof raw === 'string') {
+    const map = CATEGORICAL_BASELINE_SCORES[key];
+    if (!map) return null;
+    const score = map[raw];
+    return score == null ? null : score;
+  }
+
+  const num = Number(raw);
+  if (isNaN(num)) return null;
+  return INVERSE_NUMERIC_FIELDS.has(key) ? normalizeStressMetric(num) : normalizeMetric(num);
+}
+
+// Flatten the shapes baseline data can arrive in (a raw onboardingBaseline, a merged
+// getIdentityBaseline object, or — defensively — a full profile) into one flat field
+// map. onboardingBaseline is spread LAST so the frozen core-4 baseline values always
+// win over any live top-level metrics that a full profile might carry.
+function flattenBaselineData(baselineData) {
+  if (!baselineData || typeof baselineData !== 'object') return {};
+  return {
+    ...baselineData,
+    ...baselineData.faithPurpose,
+    ...baselineData.emotionalProfile,
+    ...baselineData.lifestyleRhythm,
+    ...baselineData.baselineState,
+    ...baselineData.onboardingBaseline,
+  };
+}
+
+// Trait -> onboarding/reassessment fields that anchor its baseline. Fields absent
+// from the data resolve to null and are skipped, so a trait with no data keeps the
+// neutral 50 fallback. Equal-weight average across whatever resolves (matches the
+// existing design; the spec's mapping is a suggested direction, not fixed weights).
+const BASELINE_TRAIT_FIELDS = {
+  vitality: ['sleep', 'nutrition', 'activity', 'energyLevel', 'morningFatigue', 'bodyTension'],
+  resilience: ['stress', 'sleep', 'bodyTension', 'emotionalClimate'],
+  emotionalStability: ['stress', 'emotionalClimate', 'bodyTension', 'sleep'],
+  discipline: ['motivationLevel', 'movementRhythm', 'eatingRhythm', 'sleepRhythm', 'activity', 'nutrition'],
+  confidence: ['energyLevel', 'activity', 'motivationLevel', 'emotionalClimate', 'socialSupport'],
+  socialConnectedness: ['socialSupport', 'emotionalClimate'],
+  purposeAlignment: ['purposeAlignment', 'faithRhythm', 'motivationLevel'],
+};
+
 function extractBaselineScore(traitId, baselineData) {
   if (!baselineData) return 50;
 
-  const baselineMap = {
-    vitality: ['activity', 'sleep', 'nutrition'],
-    resilience: ['stress', 'sleep', 'activity'],
-    emotionalStability: ['stress', 'sleep'],
-    discipline: [],
-    confidence: [],
-    socialConnectedness: [],
-    purposeAlignment: []
-  };
-
-  const keys = baselineMap[traitId] || [];
+  const flat = flattenBaselineData(baselineData);
+  const keys = BASELINE_TRAIT_FIELDS[traitId] || [];
   if (keys.length === 0) return 50;
 
   let sum = 0;
   let count = 0;
   for (const key of keys) {
-    const val = baselineData[key] ?? baselineData?.onboardingBaseline?.[key];
-    if (val != null) {
-      const normalized = key === 'stress' ? normalizeStressMetric(val) : normalizeMetric(val);
-      sum += normalized;
+    const score = resolveBaselineField(key, flat);
+    if (score != null) {
+      sum += score;
       count++;
     }
   }
 
   return count > 0 ? clamp(sum / count, 0, 100) : 50;
+}
+
+/**
+ * Merge the onboarding/reassessment baseline data — which lives across several
+ * sibling profile objects — into a single flat baseline object for the ITE.
+ * onboardingBaseline is spread LAST so the frozen core-4 baseline metrics win.
+ * Returns null when the profile has no baseline data at all, so canRunITE keeps
+ * gating the ITE off for users who have not completed onboarding.
+ */
+export function getIdentityBaseline(profile) {
+  if (!profile || typeof profile !== 'object') return null;
+
+  const { onboardingBaseline, baselineState, lifestyleRhythm, emotionalProfile, faithPurpose } = profile;
+  if (!onboardingBaseline && !baselineState && !lifestyleRhythm && !emotionalProfile && !faithPurpose) {
+    return null;
+  }
+
+  return {
+    ...baselineState,
+    ...lifestyleRhythm,
+    ...emotionalProfile,
+    ...faithPurpose,
+    ...onboardingBaseline,
+  };
 }
 
 export function computeIdentityState(rawMetrics, historyData, baselineData, earlyStage) {

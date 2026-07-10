@@ -1,0 +1,181 @@
+PHASE 2: Close the Identity Baseline Gap
+
+Implement this only after Phase 1 is working.
+
+Do not change scoring architecture beyond baseline extraction. Do not change projection math, avatar rendering, Replicate, Future Lab, Firebase Auth, or the landing page.
+
+Goal:
+The app already collects useful onboarding baseline information, but the ITE currently only creates meaningful baselines for 3 of the 7 identity traits. The remaining traits default to 50, which weakens Current Me vs Future Me accuracy.
+
+Update the baseline system so all 7 identity traits can be anchored from onboarding and reassessment data when available.
+
+Identity traits:
+
+* vitality
+* resilience
+* emotionalStability
+* discipline
+* confidence
+* socialConnectedness
+* purposeAlignment
+
+Current issue:
+Baseline extraction uses onboarding activity/sleep/nutrition/stress for vitality, resilience, and emotionalStability, but discipline, confidence, socialConnectedness, and purposeAlignment are not meaningfully anchored even though onboarding collects relevant data.
+
+1. Audit current onboarding fields
+
+Use the existing onboarding data already collected, including fields such as:
+
+* activity
+* nutrition
+* sleep
+* stress
+* energyLevel
+* bodyTension
+* morningFatigue
+* movement rhythm
+* eating rhythm
+* sleep rhythm
+* primaryStressor
+* emotionalClimate
+* socialSupport
+* purposeAlignment
+* faithRhythm
+* motivationLevel
+
+Do not invent large new onboarding flows in this pass.
+
+2. Update baseline extraction
+
+Update extractBaselineScore or the relevant baseline utility so each trait has a meaningful baseline when onboarding data exists.
+
+Suggested mapping direction:
+
+Vitality:
+
+* sleep
+* nutrition
+* activity
+* energyLevel
+* morningFatigue inverse
+* bodyTension inverse
+
+Resilience:
+
+* stress inverse
+* sleep
+* recovery rhythm if available
+* bodyTension inverse
+* emotionalClimate
+
+Emotional Stability:
+
+* stress inverse
+* emotionalClimate
+* bodyTension inverse
+* sleep
+* reflection or breathing if available
+
+Discipline:
+
+* motivationLevel
+* movement rhythm
+* eating rhythm
+* sleep rhythm
+* activity
+* nutrition
+
+Confidence:
+
+* energyLevel
+* activity
+* motivationLevel
+* emotionalClimate
+* socialSupport if relevant
+
+Social Connectedness:
+
+* socialSupport
+* emotionalClimate
+* family/community answers if available
+* relationship/support-related onboarding fields
+
+Purpose Alignment:
+
+* purposeAlignment
+* faithRhythm
+* motivationLevel
+* gratitude/reflection if available
+* values/purpose-related onboarding fields
+
+If a field is missing, use available fields and fall back safely.
+
+3. Preserve neutral fallback
+
+If a user does not have onboarding data for a trait, keep the neutral fallback at 50.
+
+Do not create false precision from missing data.
+
+4. Baseline versioning
+
+Add a simple baseline version or metadata field if appropriate, such as:
+
+baselineVersion: 2
+
+or
+
+identityBaselineVersion: 2
+
+Do this only if it fits the current data structure cleanly.
+
+5. Existing users
+
+For existing users:
+
+* if onboardingBaseline contains the needed fields, use them
+* if not, keep safe fallbacks
+* do not force users through onboarding again
+* do not overwrite existing baseline unless the current app already supports reassessment
+
+If reassessment exists, ensure the new baseline extraction works during reassessment too.
+
+6. Current Me vs Future Me
+
+Make sure Current Me now uses the improved baseline for all 7 traits where data exists.
+
+Do not change projection math.
+
+The goal is better starting accuracy, not more dramatic projection.
+
+7. Testing
+
+Test:
+
+* brand new user onboarding creates all 7 trait baselines
+* existing user without full onboarding data still loads
+* reassessment still works if present
+* Current Me and Future Me do not crash
+* dashboard still loads
+* avatar still renders
+* Visual Influences still works
+* no Firestore permission issues
+
+8. Report
+
+After implementation, provide a concise report:
+
+* files changed
+* how each of the 7 traits now gets its baseline
+* fallback behavior for missing fields
+* whether existing users are safe
+* whether reassessment works
+* app testing results
+
+Acceptance criteria:
+
+* All 7 identity traits can now receive baseline values from onboarding/reassessment when data exists
+* No traits silently default to 50 when relevant onboarding data exists
+* Missing data still falls back safely
+* No projection math changes
+* No avatar rendering overhaul
+* Existing users remain safe

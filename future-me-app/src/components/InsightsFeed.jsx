@@ -14,6 +14,7 @@ import {
 } from '../utils/insightsFeedEngine';
 import { detectPatterns } from '../utils/trendPatternEngine';
 import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
+import { getIdentityBaseline } from '../utils/identityStateEngine';
 import { generateTraitInsights } from '../utils/traitInsightsEngine';
 import { canRunITE } from '../utils/iteAvatarAdapter';
 
@@ -113,7 +114,7 @@ export default function InsightsFeed() {
   const [feedInsights, setFeedInsights] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
-  const baseline = liveProfile?.onboardingBaseline || {};
+  const baseline = useMemo(() => getIdentityBaseline(liveProfile) || {}, [liveProfile]);
 
   useEffect(() => {
     if (!user?.uid) return;

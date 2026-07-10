@@ -183,7 +183,24 @@ export default function Onboarding() {
         nutrition: formData.nutrition,
         sleep: formData.sleep,
         stress: formData.stress,
+        // Physical & energy signals (anchor vitality / resilience / emotional stability)
+        energyLevel: formData.energyLevel,
+        morningFatigue: formData.morningFatigue,
+        bodyTension: formData.bodyTension,
+        // Lifestyle rhythm (anchor discipline)
+        movementRhythm: formData.movementRhythm,
+        eatingRhythm: formData.eatingRhythm,
+        sleepRhythm: formData.sleepRhythm,
+        // Emotional profile (anchor emotional stability / confidence / social connectedness)
+        primaryStressor: formData.primaryStressor,
+        emotionalClimate: formData.emotionalClimate,
+        socialSupport: formData.socialSupport,
+        // Faith & purpose (anchor purpose alignment)
+        purposeAlignment: formData.purposeAlignment,
+        faithRhythm: formData.faithRhythm,
+        motivationLevel: formData.motivationLevel,
         lifestyleScore: Math.round(lifestyleScore),
+        baselineVersion: 2,
         capturedAt: new Date().toISOString(),
       };
       

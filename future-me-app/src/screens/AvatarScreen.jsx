@@ -10,6 +10,7 @@ import { getFutureAvatarDescription } from '../utils/futureAvatarModel';
 import { getCurrentMeDescription } from '../utils/currentMeAvatarModel';
 import VisualInfluences from '../components/VisualInfluences';
 import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
+import { getIdentityBaseline } from '../utils/identityStateEngine';
 import { canRunITE } from '../utils/iteAvatarAdapter';
 import { generateHabitInfluenceSummary } from '../utils/habitInfluenceEngine';
 import { inferActionsFromLog, findStrongestInferredLever } from '../utils/loggingConsequenceInference';
@@ -199,7 +200,7 @@ export default function AvatarScreen() {
 
   // Full ITE result — unchanged
   const iteData = useMemo(() => {
-    const baseline = liveProfile?.onboardingBaseline || liveProfile?.baselineState;
+    const baseline = getIdentityBaseline(liveProfile);
     if (!canRunITE(historyData, baseline)) return null;
     try {
       const latestMetrics = historyData?.[0] || {};

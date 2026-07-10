@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { runIdentityTrajectoryEngine } from '../utils/identityTrajectoryEngine';
+import { getIdentityBaseline } from '../utils/identityStateEngine';
 import { generateTraitInsights, selectBestTraitReflection } from '../utils/traitInsightsEngine';
 import { canRunITE } from '../utils/iteAvatarAdapter';
 
@@ -384,7 +385,7 @@ export default function TodaysReflection({ currentPattern, onPatternDismiss, onP
   const [isExpanded, setIsExpanded] = useState(false);
   const [dailyInsight, setDailyInsight] = useState(null);
 
-  const baseline = liveProfile?.onboardingBaseline || {};
+  const baseline = useMemo(() => getIdentityBaseline(liveProfile) || {}, [liveProfile]);
 
   useEffect(() => {
     if (user?.uid && historyData?.length > 0) {
