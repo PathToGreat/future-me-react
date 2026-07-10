@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const STRENGTHENING_IMG = '/demo/future-me-strengthening.webp';
@@ -9,6 +9,13 @@ const CONTROLS = [
   { id: 'nutrition', label: 'Nutrition', emoji: '🌱', options: ['Poor', 'Mixed', 'Balanced'] },
   { id: 'movement',  label: 'Movement',  emoji: '💪', options: ['Rare', 'Some', 'Regular'] },
   { id: 'stress',    label: 'Stress',    emoji: '⚖️', options: ['High', 'Moderate', 'Managed'] },
+];
+
+// One-tap presets — update the demo's local state only.
+const PRESETS = [
+  { id: 'strong',   label: 'Strong Week',   values: { sleep: 2, nutrition: 2, movement: 2, stress: 2 } },
+  { id: 'average',  label: 'Average Week',  values: { sleep: 1, nutrition: 1, movement: 1, stress: 1 } },
+  { id: 'drifting', label: 'Drifting Week', values: { sleep: 0, nutrition: 0, movement: 0, stress: 0 } },
 ];
 
 const TRAITS = [
@@ -70,6 +77,24 @@ export default function DirectionDemo() {
     stress: 2,
   });
 
+  // Interaction hints — local UI only, no data writes.
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [showPulse, setShowPulse]         = useState(true);
+
+  // Soft pulse on the first control fades on its own after a few seconds.
+  useEffect(() => {
+    const t = setTimeout(() => setShowPulse(false), 4500);
+    return () => clearTimeout(t);
+  }, []);
+
+  const promptText = hasInteracted
+    ? 'Now adjust another signal to see how the pattern responds.'
+    : 'Try it: adjust one input and watch the future direction change.';
+
+  const activePreset = PRESETS.find(p =>
+    CONTROLS.every(c => p.values[c.id] === inputs[c.id])
+  )?.id ?? null;
+
   const score = inputs.sleep + inputs.nutrition + inputs.movement + inputs.stress;
 
   const tierKey = score >= 5 ? 'advancing' : score >= 3 ? 'stabilizing' : 'declining';
@@ -86,7 +111,17 @@ export default function DirectionDemo() {
     [inputs]
   );
 
-  const setLevel = (id, level) => setInputs(prev => ({ ...prev, [id]: level }));
+  const setLevel = (id, level) => {
+    setInputs(prev => ({ ...prev, [id]: level }));
+    setHasInteracted(true);
+    setShowPulse(false);
+  };
+
+  const applyPreset = values => {
+    setInputs(values);
+    setHasInteracted(true);
+    setShowPulse(false);
+  };
 
   return (
     <motion.section
@@ -109,23 +144,90 @@ export default function DirectionDemo() {
 
       <div className="card bg-white/80 backdrop-blur-sm p-4 sm:p-6 md:p-10">
 
+        {/* ── Interaction prompt + one-tap presets ─────────────────── */}
+        <div className="mb-5">
+          <div className="flex items-start gap-2 mb-3">
+            <svg
+              className="w-4 h-4 mt-0.5 text-primary-500 flex-shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="4" y1="8" x2="20" y2="8" />
+              <circle cx="9" cy="8" r="2.5" fill="white" />
+              <line x1="4" y1="16" x2="20" y2="16" />
+              <circle cx="15" cy="16" r="2.5" fill="white" />
+            </svg>
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={promptText}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="text-xs sm:text-sm text-gray-500 leading-relaxed"
+              >
+                {promptText}
+              </motion.p>
+            </AnimatePresence>
+          </div>
+
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Quick presets">
+            {PRESETS.map(p => {
+              const isActive = hasInteracted && activePreset === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => applyPreset(p.values)}
+                  aria-pressed={isActive}
+                  className={`text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full border transition-all ${
+                    isActive
+                      ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
+                      : 'bg-white border-gray-200 text-gray-600 hover:border-primary-200 hover:text-primary-700'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* ── Controls — 2×2 on mobile, 4-col on large ─────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-          {CONTROLS.map(c => (
-            <div key={c.id} className="bg-gray-50 rounded-xl p-3 sm:p-4">
+          {CONTROLS.map((c, i) => (
+            <motion.div
+              key={c.id}
+              className="bg-gray-50 rounded-xl p-3 sm:p-4"
+              animate={
+                showPulse && i === 0
+                  ? { boxShadow: ['0 0 0 0 rgba(99,102,241,0)', '0 0 0 4px rgba(99,102,241,0.22)', '0 0 0 0 rgba(99,102,241,0)'] }
+                  : { boxShadow: '0 0 0 0 rgba(99,102,241,0)' }
+              }
+              transition={
+                showPulse && i === 0
+                  ? { duration: 1.8, repeat: Infinity, ease: 'easeInOut' }
+                  : { duration: 0.3 }
+              }
+            >
               <div className="flex items-center gap-1.5 mb-2.5">
                 <span className="text-base sm:text-xl">{c.emoji}</span>
                 <span className="font-semibold text-gray-800 text-sm sm:text-base">{c.label}</span>
               </div>
               <div className="flex rounded-lg bg-gray-200/70 p-0.5" role="group" aria-label={`${c.label} level`}>
-                {c.options.map((opt, i) => (
+                {c.options.map((opt, optIdx) => (
                   <button
                     key={opt}
                     type="button"
-                    onClick={() => setLevel(c.id, i)}
-                    aria-pressed={inputs[c.id] === i}
+                    onClick={() => setLevel(c.id, optIdx)}
+                    aria-pressed={inputs[c.id] === optIdx}
                     className={`flex-1 text-xs py-1.5 rounded-md transition-all font-medium leading-tight ${
-                      inputs[c.id] === i
+                      inputs[c.id] === optIdx
                         ? 'bg-white text-primary-700 shadow'
                         : 'text-gray-500 hover:text-gray-700'
                     }`}
@@ -134,7 +236,7 @@ export default function DirectionDemo() {
                   </button>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 

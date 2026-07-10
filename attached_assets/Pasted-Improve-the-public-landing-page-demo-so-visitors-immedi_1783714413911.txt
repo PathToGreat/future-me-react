@@ -1,0 +1,78 @@
+Improve the public landing page demo so visitors immediately understand that it is interactive.
+
+Do not redesign the landing page. Do not change the hero section. Do not change app logic, Firebase, Replicate, auth, or logged-in routes.
+
+Focus only on the public “See Direction in Action” demo section.
+
+Problem:
+The demo works, but some visitors may not realize they are supposed to interact with it. Add a subtle interaction prompt and optional quick presets so the viewer is guided to try the demo.
+
+Add:
+
+1. A small prompt above the demo controls.
+
+Preferred copy:
+“Try it: adjust one input and watch the future direction change.”
+
+Alternative if it fits better:
+“Move one signal. Change sleep, stress, movement, or nutrition and watch the trajectory shift.”
+
+Style:
+- small but visible
+- consistent with the app’s calm tone
+- not a pop-up
+- not urgent
+- not salesy
+
+2. Add three preset chips/buttons near the controls:
+
+- Strong Week
+- Average Week
+- Drifting Week
+
+These should update the demo’s local state only.
+
+Example behavior:
+Strong Week:
+- Sleep high
+- Nutrition high
+- Movement high
+- Stress low
+
+Average Week:
+- Sleep medium
+- Nutrition medium
+- Movement medium
+- Stress medium
+
+Drifting Week:
+- Sleep low
+- Nutrition low or medium-low
+- Movement low
+- Stress high
+
+3. After the visitor changes any control or taps a preset, update the prompt text to something like:
+
+“Now adjust another signal to see how the pattern responds.”
+
+4. Add a subtle visual affordance that the controls are interactive.
+
+Possible options:
+- a small cursor/slider icon near the prompt
+- a soft pulse around the first control for the first few seconds only
+- a gentle highlight on the preset chips
+
+Do not use bouncing, flashing, confetti, or anything gamified.
+
+5. Mobile behavior:
+Make sure the prompt and preset chips fit cleanly on mobile.
+Preset chips may wrap if needed.
+No horizontal overflow.
+
+Acceptance criteria:
+- visitors can immediately tell the demo is interactive
+- one-tap presets make the demo easier to understand
+- no Firebase writes occur
+- no Replicate calls occur
+- no logged-in app behavior changes
+- mobile layout remains clean
