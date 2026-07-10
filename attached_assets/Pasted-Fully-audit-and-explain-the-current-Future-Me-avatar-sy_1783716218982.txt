@@ -1,0 +1,178 @@
+Fully audit and explain the current Future Me avatar system so we can understand where it stands and decide how to improve the experience.
+
+Do not change any code yet. This is a report only.
+
+Goal:
+I need a clear, complete explanation of how the current avatar system works across the app, including the deterministic SVG/avatar system, the Identity Trajectory Engine, trait influence logic, habit influence logic, Future Lab experimental renders, and how all of these pieces currently relate to each other.
+
+Please inspect the actual codebase and produce a detailed report.
+
+Cover these areas:
+
+1. Avatar system overview
+   Explain the current avatar architecture in plain English.
+
+Include:
+
+* what avatar versions exist
+* where each version is used
+* which components render the avatar
+* which components are deterministic SVG
+* which parts are experimental AI render logic
+* what is currently core app vs Future Lab
+
+2. Key files and components
+   List the important files involved in the avatar system.
+
+For each file, explain:
+
+* what it does
+* what data it receives
+* what data it outputs
+* which other files depend on it
+
+Include any files related to:
+
+* FutureMeAvatar
+* FutureAvatar
+* AvatarScreen
+* MiniAvatarPreview
+* iteAvatarAdapter
+* identityStateEngine
+* habitInfluenceEngine
+* VisualInfluences
+* Future Lab render pipeline
+* promptBuilder
+* replicateService
+
+3. Data flow
+   Map the full data flow from user behavior to avatar output.
+
+Explain how these inputs flow into the avatar:
+
+* daily metrics
+* zone scores
+* habit completions
+* default habit rhythm
+* identity traits
+* trajectory direction
+* future projection
+* current vs future state
+
+Show the flow clearly, something like:
+
+User input → data source → identity engine → trait scores → avatar adapter → avatar visual state → rendered UI
+
+4. Trait-to-visual mapping
+   Explain exactly how identity traits currently affect the avatar.
+
+For each trait, explain what it currently influences visually.
+
+Include:
+
+* vitality
+* discipline
+* resilience
+* emotional stability
+* confidence
+* connection
+* purpose
+* stability
+* any other traits currently used
+
+For each trait, answer:
+
+* does this trait affect posture?
+* does it affect energy/glow?
+* does it affect facial expression?
+* does it affect body shape?
+* does it affect color/tone?
+* does it affect movement/animation?
+* is the mapping clear, weak, duplicated, or unused?
+
+5. Current Me vs Future Me
+   Explain how the app currently distinguishes Current Me from Future Me.
+
+Answer:
+
+* what data feeds Current Me?
+* what data feeds Future Me?
+* how is projection calculated?
+* how far forward is the projection intended to represent?
+* are the visual differences meaningful enough?
+* are the visual differences too subtle, too dramatic, or inconsistent?
+
+6. Habit influence
+   Explain how habits currently affect identity traits and avatar output.
+
+Include:
+
+* default habit mappings
+* rhythm scoring
+* trait boost caps
+* whether habit influence is secondary to daily metrics
+* whether habits visibly affect the avatar enough to feel meaningful
+* whether habits risk overpowering the main identity engine
+
+7. Future Lab AI render system
+   Explain the current Future Lab Version B image generation pipeline.
+
+Include:
+
+* which model is currently active
+* whether identity-preserving mode is active or only prepared
+* how uploaded user images are passed
+* how trajectory data is turned into prompts
+* what metadata is saved
+* what the limitations currently are
+* how Future Lab differs from the core avatar system
+
+8. User experience analysis
+   Analyze the avatar experience from a user perspective.
+
+Answer:
+
+* is it obvious what changed and why?
+* can the user understand how their actions influence the avatar?
+* is the avatar emotionally meaningful?
+* does the avatar feel too generic?
+* does the Current Me vs Future Me comparison feel strong enough?
+* does the Visual Influences section explain the avatar well enough?
+* where might users be confused?
+
+9. Weaknesses and improvement opportunities
+   Identify the biggest weaknesses in the current avatar system.
+
+Separate them into:
+
+A. Quick wins
+Small improvements that can be made safely without changing core logic.
+
+B. Medium improvements
+Better mappings, stronger explanations, or more meaningful visual changes.
+
+C. Larger future upgrades
+Identity-preserving AI, better personalization, avatar calibration, more realistic projections, etc.
+
+10. Risk areas
+    Identify anything that could harm trust.
+
+Include:
+
+* overclaiming future prediction
+* avatar changing too dramatically
+* AI renders not matching the user
+* traits that are not explainable
+* mismatches between dashboard data and avatar output
+* unclear difference between SVG avatar and Future Lab render
+
+11. Recommendation
+    End with a prioritized recommendation list.
+
+Give me the top 5 improvements you would make to the avatar system next, in order, with reasoning.
+
+Important:
+Do not make changes yet.
+Do not rewrite the avatar system yet.
+Do not add new features yet.
+This is only an audit and explanation so we can decide the next step carefully.
