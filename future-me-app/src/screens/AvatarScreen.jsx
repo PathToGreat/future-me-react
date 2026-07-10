@@ -452,7 +452,7 @@ export default function AvatarScreen() {
                   <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
                 </div>
               ) : fm ? (
-                <FutureAvatar {...futureAvatarProps} />
+                <FutureAvatar {...futureAvatarProps} amplifyContrast />
               ) : (
                 <div className="w-[100px] aspect-[2/3] flex flex-col items-center justify-center gap-2 opacity-25">
                   <div className="w-10 h-10 rounded-full bg-purple-300" />
@@ -483,6 +483,14 @@ export default function AvatarScreen() {
               {futureFootNote}
             </p>
           </div>
+        </div>
+
+        {/* Deterministic figure label */}
+        <div className="mt-3 text-center">
+          <p className="text-[11px] font-semibold text-gray-500">Trajectory Figure</p>
+          <p className="text-[10px] text-gray-400 leading-snug">
+            Built from your logged patterns and identity traits.
+          </p>
         </div>
 
         {/* Key Transformation banner */}

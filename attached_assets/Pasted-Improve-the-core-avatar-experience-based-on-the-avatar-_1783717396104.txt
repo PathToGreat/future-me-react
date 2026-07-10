@@ -1,0 +1,167 @@
+Improve the core avatar experience based on the avatar-system audit.
+
+Do not rewrite the avatar system. Do not change projection math, scoring logic, Firebase, Future Lab generation, Replicate, or Identity Trajectory Engine calculations.
+
+This is a restrained UX and visual-mapping improvement pass for the deterministic SVG avatar experience.
+
+Goal:
+Make Current Me vs Future Me easier to understand and more emotionally meaningful while keeping the system honest, explainable, and consistent.
+
+---
+
+1. Strengthen Current Me vs Future Me contrast at the render layer only
+
+The audit shows that projection math is intentionally conservative, but the visual difference between Current Me and Future Me can be too subtle for users.
+
+Add a display-only visual delta amplification layer.
+
+Requirements:
+
+* Do not change trait scores
+* Do not change projection calculations
+* Do not change stored data
+* Only amplify how the difference is rendered visually
+* Keep the amplification bounded and believable
+
+Suggested approach:
+
+* compare Current Me avatar params to Future Me avatar params
+* apply a modest multiplier to visible differences only
+* cap the amplified values so the avatar never becomes exaggerated
+* use this only in the side-by-side Current Me vs Future Me comparison
+
+Suggested multiplier:
+
+* start around 1.25x to 1.4x
+* do not exceed 1.5x without clear reason
+
+Apply carefully to:
+
+* posture
+* shoulder alignment
+* facial brightness
+* facial tension
+* energy glow
+* stance openness
+
+Do not create extreme body changes.
+
+---
+
+2. Add visible channels for Social Connectedness and Purpose Alignment
+
+The audit shows these traits currently have weak or nearly invisible visual influence.
+
+Give each trait a clearer but still restrained visual expression.
+
+Social Connectedness may influence:
+
+* expression warmth
+* eye softness
+* slight openness of face
+* subtle warmth in glow or aura
+
+Purpose Alignment may influence:
+
+* centeredness
+* steadiness
+* vertical alignment
+* calmer visual focus
+* subtle aura stability
+
+Do not make these cartoonish.
+Do not use religious symbols, badges, icons, or labels on the avatar body.
+
+The effect should be felt visually but still grounded.
+
+---
+
+3. Improve facial expression range
+
+Currently emotional stability mostly affects a single tension axis.
+
+Expand the facial expression system slightly so the avatar can reflect states such as:
+
+* tired
+* tense
+* calm
+* bright
+* open
+
+Use existing trait inputs:
+
+* emotionalStability
+* vitality
+* confidence
+* socialConnectedness
+
+This should remain subtle and human-like.
+
+Do not add exaggerated smiles, frowns, or cartoon emotions.
+
+---
+
+4. Clarify avatar system labels in the UI
+
+Add small, calm explanatory labels where helpful.
+
+For the SVG/avatar screen:
+Use language like:
+“Trajectory Figure”
+or
+“Deterministic trajectory figure”
+
+Short description:
+“Built from your logged patterns and identity traits.”
+
+For Future Lab:
+Use language like:
+“Experimental AI render”
+
+Short description:
+“An experimental visualization based on your trajectory. Results may vary.”
+
+The purpose is to reduce confusion between:
+
+* core deterministic avatar
+* experimental AI image render
+
+Do not make this legal-heavy. Keep it simple.
+
+---
+
+5. Improve Visual Influences explanation
+
+Update VisualInfluences so it better explains what is affecting the avatar.
+
+Include:
+
+* posture and energy influences
+* habit rhythm influence
+* social/relational influence if active
+* purpose/alignment influence if active
+
+Keep the tone observational.
+
+Example:
+“Recent movement and sleep patterns are supporting energy and posture.”
+“Connection-related inputs are softening expression and openness.”
+“Purpose-related inputs are contributing to steadiness and centeredness.”
+
+Do not say:
+
+* “Your avatar improved”
+* “You earned”
+* “You unlocked”
+
+---
+
+6. Acceptance criteria
+
+* Current Me vs Future Me is visibly clearer without changing underlying projection math
+* Social Connectedness and Purpose Alignment have visible but restrained influence
+* Facial expression feels more emotionally meaningful
+* Users can better understand why the avatar looks the way it does
+* SVG/avatar system and Future Lab AI render are clearly distinguished
+* No scoring, projection, Firebase, or Replicate logic is changed
+* No exaggerated or gamified visual effects are added

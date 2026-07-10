@@ -76,7 +76,11 @@ export function applyConfidenceScaling(currentParams, projectedParams, confidenc
   const tier = confidence?.tier || CONFIDENCE_TIERS.LOW;
 
   const bodyKeys = ['shoulderWidth', 'chestSize', 'waistTaper', 'hipWidth', 'armThickness', 'legThickness', 'neckThickness', 'headScale'];
-  const emotionalKeys = ['postureLean', 'facialTension', 'vibrancy', 'energyGlow'];
+  const emotionalKeys = [
+    'postureLean', 'facialTension', 'vibrancy', 'energyGlow',
+    'facialBrightness', 'expressionWarmth', 'eyeSoftness', 'faceOpenness',
+    'glowWarmth', 'centeredness', 'steadiness', 'auraStability'
+  ];
 
   const result = { ...projectedParams };
 

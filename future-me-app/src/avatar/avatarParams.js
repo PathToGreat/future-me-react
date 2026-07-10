@@ -12,6 +12,14 @@ const AVATAR_PARAM_DEFAULTS = {
   energyGlow: 0.5,
   facialTension: 0.3,
   vibrancy: 0.5,
+  facialBrightness: 0.5,
+  expressionWarmth: 0.5,
+  eyeSoftness: 0.5,
+  faceOpenness: 0.5,
+  glowWarmth: 0.5,
+  centeredness: 0.5,
+  steadiness: 0.5,
+  auraStability: 0.5,
   skinTone: null
 };
 
@@ -27,7 +35,15 @@ const PARAM_RANGES = {
   headScale: { min: 0, max: 1 },
   energyGlow: { min: 0, max: 1 },
   facialTension: { min: 0, max: 1 },
-  vibrancy: { min: 0, max: 1 }
+  vibrancy: { min: 0, max: 1 },
+  facialBrightness: { min: 0, max: 1 },
+  expressionWarmth: { min: 0, max: 1 },
+  eyeSoftness: { min: 0, max: 1 },
+  faceOpenness: { min: 0, max: 1 },
+  glowWarmth: { min: 0, max: 1 },
+  centeredness: { min: 0, max: 1 },
+  steadiness: { min: 0, max: 1 },
+  auraStability: { min: 0, max: 1 }
 };
 
 const SKIN_TONE_PALETTE = [

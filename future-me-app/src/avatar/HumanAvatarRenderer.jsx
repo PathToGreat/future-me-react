@@ -4,6 +4,22 @@ import { getSkinToneById } from './avatarParams';
 import { getHairColors } from '../components/SkinToneSelector';
 
 const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+const toHex = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+function parseHex(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+function mixHexColor(hexA, hexB, t) {
+  if (t <= 0) return hexA;
+  const pa = parseHex(hexA);
+  const pb = parseHex(hexB);
+  if (!pa || !pb) return hexA;
+  return `#${toHex(lerp(pa.r, pb.r, t))}${toHex(lerp(pa.g, pb.g, t))}${toHex(lerp(pa.b, pb.b, t))}`;
+}
 
 function resolveSkinColor(skinToneId, vibrancy) {
   if (skinToneId) {
@@ -33,15 +49,23 @@ function computeBodyGeometry(params) {
     legThickness,
     neckThickness,
     postureLean,
-    headScale
+    headScale,
+    centeredness = 0.5,
+    steadiness = 0.5
   } = params;
 
   const cx = 100;
   const isMale = gender !== 'female';
   const pl = postureLean ?? 0;
 
-  const shoulderRollInward = pl < 0 ? pl * 3.5 : pl * -1.5;
-  const headFwdShift = pl < 0 ? pl * 2.5 : pl * -0.5;
+  // Purpose Alignment (display-only): centeredness eases the figure toward a more
+  // upright, vertically-aligned stance; steadiness damps postural sway. Both are
+  // subtle, bounded modifiers and never touch any score.
+  const alignFactor = 1 - clamp((centeredness - 0.5) * 0.5, -0.25, 0.25);
+  const swayFactor = 1 - clamp((steadiness - 0.5) * 0.5, -0.25, 0.25);
+
+  const shoulderRollInward = (pl < 0 ? pl * 3.5 : pl * -1.5) * alignFactor;
+  const headFwdShift = (pl < 0 ? pl * 2.5 : pl * -0.5) * alignFactor;
   const neckStretch = pl * 1.8;
   const chestOpenAdj = pl * 0.04;
 
@@ -78,7 +102,7 @@ function computeBodyGeometry(params) {
   const legLen = 80;
 
   const postureOffset = pl * -2;
-  const postureRotate = pl * -1.5;
+  const postureRotate = pl * -1.5 * swayFactor;
 
   return {
     cx, headRx, headRy, headCy,
@@ -352,41 +376,65 @@ function HairLayer({ g, hairStyle, hairColors }) {
   return null;
 }
 
-function FaceFeatures({ g, facialTension, skinColors }) {
+function FaceFeatures({
+  g,
+  facialTension,
+  facialBrightness = 0.5,
+  expressionWarmth = 0.5,
+  eyeSoftness = 0.5,
+  faceOpenness = 0.5,
+  skinColors
+}) {
   const { cx, headCy, headRx } = g;
   const eyeY = headCy - 3;
   const eyeSpacing = headRx * 0.42;
   const browY = eyeY - 7;
 
   const tension = facialTension || 0;
-  const browAngle = tension * 6;
-  const eyeOpenness = lerp(5.2, 3.4, tension);
-  const mouthY = headCy + 10;
+  const bright = facialBrightness ?? 0.5;
+  const warmth = expressionWarmth ?? 0.5;
+  const soft = eyeSoftness ?? 0.5;
+  const open = faceOpenness ?? 0.5;
 
-  const mouthCurve = lerp(3, -2.5, tension);
+  // Brow: tension raises the inner brow; openness and softness relax it back down.
+  const browAngle = clamp(tension * 6 - (open - 0.5) * 3 - (soft - 0.5) * 2, -2, 8);
+
+  // Eyes: base openness from tension, widened slightly when the face reads open /
+  // bright, and made gentler (rounder iris, softer brow) by eye softness. This is
+  // what lets the face read across tired / tense / calm / bright / open.
+  const eyeOpenness = clamp(lerp(5.2, 3.4, tension) + (open - 0.5) * 1.4 + (bright - 0.5) * 1.0, 3.0, 6.4);
+  const eyeRx = 4 + (soft - 0.5) * 0.8;
+  const highlightR = clamp(0.8 + (soft - 0.5) * 0.5, 0.5, 1.2);
+  const browOpacity = clamp(0.7 - (soft - 0.5) * 0.3, 0.45, 0.85);
+
+  const mouthY = headCy + 10;
+  // Mouth: a calm face reads as a gentle upturn (positive curve); tension flattens
+  // it. Warmth and brightness add a restrained lift. Openness widens it slightly.
+  const mouthCurve = clamp(lerp(3, -2.5, tension) + (warmth - 0.5) * 3 + (bright - 0.5) * 2, -4, 6);
+  const mouthHalf = clamp(5 + (open - 0.5) * 1.2, 4, 6.5);
 
   return (
     <g>
       <line
         x1={cx - eyeSpacing - 5} y1={browY + browAngle * 0.4}
         x2={cx - eyeSpacing + 5} y2={browY - browAngle * 0.4}
-        stroke="#5a4a3a" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"
+        stroke="#5a4a3a" strokeWidth="1.8" strokeLinecap="round" opacity={browOpacity}
       />
       <line
         x1={cx + eyeSpacing - 5} y1={browY - browAngle * 0.4}
         x2={cx + eyeSpacing + 5} y2={browY + browAngle * 0.4}
-        stroke="#5a4a3a" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"
+        stroke="#5a4a3a" strokeWidth="1.8" strokeLinecap="round" opacity={browOpacity}
       />
 
-      <ellipse cx={cx - eyeSpacing} cy={eyeY} rx="4" ry={eyeOpenness} fill="white" />
-      <ellipse cx={cx + eyeSpacing} cy={eyeY} rx="4" ry={eyeOpenness} fill="white" />
+      <ellipse cx={cx - eyeSpacing} cy={eyeY} rx={eyeRx} ry={eyeOpenness} fill="white" />
+      <ellipse cx={cx + eyeSpacing} cy={eyeY} rx={eyeRx} ry={eyeOpenness} fill="white" />
       <circle cx={cx - eyeSpacing} cy={eyeY + 0.5} r="2.2" fill="#3a3028" />
       <circle cx={cx + eyeSpacing} cy={eyeY + 0.5} r="2.2" fill="#3a3028" />
-      <circle cx={cx - eyeSpacing + 0.8} cy={eyeY - 0.8} r="0.8" fill="white" opacity="0.8" />
-      <circle cx={cx + eyeSpacing + 0.8} cy={eyeY - 0.8} r="0.8" fill="white" opacity="0.8" />
+      <circle cx={cx - eyeSpacing + 0.8} cy={eyeY - 0.8} r={highlightR} fill="white" opacity="0.8" />
+      <circle cx={cx + eyeSpacing + 0.8} cy={eyeY - 0.8} r={highlightR} fill="white" opacity="0.8" />
 
       <path
-        d={`M ${cx - 5} ${mouthY} Q ${cx} ${mouthY + mouthCurve} ${cx + 5} ${mouthY}`}
+        d={`M ${cx - mouthHalf} ${mouthY} Q ${cx} ${mouthY + mouthCurve} ${cx + mouthHalf} ${mouthY}`}
         stroke="#7a5a4a" strokeWidth="1.5" fill="none" strokeLinecap="round"
       />
 
@@ -457,18 +505,23 @@ function AnatomicalDepthLayer({ g }) {
   );
 }
 
-function GlowLayer({ g, energyGlow, color }) {
+function GlowLayer({ g, energyGlow, color, glowWarmth = 0.5, auraStability = 0.5 }) {
   if (energyGlow < 0.4) return null;
   const { cx } = g;
   const intensity = (energyGlow - 0.4) / 0.6;
-  const glowOpacity = lerp(0, 0.12, intensity);
+  // Aura stability (purpose) firms up the glow's presence slightly without enlarging it.
+  const stability = 0.9 + clamp(auraStability ?? 0.5, 0, 1) * 0.2;
+  const glowOpacity = lerp(0, 0.12, intensity) * stability;
   const glowRadius = lerp(25, 45, intensity);
+  // Glow warmth (social) gently shifts the glow color toward a warm tone — only
+  // above neutral, so a low-social figure keeps the base color.
+  const glowColor = mixHexColor(color, '#f4b06a', clamp(((glowWarmth ?? 0.5) - 0.5) * 0.5, 0, 0.25));
 
   return (
     <ellipse
       cx={cx} cy={140}
       rx={glowRadius} ry={glowRadius * 1.2}
-      fill={color}
+      fill={glowColor}
       opacity={glowOpacity}
       filter="url(#avatarGlow)"
     />
@@ -480,7 +533,8 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
 
   const g = useMemo(() => computeBodyGeometry(p), [
     p.gender, p.shoulderWidth, p.chestSize, p.waistTaper, p.hipWidth,
-    p.armThickness, p.legThickness, p.neckThickness, p.postureLean, p.headScale
+    p.armThickness, p.legThickness, p.neckThickness, p.postureLean, p.headScale,
+    p.centeredness, p.steadiness
   ]);
 
   const torsoPath = useMemo(() => buildTorsoPath(g), [g]);
@@ -493,6 +547,12 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
   const vibrancy = p.vibrancy ?? 0.5;
   const energyGlow = p.energyGlow ?? 0.4;
   const facialTension = p.facialTension ?? 0.15;
+  const facialBrightness = p.facialBrightness ?? 0.5;
+  const expressionWarmth = p.expressionWarmth ?? 0.5;
+  const eyeSoftness = p.eyeSoftness ?? 0.5;
+  const faceOpenness = p.faceOpenness ?? 0.5;
+  const glowWarmth = p.glowWarmth ?? 0.5;
+  const auraStability = p.auraStability ?? 0.5;
   const hairStyle = p.hairStyle || 'none';
   const resolvedHairColors = useMemo(() => getHairColors(p.hairColor), [p.hairColor]);
 
@@ -533,7 +593,15 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
             <ellipse cx={g.cx} cy={g.headCy} rx={g.headRx} ry={g.headRy} fill={`url(#${skinGradId})`} />
           </g>
           <HairLayer g={g} hairStyle={hairStyle} hairColors={resolvedHairColors} />
-          <FaceFeatures g={g} facialTension={facialTension} skinColors={skinColors} />
+          <FaceFeatures
+            g={g}
+            facialTension={facialTension}
+            facialBrightness={facialBrightness}
+            expressionWarmth={expressionWarmth}
+            eyeSoftness={eyeSoftness}
+            faceOpenness={faceOpenness}
+            skinColors={skinColors}
+          />
         </g>
       </svg>
     );
@@ -564,7 +632,13 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
         transition={{ duration: 0.6, ease: 'easeOut' }}
         style={{ transformOrigin: '100px 150px' }}
       >
-        <GlowLayer g={g} energyGlow={energyGlow} color={bodyFill} />
+        <GlowLayer
+          g={g}
+          energyGlow={energyGlow}
+          color={bodyFill}
+          glowWarmth={glowWarmth}
+          auraStability={auraStability}
+        />
 
         <motion.path d={leftLegPath} fill={`url(#${bodyGradId})`} />
         <motion.path d={rightLegPath} fill={`url(#${bodyGradId})`} />
@@ -589,7 +663,15 @@ export default function HumanAvatarRenderer({ params, color = '#6366f1', classNa
 
         <HairLayer g={g} hairStyle={hairStyle} hairColors={resolvedHairColors} />
 
-        <FaceFeatures g={g} facialTension={facialTension} skinColors={skinColors} />
+        <FaceFeatures
+          g={g}
+          facialTension={facialTension}
+          facialBrightness={facialBrightness}
+          expressionWarmth={expressionWarmth}
+          eyeSoftness={eyeSoftness}
+          faceOpenness={faceOpenness}
+          skinColors={skinColors}
+        />
       </motion.g>
     </svg>
   );

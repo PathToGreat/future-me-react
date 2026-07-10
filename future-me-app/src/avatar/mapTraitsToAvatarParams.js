@@ -33,6 +33,11 @@ function computeEmotionalVisualParams(traits) {
   const disc = extractTraitScore(traits.discipline);
   const res = extractTraitScore(traits.resilience);
   const vit = extractTraitScore(traits.vitality);
+  // Social Connectedness & Purpose Alignment default to a neutral 50 when a
+  // trait set does not carry them (e.g. the legacy avatarTraits path), so the
+  // avatar simply reads neutral rather than shifting.
+  const soc = extractTraitScore(traits.socialConnectedness);
+  const pur = extractTraitScore(traits.purposeAlignment);
 
   const rawTension = 1 - emo / 100;
   const facialTension = clamp(rawTension * rawTension * 1.15, 0, 1);
@@ -44,7 +49,18 @@ function computeEmotionalVisualParams(traits) {
     vibrancy: clamp(vit / 100, 0, 1),
     energyGlow: clamp((vit * 0.6 + res * 0.4) / 100, 0, 1),
     facialTension,
-    postureLean
+    postureLean,
+    // Facial expressiveness — lifted / bright vs flat, from stability + vitality.
+    facialBrightness: clamp((emo * 0.5 + vit * 0.5) / 100, 0, 1),
+    // Social Connectedness channels — warmth, eye softness, face openness, glow warmth.
+    expressionWarmth: clamp(soc / 100, 0, 1),
+    eyeSoftness: clamp((soc * 0.6 + emo * 0.4) / 100, 0, 1),
+    faceOpenness: clamp((soc * 0.7 + conf * 0.3) / 100, 0, 1),
+    glowWarmth: clamp(soc / 100, 0, 1),
+    // Purpose Alignment channels — centeredness, steadiness, aura stability.
+    centeredness: clamp(pur / 100, 0, 1),
+    steadiness: clamp((pur * 0.7 + emo * 0.3) / 100, 0, 1),
+    auraStability: clamp((pur * 0.6 + res * 0.4) / 100, 0, 1)
   };
 }
 
@@ -59,10 +75,11 @@ function buildBodyParams(physicalScore, emotionalParams, gender, skinTone) {
   const raw = {
     gender: g,
     ...blended,
-    postureLean: emotionalParams.postureLean,
-    energyGlow: emotionalParams.energyGlow,
-    facialTension: emotionalParams.facialTension,
-    vibrancy: emotionalParams.vibrancy,
+    // Spread the full emotional/expression param set (postureLean, energyGlow,
+    // facialTension, vibrancy plus the social/purpose/expression channels).
+    // normalizeParams keeps only whitelisted keys, filling neutral defaults for
+    // any the fallback path omits.
+    ...emotionalParams,
     skinTone: skinTone || null
   };
 
@@ -70,7 +87,35 @@ function buildBodyParams(physicalScore, emotionalParams, gender, skinTone) {
   return normalizeParams(constrained);
 }
 
-export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone, historyData) {
+// Display-only amplification of the visible Current→Future difference.
+// A modest, bounded multiplier is applied ONLY to the perceptual channels the
+// spec calls out (posture, shoulder alignment, facial brightness, facial
+// tension, energy glow, stance openness). The result is re-run through the body
+// constraint + normalize pipeline so nothing can escape its valid range and the
+// figure never becomes exaggerated.
+const AMPLIFY_MULTIPLIER = 1.3;
+const AMPLIFY_FIELDS = [
+  'postureLean',    // posture
+  'shoulderWidth',  // shoulder alignment
+  'vibrancy',       // facial brightness
+  'facialTension',  // facial tension
+  'energyGlow',     // energy glow
+  'chestSize'       // stance openness
+];
+
+function amplifyVisibleDelta(currentParams, futureParams) {
+  if (!currentParams || !futureParams) return futureParams;
+  const result = { ...futureParams };
+  for (const key of AMPLIFY_FIELDS) {
+    const cur = currentParams[key];
+    const fut = futureParams[key];
+    if (cur == null || fut == null) continue;
+    result[key] = cur + (fut - cur) * AMPLIFY_MULTIPLIER;
+  }
+  return normalizeParams(enforceBodyConstraints(result));
+}
+
+export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone, historyData, options = {}) {
   const g = gender === 'female' ? 'female' : 'male';
 
   const hasCurrentTraits = currentTraits && typeof currentTraits === 'object' &&
@@ -131,12 +176,15 @@ export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbac
       : physicalScore;
 
     const blendedPhysical = physicalScore + (projPhysical - physicalScore) * t;
-    const blendedEmotional = {
-      vibrancy: clamp(emotionalParams.vibrancy + (projEmotional.vibrancy - emotionalParams.vibrancy) * t, 0, 1),
-      energyGlow: clamp(emotionalParams.energyGlow + (projEmotional.energyGlow - emotionalParams.energyGlow) * t, 0, 1),
-      facialTension: clamp(emotionalParams.facialTension + (projEmotional.facialTension - emotionalParams.facialTension) * t, 0, 1),
-      postureLean: clamp(emotionalParams.postureLean + (projEmotional.postureLean - emotionalParams.postureLean) * t, -1, 1)
-    };
+    // Blend every emotional/expression channel (not just the original four) so
+    // the projected face/posture reflects social + purpose shifts too.
+    const blendedEmotional = {};
+    for (const key of Object.keys(emotionalParams)) {
+      const curVal = emotionalParams[key] ?? 0.5;
+      const projVal = projEmotional[key] ?? curVal;
+      const min = key === 'postureLean' ? -1 : 0;
+      blendedEmotional[key] = clamp(curVal + (projVal - curVal) * t, min, 1);
+    }
 
     const currentParams = buildBodyParams(physicalScore, emotionalParams, g, skinTone);
     const projectedParams = buildBodyParams(blendedPhysical, blendedEmotional, g, skinTone);
@@ -147,13 +195,21 @@ export function mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbac
     let scaledParams = applyConfidenceScaling(currentParams, projectedParams, confidence);
     scaledParams = applyDeltaVisibilityFloor(currentParams, scaledParams, physicalDelta, emotionalDelta, confidence);
 
+    // Display-only contrast amplification — used exclusively by the side-by-side
+    // Current Me vs Future Me comparison. Does not touch trait scores, projection
+    // math, or stored data; it only pushes the already-computed render params a
+    // little further from Current Me so the difference reads more clearly.
+    if (options.amplifyContrast) {
+      scaledParams = amplifyVisibleDelta(currentParams, scaledParams);
+    }
+
     return scaledParams;
   }
 
   return buildBodyParams(physicalScore, emotionalParams, g, skinTone);
 }
 
-export function mapFromAvatarEffects(avatarEffects, avatarTraits, gender, skinTone) {
+export function mapFromAvatarEffects(avatarEffects, avatarTraits, gender, skinTone, iteResult = null) {
   const fallbackMetrics = {
     activity: avatarEffects?.activityScore ?? 3,
     nutrition: avatarEffects?.nutritionScore ?? 3,
@@ -172,12 +228,19 @@ export function mapFromAvatarEffects(avatarEffects, avatarTraits, gender, skinTo
       discipline: avatarTraits.posture.score * 0.8 + (avatarTraits.auraPresence?.score || 50) * 0.2,
       resilience: (avatarTraits.glowEnergy.score + avatarTraits.posture.score) / 2
     };
+    // Enrich with social + purpose current scores when the ITE is available so
+    // warmth / openness / centeredness channels have real data to read. Purely
+    // additive display input — no scores are altered.
+    if (iteResult?.traits) {
+      currentTraits.socialConnectedness = iteResult.traits.socialConnectedness?.currentScore ?? 50;
+      currentTraits.purposeAlignment = iteResult.traits.purposeAlignment?.currentScore ?? 50;
+    }
   }
 
   return mapTraitsToAvatarParams(currentTraits, null, fallbackMetrics, gender, skinTone, null);
 }
 
-export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, skinTone, historyData) {
+export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, skinTone, historyData, options = {}) {
   const fallbackMetrics = {
     activity: avatarEffects?.activityScore ?? 3,
     nutrition: avatarEffects?.nutritionScore ?? 3,
@@ -196,6 +259,10 @@ export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteRe
       discipline: avatarTraits.posture.score * 0.8 + (avatarTraits.auraPresence?.score || 50) * 0.2,
       resilience: (avatarTraits.glowEnergy.score + avatarTraits.posture.score) / 2
     };
+    if (iteResult?.traits) {
+      currentTraits.socialConnectedness = iteResult.traits.socialConnectedness?.currentScore ?? 50;
+      currentTraits.purposeAlignment = iteResult.traits.purposeAlignment?.currentScore ?? 50;
+    }
   }
 
   let projectionTraits = null;
@@ -208,11 +275,13 @@ export function mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteRe
       emotionalStability: projData.emotionalStability ?? (traits.emotionalStability?.currentScore ?? 50),
       confidence: projData.confidence ?? (traits.confidence?.currentScore ?? 50),
       discipline: projData.discipline ?? (traits.discipline?.currentScore ?? 50),
-      resilience: projData.resilience ?? (traits.resilience?.currentScore ?? 50)
+      resilience: projData.resilience ?? (traits.resilience?.currentScore ?? 50),
+      socialConnectedness: projData.socialConnectedness ?? (traits.socialConnectedness?.currentScore ?? 50),
+      purposeAlignment: projData.purposeAlignment ?? (traits.purposeAlignment?.currentScore ?? 50)
     };
   }
 
-  return mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone, historyData);
+  return mapTraitsToAvatarParams(currentTraits, projectionTraits, fallbackMetrics, gender, skinTone, historyData, options);
 }
 
 export function computePhotoOverlayState(iteResult, isFuture, rawMetrics, postureLean) {

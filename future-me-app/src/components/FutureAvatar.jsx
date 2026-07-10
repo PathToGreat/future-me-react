@@ -34,7 +34,8 @@ export default function FutureAvatar({
   skinTone = null,
   hairStyle = null,
   hairColor = null,
-  defaultHabitCompletions = null
+  defaultHabitCompletions = null,
+  amplifyContrast = false
 }) {
   const [viewMode, setViewMode] = useState(VIEW_MODES.PHOTO);
   const hasImages = images && images.length > 0;
@@ -158,11 +159,11 @@ export default function FutureAvatar({
   const humanAvatarParams = useMemo(() => {
     if (!USE_HUMAN_AVATAR_V2) return null;
     const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
-    const params = mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, resolvedSkinTone, historyData);
+    const params = mapFromAvatarEffectsProjected(avatarEffects, avatarTraits, iteResult, gender, resolvedSkinTone, historyData, { amplifyContrast });
     params.hairStyle = resolvedHairStyle;
     params.hairColor = resolvedHairColor;
     return params;
-  }, [avatarEffects, avatarTraits, iteAdapter, gender, resolvedSkinTone, resolvedHairStyle, resolvedHairColor, historyData]);
+  }, [avatarEffects, avatarTraits, iteAdapter, gender, resolvedSkinTone, resolvedHairStyle, resolvedHairColor, historyData, amplifyContrast]);
 
   const photoOverlayState = useMemo(() => {
     const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;

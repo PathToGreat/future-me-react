@@ -436,8 +436,8 @@ export default function FutureLabScreen({ onBack }) {
           {/* Version A — SVG avatar */}
           <VersionCard
             id="A"
-            label="Current Avatar"
-            descriptor="SVG-based avatar driven by your logged metrics"
+            label="Trajectory Figure"
+            descriptor="Built from your logged patterns and identity traits"
             selected={selectedVersion === 'A'}
             onSelect={() => setSelectedVersion('A')}
           >
@@ -455,12 +455,8 @@ export default function FutureLabScreen({ onBack }) {
           {/* Version B — staged AI render */}
           <VersionCard
             id="B"
-            label="Experimental Render"
-            descriptor={
-              latestRender?.renderStatus === 'complete'
-                ? 'AI render — experimental output only'
-                : 'AI-generated image — tap to generate'
-            }
+            label="Experimental AI render"
+            descriptor="An experimental visualization based on your trajectory. Results may vary."
             selected={selectedVersion === 'B'}
             onSelect={() => setSelectedVersion('B')}
           >

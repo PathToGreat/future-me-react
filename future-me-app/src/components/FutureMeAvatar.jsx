@@ -146,11 +146,12 @@ export default function FutureMeAvatar({
 
   const humanAvatarParams = useMemo(() => {
     if (!USE_HUMAN_AVATAR_V2) return null;
-    const params = mapFromAvatarEffects(avatarEffects, avatarTraits, gender, resolvedSkinTone);
+    const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
+    const params = mapFromAvatarEffects(avatarEffects, avatarTraits, gender, resolvedSkinTone, iteResult);
     params.hairStyle = resolvedHairStyle;
     params.hairColor = resolvedHairColor;
     return params;
-  }, [avatarEffects, avatarTraits, gender, resolvedSkinTone, resolvedHairStyle, resolvedHairColor]);
+  }, [avatarEffects, avatarTraits, gender, resolvedSkinTone, resolvedHairStyle, resolvedHairColor, iteAdapter]);
 
   const photoOverlayState = useMemo(() => {
     const iteResult = iteAdapter.available ? iteAdapter.iteResult : null;
