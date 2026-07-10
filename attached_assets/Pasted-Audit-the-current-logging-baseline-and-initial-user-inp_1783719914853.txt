@@ -1,0 +1,280 @@
+Audit the current logging, baseline, and initial user input system so we can decide how to update it.
+
+Do not change code yet. This is a report only.
+
+Goal:
+I need a full breakdown of how the app currently collects user inputs, establishes a user baseline, stores daily logs, updates life zone scores, and feeds those values into the Identity Trajectory Engine, dashboard, habits, and avatar system.
+
+Focus especially on the relationship between:
+
+* initial onboarding / baseline inputs
+* Log Today’s Metrics
+* Health metrics
+* six life zone logs
+* dailyData
+* zoneLogs
+* history snapshots
+* identity traits
+* avatar / trajectory outputs
+
+---
+
+1. Identify all logging entry points
+
+Find every place where a user can enter or update personal data.
+
+Include:
+
+* onboarding / initial setup
+* Log Today’s Metrics
+* Health zone logging
+* Faith zone logging
+* Family zone logging
+* Community zone logging
+* Wealth zone logging
+* Social Emotional logging
+* habit completions
+* Future Lab inputs if relevant
+* profile/avatar/photo inputs if relevant
+
+For each entry point, explain:
+
+* component/file name
+* what questions or fields are collected
+* what scale is used
+* where the data is saved
+* whether it affects the dashboard
+* whether it affects the avatar
+* whether it affects identity traits
+* whether it affects zone scores
+
+---
+
+2. Audit “Log Today’s Metrics”
+
+Explain exactly how the current Log Today’s Metrics flow works.
+
+Answer:
+
+* what fields it currently asks
+* whether it duplicates Health logging
+* where it writes the data
+* whether it writes to dailyData, history, zoneLogs, or another path
+* how the dashboard reads it
+* how the avatar reads it
+* how it affects trait scoring
+* whether it creates or updates today’s history snapshot
+* whether it updates the user’s baseline or only daily state
+
+Identify any duplication, gaps, or unclear data paths.
+
+---
+
+3. Audit the six life zone logging system
+
+For each zone:
+
+* Health
+* Wealth
+* Faith
+* Family
+* Community
+* Social Emotional
+
+Explain:
+
+* what questions are asked
+* how the score is calculated
+* where the score is stored
+* how often it is expected to update
+* whether it has a last-updated timestamp
+* whether it contributes to identity traits
+* whether it contributes to avatar visual state
+* whether it contributes to dashboard insight/reflection
+
+Also identify whether any zone is currently too shallow, duplicated, or disconnected from the identity system.
+
+---
+
+4. Audit the baseline system
+
+Find where the user’s starting baseline is created.
+
+Answer:
+
+* what baseline fields exist
+* when baseline is created
+* whether baseline comes from onboarding, first daily log, zone logs, or profile setup
+* where baseline is stored
+* whether baseline updates over time or stays fixed
+* whether the app distinguishes baseline from current state
+* whether baseline affects projections
+* whether baseline affects Current Me vs Future Me
+* whether baseline affects avatar rendering
+
+If there is no true baseline system, say that clearly.
+
+---
+
+5. Audit history and trend data
+
+Explain how the app builds history over time.
+
+Include:
+
+* dailyData
+* history snapshots
+* zoneLogs
+* monthly insights
+* trajectory history
+* any derived history objects
+
+Answer:
+
+* what gets written daily
+* what is only derived on read
+* what gets stored permanently
+* what the ITE uses for velocity
+* what the dashboard uses for trends
+* what the avatar uses for Current Me / Future Me
+* whether missing days are handled correctly
+
+---
+
+6. Map input → trait flow
+
+Create a clear map showing how each user input affects identity traits.
+
+Use the current codebase.
+
+Example structure:
+
+Input:
+Sleep quality
+
+Feeds:
+dailyData.sleep → sourceMap.sleep → vitality/resilience/emotionalStability → avatar energy/posture/glow
+
+Do this for every currently used input, including:
+
+* sleep
+* nutrition
+* movement/activity
+* stress
+* habits
+* health zone
+* faith zone
+* family zone
+* community zone
+* wealth zone
+* social emotional zone
+
+Identify:
+
+* which traits each input affects
+* what weight it has if available
+* whether the mapping is direct, indirect, weak, or unused
+
+---
+
+7. Identify gaps in physical well-being logging
+
+Evaluate whether the current daily logging system captures the most important daily physical inputs.
+
+Compare the current fields against a more complete future-self physical trajectory model.
+
+Potential inputs to assess:
+
+* sleep duration
+* sleep quality
+* movement
+* strength training
+* mobility
+* nutrition quality
+* protein/whole-food adequacy
+* hydration/minerals
+* sunlight/outdoor time
+* stress load
+* recovery practices
+* energy level
+* pain/tension/body signal
+* alcohol/substance/recovery burden
+* late-night eating or digestion burden if relevant
+
+For each, state:
+
+* currently captured or not
+* where it could fit
+* whether it belongs in quick daily logging or deeper Health zone logging
+* whether it should influence avatar/traits
+
+---
+
+8. Identify duplication and confusion
+
+Specifically answer:
+
+* Is Log Today’s Metrics currently the same as Health metrics?
+* If yes, explain where the duplication happens.
+* Should daily metrics and Health zone metrics be separated?
+* What should daily metrics represent?
+* What should Health zone logging represent?
+* How should the app avoid asking the same thing twice?
+
+---
+
+9. Recommend an improved logging structure
+
+Do not implement yet.
+
+Recommend a cleaner structure for:
+
+A. Initial baseline
+What the user should answer at setup to create a meaningful starting point.
+
+B. Daily quick log
+What the user should answer daily in under 2 minutes.
+
+C. Zone check-ins
+What each life zone should capture periodically.
+
+D. Health detail check-in
+What should be separate from daily quick log.
+
+E. Habit completions
+How habits should supplement, not duplicate, daily logging.
+
+---
+
+10. Risk areas
+
+Identify anything that could harm trust or usefulness.
+
+Include:
+
+* shallow inputs producing overconfident outputs
+* duplicate logging causing frustration
+* baseline not being clear
+* dashboard using old data
+* avatar not matching user inputs
+* health claims becoming too medical
+* too many daily questions causing drop-off
+
+---
+
+11. Final recommendation
+
+End with a prioritized list of the top 5 changes you recommend making to the logging and baseline system.
+
+For each recommendation, include:
+
+* why it matters
+* what it would improve
+* whether it is a quick fix, medium change, or larger redesign
+* what files would likely need to change
+
+Important:
+Do not make code changes yet.
+Do not add fields yet.
+Do not rewrite scoring yet.
+This is only an audit and recommendation report so we can decide the next step carefully.

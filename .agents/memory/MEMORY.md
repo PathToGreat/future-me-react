@@ -1,3 +1,4 @@
 - [Scroll animations invisible in preview iframe](scroll-animations-visibility.md) — never use whileInView with initial opacity 0; observers don't fire in the canvas iframe, content stays hidden.
 - [Replicate models for Future Lab](replicate-future-lab-models.md) — flux-1.1-pro image_prompt ≠ identity preservation; use flux-kontext-pro (jpg/png only) for likeness; low-credit accounts throttle to 1 burst/min.
 - [Avatar render-param pipeline traps](avatar-render-param-pipeline.md) — new avatar params vanish unless whitelisted in every chokepoint (normalizeParams strips unknowns); contrast amplification must be opt-in or it leaks into Future Lab AI render.
+- [Logging, baseline & trait-system gotchas](logging-baseline-trait-system.md) — TWO live trait engines (avatarTraitEngine visual vs ITE identity); ITE baseline only covers vitality/resilience/emotionalStability (rest default 50); daily log duplicates Health zone; insights are health-only.
